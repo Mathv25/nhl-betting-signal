@@ -13,18 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Installer dependances
         run: pip install -r requirements.txt
-- name: Generer le signal
+
+      - name: Generer le signal
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
           GH_WORKFLOW_TOKEN: ${{ secrets.GH_WORKFLOW_TOKEN }}
         run: |
           cd src
           python signal.py
+
       - name: Commit et push
         run: |
           git config --global user.name "NHL Bot"
