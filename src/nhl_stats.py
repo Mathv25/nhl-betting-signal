@@ -12,7 +12,7 @@ import math
 NHL_API = "https://api-web.nhle.com/v1"
 
 SEASON = "20252026"
-GAME_TYPE = "2"
+GAME_TYPE = "2"  # saison régulière
 
 TEAM_ABBR = {
     "Anaheim Ducks": "ANA", "Boston Bruins": "BOS", "Buffalo Sabres": "BUF",
@@ -37,11 +37,15 @@ def _get(url: str, params: dict = None) -> Optional[dict]:
         r.raise_for_status()
         return r.json()
     except Exception as e:
-        print(f"  NHL API: {url} -> {e}")
+        print(f"  ⚠️  NHL API: {url} -> {e}")
         return None
 
 
+# ── Équipes ────────────────────────────────────────────────────────────────
+
 class TeamStats:
+    """Stats offensives et défensives d'une équipe pour la saison."""
+
     def __init__(self):
         self._cache = {}
 
@@ -56,11 +60,19 @@ class TeamStats:
 
         skaters = data.get("skaters", [])
         goalies = data.get("goalies", [])
+
+        # Calcul des totaux d'équipe
         gp = max(data.get("gamesPlayed", 1), 1)
 
+        # Buts pour/contre depuis standings si disponible
         standings = _get(f"{NHL_API}/standings/now")
         gf_pg = 3.1
         ga_pg = 3.1
+        pp_pct = 20.0
+        pk_pct = 80.0
+        shots_pg = 30.0
+        shots_ag = 30.0
+        b2b = False
 
         if standings:
             for s in standings.get("standings", []):
@@ -72,26 +84,34 @@ class TeamStats:
                     ga_pg = round(ga / sgp, 3)
                     break
 
+        # PP% et PK% depuis club-stats
         team_record = data.get("teamRecord", {})
-        pp_raw = team_record.get("powerPlayPct", 0.20)
-        pk_raw = team_record.get("penaltyKillPct", 0.80)
-        pp_pct = pp_raw * 100 if pp_raw < 1 else pp_raw
-        pk_pct = pk_raw * 100 if pk_raw < 1 else pk_raw
+        pp_pct = team_record.get("powerPlayPct", 20.0) * 100 if team_record.get("powerPlayPct", 0) < 1 else team_record.get("powerPlayPct", 20.0)
+        pk_pct = team_record.get("penaltyKillPct", 80.0) * 100 if team_record.get("penaltyKillPct", 0) < 1 else team_record.get("penaltyKillPct", 80.0)
 
+        # Shots pour/contre
         total_sf = sum(sk.get("shots", 0) for sk in skaters)
         shots_pg = round(total_sf / gp, 1) if gp > 0 else 30.0
+
+        # Save% gardien titulaire
         starter_sv_pct = self._starter_save_pct(goalies)
 
         result = {
-            "abbr": abbr, "gf_pg": gf_pg, "ga_pg": ga_pg,
-            "pp_pct": pp_pct, "pk_pct": pk_pct,
-            "shots_pg": shots_pg, "shots_ag": 30.0,
-            "starter_sv_pct": starter_sv_pct, "gp": gp,
+            "abbr": abbr,
+            "gf_pg": gf_pg,
+            "ga_pg": ga_pg,
+            "pp_pct": pp_pct,
+            "pk_pct": pk_pct,
+            "shots_pg": shots_pg,
+            "shots_ag": shots_ag,
+            "starter_sv_pct": starter_sv_pct,
+            "gp": gp,
         }
         self._cache[abbr] = result
         return result
 
     def _starter_save_pct(self, goalies: list) -> float:
+        """Retourne le save% du gardien ayant joué le plus de matchs."""
         if not goalies:
             return 0.910
         starter = max(goalies, key=lambda g: g.get("gamesPlayed", 0))
@@ -107,39 +127,60 @@ class TeamStats:
         }
 
 
+# ── Joueurs ────────────────────────────────────────────────────────────────
+
 class PlayerStats:
+    """Stats individuelles joueurs via gamelog NHL officiel."""
+
     def __init__(self):
         self._cache = {}
         self._roster_cache = {}
 
     def get_skater(self, player_name: str, team_name: str, n_games: int = 10) -> dict:
+        """
+        Retourne les stats moyennes sur les N derniers matchs pour un attaquant/défenseur.
+        """
         key = f"{player_name}_{team_name}"
         if key in self._cache:
             return self._cache[key]
+
         player_id = self._find_player_id(player_name, team_name)
         if not player_id:
-            return self._skater_defaults()
+            result = self._skater_defaults()
+            self._cache[key] = result
+            return result
+
         data = _get(f"{NHL_API}/player/{player_id}/game-log/{SEASON}/{GAME_TYPE}")
         if not data:
-            return self._skater_defaults()
+            result = self._skater_defaults()
+            self._cache[key] = result
+            return result
+
         logs = data.get("gameLog", [])[:n_games]
         if not logs:
-            return self._skater_defaults()
+            result = self._skater_defaults()
+            self._cache[key] = result
+            return result
+
+        # Pondération exponentielle — matchs récents comptent plus
         weights = [math.exp(-0.1 * i) for i in range(len(logs))]
         total_w = sum(weights)
+
         def wavg(field):
             return sum(logs[i].get(field, 0) * weights[i] for i in range(len(logs))) / total_w
+
         result = {
             "player_id": player_id,
             "shots_pg": round(wavg("shots"), 2),
             "goals_pg": round(wavg("goals"), 3),
             "assists_pg": round(wavg("assists"), 3),
             "points_pg": round(wavg("points"), 3),
-            "toi_pg": round(wavg("toi"), 2),
+            "toi_pg": round(wavg("toi"), 2),   # en secondes
             "hits_pg": round(wavg("hits"), 2),
             "blocks_pg": round(wavg("blockedShots"), 2),
             "pp_points_pg": round(wavg("powerPlayPoints"), 3),
             "n_games": len(logs),
+            # Ecart-type pour calibrer les props
             "shots_std": self._std([g.get("shots", 0) for g in logs]),
             "points_std": self._std([g.get("points", 0) for g in logs]),
         }
@@ -147,23 +188,38 @@ class PlayerStats:
         return result
 
     def get_goalie(self, player_name: str, team_name: str, n_games: int = 10) -> dict:
+        """Stats du gardien sur les N derniers matchs."""
         key = f"goalie_{player_name}_{team_name}"
         if key in self._cache:
             return self._cache[key]
+
         player_id = self._find_player_id(player_name, team_name)
         if not player_id:
-            return self._goalie_defaults()
+            result = self._goalie_defaults()
+            self._cache[key] = result
+            return result
+
         data = _get(f"{NHL_API}/player/{player_id}/game-log/{SEASON}/{GAME_TYPE}")
         if not data:
-            return self._goalie_defaults()
+            result = self._goalie_defaults()
+            self._cache[key] = result
+            return result
+
         logs = data.get("gameLog", [])[:n_games]
         if not logs:
-            return self._goalie_defaults()
+            result = self._goalie_defaults()
+            self._cache[key] = result
+            return result
+
         weights = [math.exp(-0.1 * i) for i in range(len(logs))]
         total_w = sum(weights)
+
         def wavg(field):
             return sum(logs[i].get(field, 0) * weights[i] for i in range(len(logs))) / total_w
+
         saves_list = [g.get("saves", 0) for g in logs]
+        sa_list = [g.get("shotsAgainst", 0) for g in logs]
+
         result = {
             "player_id": player_id,
             "saves_pg": round(wavg("saves"), 2),
@@ -177,17 +233,21 @@ class PlayerStats:
         return result
 
     def _find_player_id(self, name: str, team_name: str) -> Optional[int]:
+        """Trouve l'ID NHL d'un joueur via le roster de son équipe."""
         abbr = TEAM_ABBR.get(team_name, "")
         if not abbr:
             return None
+
         if abbr not in self._roster_cache:
             data = _get(f"{NHL_API}/roster/{abbr}/current")
             if data:
                 self._roster_cache[abbr] = data
             else:
                 return None
+
         roster = self._roster_cache[abbr]
         name_lower = name.lower().strip()
+
         for group in ["forwards", "defensemen", "goalies"]:
             for p in roster.get(group, []):
                 fn = p.get("firstName", {}).get("default", "")
@@ -222,18 +282,25 @@ class PlayerStats:
         }
 
 
+# ── Alignements & Gardien partant ─────────────────────────────────────────
+
 class LineupValidator:
+    """Valide les alignements et identifie le gardien partant."""
+
     def __init__(self):
         self._roster_cache = {}
         self._starter_cache = {}
 
     def get_active_players(self, team_name: str) -> set:
+        """Retourne les noms (lowercase) des joueurs actifs non blessés."""
         abbr = TEAM_ABBR.get(team_name, "")
         if not abbr or abbr in self._roster_cache:
             return self._roster_cache.get(abbr, set())
+
         data = _get(f"{NHL_API}/roster/{abbr}/current")
         if not data:
             return set()
+
         active = set()
         for group in ["forwards", "defensemen", "goalies"]:
             for p in data.get(group, []):
@@ -244,18 +311,27 @@ class LineupValidator:
                 full = f"{fn} {ln}".strip().lower()
                 if full:
                     active.add(full)
+
         self._roster_cache[abbr] = active
-        print(f"  Alignement {abbr}: {len(active)} joueurs actifs")
+        print(f"  ✅ Alignement {abbr}: {len(active)} joueurs actifs")
         return active
 
     def get_probable_starter(self, team_name: str) -> Optional[str]:
+        """
+        Identifie le gardien partant probable via:
+        1. /schedule aujourd'hui (startingGoalie si disponible)
+        2. Fallback: gardien avec plus de matchs cette saison
+        """
         from datetime import datetime
         import pytz
+
         abbr = TEAM_ABBR.get(team_name, "")
         if abbr in self._starter_cache:
             return self._starter_cache[abbr]
+
         today = datetime.now(pytz.timezone("America/Toronto")).strftime("%Y-%m-%d")
         schedule = _get(f"{NHL_API}/schedule/{today}")
+
         if schedule:
             for day in schedule.get("gameWeek", []):
                 for game in day.get("games", []):
@@ -269,7 +345,10 @@ class LineupValidator:
                                 name = f"{fn} {ln}".strip()
                                 if name:
                                     self._starter_cache[abbr] = name
+                                    print(f"  🥅 Gardien partant {abbr}: {name}")
                                     return name
+
+        # Fallback: gardien avec le plus de matchs
         roster = _get(f"{NHL_API}/roster/{abbr}/current")
         if roster:
             goalies = roster.get("goalies", [])
@@ -280,26 +359,32 @@ class LineupValidator:
                 name = f"{fn} {ln}".strip()
                 if name:
                     self._starter_cache[abbr] = name
+                    print(f"  🥅 Gardien partant {abbr} (fallback): {name}")
                     return name
+
         return None
 
     def is_back_to_back(self, team_name: str, game_date: str) -> bool:
-        from datetime import datetime, timedelta
+        """Vérifie si l'équipe joue en back-to-back."""
         abbr = TEAM_ABBR.get(team_name, "")
         if not abbr:
             return False
+
+        from datetime import datetime, timedelta
         try:
             dt = datetime.strptime(game_date, "%Y-%m-%d")
             yesterday = (dt - timedelta(days=1)).strftime("%Y-%m-%d")
         except Exception:
             return False
+
         data = _get(f"{NHL_API}/schedule/{yesterday}")
         if not data:
             return False
+
         for day in data.get("gameWeek", []):
             for game in day.get("games", []):
                 for side in ["homeTeam", "awayTeam"]:
                     if game.get(side, {}).get("abbrev") == abbr:
-                        print(f"  Back-to-back: {abbr}")
+                        print(f"  ⚠️  Back-to-back détecté: {abbr}")
                         return True
         return False
