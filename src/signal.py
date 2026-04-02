@@ -59,7 +59,7 @@ def main():
             print(f"  {game['away_team']} @ {game['home_team']}: {len(edges)} edge(s)")
 
     # 4. Analyse props joueurs (top 4 matchs par edge)
- time.sleep(15)
+    time.sleep(15)
     print("\nAnalyse des props joueurs (top matchs)...")
     top_games = sorted(signals, key=lambda s: len(s["edges"]), reverse=True)[:4]
     props_by_game = []
