@@ -44,7 +44,7 @@ DEF_FACTORS = {"elite":0.82,"good":0.93,"avg":1.0,"weak":1.12}
 
 
 def _get(url):
-    time.sleep(0.4)
+    time.sleep(1.2)
     try:
         r = requests.get(url, timeout=12)
         r.raise_for_status()
