@@ -33,6 +33,7 @@ def main():
     calc     = EdgeCalculator()
     reporter = ReportGenerator()
     props_an = PropsAnalyzer()
+    props_an._roster_cache = checker._active_cache
 
     # 1. Cotes DraftKings
     print("\nRecuperation des cotes DraftKings NHL...")
