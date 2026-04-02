@@ -18,7 +18,7 @@ from typing import Optional
 
 BASE_URL  = "https://api.the-odds-api.com/v4"
 SPORT     = "icehockey_nhl"
-BOOKMAKER = "bet365"
+BOOKMAKER = "draftkings"
 REGIONS   = "us"
 FMT_ODDS  = "decimal"
 FMT_DATE  = "iso"
