@@ -3,7 +3,7 @@ NHL Betting Signal - Script principal
 Bookmaker: DraftKings (reference) / bet365 (verification manuelle)
 """
 
-import json, os, sys
+import json, os, sys, time
 from datetime import datetime, timezone
 import pytz
 
@@ -34,6 +34,7 @@ def main():
     reporter = ReportGenerator()
     reporter.gh_token = os.environ.get("GH_WORKFLOW_TOKEN", "")
     props_an = PropsAnalyzer()
+    props_an._roster_cache = checker._active_cache
 
     # 1. Cotes DraftKings
     print("\nRecuperation des cotes DraftKings NHL...")
@@ -58,6 +59,7 @@ def main():
             print(f"  {game['away_team']} @ {game['home_team']}: {len(edges)} edge(s)")
 
     # 4. Analyse props joueurs (top 4 matchs par edge)
+ time.sleep(15)
     print("\nAnalyse des props joueurs (top matchs)...")
     top_games = sorted(signals, key=lambda s: len(s["edges"]), reverse=True)[:4]
     props_by_game = []
