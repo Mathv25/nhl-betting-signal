@@ -60,9 +60,12 @@ class ReportGenerator:
             "</body></html>",
         ]
 
+        gh_token = getattr(self, "gh_token", "")
+        html_content = "\n".join(parts).replace("GH_TOKEN_PLACEHOLDER", gh_token)
+
         os.makedirs("docs", exist_ok=True)
         with open("docs/index.html","w",encoding="utf-8") as f:
-            f.write("\n".join(parts))
+            f.write(html_content)
         print("  docs/index.html genere")
 
     def _nav(self):
@@ -73,7 +76,9 @@ class ReportGenerator:
             "<button class=\"tab active\" onclick=\"showTab('signal',this)\">Signal du jour</button>"
             "<button class=\"tab\" onclick=\"showTab('props',this)\">Analyse joueurs</button>"
             "<button class=\"tab\" onclick=\"showTab('calc',this)\">Calculateur</button>"
-            "</div></div></nav>"
+            "</div>"
+            "<button class=\"refresh-btn\" onclick=\"triggerRefresh()\" id=\"refresh-btn\">Refresh</button>"
+            "</div></nav>"
         )
 
     def _bet_cards(self, value_bets):
@@ -259,6 +264,10 @@ class ReportGenerator:
             "display:flex;justify-content:space-between;align-items:center}"
             ".nav-title{font-size:15px;font-weight:500}"
             ".nav-tabs{display:flex;gap:6px}"
+            ".refresh-btn{padding:6px 14px;border-radius:var(--rs);border:.5px solid var(--b);"
+            "font-size:13px;cursor:pointer;background:transparent;color:var(--m)}"
+            ".refresh-btn:hover{background:var(--bg);color:var(--t)}"
+            ".refresh-btn.loading{opacity:.5;cursor:not-allowed}"
             ".tab{padding:6px 14px;border-radius:var(--rs);border:.5px solid var(--b);"
             "font-size:13px;cursor:pointer;background:transparent;color:var(--m)}"
             ".tab.active{background:var(--bg);color:var(--t);font-weight:500}"
@@ -363,6 +372,31 @@ class ReportGenerator:
     def _script(self):
         return (
             "<script>"
+            "function triggerRefresh(){"
+            "var btn=document.getElementById('refresh-btn');"
+            "btn.textContent='En cours...';"
+            "btn.classList.add('loading');"
+            "btn.disabled=true;"
+            "fetch('https://api.github.com/repos/Mathv25/nhl-betting-signal/actions/workflows/daily_signal.yml/dispatches',{"
+            "method:'POST',"
+            "headers:{'Accept':'application/vnd.github.v3+json',"
+            "'Content-Type':'application/json',"
+            "'Authorization':'token GH_TOKEN_PLACEHOLDER'},"
+            "body:JSON.stringify({ref:'main'})"
+            "}).then(function(r){"
+            "if(r.status===204){"
+            "btn.textContent='Lance! (~30s)';"
+            "setTimeout(function(){window.location.reload();},35000);"
+            "}else{"
+            "btn.textContent='Erreur';"
+            "btn.disabled=false;"
+            "btn.classList.remove('loading');"
+            "}"
+            "}).catch(function(){"
+            "btn.textContent='Erreur reseau';"
+            "btn.disabled=false;"
+            "btn.classList.remove('loading');"
+            "});}"
             "function showTab(id,btn){"
             "['signal','props','calc'].forEach(function(t){document.getElementById('tab-'+t).style.display=t===id?'block':'none';});"
             "document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});"
