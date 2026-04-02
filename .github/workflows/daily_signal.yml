@@ -1,5 +1,4 @@
-
-name: NHL Betting Signal — Quotidien
+name: NHL Betting Signal
 
 on:
   schedule:
@@ -14,25 +13,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Installer dependances
         run: pip install -r requirements.txt
-
-      - name: Generer le signal NHL
+      - name: Generer le signal
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: |
           cd src
           python signal.py
-
       - name: Commit et push
         run: |
-          git config --global user.name "NHL Signal Bot"
-          git config --global user.email "signal@nhl-betting.local"
+          git config --global user.name "NHL Bot"
+          git config --global user.email "bot@nhl.local"
           git add docs/
-          git diff --staged --quiet || git commit -m "Signal NHL $(date +'%Y-%m-%d')"
+          git diff --staged --quiet || git commit -m "Signal $(date +'%Y-%m-%d')"
           git push
