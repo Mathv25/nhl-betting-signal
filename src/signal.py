@@ -2,22 +2,18 @@
 NHL Betting Signal - Script principal
 Bookmaker: DraftKings (reference) / bet365 (verification manuelle)
 """
-
 import json, os, sys, time
 from datetime import datetime, timezone
 import pytz
-
 from odds_fetcher import OddsFetcher
 from lineup_checker import LineupChecker
 from edge_calculator import EdgeCalculator
 from report_generator import ReportGenerator
 from props_analyzer import PropsAnalyzer
 
-
 def main():
     tz     = pytz.timezone("America/Toronto")
     now_et = datetime.now(tz)
-
     print("=" * 65)
     print("NHL BETTING SIGNAL")
     print(now_et.strftime("%A %d %B %Y, %H:%M ET"))
@@ -46,6 +42,7 @@ def main():
     # 2. Validation alignements
     print("\nValidation des alignements NHL.com...")
     games = checker.validate_players(games)
+    props_an._roster_cache = checker._roster_cache
 
     # 3. Calcul des edges
     print("\nCalcul des edges...")
@@ -95,7 +92,6 @@ def main():
     reporter.generate_html(output)
     print("\nTermine -> docs/index.html + docs/signal.json")
     print("=" * 65)
-
 
 if __name__ == "__main__":
     main()
