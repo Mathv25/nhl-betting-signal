@@ -33,7 +33,6 @@ def main():
     calc     = EdgeCalculator()
     reporter = ReportGenerator()
     props_an = PropsAnalyzer()
-    props_an._roster_cache = checker._active_cache
 
     # 1. Cotes DraftKings
     print("\nRecuperation des cotes DraftKings NHL...")
@@ -70,12 +69,12 @@ def main():
         except Exception as e:
             print(f"  Props erreur {g['home_team']}: {e}")
 
-    # 5. Value bets tries
+    # 5. Value bets tries - seulement edge >= 5%, max 10 bets
     value_bets = sorted(
-        [e for s in signals for e in s["edges"]],
+        [e for s in signals for e in s["edges"] if e["edge_pct"] >= 5.0],
         key=lambda x: x["edge_pct"], reverse=True
-    )
-    print(f"\n{len(value_bets)} bet(s) avec edge >= 3%")
+    )[:10]
+    print(f"\n{len(value_bets)} bet(s) avec edge >= 5% (top 10)")
 
     # 6. Output
     output = {
