@@ -113,6 +113,10 @@ class PropsAnalyzer:
         props = [p for p in props if p is not None]
         props.sort(key=lambda x: x["shots_pg_adj"], reverse=True)
 
+        # Seulement les joueurs avec vraie opportunite
+        props = [p for p in props if p["shots_over_pct"] >= 58 or p["pts_over_pct"] >= 62]
+        props = props[:6]
+
         return {
             "home_team":   home_team,
             "away_team":   away_team,
