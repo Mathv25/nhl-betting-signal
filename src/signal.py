@@ -53,16 +53,17 @@ def main():
         if edges:
             print(f"  {game['away_team']} @ {game['home_team']}: {len(edges)} edge(s)")
 
-    # 4. Analyse props joueurs (top 4 matchs par edge)
+    # 4. Analyse props joueurs (top 8 matchs par edge)
     time.sleep(15)
     print("\nAnalyse des props joueurs (top matchs)...")
-    top_games = sorted(signals, key=lambda s: len(s["edges"]), reverse=True)[:4]
+    top_games = sorted(signals, key=lambda s: len(s["edges"]), reverse=True)[:8]
     props_by_game = []
     for s in top_games:
         g = s["game"]
         try:
             analysis = props_an.analyze_game(g["home_team"], g["away_team"])
-            props_by_game.append(analysis)
+            if analysis.get("bets"):
+                props_by_game.append(analysis)
         except Exception as e:
             print(f"  Props erreur {g['home_team']}: {e}")
 
