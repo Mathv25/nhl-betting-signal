@@ -27,6 +27,7 @@ TEAM_ABBR = {
     "Utah Mammoth":"UTA","Vancouver Canucks":"VAN","Vegas Golden Knights":"VGK",
     "Washington Capitals":"WSH","Winnipeg Jets":"WPG",
 }
+
 # Rang defensif par equipe - shots accordes/match (saison courante)
 DEF_SHOTS_ALLOWED = {
     "Carolina Hurricanes":   26.1, "Boston Bruins":         27.0,
@@ -185,17 +186,39 @@ class PropsAnalyzer:
         home_def = DEF_QUALITY.get(home_team, "avg")
         away_def = DEF_QUALITY.get(away_team, "avg")
 
-        props = []
-        for p in home_players:
-            prop = self._build_prop(p, away_team, home_team)
-            if prop:
-                props.append(prop)
-        for p in away_players:
-            prop = self._build_prop(p, home_team, away_team)
-            if prop:
-                props.append(prop)
+        def best_props(players, opponent, team, n=3):
+            """Top N joueurs par equipe avec valeur reelle seulement."""
+            built = []
+            for p in players:
+                prop = self._build_prop(p, opponent, team)
+                if not prop:
+                    continue
+                # Garde seulement si au moins 1 stat a de la valeur
+                has_value = (
+                    prop["shots_over_pct"] >= 58 or
+                    prop["goals_over_pct"] >= 58 or
+                    prop["points_over_pct"] >= 65
+                )
+                if has_value:
+                    built.append(prop)
+            built.sort(key=lambda x: max(
+                x["shots_over_pct"],
+                x["goals_over_pct"],
+                x["points_over_pct"]
+            ), reverse=True)
+            return built[:n]
 
-        props.sort(key=lambda x: x["shots_over_pct"], reverse=True)
+        home_props = best_props(home_players, away_team, home_team, n=3)
+        away_props = best_props(away_players, home_team, away_team, n=3)
+
+        # Merge et trie par meilleure stat, max 5 au total
+        props = home_props + away_props
+        props.sort(key=lambda x: max(
+            x["shots_over_pct"],
+            x["goals_over_pct"],
+            x["points_over_pct"]
+        ), reverse=True)
+        props = props[:5]
 
         return {
             "home_team":   home_team,
@@ -208,7 +231,7 @@ class PropsAnalyzer:
             "away_def_shots": DEF_SHOTS_ALLOWED.get(away_team, LEAGUE_AVG_SHOTS),
             "home_def_ga":    DEF_GA_ALLOWED.get(home_team, LEAGUE_AVG_GA),
             "away_def_ga":    DEF_GA_ALLOWED.get(away_team, LEAGUE_AVG_GA),
-            "props":       props[:10],
+            "props":       props,
         }
 
     def _build_prop(self, player: dict, opponent: str, playing_for: str) -> Optional[dict]:
@@ -418,10 +441,12 @@ class PropsAnalyzer:
                        else logs[i].get(field, 0) * weights[i]
                        for i in range(len(logs))) / total_w
 
-        sv_pct = wavg("savePctg")
-        saves  = wavg("saves")
         sa     = wavg("shotsAgainst")
-        gaa    = (sa - saves) / max((wavg("toi") / 3600), 0.01)
+        ga     = wavg("goalsAgainst")
+        saves  = sa - ga
+        sv_pct = saves / max(sa, 1)
+        toi_h  = wavg("toi") / 3600
+        gaa    = ga / max(toi_h, 0.01)
 
         return {
             "name":     fn + " " + ln,
