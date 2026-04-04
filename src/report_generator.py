@@ -275,49 +275,53 @@ class ReportGenerator:
                         elif avg5 < spg * 0.85:
                             shots_trend = " ❄️ " + str(avg5) + "/m last 5"
 
+                    # Meilleur bet = stat avec la plus haute probabilite
+                    bets = sorted([
+                        (sopc, "Over " + str(sln) + " shots",  str(sopc) + "%", pct_color(sopc)),
+                        (gopc, "Over 0.5 buts",                str(gopc) + "%", pct_color(gopc)),
+                        (popc, "Over 0.5 points",              str(popc) + "%", pct_color(popc)),
+                    ], key=lambda x: x[0], reverse=True)
+                    top = bets[0]
+
                     html += (
                         "<div class=\"pc\">"
+
+                        # Header joueur
                         "<div class=\"pch\">"
-                        "<div>"
-                        "<span class=\"pname\">" + name + "</span>"
-                        "<span class=\"ppos\">" + pos + "</span>"
+                        "<div><span class=\"pname\">" + name + "</span><span class=\"ppos\">" + pos + "</span></div>"
+                        "<div class=\"pteam\">" + team[:3].upper() + " vs " + opp[:3].upper() + " · TOI " + toi + "</div>"
                         "</div>"
-                        "<div class=\"pteam\">" + team[:3].upper() + " vs " + opp[:3].upper() + " · TOI " + toi + " (" + str(ng) + "m)</div>"
+
+                        # Bet recommande en gros
+                        "<div class=\"pbet\" style=\"border-color:" + top[3] + "\">"
+                        "<span class=\"pbet-tag\">📌 BET</span>"
+                        "<span class=\"pbet-main\" style=\"color:" + top[3] + "\">" + top[1] + "</span>"
+                        "<span class=\"pbet-prob\">" + top[2] + " de probabilite</span>"
                         "</div>"
+
+                        # Stats contexte
                         "<div class=\"pstats\">"
 
                         "<div class=\"pstat\">"
-                        "<div class=\"pstat-title\">🎯 Shots on Goal</div>"
-                        "<div class=\"pstat-row\">"
-                        "<span>Moy 10m: <strong>" + str(spg) + "</strong>" + shots_trend + "</span>"
-                        "<span>Adj vs DEF: <strong>" + str(sadj) + "</strong></span>"
-                        "<span>Last 5: <strong>" + str(l5s) + " shots</strong></span>"
+                        "<div class=\"pstat-title\">🎯 Shots</div>"
+                        "<div class=\"pstat-row\"><span>Moy: <strong>" + str(spg) + "</strong>" + shots_trend + "</span>"
+                        "<span>Adj DEF: <strong>" + str(sadj) + "</strong> · L5: <strong>" + str(l5s) + "</strong></span></div>"
+                        "<div style=\"color:" + pct_color(sopc) + ";font-weight:600\">Over " + str(sln) + " → " + str(sopc) + "%</div>"
                         "</div>"
-                        "<div class=\"pstat-rec\" style=\"color:" + pct_color(sopc) + "\">"
-                        + rec(sopc, sln) + " &nbsp;·&nbsp; " + str(sopc) + "% prob"
-                        "</div></div>"
 
                         "<div class=\"pstat\">"
                         "<div class=\"pstat-title\">🚨 Buts</div>"
-                        "<div class=\"pstat-row\">"
-                        "<span>Moy 10m: <strong>" + str(round(gpg, 2)) + "</strong></span>"
-                        "<span>Adj vs DEF: <strong>" + str(round(gadj, 2)) + "</strong></span>"
-                        "<span>Last 5: <strong>" + str(l5g) + " buts</strong></span>"
+                        "<div class=\"pstat-row\"><span>Moy: <strong>" + str(round(gpg, 2)) + "</strong></span>"
+                        "<span>Adj DEF: <strong>" + str(round(gadj, 2)) + "</strong> · L5: <strong>" + str(l5g) + "</strong></span></div>"
+                        "<div style=\"color:" + pct_color(gopc) + ";font-weight:600\">Over 0.5 → " + str(gopc) + "%</div>"
                         "</div>"
-                        "<div class=\"pstat-rec\" style=\"color:" + pct_color(gopc) + "\">"
-                        + rec(gopc, 0.5) + " &nbsp;·&nbsp; " + str(gopc) + "% prob"
-                        "</div></div>"
 
                         "<div class=\"pstat\">"
                         "<div class=\"pstat-title\">📊 Points</div>"
-                        "<div class=\"pstat-row\">"
-                        "<span>Moy 10m: <strong>" + str(round(ppg, 2)) + "</strong></span>"
-                        "<span>Adj vs DEF: <strong>" + str(round(padj, 2)) + "</strong></span>"
-                        "<span>Last 5: <strong>" + str(l5p) + " pts</strong></span>"
+                        "<div class=\"pstat-row\"><span>Moy: <strong>" + str(round(ppg, 2)) + "</strong></span>"
+                        "<span>Adj DEF: <strong>" + str(round(padj, 2)) + "</strong> · L5: <strong>" + str(l5p) + "</strong></span></div>"
+                        "<div style=\"color:" + pct_color(popc) + ";font-weight:600\">Over 0.5 → " + str(popc) + "%</div>"
                         "</div>"
-                        "<div class=\"pstat-rec\" style=\"color:" + pct_color(popc) + "\">"
-                        + rec(popc, 0.5) + " &nbsp;·&nbsp; " + str(popc) + "% prob"
-                        "</div></div>"
 
                         "</div>"
                         "<div class=\"preason\">💡 " + reason + "</div>"
@@ -480,6 +484,10 @@ class ReportGenerator:
             ".pstat-row{font-size:11px;color:var(--m);display:flex;flex-direction:column;gap:2px;margin-bottom:.4rem}"
             ".pstat-row strong{color:var(--t)}"
             ".pstat-rec{font-size:12px;font-weight:600}"
+            ".pbet{display:flex;align-items:center;gap:10px;background:var(--s);border:.5px solid;border-radius:8px;padding:.6rem .9rem;margin-bottom:.75rem;flex-wrap:wrap}"
+            ".pbet-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--m);white-space:nowrap}"
+            ".pbet-main{font-size:16px;font-weight:700;flex:1}"
+            ".pbet-prob{font-size:12px;color:var(--m);white-space:nowrap}"
             ".preason{font-size:11px;color:var(--m);background:var(--s);border:.5px solid var(--b);border-radius:4px;padding:.4rem .6rem;line-height:1.5}"
             "@media(max-width:600px){"
             ".pstats{grid-template-columns:1fr}"
