@@ -42,7 +42,7 @@ def main():
     # 2. Validation alignements
     print("\nValidation des alignements NHL.com...")
     games = checker.validate_players(games)
-    props_an._roster_cache = checker._starter_cache
+    props_an._roster_cache = checker._roster_cache
 
     # 3. Calcul des edges
     print("\nCalcul des edges...")
