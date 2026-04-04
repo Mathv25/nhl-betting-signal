@@ -4,7 +4,6 @@ Lineup Checker — Validation des alignements via NHL.com officiel
 - Confirme le gardien partant
 - Détecte les back-to-back
 """
-
 import requests
 from typing import Optional
 
@@ -38,32 +37,22 @@ def _get(url: str) -> Optional[dict]:
 
 
 class LineupChecker:
-
     def __init__(self):
-        self._active_cache  = {}
+        self._active_cache  = {}   # abbr -> set of lowercase player names
+        self._roster_cache  = {}   # abbr -> full roster dict (partagé avec PropsAnalyzer)
         self._starter_cache = {}
 
     def validate_players(self, games: list) -> list:
-        """
-        Pour chaque match:
-        1. Récupère les joueurs actifs des deux équipes
-        2. Retire les props sur joueurs absents/blessés
-        3. Log les retraits
-        """
         for game in games:
             home = game["home_team"]
             away = game["away_team"]
-
             active = (
                 self._get_active(home) |
                 self._get_active(away)
             )
-
             if not active:
-                # Si l'API NHL est down, on garde toutes les props
                 print(f"  ⚠️  Impossible de valider l'alignement — toutes les props conservées")
                 continue
-
             valid, removed = [], []
             for prop in game["markets"].get("player_props", []):
                 name = prop.get("player", "").strip()
@@ -72,13 +61,10 @@ class LineupChecker:
                 else:
                     removed.append(name)
                     print(f"  ❌ Prop retirée: {name} (absent/scratch/blessé)")
-
             game["markets"]["player_props"] = valid
             game["removed_props"] = removed
-
             if removed:
                 print(f"  → {len(removed)} prop(s) retirée(s) pour {home} vs {away}")
-
         return games
 
     def _get_active(self, team_name: str) -> set:
@@ -92,13 +78,16 @@ class LineupChecker:
         if not data:
             return set()
 
+        # Sauvegarde le roster complet pour PropsAnalyzer
+        self._roster_cache[abbr] = data
+
         active = set()
         for group in ["forwards", "defensemen", "goalies"]:
             for p in data.get(group, []):
                 if p.get("injuryStatus") in INJURY_STATUSES:
                     continue
                 fn = p.get("firstName", {}).get("default", "")
-                ln = p.get("lastName", {}).get("default", "")
+                ln = p.get("lastName",  {}).get("default", "")
                 full = f"{fn} {ln}".strip().lower()
                 if full:
                     active.add(full)
