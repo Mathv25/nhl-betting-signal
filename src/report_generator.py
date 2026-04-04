@@ -60,8 +60,8 @@ class ReportGenerator:
             "</body></html>",
         ]
 
-        os.makedirs("docs", exist_ok=True)
-        with open("docs/index.html", "w", encoding="utf-8") as f:
+        os.makedirs("../docs", exist_ok=True)
+        with open("../docs/index.html", "w", encoding="utf-8") as f:
             f.write("".join(parts))
         print("  docs/index.html genere")
 
@@ -501,6 +501,6 @@ class ReportGenerator:
             "props_analysis":   [],
         }
         self.generate_html(data)
-        os.makedirs("docs", exist_ok=True)
-        with open("docs/signal.json", "w") as f:
+        os.makedirs("../docs", exist_ok=True)
+        with open("../docs/signal.json", "w") as f:
             json.dump({"date": "", "games": [], "value_bets": []}, f)
