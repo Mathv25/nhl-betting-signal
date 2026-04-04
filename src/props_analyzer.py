@@ -330,8 +330,17 @@ class PropsAnalyzer:
         weights = [math.exp(-0.1 * i) for i in range(len(logs))]
         total_w = sum(weights)
 
+        def parse_toi(val):
+            if isinstance(val, str) and ":" in val:
+                parts = val.split(":")
+                return int(parts[0]) * 60 + int(parts[1])
+            return float(val) if val else 0.0
+
         def wavg(field):
-            return sum(logs[i].get(field, 0) * weights[i] for i in range(len(logs))) / total_w
+            return sum(parse_toi(logs[i].get(field, 0)) * weights[i]
+                       if field == "toi"
+                       else logs[i].get(field, 0) * weights[i]
+                       for i in range(len(logs))) / total_w
 
         # Stats last 5 (non ponderees - pour tendance)
         last5 = logs[:5]
@@ -392,8 +401,17 @@ class PropsAnalyzer:
         weights = [math.exp(-0.1 * i) for i in range(len(logs))]
         total_w = sum(weights)
 
+        def parse_toi_g(val):
+            if isinstance(val, str) and ":" in val:
+                p = val.split(":")
+                return int(p[0]) * 60 + int(p[1])
+            return float(val) if val else 0.0
+
         def wavg(field):
-            return sum(logs[i].get(field, 0) * weights[i] for i in range(len(logs))) / total_w
+            return sum(parse_toi_g(logs[i].get(field, 0)) * weights[i]
+                       if field == "toi"
+                       else logs[i].get(field, 0) * weights[i]
+                       for i in range(len(logs))) / total_w
 
         sv_pct = wavg("savePctg")
         saves  = wavg("saves")
