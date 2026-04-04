@@ -188,7 +188,7 @@ class ReportGenerator:
             away  = analysis.get("away_team", "")
             hg    = analysis.get("home_goalie", {})
             ag    = analysis.get("away_goalie", {})
-            props = analysis.get("props", [])
+            bets  = analysis.get("bets", [])
             hdef  = analysis.get("home_def", "avg")
             adef  = analysis.get("away_def", "avg")
             hshots = analysis.get("home_def_shots", 31.0)
@@ -205,10 +205,10 @@ class ReportGenerator:
                 "<div class=\"pm\">" + away + " @ " + home + "</div>"
                 "<div class=\"pd\">"
                 "<span class=\"db\" style=\"color:" + hdef_color + ";border-color:" + hdef_color + "\">"
-                "DEF " + home[:3].upper() + ": " + hdef_label + " · " + str(hshots) + " shots/m · " + str(hga) + " but/m"
+                "DEF " + home[:3].upper() + ": " + hdef_label + " · " + str(hshots) + " shots/m · " + str(hga) + " GA/m"
                 "</span>"
                 "<span class=\"db\" style=\"color:" + adef_color + ";border-color:" + adef_color + "\">"
-                "DEF " + away[:3].upper() + ": " + adef_label + " · " + str(ashots) + " shots/m · " + str(aga) + " but/m"
+                "DEF " + away[:3].upper() + ": " + adef_label + " · " + str(ashots) + " shots/m · " + str(aga) + " GA/m"
                 "</span>"
                 "</div></div>"
             )
@@ -232,106 +232,60 @@ class ReportGenerator:
             if goalie_html:
                 html += "<div class=\"gr\">" + goalie_html + "</div>"
 
-            # Cards joueurs
-            if props:
-                html += "<div class=\"pcards\">"
-                for p in props:
-                    name   = p.get("name", "")
-                    pos    = p.get("position", "")
-                    team   = p.get("team", "")
-                    opp    = p.get("opponent", "")
-                    toi    = p.get("toi", "--")
-                    ng     = p.get("n_games", 0)
-                    reason = p.get("reason", "")
-                    spg    = p.get("shots_pg", 0)
-                    sadj   = p.get("shots_pg_adj", 0)
-                    sln    = p.get("shots_line", 0)
-                    sopc   = p.get("shots_over_pct", 0)
-                    l5s    = p.get("last5_shots", 0)
-                    gpg    = p.get("goals_pg", 0)
-                    gadj   = p.get("goals_pg_adj", 0)
-                    gopc   = p.get("goals_over_pct", 0)
-                    l5g    = p.get("last5_goals", 0)
-                    ppg    = p.get("points_pg", 0)
-                    padj   = p.get("points_pg_adj", 0)
-                    popc   = p.get("points_over_pct", 0)
-                    l5p    = p.get("last5_points", 0)
+            # Bets +EV
+            if bets:
+                html += "<div class=\"bets-list\">"
+                for b in bets:
+                    edge = b.get("edge_pct", 0)
+                    prob = b.get("our_prob", 0)
+                    kelly = b.get("kelly", 0)
+                    market = b.get("market", "")
+                    name = b.get("name", "")
+                    pos  = b.get("position", "")
+                    team = b.get("team", "")
+                    opp  = b.get("opponent", "")
+                    toi  = b.get("toi", "--")
+                    ctx  = b.get("context", "")
+                    l5   = b.get("last5", "")
+                    avg  = b.get("avg", "")
+                    dk_odds = b.get("dk_odds", "-115")
+                    dk_impl = b.get("dk_implied", 52.4)
 
-                    def pct_color(v):
-                        if v >= 70: return "#0F6E56"
-                        if v >= 58: return "#BA7517"
-                        return "#6B7280"
-
-                    def rec(v, line):
-                        if v >= 70: return "OVER " + str(line) + " ✅"
-                        if v >= 58: return "OVER " + str(line) + " ⚠️"
-                        return "— skip"
-
-                    shots_trend = ""
-                    if ng >= 5:
-                        avg5 = round(l5s / 5, 1)
-                        if avg5 > spg * 1.1:
-                            shots_trend = " 🔥 " + str(avg5) + "/m last 5"
-                        elif avg5 < spg * 0.85:
-                            shots_trend = " ❄️ " + str(avg5) + "/m last 5"
-
-                    # Meilleur bet = stat avec la plus haute probabilite
-                    bets = sorted([
-                        (sopc, "Over " + str(sln) + " shots",  str(sopc) + "%", pct_color(sopc)),
-                        (gopc, "Over 0.5 buts",                str(gopc) + "%", pct_color(gopc)),
-                        (popc, "Over 0.5 points",              str(popc) + "%", pct_color(popc)),
-                    ], key=lambda x: x[0], reverse=True)
-                    top = bets[0]
+                    ec = "#0F6E56" if edge >= 15 else "#BA7517"
+                    eb = "#E1F5EE" if edge >= 15 else "#FAEEDA"
+                    verdict = "🔥 FORT" if edge >= 15 else "✅ BON"
 
                     html += (
-                        "<div class=\"pc\">"
-
-                        # Header joueur
-                        "<div class=\"pch\">"
-                        "<div><span class=\"pname\">" + name + "</span><span class=\"ppos\">" + pos + "</span></div>"
-                        "<div class=\"pteam\">" + team[:3].upper() + " vs " + opp[:3].upper() + " · TOI " + toi + "</div>"
+                        "<div class=\"bet-row\">"
+                        "<div class=\"bet-left\">"
+                        "<div class=\"bet-player\">"
+                        "<span class=\"bet-name\">" + name + "</span>"
+                        "<span class=\"bet-pos\">" + pos + "</span>"
+                        "<span class=\"bet-team\">" + team[:3].upper() + " vs " + opp[:3].upper() + " · " + toi + "</span>"
                         "</div>"
-
-                        # Bet recommande en gros
-                        "<div class=\"pbet\" style=\"border-color:" + top[3] + "\">"
-                        "<span class=\"pbet-tag\">📌 BET</span>"
-                        "<span class=\"pbet-main\" style=\"color:" + top[3] + "\">" + top[1] + "</span>"
-                        "<span class=\"pbet-prob\">" + top[2] + " de probabilite</span>"
+                        "<div class=\"bet-market\">" + market + "</div>"
+                        "<div class=\"bet-ctx\">" + ctx + " · " + avg + " · " + l5 + "</div>"
                         "</div>"
-
-                        # Stats contexte
-                        "<div class=\"pstats\">"
-
-                        "<div class=\"pstat\">"
-                        "<div class=\"pstat-title\">🎯 Shots</div>"
-                        "<div class=\"pstat-row\"><span>Moy: <strong>" + str(spg) + "</strong>" + shots_trend + "</span>"
-                        "<span>Adj DEF: <strong>" + str(sadj) + "</strong> · L5: <strong>" + str(l5s) + "</strong></span></div>"
-                        "<div style=\"color:" + pct_color(sopc) + ";font-weight:600\">Over " + str(sln) + " → " + str(sopc) + "%</div>"
+                        "<div class=\"bet-right\">"
+                        "<div class=\"bet-badge\" style=\"background:" + eb + ";color:" + ec + "\">" + verdict + "</div>"
+                        "<div class=\"bet-odds\">"
+                        "<div><span class=\"bo-label\">DK</span><span class=\"bo-val\">" + dk_odds + "</span></div>"
+                        "<div><span class=\"bo-label\">Notre prob</span><span class=\"bo-val\" style=\"color:" + ec + "\">" + str(prob) + "%</span></div>"
+                        "<div><span class=\"bo-label\">DK implied</span><span class=\"bo-val\">" + str(dk_impl) + "%</span></div>"
+                        "<div><span class=\"bo-label\">Edge</span><span class=\"bo-val\" style=\"color:" + ec + ";font-weight:700\">+" + str(edge) + "%</span></div>"
+                        "<div><span class=\"bo-label\">1/4 Kelly</span><span class=\"bo-val\">" + str(kelly) + "% BR</span></div>"
                         "</div>"
-
-                        "<div class=\"pstat\">"
-                        "<div class=\"pstat-title\">🚨 Buts</div>"
-                        "<div class=\"pstat-row\"><span>Moy: <strong>" + str(round(gpg, 2)) + "</strong></span>"
-                        "<span>Adj DEF: <strong>" + str(round(gadj, 2)) + "</strong> · L5: <strong>" + str(l5g) + "</strong></span></div>"
-                        "<div style=\"color:" + pct_color(gopc) + ";font-weight:600\">Over 0.5 → " + str(gopc) + "%</div>"
                         "</div>"
-
-                        "<div class=\"pstat\">"
-                        "<div class=\"pstat-title\">📊 Points</div>"
-                        "<div class=\"pstat-row\"><span>Moy: <strong>" + str(round(ppg, 2)) + "</strong></span>"
-                        "<span>Adj DEF: <strong>" + str(round(padj, 2)) + "</strong> · L5: <strong>" + str(l5p) + "</strong></span></div>"
-                        "<div style=\"color:" + pct_color(popc) + ";font-weight:600\">Over 0.5 → " + str(popc) + "%</div>"
-                        "</div>"
-
-                        "</div>"
-                        "<div class=\"preason\">💡 " + reason + "</div>"
                         "</div>"
                     )
                 html += "</div>"
+            else:
+                html += "<div class=\"no-bets\">Aucun bet +EV identifie pour ce match (edge < 8%).</div>"
 
             html += "</div>"
 
         return html
+
 
     def _calculator(self):
         return (
@@ -462,6 +416,20 @@ class ReportGenerator:
             ".disc{font-size:11px;color:var(--m);margin-top:2rem;padding-top:1rem;border-top:.5px solid var(--b);line-height:1.7}"
             ".upd{font-size:11px;color:var(--m);text-align:right;margin-top:.5rem}"
             "/* PROPS JOUEURS */"
+            ".bets-list{display:flex;flex-direction:column;gap:.5rem}"
+            ".bet-row{display:flex;justify-content:space-between;align-items:stretch;background:var(--bg);border:.5px solid var(--b);border-radius:var(--rs);padding:.875rem 1rem;gap:1rem;flex-wrap:wrap}"
+            ".bet-left{flex:1;min-width:200px;display:flex;flex-direction:column;gap:4px}"
+            ".bet-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:140px}"
+            ".bet-player{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px}"
+            ".bet-name{font-size:15px;font-weight:700}"
+            ".bet-pos{font-size:11px;color:var(--m);background:var(--s);padding:2px 5px;border-radius:4px;border:.5px solid var(--b)}"
+            ".bet-team{font-size:11px;color:var(--m)}"
+            ".bet-market{font-size:14px;font-weight:600;color:var(--t)}"
+            ".bet-ctx{font-size:11px;color:var(--m);line-height:1.5}"
+            ".bet-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.03em}"
+            ".bet-odds{display:flex;flex-direction:column;gap:3px;text-align:right}"
+            ".bo-label{font-size:10px;color:var(--m);margin-right:4px}"
+            ".bo-val{font-size:13px;font-weight:600}"
             ".pg{background:var(--s);border:.5px solid var(--b);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem}"
             ".ph{margin-bottom:1rem}"
             ".pm{font-size:16px;font-weight:600;margin-bottom:.5rem}"
