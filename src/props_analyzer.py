@@ -308,6 +308,7 @@ class PropsAnalyzer:
                     stats["position"] = pos
                     players.append(stats)
 
+        print(f"    -> {team_name}: {len(players)} joueurs avec stats")
         players.sort(key=lambda x: x.get("points_pg", 0), reverse=True)
         return players[:top_n]
 
@@ -320,10 +321,13 @@ class PropsAnalyzer:
 
         data = _get(f"{NHL_API}/player/{player_id}/game-log/{SEASON}/{GAME_TYPE}")
         if not data:
+            print(f"    -> {name}: pas de data")
             return None
 
         logs = data.get("gameLog", [])[:10]
         if not logs:
+            all_keys = list(data.keys()) if data else []
+            print(f"    -> {name}: gameLog vide (keys: {all_keys})")
             return None
 
         # Ponderation exponentielle (match recent = plus de poids)
