@@ -27,6 +27,10 @@ AWAY_FACTOR    = 0.945  # Désavantage visiteur offensif
 B2B_FACTOR     = 0.92   # Pénalité back-to-back
 KELLY_DIVISOR  = 4      # Quart-Kelly pour limiter la variance
 
+# Plafonds réalistes pour puck line -1.5 (gagner par 2+ buts)
+MAX_PROB_MINUS_1_5 = 0.42   # Même le meilleur favori ne couvre -1.5 à plus de 42%
+MAX_PROB_PLUS_1_5  = 0.85   # +1.5 ne dépasse pas 85%
+
 
 class EdgeCalculator:
 
@@ -155,7 +159,7 @@ class EdgeCalculator:
             m = market.get(side)
             if not m:
                 continue
-            spread = m.get("spread", -1.5)
+            spread = m.get("spread", -1.5 if side == "home" else 1.5)
             prob = self._spread_prob(lh, la, spread, side)
             e = self._edge(prob, m["implied_prob"] / 100, m["odds_decimal"])
             if e:
@@ -198,10 +202,6 @@ class EdgeCalculator:
     # ── 1ère période ───────────────────────────────────────────────────────
 
     def _first_period_ml(self, market, lh, la, label):
-        """
-        En NHL, ~33% des buts marqués en 1ère période.
-        Lambda 1P = lambda_total * 0.33
-        """
         edges = []
         lh1 = lh * 0.33
         la1 = la * 0.33
@@ -249,77 +249,51 @@ class EdgeCalculator:
     # ── Props joueurs ──────────────────────────────────────────────────────
 
     def _player_prop_edges(self, props, home, away, home_goalie, away_goalie, label):
-        """
-        Pour chaque prop bet365 validée (joueur confirmé actif):
-        1. Fetch stats réelles joueur via NHL API
-        2. Calcul probabilité via distribution adaptée (Poisson pour buts/shots,
-           Normal pour saves, Binomial pour points)
-        3. Comparaison vs prob implicite b365
-        4. Edge si >= MIN_EDGE_PCT
-        """
         edges = []
-
         for prop in props:
-            player  = prop.get("player", "")
-            market  = prop.get("market", "")
+            player    = prop.get("player", "")
+            market    = prop.get("market", "")
             direction = prop.get("direction", "").lower()
-            line    = prop.get("line")
+            line      = prop.get("line")
             b365_odds = prop.get("odds_decimal", 0)
             b365_impl = prop.get("implied_prob", 0)
 
             if not player or line is None:
                 continue
 
-            # Détermine l'équipe du joueur
-            team = self._find_player_team(player, home, away)
+            team     = self._find_player_team(player, home, away)
             opponent = away if team == home else home
-
-            # Fetch stats selon le type de marché
             our_prob = None
 
-            if market in ("player_shots_on_goal",):
-                stats = self.player_stats.get_skater(player, team)
-                our_prob = self._shots_prob(
-                    stats["shots_pg"], stats["shots_std"], line, direction
-                )
-                note = f"Moy. {stats['shots_pg']} shots/match ({stats['n_games']} derniers matchs)"
+            if market == "player_shots_on_goal":
+                stats    = self.player_stats.get_skater(player, team)
+                our_prob = self._shots_prob(stats["shots_pg"], stats["shots_std"], line, direction)
+                note     = f"Moy. {stats['shots_pg']} shots/match ({stats['n_games']} derniers matchs)"
 
-            elif market in ("player_goals",):
-                stats = self.player_stats.get_skater(player, team)
-                our_prob = self._goals_prob(
-                    stats["goals_pg"], line, direction
-                )
-                note = f"Moy. {stats['goals_pg']} buts/match"
+            elif market == "player_goals":
+                stats    = self.player_stats.get_skater(player, team)
+                our_prob = self._goals_prob(stats["goals_pg"], line, direction)
+                note     = f"Moy. {stats['goals_pg']} buts/match"
 
-            elif market in ("player_assists",):
-                stats = self.player_stats.get_skater(player, team)
-                our_prob = self._goals_prob(
-                    stats["assists_pg"], line, direction
-                )
-                note = f"Moy. {stats['assists_pg']} passes/match"
+            elif market == "player_assists":
+                stats    = self.player_stats.get_skater(player, team)
+                our_prob = self._goals_prob(stats["assists_pg"], line, direction)
+                note     = f"Moy. {stats['assists_pg']} passes/match"
 
-            elif market in ("player_points",):
-                stats = self.player_stats.get_skater(player, team)
-                our_prob = self._goals_prob(
-                    stats["points_pg"], line, direction
-                )
-                note = f"Moy. {stats['points_pg']} pts/match"
+            elif market == "player_points":
+                stats    = self.player_stats.get_skater(player, team)
+                our_prob = self._goals_prob(stats["points_pg"], line, direction)
+                note     = f"Moy. {stats['points_pg']} pts/match"
 
-            elif market in ("player_saves",):
-                # Pour les gardiens: calibré sur workload attendu
+            elif market == "player_saves":
                 goalie_name = home_goalie if team == home else away_goalie
-                g_name = goalie_name if goalie_name else player
-                stats = self.player_stats.get_goalie(g_name, team)
-
-                # Shots attendus de l'adversaire
-                opp_stats = self.team_stats.get(opponent)
+                g_name      = goalie_name if goalie_name else player
+                stats       = self.player_stats.get_goalie(g_name, team)
+                opp_stats   = self.team_stats.get(opponent)
                 expected_shots = opp_stats["shots_pg"]
                 expected_saves = expected_shots * stats["sv_pct"]
-
-                our_prob = self._saves_prob(
-                    expected_saves, stats["saves_std"], line, direction
-                )
-                note = f"Moy. {stats['saves_pg']} saves/match, sv% {stats['sv_pct']:.3f}"
+                our_prob = self._saves_prob(expected_saves, stats["saves_std"], line, direction)
+                note     = f"Moy. {stats['saves_pg']} saves/match, sv% {stats['sv_pct']:.3f}"
 
             else:
                 continue
@@ -331,22 +305,20 @@ class EdgeCalculator:
             if e:
                 market_label = {
                     "player_shots_on_goal": "Shots on goal",
-                    "player_goals": "Buts",
-                    "player_assists": "Passes",
-                    "player_points": "Points",
-                    "player_saves": "Saves gardien",
+                    "player_goals":         "Buts",
+                    "player_assists":       "Passes",
+                    "player_points":        "Points",
+                    "player_saves":         "Saves gardien",
                 }.get(market, market)
-
                 edges.append({**e,
                     "type": f"Prop — {market_label}",
-                    "bet": f"{player} {direction.capitalize()} {line}",
-                    "our_prob": round(our_prob * 100, 1),
+                    "bet":  f"{player} {direction.capitalize()} {line}",
+                    "our_prob":    round(our_prob * 100, 1),
                     "b365_implied": b365_impl,
-                    "b365_odds": b365_odds,
+                    "b365_odds":   b365_odds,
                     "game": label,
                     "note": note,
                 })
-
         return edges
 
     # ── Distributions probabilistes ────────────────────────────────────────
@@ -365,28 +337,48 @@ class EdgeCalculator:
                     p_tie += p
         return round(min(max(p_home + p_tie * 0.5, 0.05), 0.95), 4)
 
-    def _spread_prob(self, lh, la, spread, side) -> float:
+    def _spread_prob(self, lh: float, la: float, spread: float, side: str) -> float:
         """
-        P(team couvre le spread) via Poisson bivarié.
-        Spread typique: ±1.5 buts
-        home -1.5: couvre si home - away >= 2
-        away +1.5: couvre si home - away <= 1 (perd par 1 ou moins, ou gagne)
+        P(equipe couvre le spread) via Poisson bivarié.
+
+        diff = home_goals - away_goals (positif = victoire locale)
+
+        home -1.5 : home gagne par 2+  → diff >= 2
+        home +1.5 : home ne perd pas par 2+  → diff >= -1
+        away -1.5 : away gagne par 2+  → diff <= -2
+        away +1.5 : away ne perd pas par 2+  → diff <= 1
+
+        Plafonds réalistes appliqués après calcul.
         """
         p = 0.0
-        threshold = abs(spread)  # 1.5
-        for h in range(12):
+        for h in range(15):
             ph = self._pmf(lh, h)
-            for a in range(12):
+            for a in range(15):
                 pa = self._pmf(la, a)
                 diff = h - a
                 if side == "home":
-                    # home -1.5: gagner par 2+ buts
-                    if diff >= math.ceil(threshold):
-                        p += ph * pa
+                    if spread <= 0:
+                        # home -1.5 : gagner par ceil(|spread|) buts ou plus
+                        covers = diff >= math.ceil(abs(spread))
+                    else:
+                        # home +1.5 : ne pas perdre par ceil(spread) buts ou plus
+                        covers = diff >= -math.floor(spread)
                 else:
-                    # away +1.5: ne pas perdre par 2+ buts
-                    if diff <= math.floor(threshold):
-                        p += ph * pa
+                    if spread <= 0:
+                        # away -1.5 : away gagne par ceil(|spread|) buts ou plus
+                        covers = diff <= -math.ceil(abs(spread))
+                    else:
+                        # away +1.5 : ne pas perdre par ceil(spread) buts ou plus
+                        covers = diff <= math.floor(spread)
+                if covers:
+                    p += ph * pa
+
+        # Plafonds réalistes pour puck lines
+        if spread <= -1.0:
+            p = min(p, MAX_PROB_MINUS_1_5)
+        elif spread >= 1.0:
+            p = min(p, MAX_PROB_PLUS_1_5)
+
         return round(min(max(p, 0.05), 0.95), 4)
 
     def _total_prob(self, expected: float, line: float, direction: str) -> float:
@@ -396,25 +388,16 @@ class EdgeCalculator:
         return round(min(max(prob, 0.05), 0.95), 4)
 
     def _shots_prob(self, avg: float, std: float, line: float, direction: str) -> float:
-        """
-        P(joueur Over/Under X shots) via Poisson.
-        Les shots suivent bien une Poisson (entiers non-négatifs, indépendants).
-        """
         p_over = sum(self._pmf(avg, k) for k in range(int(line) + 1, 15))
         prob = p_over if direction == "over" else 1 - p_over
         return round(min(max(prob, 0.05), 0.95), 4)
 
     def _goals_prob(self, avg: float, line: float, direction: str) -> float:
-        """P(joueur Over/Under X buts/points/passes) via Poisson."""
         p_over = sum(self._pmf(avg, k) for k in range(int(line) + 1, 10))
         prob = p_over if direction == "over" else 1 - p_over
         return round(min(max(prob, 0.05), 0.95), 4)
 
     def _saves_prob(self, expected: float, std: float, line: float, direction: str) -> float:
-        """
-        P(gardien Over/Under X saves) via approximation Normale.
-        Les saves ont une distribution quasi-normale (grand nombre d'essais).
-        """
         if std <= 0:
             std = 4.5
         z = (line - expected) / std
@@ -426,10 +409,6 @@ class EdgeCalculator:
     # ── Edge & Kelly ───────────────────────────────────────────────────────
 
     def _edge(self, our_prob: float, b365_prob: float, b365_odds: float) -> Optional[dict]:
-        """
-        Edge = (our_prob - b365_prob) / b365_prob × 100
-        Kelly = (b × p - q) / b  →  divisé par KELLY_DIVISOR pour limiter variance
-        """
         if not (MIN_ODDS <= b365_odds <= MAX_ODDS) or b365_prob <= 0:
             return None
 
@@ -454,7 +433,6 @@ class EdgeCalculator:
     # ── Helpers ────────────────────────────────────────────────────────────
 
     def _find_player_team(self, player_name: str, home: str, away: str) -> str:
-        """Détermine l'équipe d'un joueur en cherchant dans les deux rosters."""
         home_active = self.lineup.get_active_players(home)
         if player_name.lower() in home_active:
             return home
@@ -472,7 +450,6 @@ class EdgeCalculator:
 
     @staticmethod
     def _normal_cdf(z: float) -> float:
-        """Approximation de la CDF normale standard (Abramowitz & Stegun)."""
         if z < -6:
             return 0.0
         if z > 6:
