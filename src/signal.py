@@ -1,15 +1,17 @@
 """
 NHL Betting Signal - Script principal
-Bookmaker: DraftKings (reference) / bet365 (verification manuelle)
+Bookmaker: bet365
 """
 import json, os, sys, time
 from datetime import datetime, timezone
 import pytz
 from odds_fetcher import OddsFetcher
 from lineup_checker import LineupChecker
+from lineup_fetcher import LineupFetcher
 from edge_calculator import EdgeCalculator
 from report_generator import ReportGenerator
 from props_analyzer import PropsAnalyzer
+
 
 def main():
     tz     = pytz.timezone("America/Toronto")
@@ -24,14 +26,16 @@ def main():
         print("ERREUR: Variable ODDS_API_KEY manquante.")
         sys.exit(1)
 
-    fetcher  = OddsFetcher(api_key)
-    checker  = LineupChecker()
-    calc     = EdgeCalculator()
-    reporter = ReportGenerator()
-    props_an = PropsAnalyzer()
+    fetcher    = OddsFetcher(api_key)
+    checker    = LineupChecker()
+    lf_fetcher = LineupFetcher()
+    calc       = EdgeCalculator()
+    reporter   = ReportGenerator()
+    props_an   = PropsAnalyzer()
+    props_an._lineup_fetcher = lf_fetcher
 
-    # 1. Cotes DraftKings
-    print("\nRecuperation des cotes DraftKings NHL...")
+    # 1. Cotes DraftKings / bet365
+    print("\nRecuperation des cotes NHL...")
     games = fetcher.get_nhl_games_b365()
     if not games:
         print("Aucun match NHL trouve.")
@@ -39,12 +43,22 @@ def main():
         sys.exit(0)
     print(f"{len(games)} match(s) trouve(s)")
 
-    # 2. Validation alignements
+    # 2. Validation alignements NHL.com
     print("\nValidation des alignements NHL.com...")
     games = checker.validate_players(games)
     props_an._roster_cache = checker._roster_cache
 
-    # 3. Calcul des edges
+    # 3. Line combos Daily Faceoff (PP1/PP2/lignes)
+    print("\nRecuperation des line combos Daily Faceoff...")
+    teams_today = set()
+    for game in games:
+        teams_today.add(game["home_team"])
+        teams_today.add(game["away_team"])
+    for team in sorted(teams_today):
+        lf_fetcher.get_lineup(team)
+        time.sleep(1.0)
+
+    # 4. Calcul des edges
     print("\nCalcul des edges...")
     signals = []
     for game in games:
@@ -53,8 +67,8 @@ def main():
         if edges:
             print(f"  {game['away_team']} @ {game['home_team']}: {len(edges)} edge(s)")
 
-    # 4. Analyse props joueurs (top 8 matchs par edge)
-    time.sleep(15)
+    # 5. Analyse props joueurs (top 8 matchs)
+    time.sleep(10)
     print("\nAnalyse des props joueurs (top matchs)...")
     top_games = sorted(signals, key=lambda s: len(s["edges"]), reverse=True)[:8]
     props_by_game = []
@@ -67,18 +81,18 @@ def main():
         except Exception as e:
             print(f"  Props erreur {g['home_team']}: {e}")
 
-    # 5. Value bets tries - seulement edge >= 5%, max 10 bets
+    # 6. Value bets — edge >= 5%, max 10
     value_bets = sorted(
         [e for s in signals for e in s["edges"] if e["edge_pct"] >= 5.0],
         key=lambda x: x["edge_pct"], reverse=True
     )[:10]
     print(f"\n{len(value_bets)} bet(s) avec edge >= 5% (top 10)")
 
-    # 6. Output
+    # 7. Output
     output = {
         "generated_at":     datetime.now(timezone.utc).isoformat(),
         "date":             now_et.strftime("%Y-%m-%d"),
-        "bookmaker":        "DraftKings",
+        "bookmaker":        "bet365",
         "total_games":      len(games),
         "total_value_bets": len(value_bets),
         "signals":          signals,
@@ -93,6 +107,7 @@ def main():
     reporter.generate_html(output)
     print("\nTermine -> docs/index.html + docs/signal.json")
     print("=" * 65)
+
 
 if __name__ == "__main__":
     main()
