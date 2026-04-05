@@ -175,13 +175,6 @@ class ReportGenerator:
         if not props_by_game:
             return "<div style='color:var(--m);padding:1rem 0;font-size:13px'>Aucune analyse joueurs disponible.</div>"
 
-        DEF_LABELS = {
-            "elite": ("Elite (top 4)",   "#0F6E56"),
-            "good":  ("Bonne (top 10)",  "#2563EB"),
-            "avg":   ("Moyenne",          "#6B7280"),
-            "weak":  ("Faible (bot 10)", "#B45309"),
-        }
-
         html = ""
         for analysis in props_by_game:
             home  = analysis.get("home_team", "")
@@ -189,100 +182,212 @@ class ReportGenerator:
             hg    = analysis.get("home_goalie", {})
             ag    = analysis.get("away_goalie", {})
             bets  = analysis.get("bets", [])
-            hdef  = analysis.get("home_def", "avg")
-            adef  = analysis.get("away_def", "avg")
             hshots = analysis.get("home_def_shots", 31.0)
             ashots = analysis.get("away_def_shots", 31.0)
             hga    = analysis.get("home_def_ga", 3.10)
             aga    = analysis.get("away_def_ga", 3.10)
+            hsr    = analysis.get("home_shots_rank", 16)
+            asr    = analysis.get("away_shots_rank", 16)
+            hgr    = analysis.get("home_ga_rank", 16)
+            agr    = analysis.get("away_ga_rank", 16)
 
-            hdef_label, hdef_color = DEF_LABELS.get(hdef, ("Moyenne", "#6B7280"))
-            adef_label, adef_color = DEF_LABELS.get(adef, ("Moyenne", "#6B7280"))
+            def rank_color(r):
+                if r <= 4:   return "#0F6E56"
+                if r <= 10:  return "#2563EB"
+                if r <= 22:  return "#6B7280"
+                return "#B45309"
 
+            def rank_label(r):
+                if r <= 4:   return "Elite"
+                if r <= 10:  return "Bonne"
+                if r <= 22:  return "Moyenne"
+                return "Faible"
+
+            # En-tete match
             html += (
-                "<div class=\"pg\">"
-                "<div class=\"ph\">"
-                "<div class=\"pm\">" + away + " @ " + home + "</div>"
-                "<div class=\"pd\">"
-                "<span class=\"db\" style=\"color:" + hdef_color + ";border-color:" + hdef_color + "\">"
-                "DEF " + home[:3].upper() + ": " + hdef_label + " · " + str(hshots) + " shots/m · " + str(hga) + " GA/m"
-                "</span>"
-                "<span class=\"db\" style=\"color:" + adef_color + ";border-color:" + adef_color + "\">"
-                "DEF " + away[:3].upper() + ": " + adef_label + " · " + str(ashots) + " shots/m · " + str(aga) + " GA/m"
-                "</span>"
-                "</div></div>"
+                "<div class='pg'>"
+                "<div class='ph'>"
+                "<div class='pm'><span class='pm-away'>" + away + "</span>"
+                " <span class='pm-at'>@</span> "
+                "<span class='pm-home'>" + home + "</span></div>"
+
+                "<div class='matchup-grid'>"
+
+                "<div class='matchup-col'>"
+                "<div class='mc-title'>DEF " + home[:3].upper() + "</div>"
+                "<div class='mc-stat'><span style='color:" + rank_color(hsr) + "'>" + rank_label(hsr) + " (#" + str(hsr) + ")</span> shots</div>"
+                "<div class='mc-stat'><span style='color:" + rank_color(hgr) + "'>" + rank_label(hgr) + " (#" + str(hgr) + ")</span> buts</div>"
+                "<div class='mc-val'><strong>" + str(hshots) + "</strong> shots/m accordes · <strong>" + str(hga) + "</strong> GA/m</div>"
+                "</div>"
+
+                "<div class='matchup-col'>"
+                "<div class='mc-title'>DEF " + away[:3].upper() + "</div>"
+                "<div class='mc-stat'><span style='color:" + rank_color(asr) + "'>" + rank_label(asr) + " (#" + str(asr) + ")</span> shots</div>"
+                "<div class='mc-stat'><span style='color:" + rank_color(agr) + "'>" + rank_label(agr) + " (#" + str(agr) + ")</span> buts</div>"
+                "<div class='mc-val'><strong>" + str(ashots) + "</strong> shots/m accordes · <strong>" + str(aga) + "</strong> GA/m</div>"
+                "</div>"
+
+                "<div class='matchup-col'>"
+                "<div class='mc-title'>Gardiens</div>"
             )
 
-            # Gardiens
-            goalie_html = ""
-            for g, label in [(hg, "DOM — " + home), (ag, "VIS — " + away)]:
+            for g, side in [(hg, "DOM"), (ag, "VIS")]:
                 if g.get("name"):
                     sv = g.get("sv_pct", 0)
-                    sv_color = "#0F6E56" if sv >= 0.915 else ("#B45309" if sv < 0.900 else "#6B7280")
-                    goalie_html += (
-                        "<div class=\"gb\">"
-                        "<div class=\"gbn\">" + label + "</div>"
-                        "<div class=\"gname\">" + g["name"] + "</div>"
-                        "<div class=\"gs\">"
-                        "<span>SV% <strong style=\"color:" + sv_color + "\">" + str(sv) + "</strong></span>"
-                        "<span>Saves/m <strong>" + str(g.get("saves_pg", "--")) + "</strong></span>"
-                        "<span>GAA <strong>" + str(g.get("gaa", "--")) + "</strong></span>"
-                        "</div></div>"
+                    sv_c = "#0F6E56" if sv >= 0.915 else ("#B45309" if sv < 0.900 else "#6B7280")
+                    html += (
+                        "<div class='mc-goalie'><span class='mc-side'>" + side + "</span> "
+                        "<strong>" + g["name"] + "</strong> "
+                        "<span style='color:" + sv_c + "'>SV% " + str(sv) + "</span> · "
+                        "GAA " + str(g.get("gaa", "--")) + "</div>"
                     )
-            if goalie_html:
-                html += "<div class=\"gr\">" + goalie_html + "</div>"
 
-            # Bets +EV
-            if bets:
-                html += "<div class=\"bets-list\">"
+            html += "</div></div></div>"
+
+            # Bets joueurs
+            if not bets:
+                html += "<div class='no-bets' style='margin:0 0 1rem'>Aucun bet +EV identifie (edge < 8%)</div>"
+            else:
+                html += "<div class='player-bets'>"
                 for b in bets:
-                    edge = b.get("edge_pct", 0)
-                    prob = b.get("our_prob", 0)
-                    kelly = b.get("kelly", 0)
-                    market = b.get("market", "")
-                    name = b.get("name", "")
-                    pos  = b.get("position", "")
-                    team = b.get("team", "")
-                    opp  = b.get("opponent", "")
-                    toi  = b.get("toi", "--")
-                    ctx  = b.get("context", "")
-                    l5   = b.get("last5", "")
-                    avg  = b.get("avg", "")
-                    dk_odds = b.get("dk_odds", "-115")
-                    dk_impl = b.get("dk_implied", 52.4)
+                    edge      = b.get("edge_pct", 0)
+                    prob      = b.get("our_prob", 0)
+                    kelly     = b.get("kelly", 0)
+                    market    = b.get("market", "")
+                    mdetail   = b.get("market_detail", "")
+                    name      = b.get("name", "")
+                    pos       = b.get("position", "")
+                    team      = b.get("team", "")
+                    opp       = b.get("opponent", "")
+                    toi       = b.get("toi", "--")
+                    notes     = b.get("context_notes", [])
+                    all_mkts  = b.get("all_markets", [])
+                    dk_impl   = b.get("dk_implied", 52.4)
+
+                    # Shots stats
+                    s_pg   = b.get("shots_pg", 0)
+                    s_adj  = b.get("shots_adj", 0)
+                    s_line = b.get("shots_line", 0)
+                    s_prob = b.get("shots_prob", 0)
+                    s_edge = b.get("shots_edge", 0)
+                    l5s    = b.get("last5_shots", 0)
+                    l10s   = b.get("last10_shots", 0)
+                    avg5s  = round(l5s / 5,  1)
+                    avg10s = round(l10s / 10, 1) if l10s else s_pg
+
+                    # Goals/points
+                    g_pg   = b.get("goals_pg", 0)
+                    g_adj  = b.get("goals_adj", 0)
+                    g_prob = b.get("goals_prob", 0)
+                    g_edge = b.get("goals_edge", 0)
+                    l5g    = b.get("last5_goals", 0)
+                    sg     = b.get("season_goals", 0)
+                    p_pg   = b.get("points_pg", 0)
+                    p_adj  = b.get("points_adj", 0)
+                    p_prob = b.get("points_prob", 0)
+                    p_edge = b.get("points_edge", 0)
+                    l5p    = b.get("last5_points", 0)
+                    sp     = b.get("season_points", 0)
+
+                    opp_sr = b.get("opp_shots_rank", 16)
+                    opp_gr = b.get("opp_ga_rank", 16)
 
                     ec = "#0F6E56" if edge >= 15 else "#BA7517"
                     eb = "#E1F5EE" if edge >= 15 else "#FAEEDA"
-                    verdict = "🔥 FORT" if edge >= 15 else "✅ BON"
+
+                    def pec(e):
+                        if e >= 15: return "#0F6E56"
+                        if e >= 8:  return "#BA7517"
+                        return "#9CA3AF"
 
                     html += (
-                        "<div class=\"bet-row\">"
-                        "<div class=\"bet-left\">"
-                        "<div class=\"bet-player\">"
-                        "<span class=\"bet-name\">" + name + "</span>"
-                        "<span class=\"bet-pos\">" + pos + "</span>"
-                        "<span class=\"bet-team\">" + team[:3].upper() + " vs " + opp[:3].upper() + " · " + toi + "</span>"
-                        "</div>"
-                        "<div class=\"bet-market\">" + market + "</div>"
-                        "<div class=\"bet-ctx\">" + ctx + " · " + avg + " · " + l5 + "</div>"
-                        "</div>"
-                        "<div class=\"bet-right\">"
-                        "<div class=\"bet-badge\" style=\"background:" + eb + ";color:" + ec + "\">" + verdict + "</div>"
-                        "<div class=\"bet-odds\">"
-                        "<div><span class=\"bo-label\">DK</span><span class=\"bo-val\">" + dk_odds + "</span></div>"
-                        "<div><span class=\"bo-label\">Notre prob</span><span class=\"bo-val\" style=\"color:" + ec + "\">" + str(prob) + "%</span></div>"
-                        "<div><span class=\"bo-label\">DK implied</span><span class=\"bo-val\">" + str(dk_impl) + "%</span></div>"
-                        "<div><span class=\"bo-label\">Edge</span><span class=\"bo-val\" style=\"color:" + ec + ";font-weight:700\">+" + str(edge) + "%</span></div>"
-                        "<div><span class=\"bo-label\">1/4 Kelly</span><span class=\"bo-val\">" + str(kelly) + "% BR</span></div>"
-                        "</div>"
-                        "</div>"
-                        "</div>"
-                    )
-                html += "</div>"
-            else:
-                html += "<div class=\"no-bets\">Aucun bet +EV identifie pour ce match (edge < 8%).</div>"
+                        "<div class='pb'>"
 
-            html += "</div>"
+                        # Header joueur
+                        "<div class='pb-head'>"
+                        "<div class='pb-info'>"
+                        "<span class='pb-name'>" + name + "</span>"
+                        "<span class='pb-pos'>" + pos + "</span>"
+                        "<span class='pb-team'>" + team[:3].upper() + " vs " + opp[:3].upper() + " · " + toi + " TOI</span>"
+                        "</div>"
+                        "<div class='pb-season'>" + str(sg) + " buts · " + str(sp) + " pts cette saison</div>"
+                        "</div>"
+
+                        # Bet principal
+                        "<div class='pb-main-bet' style='border-left-color:" + ec + "'>"
+                        "<div class='pbm-label'>📌 MEILLEUR BET</div>"
+                        "<div class='pbm-market' style='color:" + ec + "'>" + market + "</div>"
+                        "<div class='pbm-detail'>" + mdetail + "</div>"
+                        "<div class='pbm-odds'>"
+                        "<div class='pbm-odd'><span>DK</span><strong>-115</strong></div>"
+                        "<div class='pbm-odd'><span>Notre prob</span><strong style='color:" + ec + "'>" + str(prob) + "%</strong></div>"
+                        "<div class='pbm-odd'><span>DK implied</span><strong>" + str(dk_impl) + "%</strong></div>"
+                        "<div class='pbm-odd edge-highlight' style='background:" + eb + ";color:" + ec + "'>"
+                        "<span>Edge</span><strong>+" + str(edge) + "%</strong></div>"
+                        "<div class='pbm-odd'><span>1/4 Kelly</span><strong>" + str(kelly) + "% BR</strong></div>"
+                        "</div></div>"
+
+                        # Section shots (toujours affichee)
+                        "<div class='pb-shots'>"
+                        "<div class='pbs-title'>🎯 Shots on Goal</div>"
+                        "<div class='pbs-grid'>"
+                        "<div class='pbs-col'>"
+                        "<div class='pbs-stat'><span>Moy 10m (pond.)</span><strong>" + str(s_pg) + "</strong></div>"
+                        "<div class='pbs-stat'><span>Adj DEF adverse</span><strong>" + str(s_adj) + "</strong></div>"
+                        "<div class='pbs-stat'><span>Ligne DK estimee</span><strong>" + str(s_line) + "</strong></div>"
+                        "</div>"
+                        "<div class='pbs-col'>"
+                        "<div class='pbs-stat'><span>Last 5 (" + str(avg5s) + "/m)</span><strong>" + str(l5s) + " shots</strong></div>"
+                        "<div class='pbs-stat'><span>Last 10 (" + str(avg10s) + "/m)</span><strong>" + str(l10s) + " shots</strong></div>"
+                        "<div class='pbs-stat'><span>Prob Over " + str(s_line) + "</span>"
+                        "<strong style='color:" + pec(s_edge) + "'>" + str(s_prob) + "% (edge +" + str(s_edge) + "%)</strong></div>"
+                        "</div>"
+                        "<div class='pbs-col'>"
+                        "<div class='pbs-stat'><span>DEF adverse shots</span>"
+                        "<strong style='color:" + ("#B45309" if opp_sr >= 25 else "#0F6E56" if opp_sr <= 8 else "#6B7280") + "'>"
+                        "#" + str(opp_sr) + " ligue</strong></div>"
+                        "<div class='pbs-stat'><span>DEF adverse buts</span>"
+                        "<strong style='color:" + ("#B45309" if opp_gr >= 25 else "#0F6E56" if opp_gr <= 8 else "#6B7280") + "'>"
+                        "#" + str(opp_gr) + " ligue</strong></div>"
+                        "<div class='pbs-stat'><span>Buts saison</span><strong>" + str(sg) + " buts</strong></div>"
+                        "</div>"
+                        "</div>"
+
+                        # Autres stats
+                        "<div class='pbs-others'>"
+                        "<span>Buts: moy " + str(g_pg) + "/m · adj " + str(g_adj) + " · last5: " + str(l5g) + " · prob " + str(g_prob) + "% (edge +" + str(g_edge) + "%)</span>"
+                        " &nbsp;|&nbsp; "
+                        "<span>Pts: moy " + str(p_pg) + "/m · adj " + str(p_adj) + " · last5: " + str(l5p) + " · prob " + str(p_prob) + "% (edge +" + str(p_edge) + "%)</span>"
+                        "</div>"
+                        "</div>"
+
+                        # Contexte narratif
+                    )
+
+                    if notes:
+                        html += "<div class='pb-context'>"
+                        for note in notes:
+                            html += "<div class='pb-note'>" + note + "</div>"
+                        html += "</div>"
+
+                    # Autres marches +EV
+                    other_mkts = [m for m in all_mkts if m["label"] != market]
+                    if other_mkts:
+                        html += "<div class='pb-others-bets'>Autres bets +EV: "
+                        for m in other_mkts:
+                            mc = "#0F6E56" if m["edge"] >= 15 else "#BA7517"
+                            html += (
+                                "<span class='pb-other-bet' style='color:" + mc + "'>"
+                                + m["label"] + " (+" + str(m["edge"]) + "% edge · " + str(m["prob"]) + "% prob)"
+                                "</span> "
+                            )
+                        html += "</div>"
+
+                    html += "</div>"  # /pb
+
+                html += "</div>"  # /player-bets
+
+            html += "</div>"  # /pg
 
         return html
 
@@ -416,6 +521,42 @@ class ReportGenerator:
             ".disc{font-size:11px;color:var(--m);margin-top:2rem;padding-top:1rem;border-top:.5px solid var(--b);line-height:1.7}"
             ".upd{font-size:11px;color:var(--m);text-align:right;margin-top:.5rem}"
             "/* PROPS JOUEURS */"
+            ".matchup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:.75rem}"
+            ".matchup-col{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rs);padding:.75rem}"
+            ".mc-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--m);margin-bottom:.4rem}"
+            ".mc-stat{font-size:12px;margin-bottom:2px}"
+            ".mc-val{font-size:11px;color:var(--m);margin-top:4px}"
+            ".mc-goalie{font-size:12px;margin-bottom:3px}"
+            ".mc-side{font-size:10px;color:var(--m);font-weight:600;margin-right:4px}"
+            ".player-bets{display:flex;flex-direction:column;gap:.75rem;margin-top:.75rem}"
+            ".pb{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rs);overflow:hidden}"
+            ".pb-head{display:flex;justify-content:space-between;align-items:flex-start;padding:.75rem 1rem .5rem;flex-wrap:wrap;gap:4px}"
+            ".pb-info{display:flex;align-items:center;gap:6px;flex-wrap:wrap}"
+            ".pb-name{font-size:16px;font-weight:700}"
+            ".pb-pos{font-size:11px;color:var(--m);background:var(--s);padding:2px 6px;border-radius:4px;border:.5px solid var(--b)}"
+            ".pb-team{font-size:12px;color:var(--m)}"
+            ".pb-season{font-size:11px;color:var(--m)}"
+            ".pb-main-bet{border-left:3px solid;padding:.75rem 1rem;background:var(--s);margin:.25rem 0}"
+            ".pbm-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--m);margin-bottom:3px}"
+            ".pbm-market{font-size:17px;font-weight:700;margin-bottom:3px}"
+            ".pbm-detail{font-size:12px;color:var(--m);margin-bottom:.6rem}"
+            ".pbm-odds{display:flex;gap:8px;flex-wrap:wrap}"
+            ".pbm-odd{display:flex;flex-direction:column;gap:2px;background:var(--bg);border-radius:6px;padding:5px 10px;min-width:80px}"
+            ".pbm-odd span{font-size:10px;color:var(--m)}"
+            ".pbm-odd strong{font-size:14px;font-weight:700}"
+            ".edge-highlight{border:.5px solid currentColor}"
+            ".pb-shots{padding:.75rem 1rem;border-top:.5px solid var(--b)}"
+            ".pbs-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--m);margin-bottom:.5rem}"
+            ".pbs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.5rem}"
+            ".pbs-col{display:flex;flex-direction:column;gap:3px}"
+            ".pbs-stat{font-size:11px;color:var(--m);display:flex;flex-direction:column}"
+            ".pbs-stat strong{font-size:13px;font-weight:600;color:var(--t)}"
+            ".pbs-others{font-size:11px;color:var(--m);padding-top:.4rem;border-top:.5px solid var(--b)}"
+            ".pb-context{padding:.6rem 1rem;background:var(--s);border-top:.5px solid var(--b);display:flex;flex-direction:column;gap:4px}"
+            ".pb-note{font-size:12px;color:var(--t)}"
+            ".pb-others-bets{padding:.5rem 1rem;font-size:12px;color:var(--m);border-top:.5px solid var(--b)}"
+            ".pb-other-bet{font-weight:600;margin-right:8px}"
+            "@media(max-width:600px){.matchup-grid{grid-template-columns:1fr}.pbs-grid{grid-template-columns:1fr}.pbm-odds{gap:6px}}"
             ".bets-list{display:flex;flex-direction:column;gap:.5rem}"
             ".bet-row{display:flex;justify-content:space-between;align-items:stretch;background:var(--bg);border:.5px solid var(--b);border-radius:var(--rs);padding:.875rem 1rem;gap:1rem;flex-wrap:wrap}"
             ".bet-left{flex:1;min-width:200px;display:flex;flex-direction:column;gap:4px}"
