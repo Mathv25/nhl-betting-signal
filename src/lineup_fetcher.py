@@ -262,12 +262,8 @@ class LineupFetcher:
     def _extract_sections(self, html: str) -> dict:
         """
         Extrait les noms de joueurs par section depuis le HTML Daily Faceoff.
+        Cherche les liens /players/news/ groupes par section.
         """
-        sections = {}
-        current_section = None
-
-        # On cherche les titres de sections et les liens joueurs
-        # Pattern titre: texte standalone suivi de joueurs
         section_titles = [
             "Forwards",
             "Defensive Pairings",
@@ -279,49 +275,49 @@ class LineupFetcher:
             "Injuries",
         ]
 
-        # Extrait les liens joueurs depuis le HTML
-        # Format: href="/players/news/player-name/ID">Display Name</a>
-        player_pattern = re.compile(
-            r'href="/players/news/[^"]+/\d+"[^>]*>\s*([^<]+?)\s*</a>',
+        sections = {t: [] for t in section_titles}
+
+        # Pattern joueur: href="/players/news/slug/id">Nom</a>
+        player_re = re.compile(
+            r'href="/players/news/[^"/]+/\d+">([^<]{3,40})</a>',
             re.IGNORECASE
         )
 
-        # Extrait les sections depuis le HTML via les titres
+        # Detection des sections par position dans le HTML
+        positions = []
         for title in section_titles:
-            # Cherche le titre dans le HTML
-            escaped = re.escape(title)
-            # Match le titre comme texte standalone
-            title_match = re.search(
-                r'(?<=>)\s*' + escaped + r'\s*(?=<)',
-                html
-            )
-            if title_match:
-                sections[title] = []
-
-        # Parse le HTML ligne par ligne pour assigner les joueurs aux sections
-        lines = html.split('\n')
-        current = None
-
-        for line in lines:
-            # Detecte changement de section
-            for title in section_titles:
-                if f">{title}<" in line or f">{title} <" in line:
-                    current = title
-                    if current not in sections:
-                        sections[current] = []
+            for pattern in [f'>{title}<', f'">{title}<', f' {title}<']:
+                idx = html.find(pattern)
+                if idx >= 0:
+                    positions.append((idx, title))
                     break
 
-            # Extrait joueur si on est dans une section
-            if current:
-                for match in player_pattern.finditer(line):
-                    name = match.group(1).strip()
-                    # Filtre les noms trop courts ou qui sont des titres
-                    if len(name) > 3 and name not in section_titles:
-                        if current not in sections:
-                            sections[current] = []
-                        # Evite les doublons dans la meme section
-                        if name not in sections[current]:
-                            sections[current].append(name)
+        positions.sort()
+
+        if not positions:
+            # Fallback: essaie de tout extraire en ordre
+            all_names = player_re.findall(html)
+            all_names = [n.strip() for n in all_names if len(n.strip()) > 3]
+            # Assigne aux forwards par defaut (12 premiers)
+            sections["Forwards"] = all_names[:12]
+            sections["Defensive Pairings"] = all_names[12:18]
+            sections["Goalies"] = all_names[18:20]
+            return sections
+
+        # Extrait joueurs pour chaque section
+        for i, (pos, title) in enumerate(positions):
+            end = positions[i+1][0] if i+1 < len(positions) else pos + 5000
+            segment = html[pos:end]
+            names = []
+            for name in player_re.findall(segment):
+                name = name.strip()
+                if (len(name) >= 3 and
+                        name not in section_titles and
+                        "Faceoff" not in name and
+                        "Copyright" not in name and
+                        name not in names):
+                    names.append(name)
+            sections[title] = names
 
         return sections
 
