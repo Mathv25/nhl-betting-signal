@@ -302,10 +302,10 @@ class PropsAnalyzer:
             shots_prob  = 0.0
             shots_edge  = 0.0
             for candidate_line in [0.5, 1.5, 2.5, 3.5, 4.5, 5.5]:
-                p = _poisson_over(shots_adj, candidate_line) / 100
-                if MIN_PROB <= p <= MAX_PROB:
+                p_val = _poisson_over(shots_adj, candidate_line) / 100
+                if MIN_PROB <= p_val <= MAX_PROB:
                     shots_line = candidate_line
-                    shots_prob = round(p * 100, 1)
+                    shots_prob = round(p_val * 100, 1)
                     shots_edge = _edge(shots_prob, b365_impl_pct)
                     break
 
