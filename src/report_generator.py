@@ -300,10 +300,9 @@ class ReportGenerator:
                         if e >= 8:  return "#BA7517"
                         return "#9CA3AF"
 
+                    est_odds_str = str(b.get("est_odds", "~1.75"))
                     html += (
                         "<div class='pb'>"
-
-                        # Header joueur
                         "<div class='pb-head'>"
                         "<div class='pb-info'>"
                         "<span class='pb-name'>" + name + "</span>"
@@ -312,16 +311,15 @@ class ReportGenerator:
                         "</div>"
                         "<div class='pb-season'>" + str(sg) + " buts · " + str(sp) + " pts cette saison</div>"
                         "</div>"
-
-                        # Bet principal
                         "<div class='pb-main-bet' style='border-left-color:" + ec + "'>"
                         "<div class='pbm-label'>📌 MEILLEUR BET</div>"
                         "<div class='pbm-market' style='color:" + ec + "'>" + market + "</div>"
                         "<div class='pbm-detail'>" + mdetail + "</div>"
+
                         "<div class='pbm-odds'>"
-                        "<div class='pbm-odd'><span>DK</span><strong>-115</strong></div>"
+                        "<div class='pbm-odd'><span>Cote est. b365</span><strong>" + est_odds_str + "</strong></div>"
                         "<div class='pbm-odd'><span>Notre prob</span><strong style='color:" + ec + "'>" + str(prob) + "%</strong></div>"
-                        "<div class='pbm-odd'><span>DK implied</span><strong>" + str(dk_impl) + "%</strong></div>"
+                        "<div class='pbm-odd'><span>b365 implied</span><strong>" + str(dk_impl) + "%</strong></div>"
                         "<div class='pbm-odd edge-highlight' style='background:" + eb + ";color:" + ec + "'>"
                         "<span>Edge</span><strong>+" + str(edge) + "%</strong></div>"
                         "<div class='pbm-odd'><span>1/4 Kelly</span><strong>" + str(kelly) + "% BR</strong></div>"
