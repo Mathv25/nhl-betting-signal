@@ -285,16 +285,60 @@ class PropsAnalyzer:
             goals_adj  = min(goals_adj,  1.5)
             points_adj = min(points_adj, 3.0)
 
-            # Ligne bet365 estimee (85% de la moyenne ajustee, arrondi 0.5)
-            shots_line = max(round(shots_adj * 0.85 * 2) / 2, 0.5)
+            # ── Lignes bet365 avec filtres cote minimale ──────────────
+            # Cote min 1.65 (-154) — en dessous le R/R est trop mauvais
+            # meme avec un edge solide.
+            # Logique: prob Over doit etre <= 61% pour que la cote estimee
+            # soit >= 1.65. Si prob est 70%+, la cote serait ~1.43 -> skip.
+            # Regle: on choisit la ligne shots qui donne une cote >= 1.65.
+            # Pour y arriver: prob Over doit etre entre 45% et 62%.
 
-            shots_prob  = _poisson_over(shots_adj,  shots_line)
-            goals_prob  = _poisson_over(goals_adj,  0.5)
-            points_prob = _poisson_over(points_adj, 0.5)
+            MIN_PROB = 0.38   # Prob min pour que le bet soit credible
+            MAX_PROB = 0.62   # Prob max => cote min ~1.61, acceptable
+            # Note: prob 62% => cote implicite 1.61, avec vig -110 => ~1.65
 
-            shots_edge  = _edge(shots_prob,  b365_impl_pct)
-            goals_edge  = _edge(goals_prob,  b365_impl_pct)
+            # Shots: cherche la ligne optimale entre 0.5 et 5.5
+            shots_line  = None
+            shots_prob  = 0.0
+            shots_edge  = 0.0
+            for candidate_line in [0.5, 1.5, 2.5, 3.5, 4.5, 5.5]:
+                p = _poisson_over(shots_adj, candidate_line) / 100
+                if MIN_PROB <= p <= MAX_PROB:
+                    shots_line = candidate_line
+                    shots_prob = round(p * 100, 1)
+                    shots_edge = _edge(shots_prob, b365_impl_pct)
+                    break
+
+            # Buts Over 0.5 — prob souvent trop haute pour stars
+            # On utilise Over 1.5 si prob Over 0.5 > 62%
+            goals_raw = _poisson_over(goals_adj, 0.5) / 100
+            if goals_raw > MAX_PROB:
+                goals_prob = round(_poisson_over(goals_adj, 1.5), 1)
+                goals_label = "Buts Over 1.5"
+            else:
+                goals_prob = round(goals_raw * 100, 1)
+                goals_label = "Buts Over 0.5"
+            goals_edge = _edge(goals_prob, b365_impl_pct)
+
+            # Points — meme logique
+            pts_raw = _poisson_over(points_adj, 0.5) / 100
+            if pts_raw > MAX_PROB:
+                points_prob = round(_poisson_over(points_adj, 1.5), 1)
+                points_label = "Points Over 1.5"
+            else:
+                points_prob = round(pts_raw * 100, 1)
+                points_label = "Points Over 0.5"
             points_edge = _edge(points_prob, b365_impl_pct)
+
+            # EV = edge * (cote_implicite / 100) — filtre bets a faible EV
+            # Cote implicite estimee bet365 = 1 / (notre_prob/100) * (1 - vig)
+            def est_odds(prob_pct):
+                if prob_pct <= 0: return 99.0
+                return round((1 / (prob_pct / 100)) * 0.9524, 2)  # vig ~5%
+
+            shots_odds  = est_odds(shots_prob)  if shots_line else 99.0
+            goals_odds  = est_odds(goals_prob)
+            points_odds = est_odds(points_prob)
 
             # Contexte narratif
             context_notes = _build_context(
@@ -307,34 +351,41 @@ class PropsAnalyzer:
                 pp_unit, line_num, is_defense,
             )
 
-            # Marches avec edge suffisant
+            # ── Marches avec edge ET cote acceptable (>= 1.65) ──────
+            MIN_ODDS_FILTER = 1.65
             markets = []
-            if shots_edge >= MIN_EDGE:
+
+            if shots_line and shots_edge >= MIN_EDGE and shots_odds >= MIN_ODDS_FILTER:
                 markets.append({
-                    "type":   "shots",
-                    "label":  "Shots Over " + str(shots_line),
-                    "prob":   shots_prob,
-                    "edge":   shots_edge,
-                    "kelly":  _kelly(shots_prob, B365_VIG_IMPL, B365_VIG_ODDS),
-                    "detail": str(round(shots_adj, 1)) + " shots proj. · moy " + str(p["shots_pg"]) + "/m" + (" · PP" + str(pp_unit) if pp_unit else ""),
+                    "type":      "shots",
+                    "label":     "Shots Over " + str(shots_line),
+                    "prob":      shots_prob,
+                    "edge":      shots_edge,
+                    "kelly":     _kelly(shots_prob, B365_VIG_IMPL, B365_VIG_ODDS),
+                    "est_odds":  shots_odds,
+                    "detail":    str(round(shots_adj, 1)) + " shots proj. · moy " + str(p["shots_pg"]) + "/m" + (" · PP" + str(pp_unit) if pp_unit else ""),
                 })
-            if goals_edge >= MIN_EDGE:
+
+            if goals_edge >= MIN_EDGE and goals_odds >= MIN_ODDS_FILTER:
                 markets.append({
-                    "type":   "goals",
-                    "label":  "Buts Over 0.5",
-                    "prob":   goals_prob,
-                    "edge":   goals_edge,
-                    "kelly":  _kelly(goals_prob, B365_VIG_IMPL, B365_VIG_ODDS),
-                    "detail": str(round(goals_adj, 2)) + " buts proj. · moy " + str(round(p["goals_pg"], 2)) + "/m",
+                    "type":      "goals",
+                    "label":     goals_label,
+                    "prob":      goals_prob,
+                    "edge":      goals_edge,
+                    "kelly":     _kelly(goals_prob, B365_VIG_IMPL, B365_VIG_ODDS),
+                    "est_odds":  goals_odds,
+                    "detail":    str(round(goals_adj, 2)) + " buts proj. · moy " + str(round(p["goals_pg"], 2)) + "/m",
                 })
-            if points_edge >= MIN_EDGE:
+
+            if points_edge >= MIN_EDGE and points_odds >= MIN_ODDS_FILTER:
                 markets.append({
-                    "type":   "points",
-                    "label":  "Points Over 0.5",
-                    "prob":   points_prob,
-                    "edge":   points_edge,
-                    "kelly":  _kelly(points_prob, B365_VIG_IMPL, B365_VIG_ODDS),
-                    "detail": str(round(points_adj, 2)) + " pts proj. · moy " + str(round(p["points_pg"], 2)) + "/m",
+                    "type":      "points",
+                    "label":     points_label,
+                    "prob":      points_prob,
+                    "edge":      points_edge,
+                    "kelly":     _kelly(points_prob, B365_VIG_IMPL, B365_VIG_ODDS),
+                    "est_odds":  points_odds,
+                    "detail":    str(round(points_adj, 2)) + " pts proj. · moy " + str(round(p["points_pg"], 2)) + "/m",
                 })
 
             if not markets:
