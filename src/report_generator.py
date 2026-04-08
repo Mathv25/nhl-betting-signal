@@ -337,7 +337,7 @@ class ReportGenerator:
                         "<div class='pbs-col'>"
                         "<div class='pbs-stat'><span>Last 5 (" + str(avg5s) + "/m)</span><strong>" + str(l5s) + " shots</strong></div>"
                         "<div class='pbs-stat'><span>Last 10 (" + str(avg10s) + "/m)</span><strong>" + str(l10s) + " shots</strong></div>"
-                        "<div class='pbs-stat'><span>Prob Over " + str(s_line) + "</span>"
+                        "<div class='pbs-stat'><span>Prob Over " + str(s_line if s_line else "?") + "</span>"
                         "<strong style='color:" + pec(s_edge) + "'>" + str(s_prob) + "% (edge +" + str(s_edge) + "%)</strong></div>"
                         "</div>"
                         "<div class='pbs-col'>"
