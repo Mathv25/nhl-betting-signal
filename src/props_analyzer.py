@@ -293,21 +293,34 @@ class PropsAnalyzer:
             # Regle: on choisit la ligne shots qui donne une cote >= 1.65.
             # Pour y arriver: prob Over doit etre entre 45% et 62%.
 
-            MIN_PROB = 0.38   # Prob min pour que le bet soit credible
-            MAX_PROB = 0.62   # Prob max => cote min ~1.61, acceptable
-            # Note: prob 62% => cote implicite 1.61, avec vig -110 => ~1.65
+            # Cote min 1.65 => prob max ~60.6%
+            # Cote max 2.50 => prob min ~40%
+            MIN_PROB = 0.40
+            MAX_PROB = 0.61
 
-            # Shots: cherche la ligne optimale entre 0.5 et 5.5
+            # Shots: cherche la ligne qui donne une cote entre 1.65 et 2.50
+            # Essaie toutes les lignes du plus eleve au plus bas
             shots_line  = None
             shots_prob  = 0.0
             shots_edge  = 0.0
-            for candidate_line in [0.5, 1.5, 2.5, 3.5, 4.5, 5.5]:
+            for candidate_line in [5.5, 4.5, 3.5, 2.5, 1.5, 0.5]:
                 p_val = _poisson_over(shots_adj, candidate_line) / 100
                 if MIN_PROB <= p_val <= MAX_PROB:
                     shots_line = candidate_line
                     shots_prob = round(p_val * 100, 1)
                     shots_edge = _edge(shots_prob, b365_impl_pct)
                     break
+            # Fallback: prend la ligne la plus proche de 50%
+            if shots_line is None:
+                best_diff = 99.0
+                for candidate_line in [0.5, 1.5, 2.5, 3.5, 4.5, 5.5]:
+                    p_val = _poisson_over(shots_adj, candidate_line) / 100
+                    diff = abs(p_val - 0.50)
+                    if diff < best_diff:
+                        best_diff = diff
+                        shots_line = candidate_line
+                        shots_prob = round(p_val * 100, 1)
+                        shots_edge = _edge(shots_prob, b365_impl_pct)
 
             # Buts Over 0.5 — prob souvent trop haute pour stars
             # On utilise Over 1.5 si prob Over 0.5 > 62%
@@ -333,10 +346,13 @@ class PropsAnalyzer:
             # EV = edge * (cote_implicite / 100) — filtre bets a faible EV
             # Cote implicite estimee bet365 = 1 / (notre_prob/100) * (1 - vig)
             def est_odds(prob_pct):
+                """Cote decimale estimee bet365 avec vig ~4.75%."""
                 if prob_pct <= 0: return 99.0
-                return round((1 / (prob_pct / 100)) * 0.9524, 2)  # vig ~5%
+                # Cote fair = 1/prob, bet365 applique ~4.75% de vig
+                fair = 1 / (prob_pct / 100)
+                return round(fair * 0.9524, 2)
 
-            shots_odds  = est_odds(shots_prob)  if shots_line else 99.0
+            shots_odds  = est_odds(shots_prob) if shots_line else 1.0
             goals_odds  = est_odds(goals_prob)
             points_odds = est_odds(points_prob)
 
