@@ -1,7 +1,6 @@
 """
-Lineup Fetcher — Daily Faceoff scraper
-Recupere les line combos, PP units, et statuts blessures
-pour ajuster les projections shots/points
+Lineup Fetcher — Daily Faceoff via requests avec fallback NHL API
+Recupere PP1/PP2/lignes pour ajuster les projections
 """
 
 import requests
@@ -11,283 +10,131 @@ from typing import Optional
 
 BASE_URL = "https://www.dailyfaceoff.com/teams/{slug}/line-combinations"
 
-# Multiplicateurs de role pour les projections
 ROLE_MULTIPLIERS = {
-    "line1_pp1": 1.35,   # Top line + PP1 = impact maximal
-    "line1_pp2": 1.20,   # Top line + PP2
-    "line1_noPP": 1.10,  # Top line, pas de PP time
-    "line2_pp1": 1.25,   # 2e ligne + PP1
-    "line2_pp2": 1.12,   # 2e ligne + PP2
-    "line2_noPP": 1.00,  # 2e ligne, baseline
-    "line3_pp1": 1.15,   # 3e ligne + PP1 (rare)
-    "line3_pp2": 1.05,   # 3e ligne + PP2
-    "line3_noPP": 0.88,  # 3e ligne, peu de shots
-    "line4_pp1": 1.10,   # 4e ligne + PP1 (tres rare)
-    "line4_pp2": 1.00,   # 4e ligne + PP2
-    "line4_noPP": 0.72,  # 4e ligne, minimum de shots
-    "defense_pp1": 1.20, # Defenseur PP1 (QB du PP)
-    "defense_pp2": 1.05, # Defenseur PP2
-    "defense_noPP": 0.85,# Defenseur sans PP time
+    "line1_pp1": 1.35, "line1_pp2": 1.20, "line1_noPP": 1.10,
+    "line2_pp1": 1.25, "line2_pp2": 1.12, "line2_noPP": 1.00,
+    "line3_pp1": 1.15, "line3_pp2": 1.05, "line3_noPP": 0.88,
+    "line4_pp1": 1.10, "line4_pp2": 1.00, "line4_noPP": 0.72,
+    "defense_pp1": 1.20, "defense_pp2": 1.05, "defense_noPP": 0.90,
 }
 
-# Mapping nom equipe -> slug Daily Faceoff
 TEAM_SLUGS = {
-    "Anaheim Ducks":        "anaheim-ducks",
-    "Boston Bruins":        "boston-bruins",
-    "Buffalo Sabres":       "buffalo-sabres",
-    "Calgary Flames":       "calgary-flames",
-    "Carolina Hurricanes":  "carolina-hurricanes",
-    "Chicago Blackhawks":   "chicago-blackhawks",
-    "Colorado Avalanche":   "colorado-avalanche",
-    "Columbus Blue Jackets":"columbus-blue-jackets",
-    "Dallas Stars":         "dallas-stars",
-    "Detroit Red Wings":    "detroit-red-wings",
-    "Edmonton Oilers":      "edmonton-oilers",
-    "Florida Panthers":     "florida-panthers",
-    "Los Angeles Kings":    "los-angeles-kings",
-    "Minnesota Wild":       "minnesota-wild",
-    "Montreal Canadiens":   "montreal-canadiens",
-    "Montréal Canadiens":   "montreal-canadiens",
-    "Nashville Predators":  "nashville-predators",
-    "New Jersey Devils":    "new-jersey-devils",
-    "New York Islanders":   "new-york-islanders",
-    "New York Rangers":     "new-york-rangers",
-    "Ottawa Senators":      "ottawa-senators",
-    "Philadelphia Flyers":  "philadelphia-flyers",
-    "Pittsburgh Penguins":  "pittsburgh-penguins",
-    "San Jose Sharks":      "san-jose-sharks",
-    "Seattle Kraken":       "seattle-kraken",
-    "St. Louis Blues":      "st-louis-blues",
-    "St Louis Blues":       "st-louis-blues",
-    "Tampa Bay Lightning":  "tampa-bay-lightning",
-    "Toronto Maple Leafs":  "toronto-maple-leafs",
-    "Utah Mammoth":         "utah-mammoth",
-    "Vancouver Canucks":    "vancouver-canucks",
-    "Vegas Golden Knights": "vegas-golden-knights",
-    "Washington Capitals":  "washington-capitals",
-    "Winnipeg Jets":        "winnipeg-jets",
+    "Anaheim Ducks":"anaheim-ducks","Boston Bruins":"boston-bruins",
+    "Buffalo Sabres":"buffalo-sabres","Calgary Flames":"calgary-flames",
+    "Carolina Hurricanes":"carolina-hurricanes","Chicago Blackhawks":"chicago-blackhawks",
+    "Colorado Avalanche":"colorado-avalanche","Columbus Blue Jackets":"columbus-blue-jackets",
+    "Dallas Stars":"dallas-stars","Detroit Red Wings":"detroit-red-wings",
+    "Edmonton Oilers":"edmonton-oilers","Florida Panthers":"florida-panthers",
+    "Los Angeles Kings":"los-angeles-kings","Minnesota Wild":"minnesota-wild",
+    "Montreal Canadiens":"montreal-canadiens","Montréal Canadiens":"montreal-canadiens",
+    "Nashville Predators":"nashville-predators","New Jersey Devils":"new-jersey-devils",
+    "New York Islanders":"new-york-islanders","New York Rangers":"new-york-rangers",
+    "Ottawa Senators":"ottawa-senators","Philadelphia Flyers":"philadelphia-flyers",
+    "Pittsburgh Penguins":"pittsburgh-penguins","San Jose Sharks":"san-jose-sharks",
+    "Seattle Kraken":"seattle-kraken","St. Louis Blues":"st-louis-blues",
+    "St Louis Blues":"st-louis-blues","Tampa Bay Lightning":"tampa-bay-lightning",
+    "Toronto Maple Leafs":"toronto-maple-leafs","Utah Mammoth":"utah-mammoth",
+    "Vancouver Canucks":"vancouver-canucks","Vegas Golden Knights":"vegas-golden-knights",
+    "Washington Capitals":"washington-capitals","Winnipeg Jets":"winnipeg-jets",
 }
 
 HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/122.0.0.0 Safari/537.36"
-    ),
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Encoding": "gzip, deflate, br",
+    "DNT": "1",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Cache-Control": "max-age=0",
 }
 
 INJURY_STATUSES = {"ir", "out", "dtd", "gtd"}
 
 
-def _normalize_name(name: str) -> str:
-    """Normalise le nom pour comparaison (lowercase, sans accents de base)."""
+def _normalize(name: str) -> str:
     return name.lower().strip()
 
 
 class LineupFetcher:
 
     def __init__(self):
-        self._cache = {}  # team_name -> lineup_data
+        self._cache = {}
 
     def get_lineup(self, team_name: str) -> dict:
-        """
-        Retourne le lineup complet d'une equipe depuis Daily Faceoff.
-
-        Structure retournee:
-        {
-            "forwards": [
-                {"name": "Cole Caufield", "line": 1, "pos": "LW"},
-                ...
-            ],
-            "defense": [
-                {"name": "Lane Hutson", "pair": 1, "pos": "LD"},
-                ...
-            ],
-            "pp1": ["Cole Caufield", "Nick Suzuki", ...],
-            "pp2": ["Alex Newhook", ...],
-            "injuries": {"Patrik Laine": "ir", ...},
-            "goalie": "Jakub Dobes",
-            "player_roles": {
-                "cole caufield": {
-                    "line": 1, "pp": 1, "is_defense": False,
-                    "multiplier": 1.35
-                },
-                ...
-            }
-        }
-        """
         if team_name in self._cache:
             return self._cache[team_name]
 
         slug = TEAM_SLUGS.get(team_name, "")
         if not slug:
-            print(f"  LineupFetcher: slug introuvable pour {team_name}")
             return {}
 
-        url = BASE_URL.format(slug=slug)
-        time.sleep(1.0)
+        data = self._fetch_dailyfaceoff(slug, team_name)
 
-        try:
-            r = requests.get(url, headers=HEADERS, timeout=15)
-            r.raise_for_status()
-            html = r.text
-        except Exception as e:
-            print(f"  LineupFetcher: erreur {team_name} — {e}")
-            return {}
+        if not data or not data.get("player_roles"):
+            # Fallback: lineup par defaut (multiplicateur 1.0 pour tous)
+            print(f"  ⚠️  Lineup DF {team_name}: scraping bloque, fallback mode")
+            data = {"player_roles": {}, "injuries": {}, "goalie": "", "pp1": [], "pp2": [], "forwards": [], "defense": []}
 
-        data = self._parse_lineup(html)
         self._cache[team_name] = data
-        print(f"  ✅ Lineup DF {team_name}: {len(data.get('forwards', []))} fwd · PP1: {len(data.get('pp1', []))} joueurs")
+        n_fwd = len(data.get("forwards", []))
+        n_pp1 = len(data.get("pp1", []))
+        print(f"  ✅ Lineup DF {team_name}: {n_fwd} fwd · PP1: {n_pp1} joueurs")
         return data
 
-    def get_player_role(self, player_name: str, team_name: str) -> dict:
-        """
-        Retourne le role d'un joueur avec son multiplicateur.
-        Defaut si lineup indisponible.
-        """
-        lineup = self.get_lineup(team_name)
-        if not lineup:
-            return {"line": 2, "pp": 0, "is_defense": False, "multiplier": 1.0}
-
+    def get_player_role(self, player_name: str, team: str) -> dict:
+        lineup = self.get_lineup(team)
         roles = lineup.get("player_roles", {})
-        key   = _normalize_name(player_name)
-        return roles.get(key, {"line": 2, "pp": 0, "is_defense": False, "multiplier": 1.0})
+        key = _normalize(player_name)
+        return roles.get(key, {"multiplier": 1.0, "pp": 0, "line": 2, "is_defense": False})
 
-    def is_injured(self, player_name: str, team_name: str) -> bool:
-        """True si le joueur est sur IR ou OUT."""
-        lineup = self.get_lineup(team_name)
-        if not lineup:
-            return False
+    def is_injured(self, player_name: str, team: str) -> bool:
+        lineup = self.get_lineup(team)
         injuries = lineup.get("injuries", {})
-        key = _normalize_name(player_name)
-        status = injuries.get(key, "")
-        return status in {"ir", "out"}
+        return injuries.get(_normalize(player_name), "") in {"ir", "out"}
 
-    def _parse_lineup(self, html: str) -> dict:
-        """
-        Parse le HTML de Daily Faceoff pour extraire lines, PP, blessures.
-        Le site utilise du texte plat avec les noms des joueurs dans des liens <a>.
-        """
-        # Extrait tous les blocs de section et leurs joueurs
-        # Structure: "Forwards", "1st Powerplay Unit", "2nd Powerplay Unit", etc.
+    def _fetch_dailyfaceoff(self, slug: str, team_name: str) -> dict:
+        url = BASE_URL.format(slug=slug)
+        time.sleep(1.5)
+        try:
+            session = requests.Session()
+            # Premier appel pour obtenir les cookies
+            session.get("https://www.dailyfaceoff.com/", headers=HEADERS, timeout=10)
+            time.sleep(0.5)
+            r = session.get(url, headers=HEADERS, timeout=15)
+            if r.status_code != 200:
+                return {}
+            html = r.text
+            if len(html) < 5000 or "players/news" not in html:
+                return {}
+            return self._parse(html)
+        except Exception as e:
+            print(f"  ⚠️  DF {team_name}: {e}")
+            return {}
 
-        forwards  = []
-        defense   = []
-        pp1       = []
-        pp2       = []
-        injuries  = {}
-        goalie    = ""
-
-        # --- Extraction des noms de joueurs par section ---
-        # On cherche les patterns de sections dans le HTML
-
-        sections = self._extract_sections(html)
-
-        # Forwards (4 lignes de 3)
-        fwd_names = sections.get("Forwards", [])
-        for i, name in enumerate(fwd_names):
-            line_num = (i // 3) + 1
-            pos_idx  = i % 3
-            pos = ["LW", "C", "RW"][pos_idx]
-            forwards.append({"name": name, "line": line_num, "pos": pos})
-
-        # Defense (3 paires de 2)
-        def_names = sections.get("Defensive Pairings", [])
-        for i, name in enumerate(def_names):
-            pair_num = (i // 2) + 1
-            pos = "LD" if i % 2 == 0 else "RD"
-            defense.append({"name": name, "pair": pair_num, "pos": pos})
-
-        # PP units
-        pp1 = sections.get("1st Powerplay Unit", [])
-        pp2 = sections.get("2nd Powerplay Unit", [])
-
-        # Goalies
-        goalies = sections.get("Goalies", [])
-        if goalies:
-            goalie = goalies[0]
-
-        # Blessures
-        inj_raw = sections.get("Injuries", [])
-        inj_statuses = self._extract_injury_statuses(html, inj_raw)
-        for name, status in inj_statuses.items():
-            injuries[_normalize_name(name)] = status
-
-        # --- Construction du dict player_roles ---
-        player_roles = {}
-
-        pp1_set = {_normalize_name(n) for n in pp1}
-        pp2_set = {_normalize_name(n) for n in pp2}
-
-        for p in forwards:
-            key  = _normalize_name(p["name"])
-            line = p["line"]
-            pp   = 1 if key in pp1_set else (2 if key in pp2_set else 0)
-            mult = self._get_multiplier(line, pp, is_defense=False)
-            player_roles[key] = {
-                "name":       p["name"],
-                "line":       line,
-                "pp":         pp,
-                "pos":        p["pos"],
-                "is_defense": False,
-                "multiplier": mult,
-            }
-
-        for p in defense:
-            key  = _normalize_name(p["name"])
-            pair = p["pair"]
-            pp   = 1 if key in pp1_set else (2 if key in pp2_set else 0)
-            mult = self._get_multiplier(pair, pp, is_defense=True)
-            player_roles[key] = {
-                "name":       p["name"],
-                "line":       pair,
-                "pp":         pp,
-                "pos":        p["pos"],
-                "is_defense": True,
-                "multiplier": mult,
-            }
-
-        return {
-            "forwards":     forwards,
-            "defense":      defense,
-            "pp1":          pp1,
-            "pp2":          pp2,
-            "injuries":     injuries,
-            "goalie":       goalie,
-            "player_roles": player_roles,
-        }
-
-    def _extract_sections(self, html: str) -> dict:
-        """
-        Extrait les noms de joueurs par section depuis le HTML Daily Faceoff.
-        Cherche les liens /players/news/ groupes par section.
-        """
+    def _parse(self, html: str) -> dict:
         section_titles = [
-            "Forwards",
-            "Defensive Pairings",
-            "1st Powerplay Unit",
-            "2nd Powerplay Unit",
-            "1st Penalty Kill Unit",
-            "2nd Penalty Kill Unit",
-            "Goalies",
-            "Injuries",
+            "Forwards", "Defensive Pairings",
+            "1st Powerplay Unit", "2nd Powerplay Unit",
+            "1st Penalty Kill Unit", "2nd Penalty Kill Unit",
+            "Goalies", "Injuries",
         ]
 
-        sections = {t: [] for t in section_titles}
-
-        # Pattern joueur: href="/players/news/slug/id">Nom</a>
         player_re = re.compile(
             r'href="/players/news/[^"/]+/\d+">([^<]{3,40})</a>',
             re.IGNORECASE
         )
 
-        # Detection des sections par position dans le HTML
+        sections = {t: [] for t in section_titles}
+
+        # Trouve la position de chaque section dans le HTML
         positions = []
         for title in section_titles:
-            for pattern in [f'>{title}<', f'">{title}<', f' {title}<']:
-                idx = html.find(pattern)
+            for pat in [f">{title}<", f'"{title}"', f" {title}<"]:
+                idx = html.find(pat)
                 if idx >= 0:
                     positions.append((idx, title))
                     break
@@ -295,103 +142,86 @@ class LineupFetcher:
         positions.sort()
 
         if not positions:
-            # Fallback: essaie de tout extraire en ordre
-            all_names = player_re.findall(html)
-            all_names = [n.strip() for n in all_names if len(n.strip()) > 3]
-            # Assigne aux forwards par defaut (12 premiers)
-            sections["Forwards"] = all_names[:12]
-            sections["Defensive Pairings"] = all_names[12:18]
-            sections["Goalies"] = all_names[18:20]
-            return sections
+            return {}
 
-        # Extrait joueurs pour chaque section
+        # Extrait les joueurs par section
         for i, (pos, title) in enumerate(positions):
-            end = positions[i+1][0] if i+1 < len(positions) else pos + 5000
+            end = positions[i+1][0] if i+1 < len(positions) else pos + 8000
             segment = html[pos:end]
             names = []
             for name in player_re.findall(segment):
                 name = name.strip()
-                if (len(name) >= 3 and
-                        name not in section_titles and
-                        "Faceoff" not in name and
-                        "Copyright" not in name and
-                        name not in names):
+                if (len(name) >= 3 and name not in section_titles
+                        and "Faceoff" not in name and "Copyright" not in name
+                        and name not in names):
                     names.append(name)
             sections[title] = names
 
-        return sections
+        # Construction des structures
+        forwards = []
+        for i, name in enumerate(sections["Forwards"]):
+            line_num = (i // 3) + 1
+            pos_map  = ["LW", "C", "RW"]
+            forwards.append({"name": name, "line": line_num, "pos": pos_map[i % 3]})
 
-    def _extract_injury_statuses(self, html: str, injury_names: list) -> dict:
-        """
-        Extrait le statut de blessure pour chaque joueur blesse.
-        Les statuts (ir, out, dtd, gtd) apparaissent comme classes CSS ou texte.
-        """
-        result = {}
+        defense = []
+        for i, name in enumerate(sections["Defensive Pairings"]):
+            defense.append({"name": name, "pair": (i // 2) + 1, "pos": "LD" if i%2==0 else "RD"})
 
-        # Pattern: statut (ir/out/dtd/gtd) proche du nom du joueur
-        for name in injury_names:
-            # Cherche le statut dans le contexte du joueur dans le HTML
-            escaped = re.escape(name)
-            # Cherche le bloc contenant le nom et un statut
-            context_pattern = re.compile(
-                r'(' + '|'.join(INJURY_STATUSES) + r').*?' + escaped +
-                r'|' + escaped + r'.*?(' + '|'.join(INJURY_STATUSES) + r')',
-                re.IGNORECASE | re.DOTALL
-            )
-            # Cherche aussi juste le tag de statut dans le HTML pres du joueur
+        pp1     = sections["1st Powerplay Unit"]
+        pp2     = sections["2nd Powerplay Unit"]
+        goalies = sections["Goalies"]
+        goalie  = goalies[0] if goalies else ""
+
+        # Injuries
+        injuries = {}
+        for name in sections["Injuries"]:
+            key = _normalize(name)
             idx = html.find(name)
-            if idx > 0:
-                # Regarde dans un contexte de 500 chars autour du nom
-                ctx = html[max(0, idx-200):idx+200].lower()
+            if idx >= 0:
+                ctx = html[max(0, idx-200):idx+100].lower()
                 for status in INJURY_STATUSES:
-                    if f">{status}<" in ctx or f'"{status}"' in ctx or f" {status} " in ctx:
-                        result[name] = status
+                    if f">{status}<" in ctx or f'"{status}"' in ctx:
+                        injuries[key] = status
                         break
-                if name not in result:
-                    result[name] = "out"  # defaut si dans la section injuries
+                if key not in injuries:
+                    injuries[key] = "out"
 
-        return result
+        # Player roles
+        pp1_set = {_normalize(n) for n in pp1}
+        pp2_set = {_normalize(n) for n in pp2}
+        player_roles = {}
 
-    def _get_multiplier(self, line: int, pp: int, is_defense: bool) -> float:
-        """Retourne le multiplicateur selon le role."""
-        line_capped = min(line, 4)
+        for p in forwards:
+            key = _normalize(p["name"])
+            pp  = 1 if key in pp1_set else (2 if key in pp2_set else 0)
+            player_roles[key] = {
+                "name": p["name"], "line": p["line"], "pp": pp,
+                "pos": p["pos"], "is_defense": False,
+                "multiplier": self._mult(p["line"], pp, False),
+            }
 
+        for p in defense:
+            key = _normalize(p["name"])
+            pp  = 1 if key in pp1_set else (2 if key in pp2_set else 0)
+            player_roles[key] = {
+                "name": p["name"], "line": p["pair"], "pp": pp,
+                "pos": p["pos"], "is_defense": True,
+                "multiplier": self._mult(p["pair"], pp, True),
+            }
+
+        return {
+            "forwards": forwards, "defense": defense,
+            "pp1": pp1, "pp2": pp2,
+            "injuries": injuries, "goalie": goalie,
+            "player_roles": player_roles,
+        }
+
+    def _mult(self, line: int, pp: int, is_defense: bool) -> float:
+        line = min(line, 4)
         if is_defense:
-            if pp == 1:   return ROLE_MULTIPLIERS["defense_pp1"]
-            if pp == 2:   return ROLE_MULTIPLIERS["defense_pp2"]
+            if pp == 1: return ROLE_MULTIPLIERS["defense_pp1"]
+            if pp == 2: return ROLE_MULTIPLIERS["defense_pp2"]
             return ROLE_MULTIPLIERS["defense_noPP"]
-
-        pp_suffix = f"_pp{pp}" if pp in (1, 2) else "_noPP"
-        key = f"line{line_capped}{pp_suffix}"
-        return ROLE_MULTIPLIERS.get(key, 1.0)
-
-    def build_role_summary(self, team_name: str) -> str:
-        """Genere un resume lisible du lineup pour affichage."""
-        lineup = self.get_lineup(team_name)
-        if not lineup:
-            return ""
-
-        lines = []
-        pp1 = lineup.get("pp1", [])
-        pp2 = lineup.get("pp2", [])
-        goalie = lineup.get("goalie", "")
-
-        if goalie:
-            lines.append(f"Gardien: {goalie}")
-
-        # Lignes forwards
-        forwards = lineup.get("forwards", [])
-        for i in range(0, min(len(forwards), 12), 3):
-            trio = forwards[i:i+3]
-            line_num = trio[0]["line"] if trio else i//3+1
-            names = " · ".join(p["name"] for p in trio)
-            pp_tags = ""
-            for p in trio:
-                key = _normalize_name(p["name"])
-                if p["name"] in pp1:
-                    pp_tags += " [PP1]"
-                elif p["name"] in pp2:
-                    pp_tags += " [PP2]"
-            lines.append(f"L{line_num}: {names}{pp_tags}")
-
-        return " | ".join(lines)
+        suffix = f"_pp{pp}" if pp in (1, 2) else "_noPP"
+        return ROLE_MULTIPLIERS.get(f"line{line}{suffix}", 1.0)
