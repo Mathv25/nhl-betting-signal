@@ -182,6 +182,8 @@ class ReportGenerator:
             hg    = analysis.get("home_goalie", {})
             ag    = analysis.get("away_goalie", {})
             bets  = analysis.get("bets", [])
+            retour = analysis.get("retour_de_flamme", [])
+            lineup_confirmed = analysis.get("lineup_confirmed", True)
             hshots = analysis.get("home_def_shots", 31.0)
             ashots = analysis.get("away_def_shots", 31.0)
             hga    = analysis.get("home_def_ga", 3.10)
@@ -385,6 +387,69 @@ class ReportGenerator:
 
                 html += "</div>"  # /player-bets
 
+            # Badge lineup non confirme
+            if not lineup_confirmed:
+                html += (
+                    "<div class='lineup-warning'>"
+                    "⚠️ Lineup non confirme — Daily Faceoff n'a pas retourne les line combos. "
+                    "Verifiez les lineups avant de parier."
+                    "</div>"
+                )
+
+            # Bloc retour de flamme
+            if retour:
+                html += (
+                    "<div class='retour-section'>"
+                    "<div class='retour-title'>🧊 Retour de flamme — Regression vers la moyenne</div>"
+                    "<div class='retour-subtitle'>Joueurs en dessous de leur moyenne last 5 · DK va probablement baisser la ligne · Edge sur le Over base sur la vraie moyenne</div>"
+                )
+                for r in retour:
+                    rname     = r.get("name", "")
+                    rteam     = r.get("team", "")
+                    ropp      = r.get("opponent", "")
+                    ravg10    = r.get("avg10_shots", 0)
+                    ravg5     = r.get("avg5_shots", 0)
+                    rdrop     = r.get("drop_pct", 0)
+                    rline     = r.get("dk_line_est", 0)
+                    radj      = r.get("shots_adj", 0)
+                    rprob     = r.get("our_prob", 0)
+                    redge     = r.get("edge_pct", 0)
+                    rodds     = r.get("est_odds", 0)
+                    rkelly    = r.get("kelly", 0)
+                    ropp_rank = r.get("opp_shots_rank", 16)
+                    rpos      = r.get("position", "")
+                    rtoi      = r.get("toi", "--")
+
+                    drop_color = "#A32D2D" if rdrop >= 40 else "#B45309"
+                    edge_color = "#0F6E56" if redge >= 15 else "#BA7517"
+
+                    html += (
+                        "<div class='retour-card'>"
+                        "<div class='retour-head'>"
+                        "<div>"
+                        "<span class='retour-name'>" + rname + "</span>"
+                        "<span class='retour-meta'>" + rpos + " · " + rteam[:3].upper() + " vs " + ropp[:3].upper() + " · " + rtoi + " TOI</span>"
+                        "</div>"
+                        "<div class='retour-drop' style='color:" + drop_color + "'>-" + str(rdrop) + "% depuis last 5</div>"
+                        "</div>"
+
+                        "<div class='retour-stats'>"
+                        "<div class='retour-stat'><span>Moy last 10</span><strong>" + str(ravg10) + " shots/m</strong></div>"
+                        "<div class='retour-stat'><span>Moy last 5</span><strong style='color:" + drop_color + "'>" + str(ravg5) + " shots/m</strong></div>"
+                        "<div class='retour-stat'><span>Ligne DK estimee</span><strong>" + str(rline) + " shots</strong></div>"
+                        "<div class='retour-stat'><span>Shots proj. (moy reelle)</span><strong>" + str(radj) + "</strong></div>"
+                        "<div class='retour-stat'><span>DEF adverse</span><strong style='color:" + rank_color(ropp_rank) + "'>#" + str(ropp_rank) + " ligue</strong></div>"
+                        "<div class='retour-stat edge-cell' style='color:" + edge_color + "'><span>Edge</span><strong>+" + str(redge) + "%</strong></div>"
+                        "<div class='retour-stat'><span>Cote est. b365</span><strong>" + str(rodds) + "</strong></div>"
+                        "<div class='retour-stat'><span>Notre prob</span><strong>" + str(rprob) + "%</strong></div>"
+                        "<div class='retour-stat'><span>1/4 Kelly</span><strong>" + str(rkelly) + "% BR</strong></div>"
+                        "</div>"
+
+                        "<div class='retour-signal'>📌 Bet: Shots Over " + str(rline) + " · Logique: moy reelle " + str(ravg10) + "/m → DK va coter bas sur la forme recente</div>"
+                        "</div>"
+                    )
+                html += "</div>"  # /retour-section
+
             html += "</div>"  # /pg
 
         return html
@@ -518,6 +583,20 @@ class ReportGenerator:
             ".he{font-weight:600}"
             ".disc{font-size:11px;color:var(--m);margin-top:2rem;padding-top:1rem;border-top:.5px solid var(--b);line-height:1.7}"
             ".upd{font-size:11px;color:var(--m);text-align:right;margin-top:.5rem}"
+            ".lineup-warning{background:#FAEEDA;border-left:3px solid #B45309;color:#633806;padding:10px 14px;border-radius:6px;font-size:12px;margin:0 0 1rem}"
+            ".retour-section{margin:1rem 0 0;border-top:.5px solid var(--b);padding-top:1rem}"
+            ".retour-title{font-size:14px;font-weight:500;color:var(--t);margin-bottom:4px}"
+            ".retour-subtitle{font-size:11px;color:var(--m);margin-bottom:1rem;line-height:1.5}"
+            ".retour-card{background:var(--s);border:.5px solid var(--b);border-left:3px solid #378ADD;border-radius:8px;padding:12px 14px;margin-bottom:10px}"
+            ".retour-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}"
+            ".retour-name{font-size:14px;font-weight:500;color:var(--t);display:block}"
+            ".retour-meta{font-size:11px;color:var(--m)}"
+            ".retour-drop{font-size:13px;font-weight:500;flex-shrink:0;margin-left:8px}"
+            ".retour-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}"
+            ".retour-stat{background:var(--bg);border-radius:5px;padding:6px 8px;font-size:11px;color:var(--m)}"
+            ".retour-stat span{display:block;margin-bottom:2px}"
+            ".retour-stat strong{font-size:13px;font-weight:500;color:var(--t)}"
+            ".retour-signal{font-size:11px;color:#185FA5;background:#E6F1FB;border-radius:5px;padding:7px 10px;line-height:1.5}"
             "/* PROPS JOUEURS */"
             ".matchup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:.75rem}"
             ".matchup-col{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rs);padding:.75rem}"
