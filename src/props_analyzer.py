@@ -1,9 +1,11 @@
 """
-Props Analyzer - Signal joueurs +EV complet
-- Shots, buts, points vs lignes bet365 estimees (-110)
-- Multiplicateurs PP1/PP2/ligne depuis Daily Faceoff
-- Tendance last 5 vs last 10 + milestones
-- Edge reel vs vig bet365 standard
+Props Analyzer - Signal joueurs +EV v2
+Ajustements post-backtest:
+- Shots uniquement sur defense >= rang #20
+- Selection intelligente shots/buts/points selon matchup
+- Blocage si lineup Daily Faceoff non confirme
+- Bloc retour de flamme (regression vers la moyenne)
+- Vig bet365 -110
 """
 
 import requests
@@ -15,9 +17,11 @@ NHL_API   = "https://api-web.nhle.com/v1"
 SEASON    = "20252026"
 GAME_TYPE = "2"
 
-MIN_EDGE       = 8.0
-B365_VIG_IMPL  = 52.36 / 100   # bet365 -110 standard
-B365_VIG_ODDS  = 1.909          # -110 en decimal
+MIN_EDGE             = 8.0
+B365_VIG_IMPL        = 52.36 / 100
+B365_VIG_ODDS        = 1.909
+MIN_DEF_RANK_SHOTS   = 20   # shots only vs weak defenses
+MIN_DEF_RANK_GOALS   = 20   # goals only vs weak defenses
 
 TEAM_ABBR = {
     "Anaheim Ducks":"ANA","Boston Bruins":"BOS","Buffalo Sabres":"BUF",
@@ -63,24 +67,9 @@ DEF_GA_ALLOWED = {
     "San Jose Sharks":3.80,"Utah Mammoth":3.25,
 }
 
-DEF_QUALITY = {
-    "Carolina Hurricanes":"elite","Florida Panthers":"elite","Boston Bruins":"elite",
-    "Dallas Stars":"elite","Colorado Avalanche":"good","Vegas Golden Knights":"good",
-    "Winnipeg Jets":"good","Tampa Bay Lightning":"good","Minnesota Wild":"good",
-    "Los Angeles Kings":"good","Toronto Maple Leafs":"avg","Edmonton Oilers":"avg",
-    "New York Rangers":"avg","New York Islanders":"avg","Washington Capitals":"avg",
-    "Seattle Kraken":"avg","Ottawa Senators":"avg","New Jersey Devils":"avg",
-    "Pittsburgh Penguins":"avg","Montreal Canadiens":"avg","Vancouver Canucks":"avg",
-    "Buffalo Sabres":"weak","Philadelphia Flyers":"weak","Nashville Predators":"weak",
-    "Detroit Red Wings":"weak","Calgary Flames":"weak","St. Louis Blues":"weak",
-    "Columbus Blue Jackets":"weak","Chicago Blackhawks":"weak","Anaheim Ducks":"weak",
-    "San Jose Sharks":"weak","Utah Mammoth":"avg",
-}
-
 LEAGUE_AVG_SHOTS = 31.0
 LEAGUE_AVG_GA    = 3.10
 
-# Rang defensif
 DEF_SHOTS_RANK = {}
 DEF_GA_RANK    = {}
 
@@ -130,6 +119,11 @@ def _edge(our_pct, implied_pct):
     return round((our_pct - implied_pct) / implied_pct * 100, 1)
 
 
+def _est_odds(prob_pct):
+    if prob_pct <= 0: return 99.0
+    return round((1 / (prob_pct / 100)) * 0.9524, 2)
+
+
 def _def_label(rank):
     if rank <= 4:  return "Elite (#" + str(rank) + ")"
     if rank <= 10: return "Bonne (#" + str(rank) + ")"
@@ -137,131 +131,113 @@ def _def_label(rank):
     return "Faible (#" + str(rank) + ")"
 
 
-def _def_color(rank):
-    if rank <= 4:  return "#0F6E56"
-    if rank <= 10: return "#2563EB"
-    if rank <= 22: return "#6B7280"
-    return "#B45309"
-
-
-def _build_context(name, shots_pg, shots_adj, goals_pg, goals_adj, points_pg,
+def _build_context(shots_pg, shots_adj, goals_pg, points_pg,
                    last5_shots, last5_goals, last5_points,
                    last10_shots, last10_goals, last10_points,
                    season_goals, season_points, opponent,
-                   shots_rank_opp, ga_rank_opp,
-                   pp_unit, line_num, is_defense):
+                   shots_rank_opp, ga_rank_opp, pp_unit, line_num):
     notes = []
-
-    # Milestones buts
     if season_goals > 0:
         for m in [20, 25, 30, 35, 40, 45, 50, 55, 60]:
             rem = m - season_goals
             if 0 < rem <= 5:
-                notes.append("🎯 Chase du " + str(m) + "e but — " + str(rem) + " but" + ("s" if rem > 1 else "") + " restant" + ("s" if rem > 1 else ""))
+                notes.append("🎯 Chase du " + str(m) + "e but — " + str(rem) + " restant" + ("s" if rem > 1 else ""))
                 break
-
-    # Milestones points
     if season_points > 0:
         for m in [30, 40, 50, 60, 70, 80, 90, 100]:
             rem = m - season_points
             if 0 < rem <= 6:
                 notes.append("📈 Chase du " + str(m) + "e point — " + str(rem) + " pt" + ("s" if rem > 1 else "") + " restant" + ("s" if rem > 1 else ""))
                 break
-
-    # Role PP
     if pp_unit == 1:
-        notes.append("⚡ PP1 — temps de jeu supplementaire en avantage numerique")
+        notes.append("⚡ PP1 — avantage numerique")
     elif pp_unit == 2:
-        notes.append("PP2 — opportunites en avantage numerique")
-
-    # Tendance shots last 5 vs last 10
+        notes.append("PP2 — opportunites PP")
     avg5  = round(last5_shots / 5,  1) if last5_shots  else 0
     avg10 = round(last10_shots / 10, 1) if last10_shots else shots_pg
     if avg5 > avg10 * 1.20:
         notes.append("🔥 Shots en hausse — " + str(avg5) + "/m last 5 vs " + str(avg10) + "/m last 10")
     elif avg5 < avg10 * 0.75:
         notes.append("❄️ Shots en baisse — " + str(avg5) + "/m last 5 vs " + str(avg10) + "/m last 10")
-
-    # Streak buts
     if last5_goals >= 5:
         notes.append("🚨 " + str(last5_goals) + " buts dans ses 5 derniers matchs")
     elif last5_goals >= 3:
         notes.append(str(last5_goals) + " buts dans ses 5 derniers matchs")
-
-    # Streak points
     if last5_points >= 8:
         notes.append("⭐ " + str(last5_points) + " pts dans ses 5 derniers matchs")
     elif last5_points >= 5:
         notes.append(str(last5_points) + " pts dans ses 5 derniers matchs")
-
-    # Matchup shots
     opp_shots = DEF_SHOTS_ALLOWED.get(opponent, LEAGUE_AVG_SHOTS)
     if shots_rank_opp >= 28:
-        notes.append("🎯 Matchup ideal — " + opponent[:12] + " accorde " + str(opp_shots) + " shots/m (" + _def_label(shots_rank_opp) + ")")
+        notes.append("🎯 Matchup ideal — " + opponent[:12] + " accorde " + str(opp_shots) + " shots/m (#" + str(shots_rank_opp) + ")")
     elif shots_rank_opp <= 5:
-        notes.append("⚠️ Defense solide — " + opponent[:12] + " n'accorde que " + str(opp_shots) + " shots/m (" + _def_label(shots_rank_opp) + ")")
-
-    # Matchup buts
+        notes.append("⚠️ Defense solide — " + opponent[:12] + " (#" + str(shots_rank_opp) + " ligue)")
     opp_ga = DEF_GA_ALLOWED.get(opponent, LEAGUE_AVG_GA)
     if ga_rank_opp >= 28:
-        notes.append("Defense poreuse — " + str(opp_ga) + " buts accordes/m (" + _def_label(ga_rank_opp) + ")")
-
+        notes.append("Defense poreuse — " + str(opp_ga) + " buts/m (#" + str(ga_rank_opp) + ")")
     return notes[:4]
 
 
 class PropsAnalyzer:
 
     def __init__(self):
-        self._roster_cache  = {}
-        self._stats_cache   = {}
-        self._lineup_fetcher = None  # Injecte depuis signal.py
+        self._roster_cache   = {}
+        self._stats_cache    = {}
+        self._lineup_fetcher = None
 
     def analyze_game(self, home_team: str, away_team: str) -> dict:
         print(f"  Analyse props: {away_team} @ {home_team}...")
 
+        lineup_confirmed = self._lineup_confirmed(home_team, away_team)
         home_players = self._get_top_players(home_team)
         away_players = self._get_top_players(away_team)
         home_goalie  = self._get_goalie_stats(home_team)
         away_goalie  = self._get_goalie_stats(away_team)
 
-        home_bets = self._best_bets(home_players, opponent=away_team, team=home_team, n=3)
-        away_bets = self._best_bets(away_players, opponent=home_team, team=away_team, n=3)
+        home_bets = self._best_bets(home_players, away_team, home_team, 3, lineup_confirmed)
+        away_bets = self._best_bets(away_players, home_team, away_team, 3, lineup_confirmed)
 
-        all_bets = (home_bets + away_bets)
+        all_bets = home_bets + away_bets
         all_bets.sort(key=lambda x: x["edge_pct"], reverse=True)
         all_bets = all_bets[:6]
 
-        print(f"    -> {len(all_bets)} bets +EV ({home_team} vs {away_team})")
+        retour = self._retour_de_flamme(home_players, away_players, home_team, away_team)
+
+        print(f"    -> {len(all_bets)} bets +EV · {len(retour)} retours de flamme")
 
         return {
-            "home_team":      home_team,
-            "away_team":      away_team,
-            "home_goalie":    home_goalie,
-            "away_goalie":    away_goalie,
-            "home_def_shots": DEF_SHOTS_ALLOWED.get(home_team, LEAGUE_AVG_SHOTS),
-            "away_def_shots": DEF_SHOTS_ALLOWED.get(away_team, LEAGUE_AVG_SHOTS),
-            "home_def_ga":    DEF_GA_ALLOWED.get(home_team, LEAGUE_AVG_GA),
-            "away_def_ga":    DEF_GA_ALLOWED.get(away_team, LEAGUE_AVG_GA),
-            "home_shots_rank": DEF_SHOTS_RANK.get(home_team, 16),
-            "away_shots_rank": DEF_SHOTS_RANK.get(away_team, 16),
-            "home_ga_rank":    DEF_GA_RANK.get(home_team, 16),
-            "away_ga_rank":    DEF_GA_RANK.get(away_team, 16),
-            "bets":           all_bets,
+            "home_team":        home_team,
+            "away_team":        away_team,
+            "home_goalie":      home_goalie,
+            "away_goalie":      away_goalie,
+            "home_def_shots":   DEF_SHOTS_ALLOWED.get(home_team, LEAGUE_AVG_SHOTS),
+            "away_def_shots":   DEF_SHOTS_ALLOWED.get(away_team, LEAGUE_AVG_SHOTS),
+            "home_def_ga":      DEF_GA_ALLOWED.get(home_team, LEAGUE_AVG_GA),
+            "away_def_ga":      DEF_GA_ALLOWED.get(away_team, LEAGUE_AVG_GA),
+            "home_shots_rank":  DEF_SHOTS_RANK.get(home_team, 16),
+            "away_shots_rank":  DEF_SHOTS_RANK.get(away_team, 16),
+            "home_ga_rank":     DEF_GA_RANK.get(home_team, 16),
+            "away_ga_rank":     DEF_GA_RANK.get(away_team, 16),
+            "lineup_confirmed": lineup_confirmed,
+            "bets":             all_bets,
+            "retour_de_flamme": retour,
         }
 
-    def _get_role_multiplier(self, player_name: str, team: str) -> tuple:
-        """Retourne (multiplicateur, pp_unit, line_num, is_defense)."""
+    def _lineup_confirmed(self, home: str, away: str) -> bool:
+        if self._lineup_fetcher is None:
+            return False
+        h = self._lineup_fetcher.get_lineup(home)
+        a = self._lineup_fetcher.get_lineup(away)
+        return len(h.get("forwards", [])) >= 6 and len(a.get("forwards", [])) >= 6
+
+    def _get_role_multiplier(self, name: str, team: str) -> tuple:
         if self._lineup_fetcher is None:
             return (1.0, 0, 2, False)
-        role = self._lineup_fetcher.get_player_role(player_name, team)
-        return (
-            role.get("multiplier", 1.0),
-            role.get("pp", 0),
-            role.get("line", 2),
-            role.get("is_defense", False),
-        )
+        role = self._lineup_fetcher.get_player_role(name, team)
+        return (role.get("multiplier", 1.0), role.get("pp", 0),
+                role.get("line", 2), role.get("is_defense", False))
 
-    def _best_bets(self, players, opponent, team, n=3):
+    def _best_bets(self, players, opponent, team, n, lineup_confirmed):
         opp_shots      = DEF_SHOTS_ALLOWED.get(opponent, LEAGUE_AVG_SHOTS)
         opp_ga         = DEF_GA_ALLOWED.get(opponent, LEAGUE_AVG_GA)
         shots_factor   = opp_shots / LEAGUE_AVG_SHOTS
@@ -269,140 +245,67 @@ class PropsAnalyzer:
         shots_rank_opp = DEF_SHOTS_RANK.get(opponent, 16)
         ga_rank_opp    = DEF_GA_RANK.get(opponent, 16)
         b365_impl_pct  = B365_VIG_IMPL * 100
+        MIN_PROB, MAX_PROB, MIN_ODDS = 0.40, 0.61, 1.65
 
         candidates = []
         for p in players:
-            # Multiplicateur de role (lineup Daily Faceoff)
+            if self._lineup_fetcher and self._lineup_fetcher.is_injured(p["name"], team):
+                continue
+
             mult, pp_unit, line_num, is_defense = self._get_role_multiplier(p["name"], team)
+            shots_adj  = min(p["shots_pg"]  * shots_factor * mult, 8.0)
+            goals_adj  = min(p["goals_pg"]  * goals_factor * mult, 1.5)
+            points_adj = min(p["points_pg"] * ((shots_factor + goals_factor) / 2) * mult, 3.0)
 
-            # Projections ajustees par role ET defense adverse
-            shots_adj  = p["shots_pg"]  * shots_factor * mult
-            goals_adj  = p["goals_pg"]  * goals_factor * mult
-            points_adj = p["points_pg"] * ((shots_factor + goals_factor) / 2) * mult
-
-            # Plafonds realistes pour eviter les projections folles
-            shots_adj  = min(shots_adj,  8.0)
-            goals_adj  = min(goals_adj,  1.5)
-            points_adj = min(points_adj, 3.0)
-
-            # ── Lignes bet365 avec filtres cote minimale ──────────────
-            # Cote min 1.65 (-154) — en dessous le R/R est trop mauvais
-            # meme avec un edge solide.
-            # Logique: prob Over doit etre <= 61% pour que la cote estimee
-            # soit >= 1.65. Si prob est 70%+, la cote serait ~1.43 -> skip.
-            # Regle: on choisit la ligne shots qui donne une cote >= 1.65.
-            # Pour y arriver: prob Over doit etre entre 45% et 62%.
-
-            # Cote min 1.65 => prob max ~60.6%
-            # Cote max 2.50 => prob min ~40%
-            MIN_PROB = 0.40
-            MAX_PROB = 0.61
-
-            # Shots: cherche la ligne qui donne une cote entre 1.65 et 2.50
-            # Essaie toutes les lignes du plus eleve au plus bas
-            shots_line  = None
-            shots_prob  = 0.0
-            shots_edge  = 0.0
-            for candidate_line in [5.5, 4.5, 3.5, 2.5, 1.5, 0.5]:
-                p_val = _poisson_over(shots_adj, candidate_line) / 100
-                if MIN_PROB <= p_val <= MAX_PROB:
-                    shots_line = candidate_line
-                    shots_prob = round(p_val * 100, 1)
-                    shots_edge = _edge(shots_prob, b365_impl_pct)
-                    break
-            # Fallback: prend la ligne la plus proche de 50%
-            if shots_line is None:
-                best_diff = 99.0
-                for candidate_line in [0.5, 1.5, 2.5, 3.5, 4.5, 5.5]:
-                    p_val = _poisson_over(shots_adj, candidate_line) / 100
-                    diff = abs(p_val - 0.50)
-                    if diff < best_diff:
-                        best_diff = diff
-                        shots_line = candidate_line
-                        shots_prob = round(p_val * 100, 1)
-                        shots_edge = _edge(shots_prob, b365_impl_pct)
-
-            # Buts Over 0.5 — prob souvent trop haute pour stars
-            # On utilise Over 1.5 si prob Over 0.5 > 62%
-            goals_raw = _poisson_over(goals_adj, 0.5) / 100
-            if goals_raw > MAX_PROB:
-                goals_prob = round(_poisson_over(goals_adj, 1.5), 1)
-                goals_label = "Buts Over 1.5"
-            else:
-                goals_prob = round(goals_raw * 100, 1)
-                goals_label = "Buts Over 0.5"
-            goals_edge = _edge(goals_prob, b365_impl_pct)
-
-            # Points — meme logique
-            pts_raw = _poisson_over(points_adj, 0.5) / 100
-            if pts_raw > MAX_PROB:
-                points_prob = round(_poisson_over(points_adj, 1.5), 1)
-                points_label = "Points Over 1.5"
-            else:
-                points_prob = round(pts_raw * 100, 1)
-                points_label = "Points Over 0.5"
-            points_edge = _edge(points_prob, b365_impl_pct)
-
-            # EV = edge * (cote_implicite / 100) — filtre bets a faible EV
-            # Cote implicite estimee bet365 = 1 / (notre_prob/100) * (1 - vig)
-            def est_odds(prob_pct):
-                """Cote decimale estimee bet365 avec vig ~4.75%."""
-                if prob_pct <= 0: return 99.0
-                # Cote fair = 1/prob, bet365 applique ~4.75% de vig
-                fair = 1 / (prob_pct / 100)
-                return round(fair * 0.9524, 2)
-
-            shots_odds  = est_odds(shots_prob) if shots_line else 1.0
-            goals_odds  = est_odds(goals_prob)
-            points_odds = est_odds(points_prob)
-
-            # Contexte narratif
-            context_notes = _build_context(
-                p["name"], p["shots_pg"], shots_adj,
-                p["goals_pg"], goals_adj, p["points_pg"],
-                p.get("last5_shots", 0), p.get("last5_goals", 0), p.get("last5_points", 0),
-                p.get("last10_shots", 0), p.get("last10_goals", 0), p.get("last10_points", 0),
-                p.get("season_goals", 0), p.get("season_points", 0),
-                opponent, shots_rank_opp, ga_rank_opp,
-                pp_unit, line_num, is_defense,
-            )
-
-            # ── Marches avec edge ET cote acceptable (>= 1.65) ──────
-            MIN_ODDS_FILTER = 1.65
             markets = []
 
-            if shots_line and shots_edge >= MIN_EDGE and shots_odds >= MIN_ODDS_FILTER:
-                markets.append({
-                    "type":      "shots",
-                    "label":     "Shots Over " + str(shots_line),
-                    "prob":      shots_prob,
-                    "edge":      shots_edge,
-                    "kelly":     _kelly(shots_prob, B365_VIG_IMPL, B365_VIG_ODDS),
-                    "est_odds":  shots_odds,
-                    "detail":    str(round(shots_adj, 1)) + " shots proj. · moy " + str(p["shots_pg"]) + "/m" + (" · PP" + str(pp_unit) if pp_unit else ""),
-                })
+            # SHOTS — seulement vs defense faible
+            if shots_rank_opp >= MIN_DEF_RANK_SHOTS:
+                sl, sp, se = None, 0.0, 0.0
+                for cl in [5.5, 4.5, 3.5, 2.5, 1.5, 0.5]:
+                    pv = _poisson_over(shots_adj, cl) / 100
+                    if MIN_PROB <= pv <= MAX_PROB:
+                        sl, sp, se = cl, round(pv*100,1), _edge(round(pv*100,1), b365_impl_pct)
+                        break
+                if sl is None:
+                    bd = 99.0
+                    for cl in [0.5,1.5,2.5,3.5,4.5,5.5]:
+                        pv = _poisson_over(shots_adj, cl) / 100
+                        d = abs(pv - 0.5)
+                        if d < bd:
+                            bd, sl, sp, se = d, cl, round(pv*100,1), _edge(round(pv*100,1), b365_impl_pct)
+                so = _est_odds(sp)
+                if sl and se >= MIN_EDGE and so >= MIN_ODDS:
+                    markets.append({"type":"shots","label":"Shots Over "+str(sl),
+                        "prob":sp,"edge":se,"kelly":_kelly(sp,B365_VIG_IMPL,B365_VIG_ODDS),
+                        "est_odds":so,"detail":str(round(shots_adj,1))+" shots proj. · moy "+str(p["shots_pg"])+"/m · DEF #"+str(shots_rank_opp)})
 
-            if goals_edge >= MIN_EDGE and goals_odds >= MIN_ODDS_FILTER:
-                markets.append({
-                    "type":      "goals",
-                    "label":     goals_label,
-                    "prob":      goals_prob,
-                    "edge":      goals_edge,
-                    "kelly":     _kelly(goals_prob, B365_VIG_IMPL, B365_VIG_ODDS),
-                    "est_odds":  goals_odds,
-                    "detail":    str(round(goals_adj, 2)) + " buts proj. · moy " + str(round(p["goals_pg"], 2)) + "/m",
-                })
+            # BUTS — vs defense poreuse ET buteur
+            if ga_rank_opp >= MIN_DEF_RANK_GOALS and p["goals_pg"] >= 0.35:
+                gr = _poisson_over(goals_adj, 0.5) / 100
+                if gr > MAX_PROB:
+                    gp, gl = round(_poisson_over(goals_adj, 1.5), 1), "Buts Over 1.5"
+                else:
+                    gp, gl = round(gr*100,1), "Buts Over 0.5"
+                ge, go = _edge(gp, b365_impl_pct), _est_odds(gp)
+                if ge >= MIN_EDGE and go >= MIN_ODDS:
+                    markets.append({"type":"goals","label":gl,
+                        "prob":gp,"edge":ge,"kelly":_kelly(gp,B365_VIG_IMPL,B365_VIG_ODDS),
+                        "est_odds":go,"detail":str(round(goals_adj,2))+" buts proj. · moy "+str(round(p["goals_pg"],2))+"/m · DEF buts #"+str(ga_rank_opp)})
 
-            if points_edge >= MIN_EDGE and points_odds >= MIN_ODDS_FILTER:
-                markets.append({
-                    "type":      "points",
-                    "label":     points_label,
-                    "prob":      points_prob,
-                    "edge":      points_edge,
-                    "kelly":     _kelly(points_prob, B365_VIG_IMPL, B365_VIG_ODDS),
-                    "est_odds":  points_odds,
-                    "detail":    str(round(points_adj, 2)) + " pts proj. · moy " + str(round(p["points_pg"], 2)) + "/m",
-                })
+            # POINTS — playmaker ou si pas d'autre option
+            is_playmaker = p.get("assists_pg", 0) > p["goals_pg"] * 1.5
+            if not markets or is_playmaker:
+                pr_raw = _poisson_over(points_adj, 0.5) / 100
+                if pr_raw > MAX_PROB:
+                    pp2, pl = round(_poisson_over(points_adj, 1.5), 1), "Points Over 1.5"
+                else:
+                    pp2, pl = round(pr_raw*100,1), "Points Over 0.5"
+                pe, po = _edge(pp2, b365_impl_pct), _est_odds(pp2)
+                if pe >= MIN_EDGE and po >= MIN_ODDS:
+                    markets.append({"type":"points","label":pl,
+                        "prob":pp2,"edge":pe,"kelly":_kelly(pp2,B365_VIG_IMPL,B365_VIG_ODDS),
+                        "est_odds":po,"detail":str(round(points_adj,2))+" pts proj. · moy "+str(round(p["points_pg"],2))+"/m"})
 
             if not markets:
                 continue
@@ -410,93 +313,132 @@ class PropsAnalyzer:
             markets.sort(key=lambda x: x["edge"], reverse=True)
             best = markets[0]
 
+            context_notes = _build_context(
+                p["shots_pg"], shots_adj, p["goals_pg"], p["points_pg"],
+                p.get("last5_shots",0), p.get("last5_goals",0), p.get("last5_points",0),
+                p.get("last10_shots",0), p.get("last10_goals",0), p.get("last10_points",0),
+                p.get("season_goals",0), p.get("season_points",0),
+                opponent, shots_rank_opp, ga_rank_opp, pp_unit, line_num,
+            )
+
             candidates.append({
-                "name":          p["name"],
-                "position":      p.get("position", ""),
-                "team":          team,
-                "opponent":      opponent,
-                "toi":           p.get("toi_str", "--"),
-                "n_games":       p.get("n_games", 0),
-                # Role
-                "line_num":      line_num,
-                "pp_unit":       pp_unit,
-                "is_defense":    is_defense,
-                "role_mult":     round(mult, 2),
-                # Bet principal
-                "market":        best["label"],
-                "market_type":   best["type"],
-                "our_prob":      best["prob"],
-                "edge_pct":      best["edge"],
-                "kelly":         best["kelly"],
-                "market_detail": best["detail"],
-                "b365_odds":     "-110",
-                "b365_implied":  round(b365_impl_pct, 1),
-                # Tous les marches +EV
-                "all_markets":   markets,
-                # Stats shots
-                "shots_pg":     round(p["shots_pg"], 1),
-                "shots_adj":    round(shots_adj, 1),
-                "shots_line":   shots_line,
-                "shots_prob":   shots_prob,
-                "shots_edge":   shots_edge,
-                "last5_shots":  p.get("last5_shots", 0),
-                "last10_shots": p.get("last10_shots", 0),
-                # Stats buts
-                "goals_pg":     round(p["goals_pg"], 2),
-                "goals_adj":    round(goals_adj, 2),
-                "goals_prob":   goals_prob,
-                "goals_edge":   goals_edge,
-                "last5_goals":  p.get("last5_goals", 0),
-                "season_goals": p.get("season_goals", 0),
-                # Stats points
-                "points_pg":     round(p["points_pg"], 2),
-                "points_adj":    round(points_adj, 2),
-                "points_prob":   points_prob,
-                "points_edge":   points_edge,
-                "last5_points":  p.get("last5_points", 0),
-                "season_points": p.get("season_points", 0),
-                # Contexte
-                "context_notes": context_notes,
-                "opp_shots_rank": shots_rank_opp,
-                "opp_ga_rank":    ga_rank_opp,
-                "opp_shots_pg":   round(opp_shots, 1),
-                "opp_ga_pg":      round(opp_ga, 2),
+                "name":p["name"],"position":p.get("position",""),"team":team,
+                "opponent":opponent,"toi":p.get("toi_str","--"),"n_games":p.get("n_games",0),
+                "line_num":line_num,"pp_unit":pp_unit,"is_defense":is_defense,
+                "lineup_ok":lineup_confirmed,
+                "market":best["label"],"market_type":best["type"],
+                "our_prob":best["prob"],"edge_pct":best["edge"],"kelly":best["kelly"],
+                "market_detail":best["detail"],"est_odds":best["est_odds"],
+                "b365_implied":round(b365_impl_pct,1),"all_markets":markets,
+                "shots_pg":round(p["shots_pg"],1),"goals_pg":round(p["goals_pg"],2),
+                "points_pg":round(p["points_pg"],2),
+                "last5_shots":p.get("last5_shots",0),"last10_shots":p.get("last10_shots",0),
+                "last5_goals":p.get("last5_goals",0),"last5_points":p.get("last5_points",0),
+                "season_goals":p.get("season_goals",0),"season_points":p.get("season_points",0),
+                "opp_shots_rank":shots_rank_opp,"opp_ga_rank":ga_rank_opp,
+                "context_notes":context_notes,
             })
 
         candidates.sort(key=lambda x: x["edge_pct"], reverse=True)
         return candidates[:n]
 
+    def _retour_de_flamme(self, home_players, away_players, home_team, away_team) -> list:
+        """
+        Joueurs qui tiraient bien (moy last 10 >= 2.5 shots/m) mais sont
+        en dessous de 75% de cette moyenne sur les 5 derniers matchs.
+        DK va probablement baisser leur ligne => edge sur le Over base sur
+        leur vraie moyenne.
+        """
+        retour = []
+        seen   = set()
+
+        for players, team, opponent in [
+            (home_players, home_team, away_team),
+            (away_players, away_team, home_team),
+        ]:
+            shots_rank_opp = DEF_SHOTS_RANK.get(opponent, 16)
+
+            for p in players:
+                name = p.get("name", "")
+                if not name or name in seen:
+                    continue
+                seen.add(name)
+
+                last10 = p.get("last10_shots", 0)
+                last5  = p.get("last5_shots",  0)
+                if last10 < 2: continue
+
+                avg10 = round(last10 / 10, 1)
+                avg5  = round(last5  / 5,  1)
+
+                if avg10 < 2.5: continue        # joueur pas assez actif
+                if avg5 >= avg10 * 0.75: continue  # pas assez froid
+
+                drop_pct = round((1 - avg5 / avg10) * 100)
+
+                # DK va setter la ligne sur last 5 (forme recente)
+                adj_factor   = DEF_SHOTS_ALLOWED.get(opponent, LEAGUE_AVG_SHOTS) / LEAGUE_AVG_SHOTS
+                adj_deprime  = avg5  * adj_factor
+                adj_reel     = avg10 * adj_factor
+                dk_line_est  = max(round(adj_deprime * 0.85 * 2) / 2, 0.5)
+
+                our_prob = _poisson_over(adj_reel, dk_line_est)
+                dk_impl  = B365_VIG_IMPL * 100
+                edge     = _edge(our_prob, dk_impl)
+                est_odds = _est_odds(our_prob)
+
+                if edge < MIN_EDGE or est_odds < 1.65:
+                    continue
+
+                retour.append({
+                    "name":          name,
+                    "position":      p.get("position", ""),
+                    "team":          team,
+                    "opponent":      opponent,
+                    "toi":           p.get("toi_str", "--"),
+                    "avg10_shots":   avg10,
+                    "avg5_shots":    avg5,
+                    "drop_pct":      drop_pct,
+                    "dk_line_est":   dk_line_est,
+                    "shots_adj":     round(adj_reel, 1),
+                    "our_prob":      our_prob,
+                    "edge_pct":      edge,
+                    "est_odds":      est_odds,
+                    "kelly":         _kelly(our_prob, B365_VIG_IMPL, B365_VIG_ODDS),
+                    "opp_shots_rank": shots_rank_opp,
+                    "season_goals":  p.get("season_goals", 0),
+                    "season_points": p.get("season_points", 0),
+                })
+
+        retour.sort(key=lambda x: x["edge_pct"], reverse=True)
+        return retour[:5]
+
     def _get_top_players(self, team_name: str, top_n: int = 10) -> list:
         abbr = TEAM_ABBR.get(team_name, "")
-        if not abbr:
-            return []
-
+        if not abbr: return []
         if abbr in self._roster_cache:
             roster = self._roster_cache[abbr]
         else:
             data = _get(f"{NHL_API}/roster/{abbr}/current")
-            if not data:
-                return []
+            if not data: return []
             self._roster_cache[abbr] = data
             roster = data
 
         players = []
         for group in ["forwards", "defensemen"]:
             for p in roster.get(group, []):
-                if p.get("injuryStatus") in ("IR", "LTIR", "Day-to-Day", "Injured"):
-                    continue
-                # Filtre les joueurs blesses selon Daily Faceoff
-                fn  = p.get("firstName", {}).get("default", "")
-                ln  = p.get("lastName",  {}).get("default", "")
-                full_name = fn + " " + ln
-                if self._lineup_fetcher and self._lineup_fetcher.is_injured(full_name, team_name):
-                    continue
-                pid = p.get("id")
-                pos = p.get("positionCode", "")
-                stats = self._get_player_stats(pid, full_name)
+                if p.get("injuryStatus") in ("IR","LTIR","Day-to-Day","Injured"): continue
+                fn   = p.get("firstName", {}).get("default", "")
+                ln   = p.get("lastName",  {}).get("default", "")
+                full = fn + " " + ln
+                if self._lineup_fetcher and self._lineup_fetcher.is_injured(full, team_name): continue
+                pid  = p.get("id")
+                pos  = p.get("positionCode", "")
+                stats = self._get_player_stats(pid, full)
                 if stats:
-                    stats["name"]     = full_name
+                    stats["name"]     = full
                     stats["position"] = pos
+                    stats["team"]     = team_name
                     players.append(stats)
 
         print(f"    -> {team_name}: {len(players)} joueurs avec stats")
@@ -504,137 +446,95 @@ class PropsAnalyzer:
         return players[:top_n]
 
     def _get_player_stats(self, player_id: int, name: str) -> Optional[dict]:
-        if not player_id:
-            return None
+        if not player_id: return None
         key = str(player_id)
-        if key in self._stats_cache:
-            return self._stats_cache[key]
-
+        if key in self._stats_cache: return self._stats_cache[key]
         data = _get(f"{NHL_API}/player/{player_id}/game-log/{SEASON}/{GAME_TYPE}")
-        if not data:
-            return None
-
+        if not data: return None
         logs = data.get("gameLog", [])
-        if not logs:
-            return None
-
-        logs10 = logs[:10]
-        logs5  = logs[:5]
-
-        weights = [math.exp(-0.1 * i) for i in range(len(logs10))]
+        if not logs: return None
+        logs10, logs5 = logs[:10], logs[:5]
+        weights = [math.exp(-0.1*i) for i in range(len(logs10))]
         total_w = sum(weights)
 
         def parse_toi(val):
             if isinstance(val, str) and ":" in val:
                 parts = val.split(":")
-                return int(parts[0]) * 60 + int(parts[1])
+                return int(parts[0])*60 + int(parts[1])
             return float(val) if val else 0.0
 
         def wavg(field):
             return sum(
-                parse_toi(logs10[i].get(field, 0)) * weights[i] if field == "toi"
-                else logs10[i].get(field, 0) * weights[i]
+                parse_toi(logs10[i].get(field,0))*weights[i] if field=="toi"
+                else logs10[i].get(field,0)*weights[i]
                 for i in range(len(logs10))
             ) / total_w
 
         toi_sec = wavg("toi")
-
         result = {
-            "shots_pg":      round(wavg("shots"),   2),
-            "goals_pg":      round(wavg("goals"),   3),
-            "assists_pg":    round(wavg("assists"),  3),
-            "points_pg":     round(wavg("points"),   3),
-            "toi_str":       f"{int(toi_sec//60)}:{int(toi_sec%60):02d}",
-            "n_games":       len(logs10),
-            "last5_shots":   sum(g.get("shots",  0) for g in logs5),
-            "last5_goals":   sum(g.get("goals",  0) for g in logs5),
-            "last5_points":  sum(g.get("points", 0) for g in logs5),
-            "last10_shots":  sum(g.get("shots",  0) for g in logs10),
-            "last10_goals":  sum(g.get("goals",  0) for g in logs10),
-            "last10_points": sum(g.get("points", 0) for g in logs10),
-            "season_goals":  sum(g.get("goals",  0) for g in logs),
-            "season_points": sum(g.get("points", 0) for g in logs),
+            "shots_pg":     round(wavg("shots"),  2),
+            "goals_pg":     round(wavg("goals"),  3),
+            "assists_pg":   round(wavg("assists"), 3),
+            "points_pg":    round(wavg("points"),  3),
+            "toi_str":      f"{int(toi_sec//60)}:{int(toi_sec%60):02d}",
+            "n_games":      len(logs10),
+            "last5_shots":  sum(g.get("shots",0)  for g in logs5),
+            "last5_goals":  sum(g.get("goals",0)  for g in logs5),
+            "last5_points": sum(g.get("points",0) for g in logs5),
+            "last10_shots": sum(g.get("shots",0)  for g in logs10),
+            "last10_goals": sum(g.get("goals",0)  for g in logs10),
+            "last10_points":sum(g.get("points",0) for g in logs10),
+            "season_goals": sum(g.get("goals",0)  for g in logs),
+            "season_points":sum(g.get("points",0) for g in logs),
         }
         self._stats_cache[key] = result
         return result
 
     def _get_goalie_stats(self, team_name: str) -> dict:
         abbr = TEAM_ABBR.get(team_name, "")
-        if not abbr:
-            return {}
-
+        if not abbr: return {}
         if abbr in self._roster_cache:
             roster = self._roster_cache[abbr]
         else:
             data = _get(f"{NHL_API}/roster/{abbr}/current")
-            if not data:
-                return {}
+            if not data: return {}
             self._roster_cache[abbr] = data
             roster = data
-
         goalies = roster.get("goalies", [])
-        if not goalies:
-            return {}
-
-        # Utilise le gardien Daily Faceoff si disponible
+        if not goalies: return {}
         df_goalie = ""
         if self._lineup_fetcher:
             lineup = self._lineup_fetcher.get_lineup(team_name)
             df_goalie = lineup.get("goalie", "")
-
+        starter = None
         if df_goalie:
-            starter = next(
-                (g for g in goalies
-                 if (g.get("firstName", {}).get("default", "") + " " +
-                     g.get("lastName",  {}).get("default", "")).strip() == df_goalie),
-                None
-            )
-        else:
-            starter = None
-
+            starter = next((g for g in goalies if
+                (g.get("firstName",{}).get("default","")+
+                 " "+g.get("lastName",{}).get("default","")).strip()==df_goalie), None)
         if not starter:
-            starter = max(goalies, key=lambda g: g.get("gamesPlayed", 0)
-                          if isinstance(g.get("gamesPlayed"), int) else 0)
-
+            starter = max(goalies, key=lambda g: g.get("gamesPlayed",0)
+                          if isinstance(g.get("gamesPlayed"),int) else 0)
         pid = starter.get("id")
-        fn  = starter.get("firstName", {}).get("default", "")
-        ln  = starter.get("lastName",  {}).get("default", "")
-
+        fn  = starter.get("firstName",{}).get("default","")
+        ln  = starter.get("lastName", {}).get("default","")
         data = _get(f"{NHL_API}/player/{pid}/game-log/{SEASON}/{GAME_TYPE}")
-        if not data:
-            return {"name": fn + " " + ln}
-
-        logs = data.get("gameLog", [])[:10]
-        if not logs:
-            return {"name": fn + " " + ln}
-
-        weights = [math.exp(-0.1 * i) for i in range(len(logs))]
+        if not data: return {"name": fn+" "+ln}
+        logs = data.get("gameLog",[])[:10]
+        if not logs: return {"name": fn+" "+ln}
+        weights = [math.exp(-0.1*i) for i in range(len(logs))]
         total_w = sum(weights)
-
         def parse_toi_g(val):
-            if isinstance(val, str) and ":" in val:
+            if isinstance(val,str) and ":" in val:
                 p = val.split(":")
-                return int(p[0]) * 60 + int(p[1])
+                return int(p[0])*60+int(p[1])
             return float(val) if val else 0.0
-
         def wavg(field):
-            return sum(
-                parse_toi_g(logs[i].get(field, 0)) * weights[i] if field == "toi"
-                else logs[i].get(field, 0) * weights[i]
-                for i in range(len(logs))
-            ) / total_w
-
-        sa    = wavg("shotsAgainst")
-        ga    = wavg("goalsAgainst")
-        saves = sa - ga
+            return sum(parse_toi_g(logs[i].get(field,0))*weights[i] if field=="toi"
+                       else logs[i].get(field,0)*weights[i]
+                       for i in range(len(logs))) / total_w
+        sa, ga = wavg("shotsAgainst"), wavg("goalsAgainst")
+        saves  = sa - ga
         sv_pct = saves / max(sa, 1)
-        toi_h  = wavg("toi") / 3600
-        gaa    = ga / max(toi_h, 0.01)
-
-        return {
-            "name":     fn + " " + ln,
-            "sv_pct":   round(sv_pct, 3),
-            "saves_pg": round(saves, 1),
-            "gaa":      round(gaa, 2),
-            "confirmed": bool(df_goalie),
-        }
+        gaa    = ga / max(wavg("toi")/3600, 0.01)
+        return {"name":fn+" "+ln,"sv_pct":round(sv_pct,3),
+                "saves_pg":round(saves,1),"gaa":round(gaa,2),"confirmed":bool(df_goalie)}
