@@ -1,0 +1,453 @@
+"""
+Backtester automatique NHL Signal
+- Tourne chaque matin pour valider les bets de la veille
+- Charge signal.json, query NHL API pour les resultats reels
+- Calcule P&L, win rate, et sauvegarde historique
+- Objectif: identifier les filtres qui atteignent 75%+ win rate
+"""
+
+import json
+import os
+import sys
+import time
+import math
+import requests
+from datetime import datetime, timedelta
+import pytz
+
+NHL_API   = "https://api-web.nhle.com/v1"
+SEASON    = "20252026"
+GAME_TYPE = "2"
+ET_TZ     = pytz.timezone("America/Toronto")
+
+HISTORY_FILE = "../docs/backtest_history.json"
+SIGNAL_FILE  = "../docs/signal.json"
+
+# Filtres stricts pour atteindre 75%+ win rate sur les props
+# Base sur observations: shots over sur DEF faible + joueur actif = meilleur predicateur
+STRICT_FILTERS = {
+    "min_def_rank_shots": 25,    # Seulement defense tres faible
+    "min_shots_avg": 2.5,        # Joueur doit shooter regulierement
+    "min_last5_ratio": 0.80,     # Last 5 doit etre >= 80% de last 10
+    "max_prob": 0.62,            # Cote min ~1.60
+    "min_edge": 8.0,
+    "market_whitelist": ["shots"],  # Props uniquement, pas points/buts
+}
+
+
+def _get(url):
+    time.sleep(0.3)
+    try:
+        r = requests.get(url, timeout=12)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        print(f"  API error: {e}")
+        return None
+
+
+def load_signal(path: str) -> dict:
+    if not os.path.exists(path):
+        print(f"Signal introuvable: {path}")
+        return {}
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def load_history() -> list:
+    if not os.path.exists(HISTORY_FILE):
+        return []
+    with open(HISTORY_FILE, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_history(history: list):
+    os.makedirs(os.path.dirname(HISTORY_FILE), exist_ok=True)
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False, indent=2, default=str)
+
+
+# ── Verification des resultats ──────────────────────────────────────────────
+
+def get_game_result(home_team: str, away_team: str, game_date: str) -> dict:
+    """Cherche le resultat final d'un match via NHL API schedule."""
+    date_obj = datetime.strptime(game_date, "%Y-%m-%d")
+    schedule = _get(f"{NHL_API}/schedule/{game_date}")
+    if not schedule:
+        return {}
+    for day in schedule.get("gameWeek", []):
+        for game in day.get("games", []):
+            h = game.get("homeTeam", {}).get("abbrev", "")
+            a = game.get("awayTeam", {}).get("abbrev", "")
+            state = game.get("gameState", "")
+            if state not in ("FINAL", "OFF"):
+                continue
+            h_score = game.get("homeTeam", {}).get("score", 0)
+            a_score = game.get("awayTeam", {}).get("score", 0)
+            game_id = game.get("id")
+            return {
+                "game_id": game_id,
+                "home_score": h_score,
+                "away_score": a_score,
+                "total": h_score + a_score,
+                "home_team": h,
+                "away_team": a,
+            }
+    return {}
+
+
+def get_player_shots(player_name: str, team: str, game_date: str) -> dict:
+    """Recupere les shots/pts/buts d'un joueur pour la date donnee."""
+    # 1. Trouver le joueur dans le roster
+    from nhl_stats import TeamStats
+    TEAM_ABBR = {
+        "Anaheim Ducks":"ANA","Boston Bruins":"BOS","Buffalo Sabres":"BUF",
+        "Calgary Flames":"CGY","Carolina Hurricanes":"CAR","Chicago Blackhawks":"CHI",
+        "Colorado Avalanche":"COL","Columbus Blue Jackets":"CBJ","Dallas Stars":"DAL",
+        "Detroit Red Wings":"DET","Edmonton Oilers":"EDM","Florida Panthers":"FLA",
+        "Los Angeles Kings":"LAK","Minnesota Wild":"MIN",
+        "Montreal Canadiens":"MTL","Montréal Canadiens":"MTL",
+        "Nashville Predators":"NSH","New Jersey Devils":"NJD","New York Islanders":"NYI",
+        "New York Rangers":"NYR","Ottawa Senators":"OTT","Philadelphia Flyers":"PHI",
+        "Pittsburgh Penguins":"PIT","San Jose Sharks":"SJS","Seattle Kraken":"SEA",
+        "St. Louis Blues":"STL","St Louis Blues":"STL",
+        "Tampa Bay Lightning":"TBL","Toronto Maple Leafs":"TOR",
+        "Utah Mammoth":"UTA","Vancouver Canucks":"VAN","Vegas Golden Knights":"VGK",
+        "Washington Capitals":"WSH","Winnipeg Jets":"WPG",
+    }
+    abbr = TEAM_ABBR.get(team, "")
+    if not abbr:
+        return {"shots": None, "goals": None, "points": None}
+
+    roster = _get(f"{NHL_API}/roster/{abbr}/current")
+    if not roster:
+        return {"shots": None, "goals": None, "points": None}
+
+    player_id = None
+    for group in ["forwards", "defensemen"]:
+        for p in roster.get(group, []):
+            fn = p.get("firstName", {}).get("default", "")
+            ln = p.get("lastName",  {}).get("default", "")
+            full = fn + " " + ln
+            if full.lower() == player_name.lower():
+                player_id = p.get("id")
+                break
+        if player_id:
+            break
+
+    if not player_id:
+        return {"shots": None, "goals": None, "points": None}
+
+    # 2. Cherche le game log pour la date
+    data = _get(f"{NHL_API}/player/{player_id}/game-log/{SEASON}/{GAME_TYPE}")
+    if not data:
+        return {"shots": None, "goals": None, "points": None}
+
+    target_date = game_date  # Format "2026-04-09"
+    for log in data.get("gameLog", []):
+        log_date = log.get("gameDate", "")
+        if log_date == target_date:
+            return {
+                "shots":  log.get("shots",  0),
+                "goals":  log.get("goals",  0),
+                "points": log.get("points", 0),
+                "toi":    log.get("toi",    "0:00"),
+                "found":  True,
+            }
+
+    return {"shots": 0, "goals": 0, "points": 0, "found": False}
+
+
+def check_bet_result(bet: dict, game_date: str) -> dict:
+    """
+    Verifie si un bet a gagne ou perdu.
+    Returns: {"won": bool, "actual": ..., "line": ..., "market": ...}
+    """
+    bet_type    = bet.get("type", "").lower()
+    bet_label   = bet.get("bet", "")
+    game        = bet.get("game", "")
+    b365_odds   = bet.get("b365_odds", 1.9)
+    edge        = bet.get("edge_pct", 0)
+
+    # Props joueurs
+    if "prop" in bet_type.lower() or "shots" in bet_label.lower() or "buts" in bet_label.lower() or "points" in bet_label.lower():
+        parts = bet_label.split()
+        player_name = " ".join(parts[:-3]) if len(parts) > 3 else parts[0]
+        direction   = parts[-2].lower() if len(parts) >= 2 else "over"
+        try:
+            line = float(parts[-1])
+        except:
+            line = 2.5
+
+        # Cherche l'equipe du joueur dans le game
+        teams = game.split(" @ ")
+        team = teams[-1].strip() if teams else ""
+
+        stats = get_player_shots(player_name, team, game_date)
+        if stats.get("shots") is None:
+            return {"won": None, "actual": None, "reason": "player_not_found"}
+
+        if "shots" in bet_label.lower():
+            actual = stats.get("shots", 0)
+        elif "buts" in bet_label.lower() or "goals" in bet_label.lower():
+            actual = stats.get("goals", 0)
+        else:
+            actual = stats.get("points", 0)
+
+        won = (actual > line) if direction == "over" else (actual < line)
+        return {"won": won, "actual": actual, "line": line, "market": "props"}
+
+    # Moneyline
+    elif "moneyline" in bet_type or "ml" in bet_label.lower():
+        teams = game.split(" @ ")
+        if len(teams) < 2:
+            return {"won": None, "reason": "parse_error"}
+        away, home = teams[0].strip(), teams[1].strip()
+        result = get_game_result(home, away, game_date)
+        if not result:
+            return {"won": None, "reason": "no_result"}
+        if "home" in bet_label.lower() or home.split()[-1] in bet_label:
+            won = result["home_score"] > result["away_score"]
+        else:
+            won = result["away_score"] > result["home_score"]
+        return {"won": won, "actual": f"{result['away_score']}-{result['home_score']}", "market": "ml"}
+
+    # Puck line
+    elif "puck" in bet_type or "+1.5" in bet_label or "-1.5" in bet_label:
+        teams = game.split(" @ ")
+        if len(teams) < 2:
+            return {"won": None, "reason": "parse_error"}
+        away, home = teams[0].strip(), teams[1].strip()
+        result = get_game_result(home, away, game_date)
+        if not result:
+            return {"won": None, "reason": "no_result"}
+        diff = result["home_score"] - result["away_score"]
+        if "+1.5" in bet_label:
+            team_name = bet_label.replace("+1.5", "").strip()
+            if home.split()[-1] in team_name or home in team_name:
+                won = diff >= -1  # Home +1.5 gagne si perd par 1 ou moins
+            else:
+                won = diff <= 1   # Away +1.5 gagne si perd par 1 ou moins
+        elif "-1.5" in bet_label:
+            team_name = bet_label.replace("-1.5", "").strip()
+            if home.split()[-1] in team_name or home in team_name:
+                won = diff >= 2   # Home -1.5 gagne si gagne par 2+
+            else:
+                won = diff <= -2  # Away -1.5 gagne si gagne par 2+
+        else:
+            won = None
+        return {"won": won, "actual": f"{result['away_score']}-{result['home_score']}", "market": "puckline"}
+
+    # Totals
+    elif "total" in bet_type or "under" in bet_label.lower() or "over" in bet_label.lower():
+        teams = game.split(" @ ")
+        if len(teams) < 2:
+            return {"won": None, "reason": "parse_error"}
+        away, home = teams[0].strip(), teams[1].strip()
+        result = get_game_result(home, away, game_date)
+        if not result:
+            return {"won": None, "reason": "no_result"}
+        try:
+            parts = bet_label.split()
+            line  = float(parts[-1])
+            direction = parts[0].lower()
+        except:
+            return {"won": None, "reason": "parse_error"}
+        actual = result["total"]
+        won = (actual > line) if direction == "over" else (actual < line)
+        return {"won": won, "actual": actual, "line": line, "market": "totals"}
+
+    return {"won": None, "reason": "unknown_type"}
+
+
+# ── Application des filtres stricts ─────────────────────────────────────────
+
+def apply_strict_filter(bet: dict, signal_data: dict) -> bool:
+    """
+    Filtre les bets pour atteindre 75%+ win rate.
+    Garde seulement les bets avec contexte favorable fort.
+    """
+    bet_type = bet.get("type", "").lower()
+    bet_label = bet.get("bet", "")
+    edge = bet.get("edge_pct", 0)
+
+    # Seulement les props shots
+    if "shots" not in bet_label.lower() and "prop" not in bet_type:
+        return False
+
+    # Edge minimum plus eleve
+    if edge < STRICT_FILTERS["min_edge"]:
+        return False
+
+    # Cherche les donnees props supplementaires dans signal.json
+    props_analysis = signal_data.get("props_analysis", [])
+    for game_analysis in props_analysis:
+        for b in game_analysis.get("bets", []):
+            if b.get("market_type") != "shots":
+                continue
+            if b.get("edge_pct", 0) < STRICT_FILTERS["min_edge"]:
+                continue
+            # Filtre DEF rank >= 25
+            if b.get("opp_shots_rank", 0) < STRICT_FILTERS["min_def_rank_shots"]:
+                continue
+            # Filtre shots moyenne >= 2.5
+            if b.get("shots_pg", 0) < STRICT_FILTERS["min_shots_avg"]:
+                continue
+            # Filtre last 5 >= 80% last 10
+            last5  = b.get("last5_shots", 0) / 5
+            last10 = b.get("last10_shots", 1) / 10
+            if last10 > 0 and last5 < last10 * STRICT_FILTERS["min_last5_ratio"]:
+                continue
+            return True
+
+    return False
+
+
+# ── Calcul P&L ───────────────────────────────────────────────────────────────
+
+def calculate_pl(bets_with_results: list, bankroll: float, kelly_cap: float = 0.03) -> dict:
+    """Calcule P&L avec Kelly fractionnel."""
+    total_staked = 0
+    total_profit = 0
+    wins = 0
+    losses = 0
+    unknowns = 0
+
+    results = []
+    br = bankroll
+
+    for entry in bets_with_results:
+        bet    = entry["bet"]
+        result = entry["result"]
+
+        if result.get("won") is None:
+            unknowns += 1
+            continue
+
+        odds   = bet.get("b365_odds", 1.9)
+        kelly  = min(bet.get("kelly_fraction", 2.5) / 100, kelly_cap)
+        stake  = round(br * kelly, 2)
+        total_staked += stake
+
+        if result["won"]:
+            profit = round(stake * (odds - 1), 2)
+            wins  += 1
+        else:
+            profit = -stake
+            losses += 1
+
+        total_profit += profit
+        br += profit
+
+        results.append({
+            **entry,
+            "stake":  stake,
+            "profit": profit,
+            "won":    result["won"],
+        })
+
+    win_rate = wins / (wins + losses) if (wins + losses) > 0 else 0
+    roi      = total_profit / total_staked * 100 if total_staked > 0 else 0
+
+    return {
+        "wins":          wins,
+        "losses":        losses,
+        "unknowns":      unknowns,
+        "win_rate":      round(win_rate * 100, 1),
+        "total_profit":  round(total_profit, 2),
+        "total_staked":  round(total_staked, 2),
+        "roi":           round(roi, 1),
+        "bankroll_end":  round(br, 2),
+        "bets_detail":   results,
+    }
+
+
+# ── Entrypoint principal ──────────────────────────────────────────────────────
+
+def run_backtest(signal_path: str = SIGNAL_FILE, bankroll: float = 1000.0):
+    """Lance le backtest pour le signal du jour precedent."""
+    print("=" * 60)
+    print("BACKTEST AUTOMATIQUE")
+    print(datetime.now(ET_TZ).strftime("%A %d %B %Y, %H:%M ET"))
+    print("=" * 60)
+
+    signal = load_signal(signal_path)
+    if not signal:
+        print("Signal vide ou introuvable.")
+        return
+
+    signal_date = signal.get("date", "")
+    if not signal_date:
+        print("Date introuvable dans signal.json")
+        return
+
+    value_bets    = signal.get("value_bets", [])
+    props_bets    = [b for pa in signal.get("props_analysis", [])
+                     for b in pa.get("bets", [])]
+
+    all_bets = value_bets + props_bets
+    print(f"\nDate du signal: {signal_date}")
+    print(f"Bets a verifier: {len(value_bets)} signal + {len(props_bets)} props = {len(all_bets)} total")
+
+    # Verification des resultats
+    print("\nVerification des resultats...")
+    bets_with_results = []
+    for bet in all_bets:
+        result = check_bet_result(bet, signal_date)
+        bets_with_results.append({"bet": bet, "result": result})
+        status = "WIN" if result.get("won") else ("LOSS" if result.get("won") is False else "?")
+        print(f"  {bet.get('bet', '?')[:40]} → {status} (actual: {result.get('actual', 'N/A')})")
+
+    # P&L total
+    print("\nP&L tous les bets:")
+    pl_all = calculate_pl(bets_with_results, bankroll)
+    print(f"  Win rate: {pl_all['win_rate']}% ({pl_all['wins']}W / {pl_all['losses']}L)")
+    print(f"  P&L: ${pl_all['total_profit']:+.2f} | ROI: {pl_all['roi']:+.1f}%")
+
+    # P&L avec filtres stricts (objectif 75%+)
+    strict_bets = [b for b in bets_with_results
+                   if apply_strict_filter(b["bet"], signal)]
+    if strict_bets:
+        print(f"\nP&L filtres stricts ({len(strict_bets)} bets, objectif 75%+):")
+        pl_strict = calculate_pl(strict_bets, bankroll)
+        print(f"  Win rate: {pl_strict['win_rate']}% ({pl_strict['wins']}W / {pl_strict['losses']}L)")
+        print(f"  P&L: ${pl_strict['total_profit']:+.2f} | ROI: {pl_strict['roi']:+.1f}%")
+    else:
+        pl_strict = {"win_rate": 0, "wins": 0, "losses": 0}
+        print("\nAucun bet ne passe les filtres stricts.")
+
+    # Sauvegarde dans l'historique
+    history = load_history()
+    history.append({
+        "date":          signal_date,
+        "total_bets":    len(bets_with_results),
+        "win_rate_all":  pl_all["win_rate"],
+        "pl_all":        pl_all["total_profit"],
+        "roi_all":       pl_all["roi"],
+        "strict_bets":   len(strict_bets),
+        "win_rate_strict": pl_strict.get("win_rate", 0),
+        "pl_strict":     pl_strict.get("total_profit", 0),
+        "bets_detail":   pl_all["bets_detail"],
+        "bankroll_end":  pl_all["bankroll_end"],
+    })
+    save_history(history)
+    print(f"\nHistorique sauvegarde: {HISTORY_FILE}")
+
+    # Analyse tendances sur l'historique
+    if len(history) >= 3:
+        print("\nTendances sur l'historique:")
+        all_wr  = [h["win_rate_all"]    for h in history]
+        str_wr  = [h["win_rate_strict"] for h in history if h["strict_bets"] > 0]
+        print(f"  Win rate moyen (tous): {sum(all_wr)/len(all_wr):.1f}%")
+        if str_wr:
+            print(f"  Win rate moyen (filtres): {sum(str_wr)/len(str_wr):.1f}%")
+        total_pl = sum(h["pl_all"] for h in history)
+        print(f"  P&L cumulatif: ${total_pl:+.2f}")
+
+    return pl_all
+
+
+if __name__ == "__main__":
+    signal_path = sys.argv[1] if len(sys.argv) > 1 else SIGNAL_FILE
+    bankroll    = float(sys.argv[2]) if len(sys.argv) > 2 else 1000.0
+    run_backtest(signal_path, bankroll)
