@@ -51,6 +51,12 @@ class ReportGenerator:
             "<div id=\"tab-props\" style=\"display:none\">",
             props_html if props_html else "<p class=\"no-bets\">Analyse joueurs disponible apres le prochain run.</p>",
             "</div>",
+            "<div id=\"tab-nba\" style=\"display:none\">",
+            self._nba_section(data.get("nba_analysis", [])),
+            "</div>",
+            "<div id=\"tab-nba\" style=\"display:none\">",
+            self._nba_section(data.get("nba_analysis", [])),
+            "</div>",
             "<div id=\"tab-calc\" style=\"display:none\">",
             calc_html,
             "</div>",
@@ -73,6 +79,7 @@ class ReportGenerator:
             "<div class=\"tabs\">"
             "<button class=\"tab active\" onclick=\"showTab('tab-signal',this)\">Signal du jour</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-props',this)\">Analyse joueurs</button>"
+            "<button class=\"tab\" onclick=\"showTab('tab-nba',this)\">NBA Props</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-calc',this)\">Calculateur</button>"
             "</div></div></nav>"
         )
@@ -455,6 +462,77 @@ class ReportGenerator:
         return html
 
 
+
+    def _nba_section(self, nba_analysis: list) -> str:
+        if not nba_analysis:
+            return "<div style='color:var(--m);padding:1rem 0;font-size:13px'>Aucune analyse NBA disponible ou pas de matchs ce soir.</div>"
+
+        html = "<div class='nba-header'>NBA Player Props — Analyse +EV</div>"
+
+        for game_data in nba_analysis:
+            home  = game_data.get("home_team", "")
+            away  = game_data.get("away_team", "")
+            bets  = game_data.get("bets", [])
+            if not bets: continue
+
+            html += (
+                "<div class='nba-game'>"
+                "<div class='nba-matchup'>" + away + " <span class='nba-at'>@</span> " + home + "</div>"
+            )
+
+            for b in bets:
+                player   = b.get("player", "")
+                market   = b.get("market", "")
+                prob     = b.get("our_prob", 0)
+                edge     = b.get("edge_pct", 0)
+                kelly    = b.get("kelly", 0)
+                odds     = b.get("est_odds", 0)
+                avg10    = b.get("avg10", 0)
+                avg5     = b.get("avg5", 0)
+                adj      = b.get("adj_proj", 0)
+                def_rank = b.get("def_rank", 15)
+                opponent = b.get("opponent", "")
+                context  = b.get("context", [])
+                team     = b.get("team", "")
+
+                ec = "#0F6E56" if edge >= 15 else "#BA7517"
+                eb = "#E1F5EE" if edge >= 15 else "#FAEEDA"
+                dr_color = "#B45309" if def_rank >= 25 else ("#0F6E56" if def_rank <= 5 else "#6B7280")
+
+                html += (
+                    "<div class='nba-card'>"
+                    "<div class='nba-card-head'>"
+                    "<div>"
+                    "<span class='nba-player'>" + player + "</span>"
+                    "<span class='nba-meta'>" + team.split()[-1] + " vs " + opponent.split()[-1] + "</span>"
+                    "</div>"
+                    "<div class='nba-edge' style='color:" + ec + ";background:" + eb + "'>"
+                    "+" + str(edge) + "% edge"
+                    "</div>"
+                    "</div>"
+
+                    "<div class='nba-bet-label'>" + market + "</div>"
+
+                    "<div class='nba-stats'>"
+                    "<div class='nba-stat'><span>Moy last 10</span><strong>" + str(avg10) + "</strong></div>"
+                    "<div class='nba-stat'><span>Moy last 5</span><strong>" + str(avg5) + "</strong></div>"
+                    "<div class='nba-stat'><span>Proj. adj DEF</span><strong>" + str(adj) + "</strong></div>"
+                    "<div class='nba-stat'><span>DEF adverse</span><strong style='color:" + dr_color + "'>#" + str(def_rank) + " ligue</strong></div>"
+                    "<div class='nba-stat'><span>Notre prob</span><strong style='color:" + ec + "'>" + str(prob) + "%</strong></div>"
+                    "<div class='nba-stat'><span>Cote est. b365</span><strong>" + str(odds) + "</strong></div>"
+                    "<div class='nba-stat'><span>b365 implied</span><strong>52.4%</strong></div>"
+                    "<div class='nba-stat'><span>1/4 Kelly</span><strong>" + str(kelly) + "% BR</strong></div>"
+                    "</div>"
+                )
+                if context:
+                    for note in context[:2]:
+                        html += "<div class='nba-note'>" + note + "</div>"
+                html += "</div>"
+
+            html += "</div>"
+
+        return html
+
     def _calculator(self):
         return (
             "<div class=\"calc\">"
@@ -581,6 +659,21 @@ class ReportGenerator:
             ".cr-stat strong{font-size:16px;font-weight:600}"
             ".hi{display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:.5px solid var(--b);font-size:13px}"
             ".he{font-weight:600}"
+            ".nba-header{font-size:15px;font-weight:500;color:var(--t);margin:0 0 1rem;padding-bottom:.75rem;border-bottom:.5px solid var(--b)}"
+            ".nba-game{margin-bottom:1.5rem}"
+            ".nba-matchup{font-size:14px;font-weight:500;color:var(--t);margin-bottom:.75rem}"
+            ".nba-at{color:var(--m);font-weight:400;margin:0 6px}"
+            ".nba-card{background:var(--bg);border:.5px solid var(--b);border-radius:8px;padding:12px 14px;margin-bottom:10px}"
+            ".nba-card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}"
+            ".nba-player{font-size:14px;font-weight:500;color:var(--t);display:block}"
+            ".nba-meta{font-size:11px;color:var(--m)}"
+            ".nba-edge{font-size:12px;font-weight:500;padding:3px 10px;border-radius:20px;flex-shrink:0}"
+            ".nba-bet-label{font-size:13px;font-weight:500;color:var(--t);margin-bottom:10px;border-left:3px solid #378ADD;padding-left:8px}"
+            ".nba-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}"
+            ".nba-stat{background:var(--s);border-radius:5px;padding:5px 8px;font-size:11px;color:var(--m)}"
+            ".nba-stat span{display:block;margin-bottom:2px}"
+            ".nba-stat strong{font-size:13px;font-weight:500;color:var(--t)}"
+            ".nba-note{font-size:11px;color:#185FA5;background:#E6F1FB;border-radius:4px;padding:5px 10px;margin-top:4px}"
             ".disc{font-size:11px;color:var(--m);margin-top:2rem;padding-top:1rem;border-top:.5px solid var(--b);line-height:1.7}"
             ".upd{font-size:11px;color:var(--m);text-align:right;margin-top:.5rem}"
             ".lineup-warning{background:#FAEEDA;border-left:3px solid #B45309;color:#633806;padding:10px 14px;border-radius:6px;font-size:12px;margin:0 0 1rem}"
