@@ -321,6 +321,29 @@ class PropsAnalyzer:
                 opponent, shots_rank_opp, ga_rank_opp, pp_unit, line_num,
             )
 
+            # Recalcul shots_adj pour affichage dans la card
+            s_adj_display = round(min(p["shots_pg"] * shots_factor * mult, 8.0), 1)
+            # Determine shots_line et shots_prob pour affichage
+            s_line_display = None
+            s_prob_display = 0.0
+            s_edge_display = 0.0
+            for cl in [5.5,4.5,3.5,2.5,1.5,0.5]:
+                pv = _poisson_over(s_adj_display, cl) / 100
+                if MIN_PROB <= pv <= MAX_PROB:
+                    s_line_display = cl
+                    s_prob_display = round(pv*100,1)
+                    s_edge_display = _edge(s_prob_display, b365_impl_pct)
+                    break
+            if s_line_display is None:
+                bd = 99.0
+                for cl in [0.5,1.5,2.5,3.5,4.5,5.5]:
+                    pv = _poisson_over(s_adj_display, cl) / 100
+                    d = abs(pv-0.5)
+                    if d < bd:
+                        bd,s_line_display = d,cl
+                        s_prob_display = round(pv*100,1)
+                        s_edge_display = _edge(s_prob_display, b365_impl_pct)
+
             candidates.append({
                 "name":p["name"],"position":p.get("position",""),"team":team,
                 "opponent":opponent,"toi":p.get("toi_str","--"),"n_games":p.get("n_games",0),
@@ -332,6 +355,12 @@ class PropsAnalyzer:
                 "b365_implied":round(b365_impl_pct,1),"all_markets":markets,
                 "shots_pg":round(p["shots_pg"],1),"goals_pg":round(p["goals_pg"],2),
                 "points_pg":round(p["points_pg"],2),
+                "shots_adj":s_adj_display,
+                "shots_line":s_line_display,
+                "shots_prob":s_prob_display,
+                "shots_edge":s_edge_display,
+                "goals_adj":round(min(p["goals_pg"]*goals_factor*mult,1.5),2),
+                "points_adj":round(min(p["points_pg"]*((shots_factor+goals_factor)/2)*mult,3.0),2),
                 "last5_shots":p.get("last5_shots",0),"last10_shots":p.get("last10_shots",0),
                 "last5_goals":p.get("last5_goals",0),"last5_points":p.get("last5_points",0),
                 "season_goals":p.get("season_goals",0),"season_points":p.get("season_points",0),
