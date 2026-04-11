@@ -1,6 +1,6 @@
 """
 Report Generator - Dashboard GitHub Pages complet
-3 sections: Signal auto | Analyse joueurs | Calculateur edge
+4 sections: Signal auto | Analyse joueurs | Performance | Calculateur edge
 Python 3.11 compatible - zero backslashes in f-strings
 """
 
@@ -26,10 +26,11 @@ class ReportGenerator:
         except Exception:
             gen_display = gen_at
 
-        bet_cards  = self._bet_cards(value_bets)
-        rows       = self._rows(signals)
-        props_html = self._props_section(props_by_game)
-        calc_html  = self._calculator()
+        bet_cards    = self._bet_cards(value_bets)
+        rows         = self._rows(signals)
+        props_html   = self._props_section(props_by_game)
+        calc_html    = self._calculator()
+        perf_html    = self._performance_section()
 
         parts = [
             "<!DOCTYPE html><html lang=\"fr\"><head>",
@@ -54,8 +55,8 @@ class ReportGenerator:
             "<div id=\"tab-nba\" style=\"display:none\">",
             self._nba_section(data.get("nba_analysis", [])),
             "</div>",
-            "<div id=\"tab-nba\" style=\"display:none\">",
-            self._nba_section(data.get("nba_analysis", [])),
+            "<div id=\"tab-perf\" style=\"display:none\">",
+            perf_html,
             "</div>",
             "<div id=\"tab-calc\" style=\"display:none\">",
             calc_html,
@@ -80,6 +81,7 @@ class ReportGenerator:
             "<button class=\"tab active\" onclick=\"showTab('tab-signal',this)\">Signal du jour</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-props',this)\">Analyse joueurs</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-nba',this)\">NBA Props</button>"
+            "<button class=\"tab\" onclick=\"showTab('tab-perf',this)\">Performance</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-calc',this)\">Calculateur</button>"
             "</div></div></nav>"
         )
@@ -101,6 +103,149 @@ class ReportGenerator:
             "<div class=\"box\"><div class=\"l\">Bookmaker</div><div class=\"v\" style=\"font-size:17px\">DraftKings</div></div>"
             "</div>"
         )
+
+    def _performance_section(self) -> str:
+        """
+        Lit docs/results.json et genere la section Performance.
+        Si le fichier n'existe pas encore, affiche un message d'attente.
+        """
+        results_path = os.path.join(os.path.dirname(__file__), "../docs/results.json")
+        if not os.path.exists(results_path):
+            return (
+                "<div class='perf-empty'>"
+                "<div class='perf-empty-icon'>📊</div>"
+                "<div class='perf-empty-title'>Aucune donnee de performance</div>"
+                "<div class='perf-empty-sub'>Le backtester resout automatiquement les bets chaque matin. "
+                "Les resultats apparaitront ici apres le premier run complet.</div>"
+                "</div>"
+            )
+
+        try:
+            with open(results_path) as f:
+                data = json.load(f)
+        except Exception:
+            return "<div class='perf-empty'>Erreur lecture results.json</div>"
+
+        s    = data.get("summary", {})
+        bets = data.get("bets", [])
+
+        total    = s.get("total", 0)
+        wins     = s.get("wins", 0)
+        losses   = s.get("losses", 0)
+        win_rate = s.get("win_rate", 0.0)
+        profit   = s.get("profit", 0.0)
+        roi      = s.get("roi", 0.0)
+        by_edge  = s.get("by_edge", {})
+        updated  = s.get("last_updated", "")
+
+        if total == 0:
+            return (
+                "<div class='perf-empty'>"
+                "<div class='perf-empty-icon'>⏳</div>"
+                "<div class='perf-empty-title'>En attente de resultats</div>"
+                "<div class='perf-empty-sub'>Des bets ont ete enregistres mais aucun match n'est encore resolu. "
+                "Revenez demain matin.</div>"
+                "</div>"
+            )
+
+        profit_color = "#1D9E75" if profit >= 0 else "#A32D2D"
+        roi_color    = "#1D9E75" if roi >= 0 else "#A32D2D"
+        profit_sign  = "+" if profit >= 0 else ""
+        roi_sign     = "+" if roi >= 0 else ""
+
+        # Stat boxes
+        html = (
+            "<div class='perf-wrap'>"
+            "<div class='perf-title'>Performance cumulee du modele</div>"
+
+            "<div class='perf-grid'>"
+            "<div class='perf-box'><div class='perf-label'>Bets resolus</div>"
+            "<div class='perf-val'>" + str(total) + "</div></div>"
+
+            "<div class='perf-box'><div class='perf-label'>Win Rate</div>"
+            "<div class='perf-val' style='color:" + ("#1D9E75" if win_rate >= 55 else "#BA7517" if win_rate >= 50 else "#A32D2D") + "'>"
+            + str(win_rate) + "%</div></div>"
+
+            "<div class='perf-box'><div class='perf-label'>Profit (unites)</div>"
+            "<div class='perf-val' style='color:" + profit_color + "'>"
+            + profit_sign + str(profit) + "u</div></div>"
+
+            "<div class='perf-box'><div class='perf-label'>ROI</div>"
+            "<div class='perf-val' style='color:" + roi_color + "'>"
+            + roi_sign + str(roi) + "%</div></div>"
+            "</div>"
+        )
+
+        # Par tranche d'edge
+        if by_edge:
+            html += "<div class='perf-section-title'>Par tranche d'edge</div><div class='perf-edge-table'>"
+            for label, info in by_edge.items():
+                n   = info.get("n", 0)
+                w   = info.get("wins", 0)
+                p   = info.get("profit", 0.0)
+                wr  = round(w / n * 100, 1) if n > 0 else 0
+                pc  = "#1D9E75" if p >= 0 else "#A32D2D"
+                ps  = "+" if p >= 0 else ""
+                html += (
+                    "<div class='perf-edge-row'>"
+                    "<span class='perf-edge-label'>Edge " + label + "%</span>"
+                    "<span class='perf-edge-n'>" + str(n) + " bets</span>"
+                    "<span class='perf-edge-wr'>" + str(wr) + "% WR</span>"
+                    "<span class='perf-edge-profit' style='color:" + pc + "'>" + ps + str(p) + "u</span>"
+                    "</div>"
+                )
+            html += "</div>"
+
+        # Historique des bets recents (max 30, du plus recent au plus vieux)
+        resolved = [b for b in bets if b.get("result") in ("W", "L")]
+        pending  = [b for b in bets if b.get("result") == "?"]
+        recent   = list(reversed(resolved))[:30]
+
+        if recent:
+            html += "<div class='perf-section-title'>Historique recents (" + str(len(resolved)) + " resolus"
+            if pending:
+                html += ", " + str(len(pending)) + " en attente"
+            html += ")</div>"
+            html += "<div class='perf-hist'>"
+            for b in recent:
+                result = b.get("result", "?")
+                rc  = "#1D9E75" if result == "W" else "#A32D2D"
+                rb  = "#E1F5EE" if result == "W" else "#FCEBEB"
+                ep  = b.get("edge_pct", 0)
+                odds = b.get("b365_odds", 0)
+                prob = b.get("our_prob", 0)
+                kelly = min(b.get("kelly_fraction", 0), 3.0)
+                profit_bet = round(kelly * (odds - 1), 2) if result == "W" else round(-kelly, 2)
+                ps = "+" if profit_bet >= 0 else ""
+
+                html += (
+                    "<div class='perf-hist-row'>"
+                    "<div class='perf-hist-left'>"
+                    "<span class='perf-hist-result' style='background:" + rb + ";color:" + rc + "'>" + result + "</span>"
+                    "<div>"
+                    "<div class='perf-hist-bet'>" + b.get("bet", "") + "</div>"
+                    "<div class='perf-hist-game'>" + b.get("game", "") + " · " + b.get("date", "") + "</div>"
+                    "</div>"
+                    "</div>"
+                    "<div class='perf-hist-right'>"
+                    "<span class='perf-hist-edge'>+" + str(ep) + "% edge</span>"
+                    "<span class='perf-hist-profit' style='color:" + rc + "'>" + ps + str(profit_bet) + "u</span>"
+                    "</div>"
+                    "</div>"
+                )
+            html += "</div>"
+
+        if updated:
+            try:
+                dt = datetime.fromisoformat(updated.replace("Z", "+00:00"))
+                dt_et = dt.astimezone(pytz.timezone("America/Toronto"))
+                upd_str = dt_et.strftime("%d %b %Y a %H:%M ET")
+            except Exception:
+                upd_str = updated
+            html += "<div class='perf-updated'>Mis a jour le " + upd_str + "</div>"
+
+        html += "</div>"  # /perf-wrap
+        return html
 
     def _bet_cards(self, value_bets):
         if not value_bets:
@@ -212,30 +357,25 @@ class ReportGenerator:
                 if r <= 22:  return "Moyenne"
                 return "Faible"
 
-            # En-tete match
             html += (
                 "<div class='pg'>"
                 "<div class='ph'>"
                 "<div class='pm'><span class='pm-away'>" + away + "</span>"
                 " <span class='pm-at'>@</span> "
                 "<span class='pm-home'>" + home + "</span></div>"
-
                 "<div class='matchup-grid'>"
-
                 "<div class='matchup-col'>"
                 "<div class='mc-title'>DEF " + home[:3].upper() + "</div>"
                 "<div class='mc-stat'><span style='color:" + rank_color(hsr) + "'>" + rank_label(hsr) + " (#" + str(hsr) + ")</span> shots</div>"
                 "<div class='mc-stat'><span style='color:" + rank_color(hgr) + "'>" + rank_label(hgr) + " (#" + str(hgr) + ")</span> buts</div>"
                 "<div class='mc-val'><strong>" + str(hshots) + "</strong> shots/m accordes · <strong>" + str(hga) + "</strong> GA/m</div>"
                 "</div>"
-
                 "<div class='matchup-col'>"
                 "<div class='mc-title'>DEF " + away[:3].upper() + "</div>"
                 "<div class='mc-stat'><span style='color:" + rank_color(asr) + "'>" + rank_label(asr) + " (#" + str(asr) + ")</span> shots</div>"
                 "<div class='mc-stat'><span style='color:" + rank_color(agr) + "'>" + rank_label(agr) + " (#" + str(agr) + ")</span> buts</div>"
                 "<div class='mc-val'><strong>" + str(ashots) + "</strong> shots/m accordes · <strong>" + str(aga) + "</strong> GA/m</div>"
                 "</div>"
-
                 "<div class='matchup-col'>"
                 "<div class='mc-title'>Gardiens</div>"
             )
@@ -253,7 +393,6 @@ class ReportGenerator:
 
             html += "</div></div></div>"
 
-            # Bets joueurs
             if not bets:
                 html += "<div class='no-bets' style='margin:0 0 1rem'>Aucun bet +EV identifie (edge < 8%)</div>"
             else:
@@ -272,8 +411,6 @@ class ReportGenerator:
                     notes     = b.get("context_notes", [])
                     all_mkts  = b.get("all_markets", [])
                     dk_impl   = b.get("dk_implied", 52.4)
-
-                    # Shots stats
                     s_pg   = b.get("shots_pg", 0)
                     s_adj  = b.get("shots_adj", 0)
                     s_line = b.get("shots_line", 0)
@@ -283,8 +420,6 @@ class ReportGenerator:
                     l10s   = b.get("last10_shots", 0)
                     avg5s  = round(l5s / 5,  1)
                     avg10s = round(l10s / 10, 1) if l10s else s_pg
-
-                    # Goals/points
                     g_pg   = b.get("goals_pg", 0)
                     g_adj  = b.get("goals_adj", 0)
                     g_prob = b.get("goals_prob", 0)
@@ -297,7 +432,6 @@ class ReportGenerator:
                     p_edge = b.get("points_edge", 0)
                     l5p    = b.get("last5_points", 0)
                     sp     = b.get("season_points", 0)
-
                     opp_sr = b.get("opp_shots_rank", 16)
                     opp_gr = b.get("opp_ga_rank", 16)
 
@@ -324,7 +458,6 @@ class ReportGenerator:
                         "<div class='pbm-label'>📌 MEILLEUR BET</div>"
                         "<div class='pbm-market' style='color:" + ec + "'>" + market + "</div>"
                         "<div class='pbm-detail'>" + mdetail + "</div>"
-
                         "<div class='pbm-odds'>"
                         "<div class='pbm-odd'><span>Cote est. b365</span><strong>" + est_odds_str + "</strong></div>"
                         "<div class='pbm-odd'><span>Notre prob</span><strong style='color:" + ec + "'>" + str(prob) + "%</strong></div>"
@@ -333,8 +466,6 @@ class ReportGenerator:
                         "<span>Edge</span><strong>+" + str(edge) + "%</strong></div>"
                         "<div class='pbm-odd'><span>1/4 Kelly</span><strong>" + str(kelly) + "% BR</strong></div>"
                         "</div></div>"
-
-                        # Section shots (toujours affichee)
                         "<div class='pb-shots'>"
                         "<div class='pbs-title'>🎯 Shots on Goal</div>"
                         "<div class='pbs-grid'>"
@@ -359,16 +490,12 @@ class ReportGenerator:
                         "<div class='pbs-stat'><span>Buts saison</span><strong>" + str(sg) + " buts</strong></div>"
                         "</div>"
                         "</div>"
-
-                        # Autres stats
                         "<div class='pbs-others'>"
                         "<span>Buts: moy " + str(g_pg) + "/m · adj " + str(g_adj) + " · last5: " + str(l5g) + " · prob " + str(g_prob) + "% (edge +" + str(g_edge) + "%)</span>"
                         " &nbsp;|&nbsp; "
                         "<span>Pts: moy " + str(p_pg) + "/m · adj " + str(p_adj) + " · last5: " + str(l5p) + " · prob " + str(p_prob) + "% (edge +" + str(p_edge) + "%)</span>"
                         "</div>"
                         "</div>"
-
-                        # Contexte narratif
                     )
 
                     if notes:
@@ -377,7 +504,6 @@ class ReportGenerator:
                             html += "<div class='pb-note'>" + note + "</div>"
                         html += "</div>"
 
-                    # Autres marches +EV
                     other_mkts = [m for m in all_mkts if m["label"] != market]
                     if other_mkts:
                         html += "<div class='pb-others-bets'>Autres bets +EV: "
@@ -390,11 +516,9 @@ class ReportGenerator:
                             )
                         html += "</div>"
 
-                    html += "</div>"  # /pb
+                    html += "</div>"
+                html += "</div>"
 
-                html += "</div>"  # /player-bets
-
-            # Badge lineup non confirme
             if not lineup_confirmed:
                 html += (
                     "<div class='lineup-warning'>"
@@ -403,7 +527,6 @@ class ReportGenerator:
                     "</div>"
                 )
 
-            # Bloc retour de flamme
             if retour:
                 html += (
                     "<div class='retour-section'>"
@@ -439,7 +562,6 @@ class ReportGenerator:
                         "</div>"
                         "<div class='retour-drop' style='color:" + drop_color + "'>-" + str(rdrop) + "% depuis last 5</div>"
                         "</div>"
-
                         "<div class='retour-stats'>"
                         "<div class='retour-stat'><span>Moy last 10</span><strong>" + str(ravg10) + " shots/m</strong></div>"
                         "<div class='retour-stat'><span>Moy last 5</span><strong style='color:" + drop_color + "'>" + str(ravg5) + " shots/m</strong></div>"
@@ -451,35 +573,29 @@ class ReportGenerator:
                         "<div class='retour-stat'><span>Notre prob</span><strong>" + str(rprob) + "%</strong></div>"
                         "<div class='retour-stat'><span>1/4 Kelly</span><strong>" + str(rkelly) + "% BR</strong></div>"
                         "</div>"
-
                         "<div class='retour-signal'>📌 Bet: Shots Over " + str(rline) + " · Logique: moy reelle " + str(ravg10) + "/m → DK va coter bas sur la forme recente</div>"
                         "</div>"
                     )
-                html += "</div>"  # /retour-section
+                html += "</div>"
 
-            html += "</div>"  # /pg
+            html += "</div>"
 
         return html
-
-
 
     def _nba_section(self, nba_analysis: list) -> str:
         if not nba_analysis:
             return "<div style='color:var(--m);padding:1rem 0;font-size:13px'>Aucune analyse NBA disponible ou pas de matchs ce soir.</div>"
 
         html = "<div class='nba-header'>NBA Player Props — Analyse +EV</div>"
-
         for game_data in nba_analysis:
             home  = game_data.get("home_team", "")
             away  = game_data.get("away_team", "")
             bets  = game_data.get("bets", [])
             if not bets: continue
-
             html += (
                 "<div class='nba-game'>"
                 "<div class='nba-matchup'>" + away + " <span class='nba-at'>@</span> " + home + "</div>"
             )
-
             for b in bets:
                 player   = b.get("player", "")
                 market   = b.get("market", "")
@@ -494,11 +610,9 @@ class ReportGenerator:
                 opponent = b.get("opponent", "")
                 context  = b.get("context", [])
                 team     = b.get("team", "")
-
                 ec = "#0F6E56" if edge >= 15 else "#BA7517"
                 eb = "#E1F5EE" if edge >= 15 else "#FAEEDA"
                 dr_color = "#B45309" if def_rank >= 25 else ("#0F6E56" if def_rank <= 5 else "#6B7280")
-
                 html += (
                     "<div class='nba-card'>"
                     "<div class='nba-card-head'>"
@@ -510,9 +624,7 @@ class ReportGenerator:
                     "+" + str(edge) + "% edge"
                     "</div>"
                     "</div>"
-
                     "<div class='nba-bet-label'>" + market + "</div>"
-
                     "<div class='nba-stats'>"
                     "<div class='nba-stat'><span>Moy last 10</span><strong>" + str(avg10) + "</strong></div>"
                     "<div class='nba-stat'><span>Moy last 5</span><strong>" + str(avg5) + "</strong></div>"
@@ -528,9 +640,7 @@ class ReportGenerator:
                     for note in context[:2]:
                         html += "<div class='nba-note'>" + note + "</div>"
                 html += "</div>"
-
             html += "</div>"
-
         return html
 
     def _calculator(self):
@@ -615,7 +725,7 @@ class ReportGenerator:
             "nav{border-bottom:.5px solid var(--b);background:var(--s);position:sticky;top:0;z-index:10}"
             ".ni{max-width:960px;margin:0 auto;padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}"
             ".nt{font-weight:600;font-size:15px}"
-            ".tabs{display:flex;gap:4px}"
+            ".tabs{display:flex;gap:4px;flex-wrap:wrap}"
             ".tab{background:transparent;border:.5px solid var(--b);border-radius:6px;padding:5px 12px;font-size:13px;cursor:pointer;color:var(--m)}"
             ".tab.active{background:var(--t);color:var(--bg);border-color:var(--t)}"
             ".wrap{max-width:960px;margin:0 auto;padding:1.5rem 1rem}"
@@ -659,6 +769,35 @@ class ReportGenerator:
             ".cr-stat strong{font-size:16px;font-weight:600}"
             ".hi{display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:.5px solid var(--b);font-size:13px}"
             ".he{font-weight:600}"
+            ".perf-wrap{padding:.5rem 0}"
+            ".perf-title{font-size:15px;font-weight:600;color:var(--t);margin-bottom:1rem;padding-bottom:.75rem;border-bottom:.5px solid var(--b)}"
+            ".perf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}"
+            ".perf-box{background:var(--s);border:.5px solid var(--b);border-radius:var(--r);padding:.875rem 1rem}"
+            ".perf-label{font-size:11px;color:var(--m);margin-bottom:4px}"
+            ".perf-val{font-size:24px;font-weight:700}"
+            ".perf-section-title{font-size:11px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin:1.25rem 0 .6rem}"
+            ".perf-edge-table{background:var(--s);border:.5px solid var(--b);border-radius:var(--r);overflow:hidden;margin-bottom:1.5rem}"
+            ".perf-edge-row{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:.5px solid var(--b);font-size:13px}"
+            ".perf-edge-row:last-child{border-bottom:none}"
+            ".perf-edge-label{font-weight:500;min-width:120px}"
+            ".perf-edge-n{color:var(--m);min-width:70px}"
+            ".perf-edge-wr{min-width:70px}"
+            ".perf-edge-profit{font-weight:600;text-align:right}"
+            ".perf-hist{display:flex;flex-direction:column;gap:0;background:var(--s);border:.5px solid var(--b);border-radius:var(--r);overflow:hidden;margin-bottom:1rem}"
+            ".perf-hist-row{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:.5px solid var(--b);gap:1rem}"
+            ".perf-hist-row:last-child{border-bottom:none}"
+            ".perf-hist-left{display:flex;align-items:center;gap:.75rem;flex:1;min-width:0}"
+            ".perf-hist-result{font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px;flex-shrink:0}"
+            ".perf-hist-bet{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}"
+            ".perf-hist-game{font-size:11px;color:var(--m)}"
+            ".perf-hist-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}"
+            ".perf-hist-edge{font-size:11px;color:var(--m)}"
+            ".perf-hist-profit{font-size:14px;font-weight:600}"
+            ".perf-updated{font-size:11px;color:var(--m);text-align:right;margin-top:.5rem}"
+            ".perf-empty{text-align:center;padding:3rem 1rem;color:var(--m)}"
+            ".perf-empty-icon{font-size:40px;margin-bottom:1rem}"
+            ".perf-empty-title{font-size:16px;font-weight:500;color:var(--t);margin-bottom:.5rem}"
+            ".perf-empty-sub{font-size:13px;line-height:1.6;max-width:400px;margin:0 auto}"
             ".nba-header{font-size:15px;font-weight:500;color:var(--t);margin:0 0 1rem;padding-bottom:.75rem;border-bottom:.5px solid var(--b)}"
             ".nba-game{margin-bottom:1.5rem}"
             ".nba-matchup{font-size:14px;font-weight:500;color:var(--t);margin-bottom:.75rem}"
@@ -690,7 +829,6 @@ class ReportGenerator:
             ".retour-stat span{display:block;margin-bottom:2px}"
             ".retour-stat strong{font-size:13px;font-weight:500;color:var(--t)}"
             ".retour-signal{font-size:11px;color:#185FA5;background:#E6F1FB;border-radius:5px;padding:7px 10px;line-height:1.5}"
-            "/* PROPS JOUEURS */"
             ".matchup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:.75rem}"
             ".matchup-col{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rs);padding:.75rem}"
             ".mc-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--m);margin-bottom:.4rem}"
@@ -726,51 +864,15 @@ class ReportGenerator:
             ".pb-note{font-size:12px;color:var(--t)}"
             ".pb-others-bets{padding:.5rem 1rem;font-size:12px;color:var(--m);border-top:.5px solid var(--b)}"
             ".pb-other-bet{font-weight:600;margin-right:8px}"
-            "@media(max-width:600px){.matchup-grid{grid-template-columns:1fr}.pbs-grid{grid-template-columns:1fr}.pbm-odds{gap:6px}}"
-            ".bets-list{display:flex;flex-direction:column;gap:.5rem}"
-            ".bet-row{display:flex;justify-content:space-between;align-items:stretch;background:var(--bg);border:.5px solid var(--b);border-radius:var(--rs);padding:.875rem 1rem;gap:1rem;flex-wrap:wrap}"
-            ".bet-left{flex:1;min-width:200px;display:flex;flex-direction:column;gap:4px}"
-            ".bet-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:140px}"
-            ".bet-player{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px}"
-            ".bet-name{font-size:15px;font-weight:700}"
-            ".bet-pos{font-size:11px;color:var(--m);background:var(--s);padding:2px 5px;border-radius:4px;border:.5px solid var(--b)}"
-            ".bet-team{font-size:11px;color:var(--m)}"
-            ".bet-market{font-size:14px;font-weight:600;color:var(--t)}"
-            ".bet-ctx{font-size:11px;color:var(--m);line-height:1.5}"
-            ".bet-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.03em}"
-            ".bet-odds{display:flex;flex-direction:column;gap:3px;text-align:right}"
-            ".bo-label{font-size:10px;color:var(--m);margin-right:4px}"
-            ".bo-val{font-size:13px;font-weight:600}"
             ".pg{background:var(--s);border:.5px solid var(--b);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem}"
             ".ph{margin-bottom:1rem}"
             ".pm{font-size:16px;font-weight:600;margin-bottom:.5rem}"
-            ".pd{display:flex;flex-wrap:wrap;gap:6px}"
-            ".db{font-size:11px;padding:3px 8px;border-radius:4px;border:.5px solid;font-weight:500}"
-            ".gr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}"
-            ".gb{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rs);padding:.75rem}"
-            ".gbn{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}"
-            ".gname{font-size:14px;font-weight:600;margin-bottom:.4rem}"
-            ".gs{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--m)}"
-            ".pcards{display:flex;flex-direction:column;gap:.75rem}"
-            ".pc{background:var(--bg);border:.5px solid var(--b);border-radius:var(--rs);padding:1rem}"
-            ".pch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;flex-wrap:wrap;gap:4px}"
-            ".pname{font-size:15px;font-weight:600;margin-right:.4rem}"
-            ".ppos{font-size:11px;color:var(--m);background:var(--s);padding:2px 6px;border-radius:4px;border:.5px solid var(--b)}"
-            ".pteam{font-size:11px;color:var(--m);margin-top:4px}"
-            ".pstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:.6rem}"
-            ".pstat{background:var(--s);border:.5px solid var(--b);border-radius:6px;padding:.6rem .75rem}"
-            ".pstat-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--m);margin-bottom:.4rem}"
-            ".pstat-row{font-size:11px;color:var(--m);display:flex;flex-direction:column;gap:2px;margin-bottom:.4rem}"
-            ".pstat-row strong{color:var(--t)}"
-            ".pstat-rec{font-size:12px;font-weight:600}"
-            ".pbet{display:flex;align-items:center;gap:10px;background:var(--s);border:.5px solid;border-radius:8px;padding:.6rem .9rem;margin-bottom:.75rem;flex-wrap:wrap}"
-            ".pbet-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--m);white-space:nowrap}"
-            ".pbet-main{font-size:16px;font-weight:700;flex:1}"
-            ".pbet-prob{font-size:12px;color:var(--m);white-space:nowrap}"
-            ".preason{font-size:11px;color:var(--m);background:var(--s);border:.5px solid var(--b);border-radius:4px;padding:.4rem .6rem;line-height:1.5}"
             "@media(max-width:600px){"
-            ".pstats{grid-template-columns:1fr}"
-            ".gr{grid-template-columns:1fr}"
+            ".matchup-grid{grid-template-columns:1fr}"
+            ".pbs-grid{grid-template-columns:1fr}"
+            ".pbm-odds{gap:6px}"
+            ".perf-grid{grid-template-columns:repeat(2,1fr)}"
+            ".perf-edge-row{flex-wrap:wrap;gap:4px}"
             ".cr-grid{grid-template-columns:repeat(2,1fr)}"
             "}"
             "</style>"
