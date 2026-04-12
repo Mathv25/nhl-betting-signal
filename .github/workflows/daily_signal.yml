@@ -15,6 +15,14 @@ jobs:
           python-version: '3.11'
       - name: Installer dependances
         run: pip install -r requirements.txt
+      - name: Archiver signal de la veille
+        run: |
+          YESTERDAY=$(date -d "yesterday" +%Y-%m-%d)
+          if [ -f docs/signal.json ]; then
+            mkdir -p docs/archive
+            cp docs/signal.json docs/archive/signal_${YESTERDAY}.json
+            echo "Signal archive: signal_${YESTERDAY}.json"
+          fi
       - name: Resoudre bets de la veille
         run: |
           cd src
@@ -32,5 +40,4 @@ jobs:
           git config --global user.email "bot@nhl.local"
           git add docs/
           git diff --staged --quiet || git commit -m "Signal $(date +'%Y-%m-%d')"
-          git pull --rebase origin main
           git push
