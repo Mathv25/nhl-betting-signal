@@ -48,7 +48,10 @@ def main():
     # 2. Validation alignements NHL.com
     print("\nValidation des alignements NHL.com...")
     games = checker.validate_players(games)
-    props_an._roster_cache = checker._roster_cache
+
+    # Partage du cache roster entre tous les modules — evite les 429
+    props_an._roster_cache   = checker._roster_cache
+    lf_fetcher._roster_cache = checker._roster_cache
 
     # 3. Line combos Daily Faceoff (PP1/PP2/lignes)
     print("\nRecuperation des line combos Daily Faceoff...")
