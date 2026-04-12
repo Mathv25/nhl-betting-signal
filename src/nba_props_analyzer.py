@@ -1,234 +1,246 @@
 """
-NBA Props Analyzer v3 — Sans API externe
-Utilise les lignes DK comme proxy de la moyenne du joueur.
-Logique: DK fixe ses lignes a ~52% implied. Notre edge vient
-de l'ajustement DEF adverse et de la forme recente via BDL API.
-Si BDL echoue, on calcule quand meme un edge base sur le matchup.
+NBA Props Analyzer - Stats via BallDontLie API (gratuit, pas de cle requise)
+Distribution normale pour points/rebonds/passes/3pts
 """
-
 import requests
 import time
 import math
 from typing import Optional
 
-B365_VIG_IMPL = 52.36 / 100
-B365_VIG_ODDS = 1.909
-MIN_EDGE      = 5.0    # Seuil plus bas pour NBA (plus de variabilite)
-MIN_ODDS_FILT = 1.60
-MIN_PROB      = 0.38
-MAX_PROB      = 0.63
+BDLIE_URL = "https://www.balldontlie.io/api/v1"
 
-BDL_BASE = "https://api.balldontlie.io/v1"
-
-# Stats DEF par equipe — pts accordes/match et rang (2024-25)
-TEAM_DEF_PTS = {
-    "Oklahoma City Thunder":107.8,"Minnesota Timberwolves":109.2,
-    "Boston Celtics":109.5,"Cleveland Cavaliers":110.1,
-    "Indiana Pacers":111.4,"New York Knicks":111.8,
-    "Memphis Grizzlies":112.0,"Miami Heat":112.3,
-    "Houston Rockets":112.5,"Golden State Warriors":112.8,
-    "Denver Nuggets":113.0,"Los Angeles Lakers":113.4,
-    "Milwaukee Bucks":113.6,"Philadelphia 76ers":113.9,
-    "Phoenix Suns":114.2,"Dallas Mavericks":114.5,
-    "Sacramento Kings":114.8,"New Orleans Pelicans":115.0,
-    "Atlanta Hawks":115.3,"Brooklyn Nets":115.6,
-    "Utah Jazz":115.9,"Washington Wizards":116.2,
-    "Orlando Magic":116.5,"Detroit Pistons":116.8,
-    "Portland Trail Blazers":117.1,"Toronto Raptors":117.4,
-    "Chicago Bulls":117.7,"Charlotte Hornets":118.0,
-    "Los Angeles Clippers":118.3,"San Antonio Spurs":118.9,
-}
-LEAGUE_AVG_DEF = 114.0
-DEF_RANK = {t:i+1 for i,(t,_) in enumerate(sorted(TEAM_DEF_PTS.items(), key=lambda x:x[1]))}
-
-# Ajustements DEF par stat
-# Points: tres sensible a la DEF
-# Rebounds: peu sensible
-# Assists: moderement sensible
-# 3pts: moderement sensible
-DEF_SENSITIVITY = {
-    "pts": 1.0, "pra": 0.8, "ast": 0.5,
-    "reb": 0.2, "fg3m": 0.5, "blk": 0.1, "stl": 0.1,
+# Mapping marche -> (cle stat dans la reponse BallDontLie, label affichage)
+MARKET_TO_STAT = {
+    "player_points":                  ("pts",  "Points"),
+    "player_rebounds":                ("reb",  "Rebonds"),
+    "player_assists":                 ("ast",  "Passes"),
+    "player_threes":                  ("fg3m", "3pts"),
+    "player_points_rebounds_assists": ("pra",  "PRA"),
 }
 
+MIN_EDGE       = 6.0
+MIN_GAMES      = 5
+MIN_ODDS       = 1.65
+MAX_BETS_GAME  = 6
+# Props DK standard: -115/-115 => implied 53.49% par cote
+DK_PROP_IMPLIED = 53.49
 
-def _pmf(lam, k):
-    if lam <= 0: return 1.0 if k == 0 else 0.0
-    f = 1
-    for i in range(2, k+1): f *= i
-    return math.exp(-lam) * (lam**k) / f
 
-def _poisson_over(lam, line):
-    return round(min(max(sum(_pmf(lam,k) for k in range(int(line)+1, int(line)+40)),0.01),0.99)*100,1)
-
-def _kelly(p, odds):
-    b = odds-1
-    return round(max(((b*p/100)-(1-p/100))/b/4*100,0),1) if b>0 else 0.0
-
-def _edge(our, impl):
-    return round((our-impl)/impl*100,1) if impl>0 else 0.0
-
-def _est_odds(p):
-    return round((1/(p/100))*0.9524,2) if p>0 else 99.0
-
-def _try_bdl_stats(player_name: str) -> Optional[dict]:
-    """Tente de recuperer les stats BDL. Retourne None si echec."""
+def _get(url: str, params: dict = None) -> Optional[dict]:
+    time.sleep(0.4)
     try:
-        parts = player_name.split()
-        search = parts[-1] if parts else player_name
-        r = requests.get(f"{BDL_BASE}/players",
-                        params={"search":search,"per_page":10},
-                        timeout=6)
-        if r.status_code != 200: return None
-        players = r.json().get("data",[])
-        pid = None
-        for p in players:
-            full = f"{p.get('first_name','')} {p.get('last_name','')}".lower()
-            if full == player_name.lower() or player_name.lower() in full:
-                pid = p["id"]
-                break
-        if not pid: return None
-
-        time.sleep(0.4)
-        r2 = requests.get(f"{BDL_BASE}/stats",
-                         params={"player_ids[]":pid,"seasons[]":2024,"per_page":10,"postseason":"false"},
-                         timeout=6)
-        if r2.status_code != 200: return None
-        logs = sorted([g for g in r2.json().get("data",[])
-                       if g.get("min") and g["min"] not in ("","0")],
-                      key=lambda g:g.get("game",{}).get("date",""), reverse=True)[:10]
-        if len(logs) < 3: return None
-
-        def ex(logs, k, n):
-            v = []
-            for g in logs[:n]:
-                try: v.append(float(g.get(k,0) or 0))
-                except: pass
-            return v
-
-        pts10 = ex(logs,"pts",10); pts5 = ex(logs,"pts",5)
-        reb10 = ex(logs,"reb",10); reb5 = ex(logs,"reb",5)
-        ast10 = ex(logs,"ast",10); ast5 = ex(logs,"ast",5)
-        fg3m10= ex(logs,"fg3m",10);fg3m5= ex(logs,"fg3m",5)
-        blk10 = ex(logs,"blk",10); stl10= ex(logs,"stl",10)
-
-        def avg(l): return round(sum(l)/len(l),1) if l else 0.0
-        pra10 = [p+r+a for p,r,a in zip(pts10,reb10,ast10)]
-        pra5  = [p+r+a for p,r,a in zip(pts5, reb5, ast5)]
-
-        return {
-            "pts_avg10":avg(pts10),"pts_avg5":avg(pts5),
-            "reb_avg10":avg(reb10),"reb_avg5":avg(reb5),
-            "ast_avg10":avg(ast10),"ast_avg5":avg(ast5),
-            "fg3m_avg10":avg(fg3m10),"fg3m_avg5":avg(fg3m5),
-            "blk_avg10":avg(blk10),"stl_avg10":avg(stl10),
-            "pra_avg10":avg(pra10),"pra_avg5":avg(pra5),
-            "source":"bdl",
-        }
+        r = requests.get(url, params=params or {}, timeout=12,
+                         headers={"User-Agent": "Mozilla/5.0"})
+        if r.status_code == 200:
+            return r.json()
+        return None
     except Exception:
         return None
+
+
+def _search_player_id(name: str) -> Optional[int]:
+    """Cherche l'ID BallDontLie d'un joueur par son nom."""
+    data = _get(f"{BDLIE_URL}/players", {"search": name, "per_page": 5})
+    if not data or not data.get("data"):
+        return None
+    players = data["data"]
+    if not players:
+        return None
+    # Prend le premier resultat (generalement le plus proche)
+    return players[0]["id"]
+
+
+def _get_recent_stats(player_id: int, stat_key: str, n: int = 15) -> list:
+    """
+    Retourne les n derniers matchs du joueur pour la saison 2024-25.
+    Exclut les matchs < 10 minutes de temps de jeu.
+    """
+    data = _get(f"{BDLIE_URL}/stats", {
+        "player_ids[]": player_id,
+        "seasons[]":    2024,
+        "per_page":     n,
+    })
+    if not data or not data.get("data"):
+        return []
+
+    logs = sorted(
+        data["data"],
+        key=lambda x: x.get("game", {}).get("date", ""),
+        reverse=True
+    )
+
+    values = []
+    for log in logs:
+        # Filtre: minimum 10 minutes
+        min_str = str(log.get("min", "0") or "0")
+        try:
+            mins = int(min_str.split(":")[0]) if ":" in min_str else int(min_str)
+        except Exception:
+            mins = 0
+        if mins < 10:
+            continue
+
+        if stat_key == "pra":
+            v = (log.get("pts") or 0) + (log.get("reb") or 0) + (log.get("ast") or 0)
+        else:
+            v = log.get(stat_key) or 0
+        values.append(float(v))
+
+    return values[:10]
+
+
+def _weighted_avg(values: list) -> float:
+    """Moyenne ponderee exponentiellement (plus recent = plus important)."""
+    if not values:
+        return 0.0
+    weights = [math.exp(-0.1 * i) for i in range(len(values))]
+    total_w = sum(weights)
+    return sum(v * w for v, w in zip(values, weights)) / total_w
+
+
+def _std_dev(values: list, mean: float) -> float:
+    if len(values) < 2:
+        return mean * 0.35
+    variance = sum((x - mean) ** 2 for x in values) / len(values)
+    return max(math.sqrt(variance), mean * 0.25)
+
+
+def _normal_over_prob(mean: float, std: float, line: float) -> float:
+    """
+    Probabilite Over(line) avec distribution normale + correction de continuite.
+    Utilise une approximation de la fonction erf.
+    """
+    if std <= 0:
+        return 99.0 if mean > line else 1.0
+
+    # Correction de continuite: on ajoute 0.5 car la stat est discrete
+    z = (line + 0.5 - mean) / std
+
+    def erf_approx(x):
+        sign = 1 if x >= 0 else -1
+        x = abs(x)
+        t = 1.0 / (1.0 + 0.3275911 * x)
+        poly = t * (0.254829592 + t * (-0.284496736 + t * (
+               1.421413741 + t * (-1.453152027 + t * 1.061405429))))
+        return sign * (1.0 - poly * math.exp(-x * x))
+
+    prob_over = (1.0 - erf_approx(z / math.sqrt(2))) / 2.0
+    return round(min(max(prob_over * 100, 1.0), 99.0), 1)
+
+
+def _edge(our_pct: float, implied_pct: float) -> float:
+    if implied_pct <= 0:
+        return 0.0
+    return round((our_pct - implied_pct) / implied_pct * 100, 1)
+
+
+def _kelly(our_pct: float, odds: float) -> float:
+    b = odds - 1
+    if b <= 0:
+        return 0.0
+    k = ((b * our_pct / 100) - (1 - our_pct / 100)) / b / 4 * 100
+    return round(max(k, 0.0), 1)
 
 
 class NBAPropsAnalyzer:
 
     def __init__(self):
-        self._stats_cache = {}
+        self._id_cache    = {}   # name -> player_id
+        self._stats_cache = {}   # "{player_id}_{stat_key}" -> [values]
 
     def analyze_game(self, game: dict, props_by_market: dict) -> dict:
-        home = game["home_team"]
-        away = game["away_team"]
-        print(f"  NBA Props: {away} @ {home}...")
+        home = game.get("home_team", "")
+        away = game.get("away_team", "")
+        print(f"  NBA props: {away} @ {home}")
 
-        bets = []
-        seen = set()
+        ev_bets      = []
+        seen_players = set()
 
         for market, props in props_by_market.items():
+            stat_key, stat_label = MARKET_TO_STAT.get(market, ("pts", market))
+
             for prop in props:
-                if prop.get("direction") != "over": continue
-                player = prop.get("player","")
-                line   = prop.get("line")
-                odds   = prop.get("odds",1.9)
-                impl   = prop.get("implied_prob", B365_VIG_IMPL*100)
-                if not player or line is None: continue
-                key = (player, market)
-                if key in seen: continue
-                seen.add(key)
+                player_name  = prop.get("player", "")
+                line         = prop.get("line", 0)
+                over_odds    = prop.get("over_odds", 2.0)
+                over_implied = prop.get("over_implied", DK_PROP_IMPLIED)
 
-                stat_key = {
-                    "player_points":"pts","player_rebounds":"reb",
-                    "player_assists":"ast","player_threes":"fg3m",
-                    "player_blocks":"blk","player_steals":"stl",
-                    "player_points_rebounds_assists":"pra",
-                }.get(market,"pts")
+                if not player_name or player_name in seen_players:
+                    continue
+                if over_odds < MIN_ODDS:
+                    continue
 
-                # Determine equipe via ordre home/away dans props
-                # DK liste home en premier generalement
-                team = home  # approximation
-                opponent = away
+                # Stats joueur
+                values = self._fetch_player_stats(player_name, stat_key)
+                if not values or len(values) < MIN_GAMES:
+                    continue
 
-                def_pts   = TEAM_DEF_PTS.get(opponent, LEAGUE_AVG_DEF)
-                def_rank  = DEF_RANK.get(opponent, 15)
-                sens      = DEF_SENSITIVITY.get(stat_key, 0.5)
-                def_factor = 1.0 + (def_pts - LEAGUE_AVG_DEF) / LEAGUE_AVG_DEF * sens
+                mean = _weighted_avg(values)
+                std  = _std_dev(values, mean)
 
-                # Tente BDL pour les stats reelles
-                if player not in self._stats_cache:
-                    self._stats_cache[player] = _try_bdl_stats(player)
-                stats = self._stats_cache[player]
+                our_prob = _normal_over_prob(mean, std, line)
+                edge     = _edge(our_prob, over_implied)
 
-                if stats:
-                    avg10 = stats.get(f"{stat_key}_avg10", 0)
-                    avg5  = stats.get(f"{stat_key}_avg5",  0)
-                else:
-                    # Fallback: utilise la ligne DK comme proxy de la moyenne
-                    # DK fixe lignes a ~50%, donc la ligne ≈ mediane ≈ ~moyenne-0.3
-                    avg10 = line + 0.3
-                    avg5  = 0
+                if edge < MIN_EDGE:
+                    continue
 
-                if avg10 <= 0: continue
-
-                adj = round(min(avg10 * def_factor, avg10 * 1.35), 1)
-
-                # Edge: compare notre prob (basee sur avg ajuste) vs la ligne DK
-                sp = _poisson_over(adj, line)
-                se = _edge(sp, B365_VIG_IMPL*100)
-                eo = _est_odds(sp)
-
-                if se < MIN_EDGE or eo < MIN_ODDS_FILT: continue
-                if not (MIN_PROB*100 <= sp <= MAX_PROB*100): continue
+                avg5  = round(sum(values[:5]) / min(5, len(values)), 1)
+                avg10 = round(mean, 1)
 
                 context = []
-                if avg5 > 0:
-                    if avg5 > avg10 * 1.20:
-                        context.append(f"🔥 En hausse — {avg5} last 5 vs {avg10} last 10")
-                    elif avg5 < avg10 * 0.75:
-                        context.append(f"❄️ En baisse — {avg5} last 5 vs {avg10} last 10")
-                if def_rank >= 25:
-                    context.append(f"🎯 Matchup ideal — {opponent.split()[-1]} DEF #{def_rank}")
-                elif def_rank <= 5:
-                    context.append(f"⚠️ DEF solide — {opponent.split()[-1]} #{def_rank}")
-                if not stats:
-                    context.append("📊 Ligne DK utilisee comme proxy (stats BDL indisponibles)")
+                if avg5 > avg10 * 1.20:
+                    context.append(f"🔥 En hausse — {avg5} last 5 vs {avg10} last 10")
+                elif avg5 < avg10 * 0.80:
+                    context.append(f"❄️ En baisse — {avg5} last 5 vs {avg10} last 10")
+                if our_prob >= 70:
+                    context.append(f"✅ Forte conviction — {our_prob}% prob")
 
-                labels = {
-                    "player_points":"Points","player_rebounds":"Rebounds",
-                    "player_assists":"Assists","player_threes":"3-Pointers",
-                    "player_blocks":"Blocks","player_steals":"Steals",
-                    "player_points_rebounds_assists":"PRA",
-                }
-                bets.append({
-                    "player":player,"team":team,"opponent":opponent,
-                    "market":f"{labels.get(market,market)} Over {line}",
-                    "market_type":stat_key,
-                    "our_prob":sp,"edge_pct":se,
-                    "kelly":_kelly(sp,B365_VIG_ODDS),
-                    "est_odds":eo,"dk_line":line,"adj_line":line,
-                    "avg10":avg10,"avg5":avg5,"adj_proj":adj,
-                    "def_rank":def_rank,"def_pts":round(def_pts,1),
-                    "b365_implied":round(B365_VIG_IMPL*100,1),
-                    "context":context,
-                    "has_real_stats": bool(stats),
+                ev_bets.append({
+                    "player":    player_name,
+                    "team":      home,   # approximation, affinee si besoin
+                    "opponent":  away,
+                    "market":    f"{stat_label} Over {line}",
+                    "stat_key":  stat_key,
+                    "line":      line,
+                    "avg10":     avg10,
+                    "avg5":      avg5,
+                    "adj_proj":  round(mean, 1),
+                    "our_prob":  our_prob,
+                    "edge_pct":  edge,
+                    "kelly":     _kelly(our_prob, over_odds),
+                    "est_odds":  over_odds,
+                    "dk_implied": over_implied,
+                    "def_rank":  15,
+                    "context":   context,
                 })
 
-        bets.sort(key=lambda x: x["edge_pct"], reverse=True)
-        return {"home_team":home,"away_team":away,"bets":bets[:6]}
+                seen_players.add(player_name)
+
+        ev_bets.sort(key=lambda x: x["edge_pct"], reverse=True)
+        ev_bets = ev_bets[:MAX_BETS_GAME]
+
+        print(f"    -> {len(ev_bets)} bets NBA +EV")
+        return {
+            "home_team": home,
+            "away_team": away,
+            "bets":      ev_bets,
+        }
+
+    def _fetch_player_stats(self, name: str, stat_key: str) -> Optional[list]:
+        cache_key = f"{name}_{stat_key}"
+        if cache_key in self._stats_cache:
+            return self._stats_cache[cache_key]
+
+        # ID joueur
+        if name in self._id_cache:
+            player_id = self._id_cache[name]
+        else:
+            player_id = _search_player_id(name)
+            self._id_cache[name] = player_id
+
+        if not player_id:
+            return None
+
+        values = _get_recent_stats(player_id, stat_key)
+        self._stats_cache[cache_key] = values
+        return values
