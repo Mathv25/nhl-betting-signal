@@ -1,138 +1,117 @@
 """
-NBA Odds Fetcher — The Odds API
-Memes marches que NHL: player props points/rebounds/assists/3pts
+NBA Odds Fetcher - The Odds API
+Marches: player_points, player_rebounds, player_assists, player_threes
 """
-
 import requests
 import time
+from typing import Optional
 
-API_BASE = "https://api.the-odds-api.com/v4"
+BASE_URL  = "https://api.the-odds-api.com/v4"
+SPORT     = "basketball_nba"
+BOOKMAKER = "draftkings"
+REGIONS   = "us"
 
-# Marches NBA props disponibles sur The Odds API
-NBA_PROP_MARKETS = [
+PROP_MARKETS = [
     "player_points",
     "player_rebounds",
     "player_assists",
     "player_threes",
-    "player_blocks",
-    "player_steals",
-    "player_points_rebounds_assists",
 ]
+
 
 class NBAOddsFetcher:
 
     def __init__(self, api_key: str):
-        self.api_key = api_key
+        self.api_key   = api_key
+        self.remaining = "?"
+
+    def _get(self, endpoint: str, params: dict) -> Optional[list]:
+        params["apiKey"] = self.api_key
+        try:
+            r = requests.get(f"{BASE_URL}/{endpoint}", params=params, timeout=15)
+            self.remaining = r.headers.get("x-requests-remaining", "?")
+            if r.status_code == 200:
+                return r.json()
+            if r.status_code not in (422, 404):
+                print(f"  NBA Odds API {r.status_code}: {endpoint}")
+            return None
+        except Exception as e:
+            print(f"  NBA Odds API erreur: {e}")
+            return None
 
     def get_nba_games(self) -> list:
-        """Recupere les matchs NBA du jour avec cotes DraftKings."""
-        print("  NBA: Recuperation des matchs...")
-        url = f"{API_BASE}/sports/basketball_nba/odds"
-        params = {
-            "apiKey":   self.api_key,
-            "regions":  "us",
-            "markets":  "h2h,spreads,totals",
-            "bookmakers": "draftkings",
+        """Retourne les matchs NBA du jour avec leurs event_id."""
+        data = self._get(f"sports/{SPORT}/events", {
+            "regions":    REGIONS,
             "oddsFormat": "decimal",
-        }
-        try:
-            r = requests.get(url, params=params, timeout=15)
-            r.raise_for_status()
-            raw = r.json()
-            remaining = r.headers.get("x-requests-remaining", "?")
-            print(f"  NBA: {len(raw)} matchs | API restantes: {remaining}")
-            return [self._parse_game(g) for g in raw]
-        except Exception as e:
-            print(f"  NBA odds erreur: {e}")
+        })
+        if not data:
+            print("  Aucun match NBA trouve.")
             return []
+
+        games = []
+        for event in data:
+            games.append({
+                "event_id":      event.get("id", ""),
+                "home_team":     event.get("home_team", ""),
+                "away_team":     event.get("away_team", ""),
+                "commence_time": event.get("commence_time", ""),
+            })
+
+        print(f"  {len(games)} match(s) NBA trouve(s)")
+        return games
 
     def get_player_props(self, event_id: str, market: str) -> list:
-        """Recupere les props joueurs pour un marche specifique."""
-        url = f"{API_BASE}/sports/basketball_nba/events/{event_id}/odds"
-        params = {
-            "apiKey":     self.api_key,
-            "regions":    "us",
+        """
+        Retourne les props joueurs pour un match et un marche.
+        Retourne: liste de dicts {player, market, line, over_odds, over_implied, under_odds}
+        """
+        time.sleep(0.5)
+        data = self._get(f"sports/{SPORT}/events/{event_id}/odds", {
+            "regions":    REGIONS,
             "markets":    market,
-            "bookmakers": "draftkings",
             "oddsFormat": "decimal",
-        }
-        try:
-            time.sleep(0.5)
-            r = requests.get(url, params=params, timeout=15)
-            r.raise_for_status()
-            data = r.json()
-            props = []
-            for bm in data.get("bookmakers", []):
-                for mkt in bm.get("markets", []):
-                    for outcome in mkt.get("outcomes", []):
-                        player = outcome.get("description", "")
-                        name   = outcome.get("name", "").lower()
-                        line   = outcome.get("point")
-                        odds   = outcome.get("price", 0)
-                        if not player or line is None: continue
-                        props.append({
-                            "player":    player,
-                            "market":    market,
-                            "direction": "over" if name == "over" else "under",
-                            "line":      line,
-                            "odds":      odds,
-                            "implied_prob": round(1 / odds * 100, 2) if odds > 0 else 50.0,
-                        })
-            return props
-        except Exception as e:
+            "bookmakers": BOOKMAKER,
+        })
+        if not data:
             return []
 
-    def _parse_game(self, g: dict) -> dict:
-        home = g.get("home_team", "")
-        away = g.get("away_team", "")
-        mkts = {}
-        for bm in g.get("bookmakers", []):
-            if bm.get("key") != "draftkings": continue
+        props = []
+        for bm in data.get("bookmakers", []):
+            if bm.get("key") != BOOKMAKER:
+                continue
             for mkt in bm.get("markets", []):
-                key = mkt.get("key", "")
-                if key == "h2h":
-                    mkts["moneyline"] = self._parse_h2h(mkt["outcomes"], home, away)
-                elif key == "spreads":
-                    mkts["spread"] = self._parse_spreads(mkt["outcomes"], home, away)
-                elif key == "totals":
-                    mkts["totals"] = self._parse_totals(mkt["outcomes"])
-        return {
-            "event_id":      g.get("id", ""),
-            "home_team":     home,
-            "away_team":     away,
-            "commence_time": g.get("commence_time", ""),
-            "markets":       mkts,
-        }
+                if mkt.get("key") != market:
+                    continue
 
-    def _parse_h2h(self, outcomes, home, away):
-        result = {}
-        for o in outcomes:
-            team = o.get("name", "")
-            odds = o.get("price", 0)
-            impl = round(1 / odds * 100, 2) if odds > 0 else 50.0
-            side = "home" if team == home else "away"
-            result[side] = {"team": team, "odds_decimal": odds, "implied_prob": impl}
-        return result
+                # Grouper over/under par joueur
+                by_player = {}
+                for outcome in mkt.get("outcomes", []):
+                    player = outcome.get("description", "")
+                    side   = outcome.get("name", "")
+                    if not player or not side:
+                        continue
+                    if player not in by_player:
+                        by_player[player] = {}
+                    by_player[player][side] = {
+                        "odds":    outcome.get("price", 2.0),
+                        "line":    outcome.get("point", 0),
+                        "implied": round(1 / max(outcome.get("price", 2.0), 1.01) * 100, 1),
+                    }
 
-    def _parse_spreads(self, outcomes, home, away):
-        result = {}
-        for o in outcomes:
-            team   = o.get("name", "")
-            odds   = o.get("price", 0)
-            spread = o.get("point", 0)
-            impl   = round(1 / odds * 100, 2) if odds > 0 else 50.0
-            side   = "home" if team == home else "away"
-            result[side] = {"team": team, "odds_decimal": odds,
-                            "implied_prob": impl, "spread": spread}
-        return result
+                for player, sides in by_player.items():
+                    over  = sides.get("Over", {})
+                    under = sides.get("Under", {})
+                    if not over or not over.get("line"):
+                        continue
+                    props.append({
+                        "player":        player,
+                        "market":        market,
+                        "line":          over["line"],
+                        "over_odds":     over["odds"],
+                        "over_implied":  over["implied"],
+                        "under_odds":    under.get("odds", 2.0),
+                        "under_implied": under.get("implied", 52.4),
+                    })
 
-    def _parse_totals(self, outcomes):
-        result = {}
-        for o in outcomes:
-            direction = o.get("name", "").lower()
-            odds = o.get("price", 0)
-            line = o.get("point")
-            impl = round(1 / odds * 100, 2) if odds > 0 else 50.0
-            if direction in ("over", "under"):
-                result[direction] = {"odds_decimal": odds, "implied_prob": impl, "line": line}
-        return result
+        return props
