@@ -1,11 +1,10 @@
 """
-Edge Calculator v2 — Modele NHL calibre
-Ameliorations post-backtest:
-1. Score de motivation (equipe eliminee vs en course playoff)
-2. Stats hybrides: last 15 matchs (60%) + saison (40%)
-3. Cap des edges ML/PL a 15% max, Totals a 20% max
-4. Vig dynamique selon niveau de cote
-5. Filtre gardien confirme sur les totals
+Edge Calculator v3 — Modele NHL calibre post-backtest
+Corrections majeures:
+1. Motivation reduite vers 1.0 (0.95-1.03 au lieu de 0.80-1.08)
+2. Application differentielle motivation (pas multiplicative sur les deux equipes)
+3. Caps edges conserves (15% ML, 12% PL, 20% Totals)
+4. MIN_EDGE remonte a 5% (les 3-5% ne sont pas rentables)
 """
 
 import math
@@ -14,7 +13,7 @@ import requests
 from typing import Optional
 from nhl_stats import TeamStats, PlayerStats, LineupValidator
 
-MIN_EDGE_PCT  = 3.0
+MIN_EDGE_PCT  = 5.0   # Monte de 3 a 5 — les 3-5% perdent de l'argent
 MIN_ODDS      = 1.25
 MAX_ODDS      = 10.0
 LEAGUE_AVG_GF = 3.10
@@ -24,10 +23,9 @@ B2B_FACTOR    = 0.93
 KELLY_DIVISOR = 4
 SHRINKAGE     = 0.25
 
-# Plafonds edges par type — cles pour eviter les edges fictifs
-MAX_EDGE_ML    = 15.0   # Moneyline: max 15% (DK est sharp sur ML)
-MAX_EDGE_PL    = 12.0   # Puck Line: max 12%
-MAX_EDGE_TOT   = 20.0   # Totals: un peu plus de latitude
+MAX_EDGE_ML    = 15.0
+MAX_EDGE_PL    = 12.0
+MAX_EDGE_TOT   = 20.0
 
 MAX_PROB_MINUS_15 = 0.40
 MAX_PROB_PLUS_15  = 0.82
@@ -51,36 +49,43 @@ TEAM_ABBR = {
     "Washington Capitals":"WSH","Winnipeg Jets":"WPG",
 }
 
-# Scores de motivation par situation playoff — mis a jour manuellement si besoin
-# Valeurs: 1.0 = neutre, >1.0 = plus motive, <1.0 = moins motive
+# ── MOTIVATION RECALIBREE ────────────────────────────────────────────────────
+# Range reduit: 0.95-1.03 au lieu de 0.80-1.08
+# Une equipe NHL joue toujours a ~95%+ de son niveau meme sans enjeu
+# L'effet reel d'une equipe "sans enjeu" = -3 a -5% max, pas -15 a -20%
+# Source backtest: les bets "motivation" avaient 25% WR = pire que le hasard
 MOTIVATION_OVERRIDE = {
-    # Equipes eliminées ou sans enjeu en fin de saison
-    "Florida Panthers": 0.88,
-    "Vancouver Canucks": 0.85,
-    "Toronto Maple Leafs": 0.87,
-    "Chicago Blackhawks": 0.82,
-    "Anaheim Ducks": 0.88,
-    "San Jose Sharks": 0.80,
-    "Calgary Flames": 0.85,
-    "Nashville Predators": 0.86,
-    "Detroit Red Wings": 0.87,
-    "New York Rangers": 0.87,
-    "St. Louis Blues": 0.86,
-    "Winnipeg Jets": 0.86,
-    # Equipes en course playoff active
-    "Ottawa Senators": 1.08,
-    "Buffalo Sabres": 1.06,
-    "Tampa Bay Lightning": 1.05,
-    "Montreal Canadiens": 1.04,
-    "Carolina Hurricanes": 1.05,
-    "Colorado Avalanche": 1.06,
-    "Dallas Stars": 1.05,
-    "Minnesota Wild": 1.04,
-    "Utah Mammoth": 1.03,
-    "New York Islanders": 1.05,
-    "Columbus Blue Jackets": 1.04,
-    "Philadelphia Flyers": 1.04,
+    # Equipes sans enjeu — reduction MINIMALE
+    "Florida Panthers":   0.97,
+    "Vancouver Canucks":  0.96,
+    "Toronto Maple Leafs": 0.97,
+    "Chicago Blackhawks": 0.96,
+    "Anaheim Ducks":      0.97,
+    "San Jose Sharks":    0.95,
+    "Calgary Flames":     0.96,
+    "Nashville Predators": 0.96,
+    "Detroit Red Wings":  0.97,
+    "New York Rangers":   0.97,
+    "St. Louis Blues":    0.96,
+    "Winnipeg Jets":      0.97,
+    # Equipes en course playoff — boost modere
+    "Ottawa Senators":    1.03,
+    "Buffalo Sabres":     1.02,
+    "Tampa Bay Lightning": 1.02,
+    "Montreal Canadiens": 1.02,
+    "Carolina Hurricanes": 1.02,
+    "Colorado Avalanche": 1.03,
+    "Dallas Stars":       1.02,
+    "Minnesota Wild":     1.02,
+    "Utah Mammoth":       1.01,
+    "New York Islanders": 1.02,
+    "Columbus Blue Jackets": 1.02,
+    "Philadelphia Flyers": 1.02,
 }
+
+# Seuil minimum de differentiel de motivation pour mentionner dans le signal
+# (evite de signaler chaque match comme "motivation" alors que l'effet est minimal)
+MOTIV_NOTE_THRESHOLD = 0.03  # seulement si ecart >= 3% entre les deux equipes
 
 
 def _api_get(url: str) -> Optional[dict]:
@@ -107,9 +112,7 @@ class EdgeCalculator:
         self.player_stats = PlayerStats()
         self.lineup       = LineupValidator()
         self._standings_cache = None
-        self._recent_cache    = {}  # team_name -> recent_stats dict
-
-    # ── Entrypoint ────────────────────────────────────────────────────────────
+        self._recent_cache    = {}
 
     def calculate_all_edges(self, game: dict) -> list:
         edges = []
@@ -128,13 +131,11 @@ class EdgeCalculator:
         home_goalie = self.lineup.get_probable_starter(home)
         away_goalie = self.lineup.get_probable_starter(away)
 
-        # Stats recentes (last 15 matchs) — hybridees avec saison
         home_recent = self._get_recent_stats(home)
         away_recent = self._get_recent_stats(away)
         home_hybrid = self._hybrid_stats(home_stats, home_recent)
         away_hybrid = self._hybrid_stats(away_stats, away_recent)
 
-        # Motivation contextuelle
         home_motiv = self._motivation(home)
         away_motiv = self._motivation(away)
 
@@ -144,16 +145,18 @@ class EdgeCalculator:
             home_motiv, away_motiv
         )
 
-        # Notes contextuelles pour affichage
+        # Notes contextuelles — seulement si ecart significatif
         context_notes = []
-        if home_motiv < 0.90:
-            context_notes.append(f"⚠️ {home.split()[0]} sans enjeu ({home_motiv:.0%} motivation)")
-        if away_motiv < 0.90:
-            context_notes.append(f"⚠️ {away.split()[0]} sans enjeu ({away_motiv:.0%} motivation)")
-        if home_motiv > 1.04:
-            context_notes.append(f"🔥 {home.split()[0]} en course playoff")
-        if away_motiv > 1.04:
-            context_notes.append(f"🔥 {away.split()[0]} en course playoff")
+        motiv_diff = abs(home_motiv - away_motiv)
+        if motiv_diff >= MOTIV_NOTE_THRESHOLD:
+            if home_motiv < away_motiv and home_motiv < 0.97:
+                context_notes.append(f"⚠️ {home.split()[0]} sans enjeu")
+            elif away_motiv < home_motiv and away_motiv < 0.97:
+                context_notes.append(f"⚠️ {away.split()[0]} sans enjeu")
+            if home_motiv > 1.02 and home_motiv > away_motiv:
+                context_notes.append(f"🔥 {home.split()[0]} en course playoff")
+            elif away_motiv > 1.02 and away_motiv > home_motiv:
+                context_notes.append(f"🔥 {away.split()[0]} en course playoff")
 
         if "moneyline" in mkts:
             edges += self._moneyline_edges(mkts["moneyline"], lh, la, label, home, away, context_notes)
@@ -172,10 +175,9 @@ class EdgeCalculator:
 
         return [e for e in edges if e.get("edge_pct", 0) >= MIN_EDGE_PCT]
 
-    # ── Stats hybrides (last 15 + saison) ────────────────────────────────────
+    # ── Stats hybrides ────────────────────────────────────────────────────────
 
     def _get_recent_stats(self, team_name: str, n: int = 15) -> dict:
-        """Fetch les stats des N derniers matchs via NHL API."""
         if team_name in self._recent_cache:
             return self._recent_cache[team_name]
 
@@ -183,12 +185,6 @@ class EdgeCalculator:
         if not abbr:
             return {}
 
-        data = _api_get(f"{NHL_API}/club-stats/{abbr}/{SEASON}/2")
-        if not data:
-            self._recent_cache[team_name] = {}
-            return {}
-
-        # Essaie aussi le schedule pour les derniers matchs
         schedule = _api_get(f"{NHL_API}/club-schedule-season/{abbr}/now")
         if not schedule:
             self._recent_cache[team_name] = {}
@@ -202,9 +198,9 @@ class EdgeCalculator:
             self._recent_cache[team_name] = {}
             return {}
 
-        gf_list, ga_list, shots_f, shots_a = [], [], [], []
+        gf_list, ga_list = [], []
         for g in games:
-            h_abbr = g.get("homeTeam", {}).get("abbrev", "")
+            h_abbr  = g.get("homeTeam", {}).get("abbrev", "")
             is_home = (h_abbr == abbr)
             home_score = g.get("homeTeam", {}).get("score", 0) or 0
             away_score = g.get("awayTeam", {}).get("score", 0) or 0
@@ -220,22 +216,17 @@ class EdgeCalculator:
             return {}
 
         recent = {
-            "gf_pg":     round(sum(gf_list) / len(gf_list), 3),
-            "ga_pg":     round(sum(ga_list) / len(ga_list), 3),
-            "games":     len(gf_list),
+            "gf_pg": round(sum(gf_list) / len(gf_list), 3),
+            "ga_pg": round(sum(ga_list) / len(ga_list), 3),
+            "games": len(gf_list),
         }
-        print(f"  Recent stats {team_name} (last {len(gf_list)}): GF {recent['gf_pg']:.2f} GA {recent['ga_pg']:.2f}")
+        print(f"  Recent {team_name} (last {len(gf_list)}): GF {recent['gf_pg']:.2f} GA {recent['ga_pg']:.2f}")
         self._recent_cache[team_name] = recent
         return recent
 
     def _hybrid_stats(self, season_stats: dict, recent_stats: dict) -> dict:
-        """
-        Blend: 60% last 15 matchs + 40% saison complete.
-        Si pas de stats recentes, utilise 100% saison.
-        """
         if not recent_stats or recent_stats.get("games", 0) < 5:
             return season_stats
-
         hybrid = dict(season_stats)
         hybrid["gf_pg"] = round(
             recent_stats["gf_pg"] * 0.60 + season_stats.get("gf_pg", LEAGUE_AVG_GF) * 0.40, 3
@@ -248,39 +239,34 @@ class EdgeCalculator:
     # ── Motivation ────────────────────────────────────────────────────────────
 
     def _motivation(self, team_name: str) -> float:
-        """
-        Retourne le multiplicateur de motivation d'une equipe.
-        1.0 = neutre, <1.0 = sans enjeu, >1.0 = en course playoff.
-        """
         return MOTIVATION_OVERRIDE.get(team_name, 1.0)
 
     # ── Lambdas Poisson ───────────────────────────────────────────────────────
 
     def _lambdas(self, hs, as_, home_b2b, away_b2b, home_motiv, away_motiv):
-        # Lambda brut avec stats hybrides
         lh_raw = (hs["gf_pg"] * HOME_FACTOR * as_["ga_pg"]) / LEAGUE_AVG_GF
         la_raw = (as_["gf_pg"] * AWAY_FACTOR * hs["ga_pg"]) / LEAGUE_AVG_GF
 
-        # Shrinkage bayesien
         lh = lh_raw * (1 - SHRINKAGE) + LEAGUE_AVG_GF * SHRINKAGE
         la = la_raw * (1 - SHRINKAGE) + LEAGUE_AVG_GF * SHRINKAGE
 
-        # PP/PK
         lh *= self._pp_factor(hs.get("pp_pct", 20.0), as_.get("pk_pct", 80.0))
         la *= self._pp_factor(as_.get("pp_pct", 20.0), hs.get("pk_pct", 80.0))
 
-        # Gardien
         league_sv = 0.910
         lh *= (league_sv / max(as_.get("starter_sv_pct", 0.910), 0.880))
         la *= (league_sv / max(hs.get("starter_sv_pct", 0.910), 0.880))
 
-        # Back-to-back
         if home_b2b: lh *= B2B_FACTOR
         if away_b2b: la *= B2B_FACTOR
 
-        # MOTIVATION — ajustement cle
-        lh *= home_motiv
-        la *= away_motiv
+        # Motivation — applique seulement le DIFFERENTIEL, pas les valeurs absolues
+        # Evite de doubler l'effet quand les deux equipes ont des motivations differentes
+        motiv_diff = home_motiv - away_motiv
+        if abs(motiv_diff) >= 0.01:
+            # Home beneficie si home_motiv > away_motiv et vice versa
+            lh *= (1.0 + motiv_diff * 0.5)   # effet attenue de 50%
+            la *= (1.0 - motiv_diff * 0.5)
 
         lh = round(min(max(lh, 0.8), 5.0), 4)
         la = round(min(max(la, 0.8), 5.0), 4)
@@ -288,10 +274,8 @@ class EdgeCalculator:
 
     @staticmethod
     def _pp_factor(pp_pct, pk_pct):
-        league_pp = 20.0
-        league_pk = 80.0
-        off_edge  = (pp_pct - league_pp) / league_pp
-        def_edge  = (pk_pct - league_pk) / league_pk
+        off_edge = (pp_pct - 20.0) / 20.0
+        def_edge = (pk_pct - 80.0) / 80.0
         return 1.0 + min(max((off_edge - def_edge) * 0.12, -0.05), 0.05)
 
     # ── Marchés ───────────────────────────────────────────────────────────────
@@ -342,11 +326,9 @@ class EdgeCalculator:
         return edges
 
     def _total_edges(self, market, lh, la, label, home_goalie, away_goalie, context_notes):
-        """Totals uniquement si gardiens confirmes."""
-        edges   = []
+        edges    = []
         expected = lh + la
 
-        # Filtre gardien confirme
         goalies_confirmed = bool(home_goalie and away_goalie)
         if not goalies_confirmed:
             print(f"  Total skip {label}: gardiens non confirmes")
@@ -362,8 +344,6 @@ class EdgeCalculator:
             if e:
                 notes = list(context_notes)
                 notes.append(f"Total attendu: {round(expected, 1)} buts")
-                if home_goalie:
-                    notes.append(f"G {home_goalie}")
                 edges.append({**e,
                     "type":          "Total buts",
                     "bet":           f"{direction.capitalize()} {line}",
@@ -533,20 +513,14 @@ class EdgeCalculator:
         prob    = (1 - p_under) if direction == "over" else p_under
         return round(min(max(prob, 0.05), 0.95), 4)
 
-    # ── Edge & Kelly avec cap ─────────────────────────────────────────────────
+    # ── Edge & Kelly ──────────────────────────────────────────────────────────
 
     def _edge(self, our_prob, b365_prob, b365_odds,
               max_edge: float = 50.0) -> Optional[dict]:
-        """
-        Calcule l'edge avec cap par type de marche.
-        max_edge = plafond realiste (15% ML, 12% PL, 20% Totals).
-        """
         if not (MIN_ODDS <= b365_odds <= MAX_ODDS) or b365_prob <= 0:
             return None
 
         raw_edge = (our_prob - b365_prob) / b365_prob * 100
-
-        # Cap de l'edge — force l'humilite du modele
         edge_pct = round(min(raw_edge, max_edge), 2)
 
         if edge_pct < MIN_EDGE_PCT:
@@ -556,14 +530,12 @@ class EdgeCalculator:
         if b <= 0:
             return None
 
-        # Vig dynamique selon niveau de cote
-        # Plus la cote est elevee (underdog), plus la vig est importante
         if b365_odds < 1.5:
-            vig_adj = 1.0   # Favori court: vig standard
+            vig_adj = 1.0
         elif b365_odds < 2.0:
-            vig_adj = 0.98  # Ligne neutre
+            vig_adj = 0.98
         else:
-            vig_adj = 0.96  # Underdog: vig plus importante
+            vig_adj = 0.96
 
         kelly_full = ((b * our_prob) - (1 - our_prob)) / b * vig_adj
         kelly      = round(max(kelly_full / KELLY_DIVISOR * 100, 0), 2)
@@ -577,7 +549,7 @@ class EdgeCalculator:
 
         return {
             "edge_pct":       edge_pct,
-            "edge_raw":       round(raw_edge, 2),  # Edge brut avant cap (pour diagnostic)
+            "edge_raw":       round(raw_edge, 2),
             "kelly_fraction": kelly,
             "verdict":        verdict,
         }
