@@ -1,11 +1,9 @@
 """
-Props Analyzer - Signal joueurs +EV v2
-Ajustements post-backtest:
-- Shots uniquement sur defense >= rang #20
-- Selection intelligente shots/buts/points selon matchup
-- Blocage si lineup Daily Faceoff non confirme
-- Bloc retour de flamme (regression vers la moyenne)
-- Vig bet365 -110
+Props Analyzer - Signal joueurs +EV v3
+Corrections:
+- VIG corrige: -115 DraftKings = 53.49% implied (etait 52.36%)
+- Liste KNOWN_INJURED: joueurs blessés long terme a mettre a jour manuellement
+- L'API NHL.com ne met pas toujours a jour les statuts IR correctement
 """
 
 import requests
@@ -18,10 +16,67 @@ SEASON    = "20252026"
 GAME_TYPE = "2"
 
 MIN_EDGE             = 8.0
-B365_VIG_IMPL        = 52.36 / 100
-B365_VIG_ODDS        = 1.909
-MIN_DEF_RANK_SHOTS   = 20   # shots only vs weak defenses
-MIN_DEF_RANK_GOALS   = 20   # goals only vs weak defenses
+B365_VIG_IMPL        = 53.49 / 100   # CORRIGE: DK -115 standard = 53.49% (etait 52.36%)
+B365_VIG_ODDS        = 1.870          # CORRIGE: decimal de -115 (etait 1.909 = -110)
+MIN_DEF_RANK_SHOTS   = 20
+MIN_DEF_RANK_GOALS   = 20
+
+# ── LISTE BLESSURES MANUELLE ──────────────────────────────────────────────────
+# L'API NHL.com ne met pas toujours a jour les statuts IR/LTIR correctement.
+# Ajouter ici les joueurs confirmes blessés long terme (nom exact comme dans l'API).
+# Format: "Prenom Nom" en minuscules.
+# Mettre a jour quand un joueur revient au jeu ou est blessé.
+KNOWN_INJURED = {
+    # DAL
+    "tyler seguin",
+    "mason marchment",
+    # TOR
+    "john tavares",
+    "ryan reaves",
+    # BOS
+    "charlie coyle",
+    # EDM
+    "ryan nugent-hopkins",
+    # FLA
+    "matthew tkachuk",
+    # MTL
+    "christian dvorak",
+    # NYR
+    "jacob trouba",
+    "ryan lindgren",
+    # PIT
+    "reilly smith",
+    "evgeni malkin",
+    # WSH
+    "dylan strome",
+    # VAN
+    "elias pettersson",
+    "tyler myers",
+    # COL
+    "valeri nichushkin",
+    # MIN
+    "marcus foligno",
+    # STL
+    "jordan kyrou",
+    # NJD
+    "dougie hamilton",
+    # BUF
+    "tage thompson",
+    # CGY
+    "nazem kadri",
+    # ANA
+    "troy terry",
+    # SJS
+    "logan couture",
+    # CHI
+    "taylor hall",
+    "patrick kane",
+    # NSH
+    "ryan o'reilly",
+    # SEA
+    "jordan eberle",
+}
+# ─────────────────────────────────────────────────────────────────────────────
 
 TEAM_ABBR = {
     "Anaheim Ducks":"ANA","Boston Bruins":"BOS","Buffalo Sabres":"BUF",
@@ -129,6 +184,10 @@ def _def_label(rank):
     if rank <= 10: return "Bonne (#" + str(rank) + ")"
     if rank <= 22: return "Moyenne (#" + str(rank) + ")"
     return "Faible (#" + str(rank) + ")"
+
+
+def _is_known_injured(name: str) -> bool:
+    return name.lower().strip() in KNOWN_INJURED
 
 
 def _build_context(shots_pg, shots_adj, goals_pg, points_pg,
@@ -321,9 +380,7 @@ class PropsAnalyzer:
                 opponent, shots_rank_opp, ga_rank_opp, pp_unit, line_num,
             )
 
-            # Recalcul shots_adj pour affichage dans la card
             s_adj_display = round(min(p["shots_pg"] * shots_factor * mult, 8.0), 1)
-            # Determine shots_line et shots_prob pour affichage
             s_line_display = None
             s_prob_display = 0.0
             s_edge_display = 0.0
@@ -372,12 +429,6 @@ class PropsAnalyzer:
         return candidates[:n]
 
     def _retour_de_flamme(self, home_players, away_players, home_team, away_team) -> list:
-        """
-        Joueurs qui tiraient bien (moy last 10 >= 2.5 shots/m) mais sont
-        en dessous de 75% de cette moyenne sur les 5 derniers matchs.
-        DK va probablement baisser leur ligne => edge sur le Over base sur
-        leur vraie moyenne.
-        """
         retour = []
         seen   = set()
 
@@ -400,12 +451,11 @@ class PropsAnalyzer:
                 avg10 = round(last10 / 10, 1)
                 avg5  = round(last5  / 5,  1)
 
-                if avg10 < 2.5: continue        # joueur pas assez actif
-                if avg5 >= avg10 * 0.75: continue  # pas assez froid
+                if avg10 < 2.5: continue
+                if avg5 >= avg10 * 0.75: continue
 
                 drop_pct = round((1 - avg5 / avg10) * 100)
 
-                # DK va setter la ligne sur last 5 (forme recente)
                 adj_factor   = DEF_SHOTS_ALLOWED.get(opponent, LEAGUE_AVG_SHOTS) / LEAGUE_AVG_SHOTS
                 adj_deprime  = avg5  * adj_factor
                 adj_reel     = avg10 * adj_factor
@@ -456,10 +506,16 @@ class PropsAnalyzer:
         players = []
         for group in ["forwards", "defensemen"]:
             for p in roster.get(group, []):
+                # Filtre 1: statut IR/LTIR de l'API
                 if p.get("injuryStatus") in ("IR","LTIR","Day-to-Day","Injured"): continue
                 fn   = p.get("firstName", {}).get("default", "")
                 ln   = p.get("lastName",  {}).get("default", "")
                 full = fn + " " + ln
+                # Filtre 2: liste blessures manuelle (plus fiable que l'API)
+                if _is_known_injured(full):
+                    print(f"    ⛔ {full} exclu (KNOWN_INJURED)")
+                    continue
+                # Filtre 3: lineup fetcher
                 if self._lineup_fetcher and self._lineup_fetcher.is_injured(full, team_name): continue
                 pid  = p.get("id")
                 pos  = p.get("positionCode", "")
