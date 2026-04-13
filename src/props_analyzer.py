@@ -15,7 +15,7 @@ NHL_API   = "https://api-web.nhle.com/v1"
 SEASON    = "20252026"
 GAME_TYPE = "2"
 
-MIN_EDGE             = 8.0
+MIN_EDGE             = 6.0
 B365_VIG_IMPL        = 53.49 / 100   # CORRIGE: DK -115 standard = 53.49% (etait 52.36%)
 B365_VIG_ODDS        = 1.870          # CORRIGE: decimal de -115 (etait 1.909 = -110)
 MIN_DEF_RANK_SHOTS   = 20
