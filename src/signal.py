@@ -72,7 +72,7 @@ def main():
         if edges:
             print(f"  {game['away_team']} @ {game['home_team']}: {len(edges)} edge(s)")
 
-    # 5. Analyse props joueurs (top 8 matchs)
+    # 5. Analyse props joueurs (top 8 matchs) — cotes DraftKings reelles
     time.sleep(10)
     print("\nAnalyse des props joueurs (top matchs)...")
     top_games = sorted(signals, key=lambda s: len(s["edges"]), reverse=True)[:8]
@@ -80,7 +80,9 @@ def main():
     for s in top_games:
         g = s["game"]
         try:
-            analysis = props_an.analyze_game(g["home_team"], g["away_team"])
+            print(f"  Fetch props DK: {g['away_team']} @ {g['home_team']}...")
+            real_props = fetcher.get_nhl_player_props(g["id"])
+            analysis = props_an.analyze_game(g["home_team"], g["away_team"], real_props=real_props)
             if analysis.get("bets"):
                 props_by_game.append(analysis)
         except Exception as e:

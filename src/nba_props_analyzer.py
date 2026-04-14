@@ -28,9 +28,17 @@ STAT_CONFIGS = [
 
 MIN_EDGE   = 6.0
 MAX_EDGE   = 18.0
-DK_IMPLIED = 53.49
-DK_ODDS    = 1.870
+DK_IMPLIED = 53.49   # Fallback synthetique (-115 DK standard)
+DK_ODDS    = 1.870   # Fallback synthetique
 MAX_BETS   = 6
+
+# Mapping stat key -> market key The Odds API
+_STAT_TO_MARKET = {
+    "pts":  "player_points",
+    "reb":  "player_rebounds",
+    "ast":  "player_assists",
+    "fg3m": "player_threes",
+}
 
 # ── BLESSURES NBA CONNUES ─────────────────────────────────────────────────────
 # Mettre a jour manuellement quand un joueur est blesse ou revient
@@ -275,12 +283,16 @@ def _normal_over(mean: float, std: float, line: float) -> float:
     return round(min(max(prob * 100, 1.0), 99.0), 1)
 
 
-def _edge(prob: float) -> float:
-    return round((prob - DK_IMPLIED) / DK_IMPLIED * 100, 1)
+def _edge(prob: float, dk_implied: float = DK_IMPLIED) -> float:
+    if dk_implied <= 0:
+        return 0.0
+    return round((prob - dk_implied) / dk_implied * 100, 1)
 
 
-def _kelly(prob: float) -> float:
-    b = DK_ODDS - 1
+def _kelly(prob: float, dk_implied: float = DK_IMPLIED, dk_odds: float = DK_ODDS) -> float:
+    b = dk_odds - 1
+    if b <= 0:
+        return 0.0
     k = ((b * prob / 100) - (1 - prob / 100)) / b / 4 * 100
     return round(max(k, 0.0), 1)
 
@@ -291,6 +303,18 @@ class NBAPropsAnalyzer:
         home = game.get("home_team", "")
         away = game.get("away_team", "")
         print(f"  NBA props: {away} @ {home}")
+
+        # Construire un lookup {player_lower: {stat_key: prop_data}}
+        # depuis les vraies cotes DraftKings si disponibles
+        real_lkp = {}
+        if props_by_market:
+            for stat_key, market_key in _STAT_TO_MARKET.items():
+                for prop in props_by_market.get(market_key, []):
+                    pl = prop.get("player", "").lower()
+                    if pl not in real_lkp:
+                        real_lkp[pl] = {}
+                    real_lkp[pl][stat_key] = prop
+        use_real = bool(real_lkp)
 
         ev_bets = []
         seen    = set()
@@ -318,10 +342,32 @@ class NBAPropsAnalyzer:
                     if mean < min_avg:
                         continue
 
-                    std  = _std(mean, key)
-                    line = _estimate_line(mean, key)
-                    prob = _normal_over(mean, std, line)
-                    e    = _edge(prob)
+                    std = _std(mean, key)
+
+                    # Utilise la vraie ligne/cote DK si disponible
+                    if use_real:
+                        rp = real_lkp.get(player_name.lower(), {}).get(key)
+                        if not rp:
+                            # Fallback: cherche par nom de famille
+                            last = player_name.lower().split()[-1]
+                            for k, v in real_lkp.items():
+                                if k.split()[-1] == last and key in v:
+                                    rp = v[key]
+                                    break
+                        if not rp:
+                            continue  # Pas de ligne DK disponible — skip
+
+                        line     = rp["line"]
+                        dk_impl  = rp["over_implied"]
+                        dk_odds  = rp["over_odds"]
+                        prob     = _normal_over(mean, std, line)
+                        e        = _edge(prob, dk_impl)
+                    else:
+                        line     = _estimate_line(mean, key)
+                        dk_impl  = DK_IMPLIED
+                        dk_odds  = DK_ODDS
+                        prob     = _normal_over(mean, std, line)
+                        e        = _edge(prob, dk_impl)
 
                     if not (MIN_EDGE <= e <= MAX_EDGE):
                         continue
@@ -338,9 +384,9 @@ class NBAPropsAnalyzer:
                         "adj_proj":   mean,
                         "our_prob":   prob,
                         "edge_pct":   e,
-                        "kelly":      _kelly(prob),
-                        "est_odds":   DK_ODDS,
-                        "dk_implied": DK_IMPLIED,
+                        "kelly":      _kelly(prob, dk_impl, dk_odds),
+                        "est_odds":   dk_odds,
+                        "dk_implied": round(dk_impl, 1),
                         "def_rank":   15,
                         "context":    [],
                     })

@@ -1,7 +1,6 @@
 """
 Odds Fetcher - The Odds API -> DraftKings
-Marches: h2h (moneyline), spreads (puck line), totals
-Props et periodes retires (non disponibles plan gratuit)
+Marches: h2h (moneyline), spreads (puck line), totals + player props NHL
 """
 
 import requests
@@ -15,6 +14,13 @@ REGIONS   = "us"
 FMT_ODDS  = "decimal"
 FMT_DATE  = "iso"
 MAIN_MARKETS = "h2h,spreads,totals"
+
+# Marches props NHL disponibles sur The Odds API
+NHL_PROP_MARKETS = [
+    "player_shots_on_goal",
+    "player_points",
+    "player_goals",
+]
 
 
 class OddsFetcher:
@@ -64,6 +70,65 @@ class OddsFetcher:
 
         print(f"  {len(games)} match(s) avec cotes DraftKings")
         return games
+
+    def get_nhl_player_props(self, event_id: str) -> dict:
+        """Fetche les props joueurs NHL pour un match (tous les marches en un seul appel).
+        Retourne dict {market_key: [{player, line, over_odds, over_implied, under_odds, under_implied}]}
+        """
+        time.sleep(0.5)
+        data = self._get(f"sports/{SPORT}/events/{event_id}/odds", {
+            "regions":    REGIONS,
+            "markets":    ",".join(NHL_PROP_MARKETS),
+            "oddsFormat": FMT_ODDS,
+            "bookmakers": BOOKMAKER,
+        })
+        if not data:
+            return {}
+
+        result = {}
+        for bm in data.get("bookmakers", []):
+            if bm.get("key") != BOOKMAKER:
+                continue
+            for mkt in bm.get("markets", []):
+                market_key = mkt.get("key")
+                if market_key not in NHL_PROP_MARKETS:
+                    continue
+
+                by_player = {}
+                for outcome in mkt.get("outcomes", []):
+                    player = outcome.get("description", "")
+                    side   = outcome.get("name", "")
+                    if not player or not side:
+                        continue
+                    if player not in by_player:
+                        by_player[player] = {}
+                    price = outcome.get("price", 2.0)
+                    by_player[player][side] = {
+                        "odds":    price,
+                        "line":    outcome.get("point", 0),
+                        "implied": round(1 / max(price, 1.01) * 100, 1),
+                    }
+
+                props = []
+                for player, sides in by_player.items():
+                    over  = sides.get("Over", {})
+                    under = sides.get("Under", {})
+                    if not over or not over.get("line"):
+                        continue
+                    props.append({
+                        "player":        player,
+                        "market":        market_key,
+                        "line":          over["line"],
+                        "over_odds":     over["odds"],
+                        "over_implied":  over["implied"],
+                        "under_odds":    under.get("odds", 2.0),
+                        "under_implied": under.get("implied", 52.4),
+                    })
+
+                if props:
+                    result[market_key] = props
+
+        return result
 
     def _parse_event(self, event: dict) -> Optional[dict]:
         bk = next(

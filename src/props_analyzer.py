@@ -190,6 +190,41 @@ def _is_known_injured(name: str) -> bool:
     return name.lower().strip() in KNOWN_INJURED
 
 
+# Mapping marche DK → type interne
+_MKT_API_TO_TYPE = {
+    "player_shots_on_goal": "shots",
+    "player_goals":         "goals",
+    "player_points":        "points",
+}
+
+
+def _build_real_props_lookup(real_props: dict) -> dict:
+    """Construit {name_lower: {mkt_type: prop_data}} depuis le dict real_props de l'API."""
+    lookup = {}
+    if not real_props:
+        return lookup
+    for api_key, mkt_type in _MKT_API_TO_TYPE.items():
+        for prop in real_props.get(api_key, []):
+            name_lower = prop["player"].lower()
+            if name_lower not in lookup:
+                lookup[name_lower] = {}
+            lookup[name_lower][mkt_type] = prop
+    return lookup
+
+
+def _find_real_prop(lookup: dict, player_name: str, mkt_type: str) -> Optional[dict]:
+    """Trouve la prop reelle pour un joueur (exact puis par nom de famille)."""
+    name_lower = player_name.lower()
+    if name_lower in lookup:
+        return lookup[name_lower].get(mkt_type)
+    # Fallback: correspondance sur le nom de famille uniquement
+    last = name_lower.split()[-1] if name_lower else ""
+    for k, v in lookup.items():
+        if last and k.split()[-1] == last:
+            return v.get(mkt_type)
+    return None
+
+
 def _build_context(shots_pg, shots_adj, goals_pg, points_pg,
                    last5_shots, last5_goals, last5_points,
                    last10_shots, last10_goals, last10_points,
@@ -244,8 +279,19 @@ class PropsAnalyzer:
         self._stats_cache    = {}
         self._lineup_fetcher = None
 
-    def analyze_game(self, home_team: str, away_team: str) -> dict:
+    def analyze_game(self, home_team: str, away_team: str, real_props: dict = None) -> dict:
+        """
+        real_props: dict retourne par OddsFetcher.get_nhl_player_props(event_id).
+        Si None -> mode synthetique (retrocompatibilite).
+        Si dict vide ou avec donnees -> mode reel, seules les props presentes dans DK sont evaluees.
+        """
         print(f"  Analyse props: {away_team} @ {home_team}...")
+
+        props_lkp = _build_real_props_lookup(real_props) if real_props is not None else None
+        mode = "reel" if real_props is not None else "synthetique"
+        if real_props is not None:
+            n_lines = sum(len(v) for v in real_props.values())
+            print(f"    Mode {mode}: {n_lines} lignes DK disponibles")
 
         lineup_confirmed = self._lineup_confirmed(home_team, away_team)
         home_players = self._get_top_players(home_team)
@@ -253,14 +299,14 @@ class PropsAnalyzer:
         home_goalie  = self._get_goalie_stats(home_team)
         away_goalie  = self._get_goalie_stats(away_team)
 
-        home_bets = self._best_bets(home_players, away_team, home_team, 3, lineup_confirmed)
-        away_bets = self._best_bets(away_players, home_team, away_team, 3, lineup_confirmed)
+        home_bets = self._best_bets(home_players, away_team, home_team, 3, lineup_confirmed, props_lkp)
+        away_bets = self._best_bets(away_players, home_team, away_team, 3, lineup_confirmed, props_lkp)
 
         all_bets = home_bets + away_bets
         all_bets.sort(key=lambda x: x["edge_pct"], reverse=True)
         all_bets = all_bets[:6]
 
-        retour = self._retour_de_flamme(home_players, away_players, home_team, away_team)
+        retour = self._retour_de_flamme(home_players, away_players, home_team, away_team, props_lkp)
 
         print(f"    -> {len(all_bets)} bets +EV · {len(retour)} retours de flamme")
 
@@ -296,7 +342,12 @@ class PropsAnalyzer:
         return (role.get("multiplier", 1.0), role.get("pp", 0),
                 role.get("line", 2), role.get("is_defense", False))
 
-    def _best_bets(self, players, opponent, team, n, lineup_confirmed):
+    def _best_bets(self, players, opponent, team, n, lineup_confirmed, props_lkp=None):
+        """
+        props_lkp: dict cree par _build_real_props_lookup(real_props).
+        None  -> mode synthetique (retrocompat).
+        dict  -> mode reel; seules les lignes presentes chez DK sont evaluees.
+        """
         opp_shots      = DEF_SHOTS_ALLOWED.get(opponent, LEAGUE_AVG_SHOTS)
         opp_ga         = DEF_GA_ALLOWED.get(opponent, LEAGUE_AVG_GA)
         shots_factor   = opp_shots / LEAGUE_AVG_SHOTS
@@ -305,6 +356,7 @@ class PropsAnalyzer:
         ga_rank_opp    = DEF_GA_RANK.get(opponent, 16)
         b365_impl_pct  = B365_VIG_IMPL * 100
         MIN_PROB, MAX_PROB, MIN_ODDS = 0.44, 0.59, 1.65  # Bande serree — evite les extremes
+        use_real = props_lkp is not None
 
         candidates = []
         for p in players:
@@ -320,52 +372,100 @@ class PropsAnalyzer:
 
             # SHOTS — seulement vs defense faible ET joueur avec moyenne solide
             if shots_rank_opp >= MIN_DEF_RANK_SHOTS and p["shots_pg"] >= 2.0:
-                sl, sp, se = None, 0.0, 0.0
-                for cl in [5.5, 4.5, 3.5, 2.5, 1.5, 0.5]:
-                    pv = _poisson_over(shots_adj, cl) / 100
-                    if MIN_PROB <= pv <= MAX_PROB:
-                        sl, sp, se = cl, round(pv*100,1), _edge(round(pv*100,1), b365_impl_pct)
-                        break
-                if sl is None:
-                    bd = 99.0
-                    for cl in [0.5,1.5,2.5,3.5,4.5,5.5]:
+                if use_real:
+                    rp = _find_real_prop(props_lkp, p["name"], "shots")
+                    if rp:
+                        sl = rp["line"]
+                        dk_impl = rp["over_implied"]
+                        dk_odds = rp["over_odds"]
+                        pv = _poisson_over(shots_adj, sl) / 100
+                        sp = round(pv * 100, 1)
+                        se = _edge(sp, dk_impl)
+                        if se >= MIN_EDGE and dk_odds >= MIN_ODDS:
+                            markets.append({"type":"shots","label":"Shots Over "+str(sl),
+                                "prob":sp,"edge":se,"kelly":_kelly(sp, dk_impl/100, dk_odds),
+                                "est_odds":dk_odds,"dk_implied":round(dk_impl,1),
+                                "detail":str(round(shots_adj,1))+" shots proj. · moy "+str(p["shots_pg"])+"/m · DEF #"+str(shots_rank_opp)})
+                else:
+                    sl, sp, se = None, 0.0, 0.0
+                    for cl in [5.5, 4.5, 3.5, 2.5, 1.5, 0.5]:
                         pv = _poisson_over(shots_adj, cl) / 100
-                        d = abs(pv - 0.5)
-                        if d < bd:
-                            bd, sl, sp, se = d, cl, round(pv*100,1), _edge(round(pv*100,1), b365_impl_pct)
-                so = _est_odds(sp)
-                if sl and se >= MIN_EDGE and so >= MIN_ODDS:
-                    markets.append({"type":"shots","label":"Shots Over "+str(sl),
-                        "prob":sp,"edge":se,"kelly":_kelly(sp,B365_VIG_IMPL,B365_VIG_ODDS),
-                        "est_odds":so,"detail":str(round(shots_adj,1))+" shots proj. · moy "+str(p["shots_pg"])+"/m · DEF #"+str(shots_rank_opp)})
+                        if MIN_PROB <= pv <= MAX_PROB:
+                            sl, sp, se = cl, round(pv*100,1), _edge(round(pv*100,1), b365_impl_pct)
+                            break
+                    if sl is None:
+                        bd = 99.0
+                        for cl in [0.5,1.5,2.5,3.5,4.5,5.5]:
+                            pv = _poisson_over(shots_adj, cl) / 100
+                            d = abs(pv - 0.5)
+                            if d < bd:
+                                bd, sl, sp, se = d, cl, round(pv*100,1), _edge(round(pv*100,1), b365_impl_pct)
+                    so = _est_odds(sp)
+                    if sl and se >= MIN_EDGE and so >= MIN_ODDS:
+                        markets.append({"type":"shots","label":"Shots Over "+str(sl),
+                            "prob":sp,"edge":se,"kelly":_kelly(sp,B365_VIG_IMPL,B365_VIG_ODDS),
+                            "est_odds":so,"dk_implied":round(b365_impl_pct,1),
+                            "detail":str(round(shots_adj,1))+" shots proj. · moy "+str(p["shots_pg"])+"/m · DEF #"+str(shots_rank_opp)})
 
             # BUTS — vs defense poreuse ET buteur solide
             if ga_rank_opp >= MIN_DEF_RANK_GOALS and p["goals_pg"] >= 0.40:
-                gr = _poisson_over(goals_adj, 0.5) / 100
-                if gr > MAX_PROB:
-                    gp, gl = round(_poisson_over(goals_adj, 1.5), 1), "Buts Over 1.5"
+                if use_real:
+                    rp = _find_real_prop(props_lkp, p["name"], "goals")
+                    if rp:
+                        gl = "Goals Over " + str(rp["line"])
+                        dk_impl = rp["over_implied"]
+                        dk_odds = rp["over_odds"]
+                        pv = _poisson_over(goals_adj, rp["line"]) / 100
+                        gp = round(pv * 100, 1)
+                        ge = _edge(gp, dk_impl)
+                        if ge >= MIN_EDGE and dk_odds >= MIN_ODDS:
+                            markets.append({"type":"goals","label":gl,
+                                "prob":gp,"edge":ge,"kelly":_kelly(gp, dk_impl/100, dk_odds),
+                                "est_odds":dk_odds,"dk_implied":round(dk_impl,1),
+                                "detail":str(round(goals_adj,2))+" buts proj. · moy "+str(round(p["goals_pg"],2))+"/m · DEF buts #"+str(ga_rank_opp)})
                 else:
-                    gp, gl = round(gr*100,1), "Buts Over 0.5"
-                ge, go = _edge(gp, b365_impl_pct), _est_odds(gp)
-                if ge >= MIN_EDGE and go >= MIN_ODDS:
-                    markets.append({"type":"goals","label":gl,
-                        "prob":gp,"edge":ge,"kelly":_kelly(gp,B365_VIG_IMPL,B365_VIG_ODDS),
-                        "est_odds":go,"detail":str(round(goals_adj,2))+" buts proj. · moy "+str(round(p["goals_pg"],2))+"/m · DEF buts #"+str(ga_rank_opp)})
+                    gr = _poisson_over(goals_adj, 0.5) / 100
+                    if gr > MAX_PROB:
+                        gp, gl = round(_poisson_over(goals_adj, 1.5), 1), "Buts Over 1.5"
+                    else:
+                        gp, gl = round(gr*100,1), "Buts Over 0.5"
+                    ge, go = _edge(gp, b365_impl_pct), _est_odds(gp)
+                    if ge >= MIN_EDGE and go >= MIN_ODDS:
+                        markets.append({"type":"goals","label":gl,
+                            "prob":gp,"edge":ge,"kelly":_kelly(gp,B365_VIG_IMPL,B365_VIG_ODDS),
+                            "est_odds":go,"dk_implied":round(b365_impl_pct,1),
+                            "detail":str(round(goals_adj,2))+" buts proj. · moy "+str(round(p["goals_pg"],2))+"/m · DEF buts #"+str(ga_rank_opp)})
 
             # POINTS — seulement pour joueurs de 1re ligne avec forte production
             is_playmaker = p.get("assists_pg", 0) > p["goals_pg"] * 1.5
             has_min_points = p["points_pg"] >= 0.55  # Minimum pour battre le vig sur points
             if has_min_points and (not markets or is_playmaker):
-                pr_raw = _poisson_over(points_adj, 0.5) / 100
-                if pr_raw > MAX_PROB:
-                    pp2, pl = round(_poisson_over(points_adj, 1.5), 1), "Points Over 1.5"
+                if use_real:
+                    rp = _find_real_prop(props_lkp, p["name"], "points")
+                    if rp:
+                        pl = "Points Over " + str(rp["line"])
+                        dk_impl = rp["over_implied"]
+                        dk_odds = rp["over_odds"]
+                        pv = _poisson_over(points_adj, rp["line"]) / 100
+                        pp2 = round(pv * 100, 1)
+                        pe = _edge(pp2, dk_impl)
+                        if pe >= MIN_EDGE and dk_odds >= MIN_ODDS:
+                            markets.append({"type":"points","label":pl,
+                                "prob":pp2,"edge":pe,"kelly":_kelly(pp2, dk_impl/100, dk_odds),
+                                "est_odds":dk_odds,"dk_implied":round(dk_impl,1),
+                                "detail":str(round(points_adj,2))+" pts proj. · moy "+str(round(p["points_pg"],2))+"/m"})
                 else:
-                    pp2, pl = round(pr_raw*100,1), "Points Over 0.5"
-                pe, po = _edge(pp2, b365_impl_pct), _est_odds(pp2)
-                if pe >= MIN_EDGE and po >= MIN_ODDS:
-                    markets.append({"type":"points","label":pl,
-                        "prob":pp2,"edge":pe,"kelly":_kelly(pp2,B365_VIG_IMPL,B365_VIG_ODDS),
-                        "est_odds":po,"detail":str(round(points_adj,2))+" pts proj. · moy "+str(round(p["points_pg"],2))+"/m"})
+                    pr_raw = _poisson_over(points_adj, 0.5) / 100
+                    if pr_raw > MAX_PROB:
+                        pp2, pl = round(_poisson_over(points_adj, 1.5), 1), "Points Over 1.5"
+                    else:
+                        pp2, pl = round(pr_raw*100,1), "Points Over 0.5"
+                    pe, po = _edge(pp2, b365_impl_pct), _est_odds(pp2)
+                    if pe >= MIN_EDGE and po >= MIN_ODDS:
+                        markets.append({"type":"points","label":pl,
+                            "prob":pp2,"edge":pe,"kelly":_kelly(pp2,B365_VIG_IMPL,B365_VIG_ODDS),
+                            "est_odds":po,"dk_implied":round(b365_impl_pct,1),
+                            "detail":str(round(points_adj,2))+" pts proj. · moy "+str(round(p["points_pg"],2))+"/m"})
 
             if not markets:
                 continue
@@ -381,26 +481,35 @@ class PropsAnalyzer:
                 opponent, shots_rank_opp, ga_rank_opp, pp_unit, line_num,
             )
 
+            # Shots display: utilise la vraie ligne DK si disponible
             s_adj_display = round(min(p["shots_pg"] * shots_factor * mult, 8.0), 1)
             s_line_display = None
             s_prob_display = 0.0
             s_edge_display = 0.0
-            for cl in [5.5,4.5,3.5,2.5,1.5,0.5]:
-                pv = _poisson_over(s_adj_display, cl) / 100
-                if MIN_PROB <= pv <= MAX_PROB:
-                    s_line_display = cl
-                    s_prob_display = round(pv*100,1)
-                    s_edge_display = _edge(s_prob_display, b365_impl_pct)
-                    break
-            if s_line_display is None:
-                bd = 99.0
-                for cl in [0.5,1.5,2.5,3.5,4.5,5.5]:
+            if use_real:
+                rp_s = _find_real_prop(props_lkp, p["name"], "shots")
+                if rp_s:
+                    s_line_display = rp_s["line"]
+                    pv = _poisson_over(s_adj_display, s_line_display) / 100
+                    s_prob_display = round(pv * 100, 1)
+                    s_edge_display = _edge(s_prob_display, rp_s["over_implied"])
+            else:
+                for cl in [5.5,4.5,3.5,2.5,1.5,0.5]:
                     pv = _poisson_over(s_adj_display, cl) / 100
-                    d = abs(pv-0.5)
-                    if d < bd:
-                        bd,s_line_display = d,cl
+                    if MIN_PROB <= pv <= MAX_PROB:
+                        s_line_display = cl
                         s_prob_display = round(pv*100,1)
                         s_edge_display = _edge(s_prob_display, b365_impl_pct)
+                        break
+                if s_line_display is None:
+                    bd = 99.0
+                    for cl in [0.5,1.5,2.5,3.5,4.5,5.5]:
+                        pv = _poisson_over(s_adj_display, cl) / 100
+                        d = abs(pv-0.5)
+                        if d < bd:
+                            bd,s_line_display = d,cl
+                            s_prob_display = round(pv*100,1)
+                            s_edge_display = _edge(s_prob_display, b365_impl_pct)
 
             candidates.append({
                 "name":p["name"],"position":p.get("position",""),"team":team,
@@ -410,7 +519,7 @@ class PropsAnalyzer:
                 "market":best["label"],"market_type":best["type"],
                 "our_prob":best["prob"],"edge_pct":best["edge"],"kelly":best["kelly"],
                 "market_detail":best["detail"],"est_odds":best["est_odds"],
-                "b365_implied":round(b365_impl_pct,1),"all_markets":markets,
+                "b365_implied":best.get("dk_implied", round(b365_impl_pct,1)),"all_markets":markets,
                 "shots_pg":round(p["shots_pg"],1),"goals_pg":round(p["goals_pg"],2),
                 "points_pg":round(p["points_pg"],2),
                 "shots_adj":s_adj_display,
@@ -429,9 +538,10 @@ class PropsAnalyzer:
         candidates.sort(key=lambda x: x["edge_pct"], reverse=True)
         return candidates[:n]
 
-    def _retour_de_flamme(self, home_players, away_players, home_team, away_team) -> list:
+    def _retour_de_flamme(self, home_players, away_players, home_team, away_team, props_lkp=None) -> list:
         retour = []
         seen   = set()
+        use_real = props_lkp is not None
 
         for players, team, opponent in [
             (home_players, home_team, away_team),
@@ -457,18 +567,34 @@ class PropsAnalyzer:
 
                 drop_pct = round((1 - avg5 / avg10) * 100)
 
-                adj_factor   = DEF_SHOTS_ALLOWED.get(opponent, LEAGUE_AVG_SHOTS) / LEAGUE_AVG_SHOTS
-                adj_deprime  = avg5  * adj_factor
-                adj_reel     = avg10 * adj_factor
-                dk_line_est  = max(round(adj_deprime * 0.85 * 2) / 2, 0.5)
+                adj_factor  = DEF_SHOTS_ALLOWED.get(opponent, LEAGUE_AVG_SHOTS) / LEAGUE_AVG_SHOTS
+                adj_deprime = avg5  * adj_factor
+                adj_reel    = avg10 * adj_factor
+
+                # Ligne DK: utilise la vraie si disponible, sinon estimee
+                if use_real:
+                    rp = _find_real_prop(props_lkp, name, "shots")
+                    if not rp:
+                        continue  # Pas de ligne DK disponible — skip
+                    dk_line_est = rp["line"]
+                    dk_impl     = rp["over_implied"]
+                    est_odds    = rp["over_odds"]
+                else:
+                    dk_line_est = max(round(adj_deprime * 0.85 * 2) / 2, 0.5)
+                    dk_impl     = B365_VIG_IMPL * 100
+                    est_odds    = _est_odds(_poisson_over(adj_reel, dk_line_est))
 
                 our_prob = _poisson_over(adj_reel, dk_line_est)
-                dk_impl  = B365_VIG_IMPL * 100
                 edge     = _edge(our_prob, dk_impl)
-                est_odds = _est_odds(our_prob)
 
-                if edge < 12.0 or est_odds < 1.65:  # Seuil plus strict pour retour de flamme
-                    continue
+                if use_real:
+                    if edge < 12.0:
+                        continue
+                else:
+                    if edge < 12.0 or est_odds < 1.65:
+                        continue
+
+                kelly_val = _kelly(our_prob, dk_impl/100, est_odds) if use_real else _kelly(our_prob, B365_VIG_IMPL, B365_VIG_ODDS)
 
                 retour.append({
                     "name":          name,
@@ -484,7 +610,7 @@ class PropsAnalyzer:
                     "our_prob":      our_prob,
                     "edge_pct":      edge,
                     "est_odds":      est_odds,
-                    "kelly":         _kelly(our_prob, B365_VIG_IMPL, B365_VIG_ODDS),
+                    "kelly":         kelly_val,
                     "opp_shots_rank": shots_rank_opp,
                     "season_goals":  p.get("season_goals", 0),
                     "season_points": p.get("season_points", 0),
