@@ -10,10 +10,18 @@ from typing import Optional
 BASE_URL  = "https://api.the-odds-api.com/v4"
 SPORT     = "icehockey_nhl"
 BOOKMAKER = "draftkings"
-REGIONS   = "us"
 FMT_ODDS  = "decimal"
 FMT_DATE  = "iso"
 MAIN_MARKETS = "h2h,spreads,totals"
+
+# Ordre de priorite: bet365 (UK) en premier car c'est la que l'utilisateur bet,
+# puis DraftKings (US) en fallback si bet365 n'a pas encore poste les cotes.
+BOOKMAKER_PRIORITY = [
+    {"key": "bet365",       "region": "uk"},
+    {"key": "draftkings",   "region": "us"},
+    {"key": "fanduel",      "region": "us"},
+    {"key": "betmgm",       "region": "us"},
+]
 
 # Marches props NHL disponibles sur The Odds API
 NHL_PROP_MARKETS = [
@@ -46,48 +54,59 @@ class OddsFetcher:
             return None
 
     def get_nhl_games_b365(self) -> list:
-        print("  -> Moneyline + Puck Line + Totals...")
-        raw = self._get(f"sports/{SPORT}/odds", {
-            "regions":    REGIONS,
-            "markets":    MAIN_MARKETS,
-            "bookmakers": BOOKMAKER,
-            "oddsFormat": FMT_ODDS,
-            "dateFormat": FMT_DATE,
-        })
+        """Fetch les cotes NHL.
+        Essaie bet365 (UK) en priorite, puis DK/FD en fallback si pas encore disponible."""
+        for entry in BOOKMAKER_PRIORITY:
+            book   = entry["key"]
+            region = entry["region"]
+            print(f"  -> Tentative {book} ({region}): Moneyline + Puck Line + Totals...")
+            raw = self._get(f"sports/{SPORT}/odds", {
+                "regions":    region,
+                "markets":    MAIN_MARKETS,
+                "bookmakers": book,
+                "oddsFormat": FMT_ODDS,
+                "dateFormat": FMT_DATE,
+            })
+            print(f"  -> Requetes API restantes: {self.remaining} | utilisees: {self.used}")
 
-        if not raw:
-            return []
+            if not raw:
+                print(f"  {book}: aucun match disponible.")
+                continue
 
-        print(f"  -> Requetes API restantes: {self.remaining} | utilisees: {self.used}")
+            games = []
+            for event in raw:
+                game = self._parse_event_for_book(event, book)
+                if game:
+                    game["markets"]["player_props"] = []
+                    game["removed_props"] = []
+                    games.append(game)
 
-        games = []
-        for event in raw:
-            game = self._parse_event(event)
-            if game:
-                game["markets"]["player_props"] = []
-                game["removed_props"] = []
-                games.append(game)
+            if games:
+                print(f"  {len(games)} match(s) avec cotes {book} ({region})")
+                return games
+            print(f"  {book}: reponse recue mais aucun match parse.")
 
-        print(f"  {len(games)} match(s) avec cotes DraftKings")
-        return games
+        print("  Aucun match trouve sur tous les bookmakers.")
+        return []
 
-    def get_nhl_player_props(self, event_id: str) -> dict:
+    def get_nhl_player_props(self, event_id: str, bookmaker: str = "bet365") -> dict:
         """Fetche les props joueurs NHL pour un match (tous les marches en un seul appel).
         Retourne dict {market_key: [{player, line, over_odds, over_implied, under_odds, under_implied}]}
         """
         time.sleep(0.5)
+        region = next((e["region"] for e in BOOKMAKER_PRIORITY if e["key"] == bookmaker), "us")
         data = self._get(f"sports/{SPORT}/events/{event_id}/odds", {
-            "regions":    REGIONS,
+            "regions":    region,
             "markets":    ",".join(NHL_PROP_MARKETS),
             "oddsFormat": FMT_ODDS,
-            "bookmakers": BOOKMAKER,
+            "bookmakers": bookmaker,
         })
         if not data:
             return {}
 
         result = {}
         for bm in data.get("bookmakers", []):
-            if bm.get("key") != BOOKMAKER:
+            if bm.get("key") != bookmaker:
                 continue
             for mkt in bm.get("markets", []):
                 market_key = mkt.get("key")
@@ -130,9 +149,9 @@ class OddsFetcher:
 
         return result
 
-    def _parse_event(self, event: dict) -> Optional[dict]:
+    def _parse_event_for_book(self, event: dict, book: str) -> Optional[dict]:
         bk = next(
-            (b for b in event.get("bookmakers", []) if b["key"] == BOOKMAKER),
+            (b for b in event.get("bookmakers", []) if b["key"] == book),
             None
         )
         if not bk:
@@ -143,7 +162,7 @@ class OddsFetcher:
             "home_team":     event["home_team"],
             "away_team":     event["away_team"],
             "commence_time": event["commence_time"],
-            "bookmaker":     BOOKMAKER,
+            "bookmaker":     book,
             "markets":       {},
         }
 
@@ -157,6 +176,9 @@ class OddsFetcher:
                 game["markets"]["totals"] = self._parse_totals(market)
 
         return game
+
+    def _parse_event(self, event: dict) -> Optional[dict]:
+        return self._parse_event_for_book(event, BOOKMAKER)
 
     def _parse_h2h(self, market, game):
         out = {}

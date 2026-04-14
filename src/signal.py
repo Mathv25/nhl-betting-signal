@@ -80,8 +80,9 @@ def main():
     for s in top_games:
         g = s["game"]
         try:
-            print(f"  Fetch props DK: {g['away_team']} @ {g['home_team']}...")
-            real_props = fetcher.get_nhl_player_props(g["id"])
+            book = g.get("bookmaker", "draftkings")
+            print(f"  Fetch props {book}: {g['away_team']} @ {g['home_team']}...")
+            real_props = fetcher.get_nhl_player_props(g["id"], bookmaker=book)
             analysis = props_an.analyze_game(g["home_team"], g["away_team"], real_props=real_props)
             if analysis.get("bets"):
                 props_by_game.append(analysis)
