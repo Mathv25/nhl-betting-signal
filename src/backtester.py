@@ -249,25 +249,49 @@ def get_nhl_player_id(player_name: str, team_name: str) -> Optional[int]:
     return None
 
 
-def get_nhl_player_game_stats(player_id: int, target_date: str) -> Optional[dict]:
+def get_nhl_player_game_stats(player_id: int, target_date: str,
+                               expected_home: str = "", expected_away: str = "") -> Optional[dict]:
+    """Retourne les stats du joueur sur target_date.
+    Si expected_home/away fournis, valide que le match correspond aux bonnes equipes
+    (evite de resoudre un prop avec les stats d'un match different)."""
     data = _get(f"{NHL_API}/player/{player_id}/game-log/20252026/2")
     time.sleep(0.3)
     if not data:
         return None
 
+    def _abbrevs_match(game_str: str, home_abbr: str, away_abbr: str) -> bool:
+        """Verifie que home_abbr et away_abbr sont dans la chaine de jeu NHL API."""
+        gs = game_str.upper()
+        return home_abbr.upper() in gs and away_abbr.upper() in gs
+
     for game in data.get("gameLog", []):
-        if game.get("gameDate", "")[:10] == target_date:
-            shots   = game.get("shots",  0) or 0
-            goals   = game.get("goals",  0) or 0
-            assists = game.get("assists", 0) or 0
-            sa      = game.get("shotsAgainst", 0) or 0
-            ga      = game.get("goalsAgainst", 0) or 0
-            return {
-                "shots":  shots,
-                "goals":  goals,
-                "points": goals + assists,
-                "saves":  max(0, sa - ga),
-            }
+        if game.get("gameDate", "")[:10] != target_date:
+            continue
+
+        # Validation des equipes si fournie
+        if expected_home and expected_away:
+            h_abbr = TEAM_NAME_TO_ROSTER_ABBR.get(expected_home, "")
+            a_abbr = TEAM_NAME_TO_ROSTER_ABBR.get(expected_away, "")
+            opp    = game.get("opponentAbbrev", "")
+            team_a = game.get("teamAbbrev", "")
+            if h_abbr and a_abbr:
+                game_abbrevs = {opp.upper(), team_a.upper()}
+                expected_abbrevs = {h_abbr.upper(), a_abbr.upper()}
+                if not game_abbrevs.issubset(expected_abbrevs | {""}):
+                    print(f"    ⚠ Match differe: {team_a} vs {opp} (attendu: {h_abbr} vs {a_abbr}) — skip")
+                    return None
+
+        shots   = game.get("shots",  0) or 0
+        goals   = game.get("goals",  0) or 0
+        assists = game.get("assists", 0) or 0
+        sa      = game.get("shotsAgainst", 0) or 0
+        ga      = game.get("goalsAgainst", 0) or 0
+        return {
+            "shots":  shots,
+            "goals":  goals,
+            "points": goals + assists,
+            "saves":  max(0, sa - ga),
+        }
     return None
 
 
@@ -276,6 +300,8 @@ def resolve_nhl_prop(prop: dict, target_date: str) -> Optional[str]:
     team        = prop.get("team", "")
     market      = prop.get("market", "")
     market_type = prop.get("market_type", "")
+    game_home   = prop.get("_game_home", "")
+    game_away   = prop.get("_game_away", "")
     if not name or not team or not market:
         return None
 
@@ -284,7 +310,7 @@ def resolve_nhl_prop(prop: dict, target_date: str) -> Optional[str]:
         print(f"    ⚠ ID NHL introuvable: {name} ({team})")
         return None
 
-    stats = get_nhl_player_game_stats(player_id, target_date)
+    stats = get_nhl_player_game_stats(player_id, target_date, game_home, game_away)
     if not stats:
         print(f"    ⚠ Stats NHL introuvables: {name} pour {target_date}")
         return None
