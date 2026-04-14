@@ -15,11 +15,11 @@ NHL_API   = "https://api-web.nhle.com/v1"
 SEASON    = "20252026"
 GAME_TYPE = "2"
 
-MIN_EDGE             = 6.0
-B365_VIG_IMPL        = 53.49 / 100   # CORRIGE: DK -115 standard = 53.49% (etait 52.36%)
-B365_VIG_ODDS        = 1.870          # CORRIGE: decimal de -115 (etait 1.909 = -110)
-MIN_DEF_RANK_SHOTS   = 20
-MIN_DEF_RANK_GOALS   = 20
+MIN_EDGE             = 10.0  # Hausse de 6 a 10 — les 6-10% ne battent pas le vig sur le long terme
+B365_VIG_IMPL        = 53.49 / 100   # DK -115 standard = 53.49% implied
+B365_VIG_ODDS        = 1.870          # decimal de -115
+MIN_DEF_RANK_SHOTS   = 22   # Seulement vs defenses reellement faibles (top 10 pires)
+MIN_DEF_RANK_GOALS   = 22   # Meme logique pour les buts
 
 # ── LISTE BLESSURES MANUELLE ──────────────────────────────────────────────────
 # L'API NHL.com ne met pas toujours a jour les statuts IR/LTIR correctement.
@@ -304,7 +304,7 @@ class PropsAnalyzer:
         shots_rank_opp = DEF_SHOTS_RANK.get(opponent, 16)
         ga_rank_opp    = DEF_GA_RANK.get(opponent, 16)
         b365_impl_pct  = B365_VIG_IMPL * 100
-        MIN_PROB, MAX_PROB, MIN_ODDS = 0.40, 0.61, 1.65
+        MIN_PROB, MAX_PROB, MIN_ODDS = 0.44, 0.59, 1.65  # Bande serree — evite les extremes
 
         candidates = []
         for p in players:
@@ -318,8 +318,8 @@ class PropsAnalyzer:
 
             markets = []
 
-            # SHOTS — seulement vs defense faible
-            if shots_rank_opp >= MIN_DEF_RANK_SHOTS:
+            # SHOTS — seulement vs defense faible ET joueur avec moyenne solide
+            if shots_rank_opp >= MIN_DEF_RANK_SHOTS and p["shots_pg"] >= 2.0:
                 sl, sp, se = None, 0.0, 0.0
                 for cl in [5.5, 4.5, 3.5, 2.5, 1.5, 0.5]:
                     pv = _poisson_over(shots_adj, cl) / 100
@@ -339,8 +339,8 @@ class PropsAnalyzer:
                         "prob":sp,"edge":se,"kelly":_kelly(sp,B365_VIG_IMPL,B365_VIG_ODDS),
                         "est_odds":so,"detail":str(round(shots_adj,1))+" shots proj. · moy "+str(p["shots_pg"])+"/m · DEF #"+str(shots_rank_opp)})
 
-            # BUTS — vs defense poreuse ET buteur
-            if ga_rank_opp >= MIN_DEF_RANK_GOALS and p["goals_pg"] >= 0.35:
+            # BUTS — vs defense poreuse ET buteur solide
+            if ga_rank_opp >= MIN_DEF_RANK_GOALS and p["goals_pg"] >= 0.40:
                 gr = _poisson_over(goals_adj, 0.5) / 100
                 if gr > MAX_PROB:
                     gp, gl = round(_poisson_over(goals_adj, 1.5), 1), "Buts Over 1.5"
@@ -352,9 +352,10 @@ class PropsAnalyzer:
                         "prob":gp,"edge":ge,"kelly":_kelly(gp,B365_VIG_IMPL,B365_VIG_ODDS),
                         "est_odds":go,"detail":str(round(goals_adj,2))+" buts proj. · moy "+str(round(p["goals_pg"],2))+"/m · DEF buts #"+str(ga_rank_opp)})
 
-            # POINTS — playmaker ou si pas d'autre option
+            # POINTS — seulement pour joueurs de 1re ligne avec forte production
             is_playmaker = p.get("assists_pg", 0) > p["goals_pg"] * 1.5
-            if not markets or is_playmaker:
+            has_min_points = p["points_pg"] >= 0.55  # Minimum pour battre le vig sur points
+            if has_min_points and (not markets or is_playmaker):
                 pr_raw = _poisson_over(points_adj, 0.5) / 100
                 if pr_raw > MAX_PROB:
                     pp2, pl = round(_poisson_over(points_adj, 1.5), 1), "Points Over 1.5"
@@ -466,7 +467,7 @@ class PropsAnalyzer:
                 edge     = _edge(our_prob, dk_impl)
                 est_odds = _est_odds(our_prob)
 
-                if edge < MIN_EDGE or est_odds < 1.65:
+                if edge < 12.0 or est_odds < 1.65:  # Seuil plus strict pour retour de flamme
                     continue
 
                 retour.append({

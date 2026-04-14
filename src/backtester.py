@@ -46,14 +46,14 @@ TEAM_NAME_TO_SCORE_ABBR = {
     "Calgary Flames": "CGY", "Carolina Hurricanes": "CAR", "Chicago Blackhawks": "CHI",
     "Colorado Avalanche": "COL", "Columbus Blue Jackets": "CBJ", "Dallas Stars": "DAL",
     "Detroit Red Wings": "DET", "Edmonton Oilers": "EDM", "Florida Panthers": "FLA",
-    "Los Angeles Kings": "LA",   # scores API utilise "LA" pas "LAK"
+    "Los Angeles Kings": "LAK",
     "Minnesota Wild": "MIN", "Montreal Canadiens": "MTL", "Montréal Canadiens": "MTL",
-    "Nashville Predators": "NSH", "New Jersey Devils": "NJ",  # scores API "NJ" pas "NJD"
+    "Nashville Predators": "NSH", "New Jersey Devils": "NJD",
     "New York Islanders": "NYI", "New York Rangers": "NYR", "Ottawa Senators": "OTT",
     "Philadelphia Flyers": "PHI", "Pittsburgh Penguins": "PIT",
-    "San Jose Sharks": "SJ",     # scores API "SJ" pas "SJS"
+    "San Jose Sharks": "SJS",
     "Seattle Kraken": "SEA", "St Louis Blues": "STL", "St. Louis Blues": "STL",
-    "Tampa Bay Lightning": "TB", # scores API "TB" pas "TBL"
+    "Tampa Bay Lightning": "TBL",
     "Toronto Maple Leafs": "TOR", "Utah Hockey Club": "UTA", "Utah Mammoth": "UTA",
     "Vancouver Canucks": "VAN", "Vegas Golden Knights": "VGK",
     "Washington Capitals": "WSH", "Winnipeg Jets": "WPG",
@@ -133,12 +133,19 @@ def find_nhl_score(game_str: str, scores: dict) -> Optional[dict]:
     away_abbr, home_abbr = parse_game_str(game_str)
     if not away_abbr or not home_abbr:
         return None
+    # Correspondance exacte
     if (home_abbr, away_abbr) in scores:
         return scores[(home_abbr, away_abbr)]
+    # Orientation inversee dans l'archive (home/away swap) — retourne score corrige
+    if (away_abbr, home_abbr) in scores:
+        s = scores[(away_abbr, home_abbr)]
+        return {"home_score": s["away_score"], "away_score": s["home_score"]}
     # Fallback partiel
     for (h, a), s in scores.items():
         if home_abbr in h and away_abbr in a:
             return s
+        if away_abbr in h and home_abbr in a:
+            return {"home_score": s["away_score"], "away_score": s["home_score"]}
     return None
 
 # ── Resolution bets equipe NHL ─────────────────────────────────────────────────
