@@ -17,10 +17,10 @@ MAIN_MARKETS = "h2h,spreads,totals"
 # Ordre de priorite: bet365 (UK) en premier car c'est la que l'utilisateur bet,
 # puis DraftKings (US) en fallback si bet365 n'a pas encore poste les cotes.
 BOOKMAKER_PRIORITY = [
-    {"key": "bet365",       "region": "uk"},
     {"key": "draftkings",   "region": "us"},
     {"key": "fanduel",      "region": "us"},
     {"key": "betmgm",       "region": "us"},
+    {"key": "williamhill_us", "region": "us"},
 ]
 
 # Marches props NHL disponibles sur The Odds API
@@ -89,7 +89,7 @@ class OddsFetcher:
         print("  Aucun match trouve sur tous les bookmakers.")
         return []
 
-    def get_nhl_player_props(self, event_id: str, bookmaker: str = "bet365") -> dict:
+    def get_nhl_player_props(self, event_id: str, bookmaker: str = "draftkings") -> dict:
         """Fetche les props joueurs NHL pour un match (tous les marches en un seul appel).
         Retourne dict {market_key: [{player, line, over_odds, over_implied, under_odds, under_implied}]}
         """
