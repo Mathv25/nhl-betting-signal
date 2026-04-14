@@ -40,8 +40,8 @@ def main():
     print("\nRecuperation des cotes NHL...")
     games = fetcher.get_nhl_games_b365()
     if not games:
-        print("Aucun match NHL trouve.")
-        reporter.generate_empty_report()
+        print("Aucun match NHL avec cotes DraftKings pour l'instant.")
+        print("Le signal existant est conserve. DraftKings poste les cotes en cours de journee.")
         sys.exit(0)
     print(f"{len(games)} match(s) trouve(s)")
 
