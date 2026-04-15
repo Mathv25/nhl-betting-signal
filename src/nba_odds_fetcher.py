@@ -4,7 +4,9 @@ Marches: player_points, player_rebounds, player_assists, player_threes
 """
 import requests
 import time
+from datetime import datetime, timezone
 from typing import Optional
+import pytz
 
 BASE_URL  = "https://api.the-odds-api.com/v4"
 SPORT     = "basketball_nba"
@@ -49,16 +51,24 @@ class NBAOddsFetcher:
             print("  Aucun match NBA trouve.")
             return []
 
+        tz = pytz.timezone("America/Toronto")
+        today_et = datetime.now(tz).date()
+
         games = []
         for event in data:
+            commence = event.get("commence_time", "")
+            if commence:
+                game_dt = datetime.fromisoformat(commence.replace("Z", "+00:00")).astimezone(tz)
+                if game_dt.date() != today_et:
+                    continue
             games.append({
                 "event_id":      event.get("id", ""),
                 "home_team":     event.get("home_team", ""),
                 "away_team":     event.get("away_team", ""),
-                "commence_time": event.get("commence_time", ""),
+                "commence_time": commence,
             })
 
-        print(f"  {len(games)} match(s) NBA trouve(s)")
+        print(f"  {len(games)} match(s) NBA ce soir (filtre date ET)")
         return games
 
     def get_player_props(self, event_id: str, market: str) -> list:
