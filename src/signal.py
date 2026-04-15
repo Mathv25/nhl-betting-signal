@@ -83,6 +83,8 @@ def main():
             book = g.get("bookmaker", "draftkings")
             print(f"  Fetch props {book}: {g['away_team']} @ {g['home_team']}...")
             real_props = fetcher.get_nhl_player_props(g["id"], bookmaker=book)
+            n_lines = sum(len(v) for v in real_props.values()) if real_props else 0
+            print(f"    -> {n_lines} lignes props disponibles ({list(real_props.keys()) if real_props else 'aucune'})")
             analysis = props_an.analyze_game(g["home_team"], g["away_team"], real_props=real_props)
             if analysis.get("bets"):
                 props_by_game.append(analysis)
