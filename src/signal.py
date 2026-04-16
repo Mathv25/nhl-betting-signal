@@ -8,6 +8,8 @@ import pytz
 from odds_fetcher import OddsFetcher
 from nba_odds_fetcher import NBAOddsFetcher
 from nba_props_analyzer import NBAPropsAnalyzer
+from mlb_odds_fetcher import MLBOddsFetcher
+from mlb_props_analyzer import MLBPropsAnalyzer
 from lineup_checker import LineupChecker
 from lineup_fetcher import LineupFetcher
 from edge_calculator import EdgeCalculator
@@ -110,6 +112,23 @@ def main():
             if analysis.get("bets"):
                 nba_analysis.append(analysis)
 
+    # 5c. MLB props
+    time.sleep(5)
+    print("\nAnalyse MLB props...")
+    mlb_fetcher  = MLBOddsFetcher(api_key)
+    mlb_analyzer = MLBPropsAnalyzer()
+    mlb_games    = mlb_fetcher.get_mlb_games()
+    mlb_analysis = []
+    for mg in mlb_games[:10]:
+        props_by_market = {}
+        for market in ["pitcher_strikeouts", "batter_hits", "batter_total_bases"]:
+            props = mlb_fetcher.get_player_props(mg["event_id"], market)
+            if props:
+                props_by_market[market] = props
+        analysis = mlb_analyzer.analyze_game(mg, props_by_market if props_by_market else None)
+        if analysis.get("bets"):
+            mlb_analysis.append(analysis)
+
     # 6. Value bets — edge >= 5%, max 10
     value_bets = sorted(
         [e for s in signals for e in s["edges"] if e["edge_pct"] >= 5.0],
@@ -128,6 +147,7 @@ def main():
         "value_bets":       value_bets,
         "props_analysis":   props_by_game,
         "nba_analysis":     nba_analysis,
+        "mlb_analysis":     mlb_analysis,
     }
 
     os.makedirs("../docs", exist_ok=True)

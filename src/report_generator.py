@@ -31,6 +31,7 @@ class ReportGenerator:
         props_html   = self._props_section(props_by_game)
         calc_html    = self._calculator()
         perf_html    = self._performance_section()
+        mlb_html     = self._mlb_section(data.get("mlb_analysis", []))
 
         parts = [
             "<!DOCTYPE html><html lang=\"fr\"><head>",
@@ -55,6 +56,9 @@ class ReportGenerator:
             "</div>",
             "<div id=\"tab-nba\" style=\"display:none\">",
             self._nba_section(data.get("nba_analysis", [])),
+            "</div>",
+            "<div id=\"tab-mlb\" style=\"display:none\">",
+            mlb_html,
             "</div>",
             "<div id=\"tab-perf\" style=\"display:none\">",
             perf_html,
@@ -82,6 +86,7 @@ class ReportGenerator:
             "<button class=\"tab active\" onclick=\"showTab('tab-signal',this)\">Signal</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-props',this)\">Props NHL</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-nba',this)\">NBA</button>"
+            "<button class=\"tab\" onclick=\"showTab('tab-mlb',this)\">MLB</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-perf',this)\">Performance</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-calc',this)\">Calculateur</button>"
             "</div>"
@@ -662,6 +667,82 @@ class ReportGenerator:
             html += "</div>"
         return html
 
+    def _mlb_section(self, mlb_analysis: list) -> str:
+        if not mlb_analysis:
+            return (
+                "<div style='color:var(--m);padding:1rem 0;font-size:13px'>"
+                "Aucune analyse MLB disponible ou pas de matchs ce soir."
+                "</div>"
+            )
+
+        html = "<div class='mlb-header'>MLB Player Props — Analyse +EV</div>"
+        for game_data in mlb_analysis:
+            home = game_data.get("home_team", "")
+            away = game_data.get("away_team", "")
+            bets = game_data.get("bets", [])
+            if not bets:
+                continue
+            html += (
+                "<div class='mlb-game'>"
+                "<div class='mlb-matchup'>"
+                + away + " <span class='mlb-at'>@</span> " + home
+                + "</div>"
+            )
+            for b in bets:
+                player      = b.get("player", "")
+                market      = b.get("market", "")
+                player_type = b.get("player_type", "batter")
+                prob        = b.get("our_prob", 0)
+                edge        = b.get("edge_pct", 0)
+                kelly       = b.get("kelly", 0)
+                odds        = b.get("est_odds", 0)
+                season_avg  = b.get("season_avg", 0)
+                adj_proj    = b.get("adj_proj", 0)
+                opp_k_rate  = b.get("opp_k_rate")
+                park_factor = b.get("park_factor", 1.0)
+                dk_implied  = b.get("dk_implied", 52.6)
+                team        = b.get("team", "")
+                opponent    = b.get("opponent", "")
+                context     = b.get("context", [])
+
+                ec = "#0F6E56" if edge >= 15 else "#BA7517"
+                eb = "#E1F5EE" if edge >= 15 else "#FAEEDA"
+                type_icon = "⚾" if player_type == "pitcher" else "🏏"
+                type_label = "Lanceur" if player_type == "pitcher" else "Frappeur"
+
+                html += (
+                    "<div class='mlb-card'>"
+                    "<div class='mlb-card-head'>"
+                    "<div>"
+                    "<span class='mlb-player'>" + type_icon + " " + player + "</span>"
+                    "<span class='mlb-meta'>" + type_label + " · " + team.split()[-1] + " vs " + opponent.split()[-1] + "</span>"
+                    "</div>"
+                    "<div class='mlb-edge' style='color:" + ec + ";background:" + eb + "'>"
+                    "+" + str(edge) + "% edge"
+                    "</div>"
+                    "</div>"
+                    "<div class='mlb-bet-label'>" + market + "</div>"
+                    "<div class='mlb-stats'>"
+                    "<div class='mlb-stat'><span>Moy saison</span><strong>" + str(season_avg) + "</strong></div>"
+                    "<div class='mlb-stat'><span>Proj. ajustee</span><strong>" + str(adj_proj) + "</strong></div>"
+                )
+                if opp_k_rate is not None:
+                    html += "<div class='mlb-stat'><span>K% adverse</span><strong>" + str(opp_k_rate) + "%</strong></div>"
+                pf_color = "#B45309" if park_factor >= 1.08 else ("#0F6E56" if park_factor <= 0.92 else "#6B7280")
+                html += (
+                    "<div class='mlb-stat'><span>Park factor</span><strong style='color:" + pf_color + "'>" + str(park_factor) + "</strong></div>"
+                    "<div class='mlb-stat'><span>Notre prob</span><strong style='color:" + ec + "'>" + str(prob) + "%</strong></div>"
+                    "<div class='mlb-stat'><span>DK implied</span><strong>" + str(dk_implied) + "%</strong></div>"
+                    "<div class='mlb-stat'><span>Cote est. DK</span><strong>" + str(odds) + "</strong></div>"
+                    "<div class='mlb-stat'><span>1/4 Kelly</span><strong>" + str(kelly) + "% BR</strong></div>"
+                    "</div>"
+                )
+                for note in context[:2]:
+                    html += "<div class='mlb-note'>" + note + "</div>"
+                html += "</div>"
+            html += "</div>"
+        return html
+
     def _calculator(self):
         return (
             "<div class=\"calc\">"
@@ -932,6 +1013,28 @@ class ReportGenerator:
             ".nba-stat span{display:block;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}"
             ".nba-stat strong{font-size:14px;font-weight:700;color:var(--t)}"
             ".nba-note{font-size:11px;color:var(--accent);background:rgba(37,99,235,.08);border-radius:5px;"
+            "padding:5px 10px;margin-top:5px;font-weight:500}"
+            # ── MLB section ───────────────────────────────────────────────
+            ".mlb-header{font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--t);"
+            "margin-bottom:1.125rem;padding-bottom:.875rem;border-bottom:1px solid var(--b)}"
+            ".mlb-game{background:var(--s);border:1px solid var(--b);border-radius:var(--r);"
+            "padding:1.125rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,.05)}"
+            ".mlb-matchup{font-size:15px;font-weight:700;color:var(--t);margin-bottom:.875rem;"
+            "padding-bottom:.625rem;border-bottom:1px solid var(--b)}"
+            ".mlb-at{color:var(--m);font-weight:400;margin:0 8px}"
+            ".mlb-card{background:var(--bg);border:1px solid var(--b);border-radius:var(--rs);"
+            "padding:12px 14px;margin-bottom:10px}"
+            ".mlb-card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}"
+            ".mlb-player{font-size:15px;font-weight:700;color:var(--t);display:block;letter-spacing:-.2px}"
+            ".mlb-meta{font-size:11px;color:var(--m);margin-top:2px}"
+            ".mlb-edge{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;flex-shrink:0;letter-spacing:.01em}"
+            ".mlb-bet-label{font-size:13px;font-weight:700;color:var(--t);margin-bottom:10px;"
+            "border-left:3px solid #E84646;padding-left:10px}"
+            ".mlb-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:8px}"
+            ".mlb-stat{background:var(--s);border:1px solid var(--b);border-radius:7px;padding:6px 9px;font-size:11px;color:var(--m)}"
+            ".mlb-stat span{display:block;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}"
+            ".mlb-stat strong{font-size:14px;font-weight:700;color:var(--t)}"
+            ".mlb-note{font-size:11px;color:#B45309;background:rgba(217,119,6,.08);border-radius:5px;"
             "padding:5px 10px;margin-top:5px;font-weight:500}"
             # ── General ───────────────────────────────────────────────────
             ".disc{font-size:11px;color:var(--m);margin-top:2rem;padding-top:1rem;border-top:1px solid var(--b);line-height:1.8}"
