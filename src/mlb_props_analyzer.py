@@ -156,6 +156,10 @@ MLB_PITCHERS = {
     "Hunter Brown":         {"strikeouts": 7.2,  "team": "Houston Astros",         "hand": "R"},
     "Jesus Luzardo":        {"strikeouts": 7.2,  "team": "Miami Marlins",          "hand": "L"},
     "Shane Bieber":         {"strikeouts": 7.0,  "team": "Cleveland Guardians",    "hand": "R"},
+    "Tanner Bibee":         {"strikeouts": 6.8,  "team": "Cleveland Guardians",    "hand": "R"},
+    "Gavin Williams":       {"strikeouts": 7.0,  "team": "Cleveland Guardians",    "hand": "R"},
+    "Ben Lively":           {"strikeouts": 5.5,  "team": "Cleveland Guardians",    "hand": "R"},
+    "Carlos Carrasco":      {"strikeouts": 5.5,  "team": "Cleveland Guardians",    "hand": "R"},
     "Zac Gallen":           {"strikeouts": 7.0,  "team": "Arizona Diamondbacks",   "hand": "R"},
     "Mitch Keller":         {"strikeouts": 7.0,  "team": "Pittsburgh Pirates",     "hand": "R"},
     "Sandy Alcantara":      {"strikeouts": 6.8,  "team": "Miami Marlins",          "hand": "R"},
@@ -380,31 +384,30 @@ class MLBPropsAnalyzer:
         use_real = bool(real_lkp)
 
         # Lanceur partant reel par equipe — priorite aux cotes DK, sinon dict statique
-        def _actual_starter(team: str):
+        def _actual_starter(opp_team: str):
             """
-            Si des cotes pitcher_strikeouts sont disponibles, le vrai partant
-            est le lanceur qui a une ligne dans real_lkp.
-            Sinon fallback sur le meilleur lanceur connu dans notre dict.
+            Identifie le vrai partant de l'equipe adverse.
+            Priorite: cotes pitcher_strikeouts DK filtrees par equipe.
+            Fallback: meilleur lanceur connu du dict statique pour cette equipe.
             """
             if use_real:
-                # Les props DK de strikeouts contiennent le vrai partant
-                pitchers_in_team = _TEAM_PITCHERS.get(team, [])
                 for name, data in real_lkp.items():
                     if "strikeouts" not in data:
                         continue
-                    # Chercher ce lanceur dans notre dict (exact ou nom de famille)
                     last = name.split()[-1]
-                    for known in MLB_PITCHERS:
-                        if known.lower() == name or known.lower().split()[-1] == last:
-                            return known, MLB_PITCHERS[known]
-                    # Lanceur reel pas dans notre dict: utiliser la ligne DK directement
-                    # avec K/depart estime depuis la ligne DK (line + 1 approx)
-                    prop = data["strikeouts"]
-                    est_k = prop["line"] + 1.0  # estimation grossiere
-                    full_name = name.title()
-                    return full_name, {"strikeouts": est_k, "hand": "", "team": team}
-            # Fallback: meilleur lanceur connu du dict statique
-            pitchers = _TEAM_PITCHERS.get(team, [])
+                    # Chercher dans MLB_PITCHERS EN VERIFIANT L'EQUIPE
+                    for known, known_stats in MLB_PITCHERS.items():
+                        name_match = (known.lower() == name or
+                                      known.lower().split()[-1] == last)
+                        team_match = known_stats.get("team", "") == opp_team
+                        if name_match and team_match:
+                            return known, known_stats
+                    # Lanceur pas dans notre dict: verifier si son nom correspond
+                    # a un joueur dont l'equipe est opp_team via approximation
+                    # On ne peut pas confirmer l'equipe — skip pour eviter erreur
+                # Aucun lanceur identifie avec certitude — fallback dict
+            # Fallback: meilleur lanceur connu du dict statique pour opp_team
+            pitchers = _TEAM_PITCHERS.get(opp_team, [])
             if not pitchers:
                 return None, None
             best = max(pitchers, key=lambda p: MLB_PITCHERS[p]["strikeouts"])
