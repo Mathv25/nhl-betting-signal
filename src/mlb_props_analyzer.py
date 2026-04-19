@@ -164,6 +164,55 @@ MLB_PITCHERS = {
     "Ranger Suarez":        {"strikeouts": 6.5,  "team": "Philadelphia Phillies",  "hand": "L"},
     "Framber Valdez":       {"strikeouts": 6.5,  "team": "Houston Astros",         "hand": "L"},
     "Logan Webb":           {"strikeouts": 6.0,  "team": "San Francisco Giants",   "hand": "R"},
+    # Tier 4 — partants reguliers (5.0–6.4)
+    "Trevor Rogers":        {"strikeouts": 6.2,  "team": "Baltimore Orioles",      "hand": "L"},
+    "Grayson Rodriguez":    {"strikeouts": 6.5,  "team": "Baltimore Orioles",      "hand": "R"},
+    "Dean Kremer":          {"strikeouts": 5.8,  "team": "Baltimore Orioles",      "hand": "R"},
+    "Cade Povich":          {"strikeouts": 5.5,  "team": "Baltimore Orioles",      "hand": "L"},
+    "Braxton Garrett":      {"strikeouts": 6.0,  "team": "Miami Marlins",          "hand": "L"},
+    "Roddery Munoz":        {"strikeouts": 5.5,  "team": "Miami Marlins",          "hand": "R"},
+    "Paul Skenes":          {"strikeouts": 8.8,  "team": "Pittsburgh Pirates",     "hand": "R"},
+    "Marco Gonzales":       {"strikeouts": 5.5,  "team": "Seattle Mariners",       "hand": "L"},
+    "Bryan Woo":            {"strikeouts": 6.5,  "team": "Seattle Mariners",       "hand": "R"},
+    "Bryce Elder":          {"strikeouts": 5.8,  "team": "Atlanta Braves",         "hand": "R"},
+    "Spencer Schwellenbach":{"strikeouts": 6.5,  "team": "Atlanta Braves",         "hand": "R"},
+    "Bailey Ober":          {"strikeouts": 7.0,  "team": "Minnesota Twins",        "hand": "R"},
+    "Simeon Woods Richardson":{"strikeouts": 6.0,"team": "Minnesota Twins",        "hand": "R"},
+    "Nathan Eovaldi":       {"strikeouts": 6.5,  "team": "Texas Rangers",          "hand": "R"},
+    "Jack Leiter":          {"strikeouts": 6.5,  "team": "Texas Rangers",          "hand": "R"},
+    "Reese Olson":          {"strikeouts": 6.5,  "team": "Detroit Tigers",         "hand": "R"},
+    "Kenta Maeda":          {"strikeouts": 6.0,  "team": "Detroit Tigers",         "hand": "R"},
+    "Clarke Schmidt":       {"strikeouts": 6.5,  "team": "New York Yankees",       "hand": "R"},
+    "Nick Lodolo":          {"strikeouts": 7.0,  "team": "Cincinnati Reds",        "hand": "L"},
+    "Andrew Abbott":        {"strikeouts": 7.2,  "team": "Cincinnati Reds",        "hand": "L"},
+    "Gavin Stone":          {"strikeouts": 6.8,  "team": "Los Angeles Dodgers",    "hand": "R"},
+    "James Paxton":         {"strikeouts": 6.0,  "team": "Los Angeles Dodgers",    "hand": "L"},
+    "Chris Bassitt":        {"strikeouts": 6.5,  "team": "Baltimore Orioles",      "hand": "R"},
+    "Jordan Lyles":         {"strikeouts": 5.0,  "team": "Kansas City Royals",     "hand": "R"},
+    "Brady Singer":         {"strikeouts": 6.5,  "team": "Kansas City Royals",     "hand": "R"},
+    "Michael Lorenzen":     {"strikeouts": 5.5,  "team": "Kansas City Royals",     "hand": "R"},
+    "Lance Lynn":           {"strikeouts": 6.0,  "team": "St. Louis Cardinals",    "hand": "R"},
+    "Miles Mikolas":        {"strikeouts": 5.5,  "team": "St. Louis Cardinals",    "hand": "R"},
+    "Yusei Kikuchi":        {"strikeouts": 7.5,  "team": "Toronto Blue Jays",      "hand": "L"},
+    "Chris Flexen":         {"strikeouts": 5.5,  "team": "Chicago White Sox",      "hand": "R"},
+    "Garrett Crochet":      {"strikeouts": 8.5,  "team": "Boston Red Sox",         "hand": "L"},
+    "Brayan Bello":         {"strikeouts": 6.8,  "team": "Boston Red Sox",         "hand": "R"},
+    "Shane McLanahan":      {"strikeouts": 8.0,  "team": "Tampa Bay Rays",         "hand": "L"},
+    "Zach Eflin":           {"strikeouts": 6.5,  "team": "Tampa Bay Rays",         "hand": "R"},
+    "Michael King":         {"strikeouts": 7.5,  "team": "San Diego Padres",       "hand": "R"},
+    "Joe Musgrove":         {"strikeouts": 7.0,  "team": "San Diego Padres",       "hand": "R"},
+    "Marcus Stroman":       {"strikeouts": 5.8,  "team": "Chicago Cubs",           "hand": "R"},
+    "Kyle Hendricks":       {"strikeouts": 5.5,  "team": "Chicago Cubs",           "hand": "R"},
+    "Jared Jones":          {"strikeouts": 7.0,  "team": "Pittsburgh Pirates",     "hand": "R"},
+    "Quinn Priester":       {"strikeouts": 6.0,  "team": "Pittsburgh Pirates",     "hand": "R"},
+    "Frankie Montas":       {"strikeouts": 6.5,  "team": "New York Mets",          "hand": "R"},
+    "Sean Manaea":          {"strikeouts": 7.0,  "team": "New York Mets",          "hand": "L"},
+    "Jose Quintana":        {"strikeouts": 6.0,  "team": "New York Mets",          "hand": "L"},
+    "Taj Bradley":          {"strikeouts": 7.0,  "team": "Tampa Bay Rays",         "hand": "R"},
+    "Colt Keith":           {"strikeouts": 5.5,  "team": "Detroit Tigers",         "hand": "R"},
+    "Tylor Megill":         {"strikeouts": 6.5,  "team": "New York Mets",          "hand": "R"},
+    "Bowden Francis":       {"strikeouts": 7.0,  "team": "Toronto Blue Jays",      "hand": "R"},
+    "Chris Sale":           {"strikeouts": 8.0,  "team": "Atlanta Braves",         "hand": "L"},
 }
 
 # ── FRAPPEURS ─────────────────────────────────────────────────────────────────
@@ -330,8 +379,31 @@ class MLBPropsAnalyzer:
                     real_lkp.setdefault(pl, {})[stat_key] = prop
         use_real = bool(real_lkp)
 
-        # Meilleur lanceur partant connu par equipe (pour props frappeurs)
-        def _best_pitcher(team: str):
+        # Lanceur partant reel par equipe — priorite aux cotes DK, sinon dict statique
+        def _actual_starter(team: str):
+            """
+            Si des cotes pitcher_strikeouts sont disponibles, le vrai partant
+            est le lanceur qui a une ligne dans real_lkp.
+            Sinon fallback sur le meilleur lanceur connu dans notre dict.
+            """
+            if use_real:
+                # Les props DK de strikeouts contiennent le vrai partant
+                pitchers_in_team = _TEAM_PITCHERS.get(team, [])
+                for name, data in real_lkp.items():
+                    if "strikeouts" not in data:
+                        continue
+                    # Chercher ce lanceur dans notre dict (exact ou nom de famille)
+                    last = name.split()[-1]
+                    for known in MLB_PITCHERS:
+                        if known.lower() == name or known.lower().split()[-1] == last:
+                            return known, MLB_PITCHERS[known]
+                    # Lanceur reel pas dans notre dict: utiliser la ligne DK directement
+                    # avec K/depart estime depuis la ligne DK (line + 1 approx)
+                    prop = data["strikeouts"]
+                    est_k = prop["line"] + 1.0  # estimation grossiere
+                    full_name = name.title()
+                    return full_name, {"strikeouts": est_k, "hand": "", "team": team}
+            # Fallback: meilleur lanceur connu du dict statique
             pitchers = _TEAM_PITCHERS.get(team, [])
             if not pitchers:
                 return None, None
@@ -414,7 +486,7 @@ class MLBPropsAnalyzer:
         # ── FRAPPEURS ─────────────────────────────────────────────────────────
         for team, opp in [(home, away), (away, home)]:
             # Lanceur adverse le plus fort connu
-            opp_pitcher_name, opp_pitcher_stats = _best_pitcher(opp)
+            opp_pitcher_name, opp_pitcher_stats = _actual_starter(opp)
             opp_k     = opp_pitcher_stats["strikeouts"] if opp_pitcher_stats else LEAGUE_AVG_K_SP
             opp_hand  = opp_pitcher_stats.get("hand", "") if opp_pitcher_stats else ""
             pitch_adj, pitch_lbl = _pitcher_difficulty_adj(opp_k)
