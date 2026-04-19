@@ -15,11 +15,63 @@ NHL_API   = "https://api-web.nhle.com/v1"
 SEASON    = "20252026"
 GAME_TYPE = "2"
 
-MIN_EDGE             = 10.0  # Hausse de 6 a 10 — les 6-10% ne battent pas le vig sur le long terme
+MIN_EDGE             = 10.0  # Minimum edge pour goals/points
+MIN_EDGE_SHOTS       = 15.0  # Seuil plus eleve pour shots (variance plus haute)
+MAX_EDGE_DISPLAY     = 25.0  # Plafond affichage — au-dela = bruit de modele
 B365_VIG_IMPL        = 53.49 / 100   # DK -115 standard = 53.49% implied
 B365_VIG_ODDS        = 1.870          # decimal de -115
 MIN_DEF_RANK_SHOTS   = 22   # Seulement vs defenses reellement faibles (top 10 pires)
 MIN_DEF_RANK_GOALS   = 22   # Meme logique pour les buts
+
+GAME_TYPE_PLAYOFFS   = "3"
+
+# ── AJUSTEMENTS LIGUE EN SERIES ────────────────────────────────────────────────
+# Les series = jeu plus defensif, moins de tirs et de buts qu'en saison reguliere
+PLAYOFF_LEAGUE_SHOTS = 0.90   # ~90% des tirs de saison reguliere
+PLAYOFF_LEAGUE_GOALS = 0.88   # ~88% des buts de saison reguliere
+
+# ── FACTEURS HISTORIQUES JOUEURS EN SERIES ────────────────────────────────────
+# Ratio performance series / saison reguliere sur 3 derniers ans de playoffs
+# Source: NHL Stats, Hockey Reference 2022-2025
+PLAYOFF_FACTORS = {
+    # Elite performers en series — surpassent leur niveau regulier
+    "nathan mackinnon":  {"shots": 1.12, "goals": 1.18, "points": 1.15},
+    "leon draisaitl":    {"shots": 1.05, "goals": 1.12, "points": 1.10},
+    "nikita kucherov":   {"shots": 1.03, "goals": 1.10, "points": 1.22},  # 92pts en 2024
+    "cale makar":        {"shots": 1.08, "goals": 1.15, "points": 1.18},
+    "brad marchand":     {"shots": 1.10, "goals": 1.14, "points": 1.16},
+    "david pastrnak":    {"shots": 1.08, "goals": 1.10, "points": 1.08},
+    "victor hedman":     {"shots": 1.05, "goals": 1.08, "points": 1.12},
+    "andrei vasilevskiy":{"shots": 1.00, "goals": 0.88, "points": 0.88},  # gardien — buts contre
+    "matthew tkachuk":   {"shots": 1.05, "goals": 1.08, "points": 1.10},
+    "aleksander barkov": {"shots": 1.02, "goals": 1.05, "points": 1.08},
+    "sam reinhart":      {"shots": 1.05, "goals": 1.10, "points": 1.08},
+    "evan rodrigues":    {"shots": 1.02, "goals": 1.00, "points": 1.02},
+    "brayden point":     {"shots": 1.05, "goals": 1.15, "points": 1.18},
+    "mitchell marner":   {"shots": 1.00, "goals": 0.92, "points": 0.95},  # critiques en series
+    "auston matthews":   {"shots": 1.05, "goals": 0.95, "points": 0.97},  # production baisee
+    "connor mcdavid":    {"shots": 1.02, "goals": 1.05, "points": 1.12},
+    "mika zibanejad":    {"shots": 1.02, "goals": 1.05, "points": 1.05},
+    "artemi panarin":    {"shots": 0.95, "goals": 0.90, "points": 0.92},  # struggles en series
+    "jason robertson":   {"shots": 1.00, "goals": 0.95, "points": 0.97},
+    "jake oettinger":    {"shots": 1.00, "goals": 0.90, "points": 0.90},
+    "william nylander":  {"shots": 1.00, "goals": 0.95, "points": 0.97},
+    "bo horvat":         {"shots": 1.02, "goals": 1.05, "points": 1.05},
+    "sam reinhart":      {"shots": 1.05, "goals": 1.10, "points": 1.08},
+    "j.t. miller":       {"shots": 1.00, "goals": 0.95, "points": 0.97},
+    "mark scheifele":    {"shots": 1.05, "goals": 1.12, "points": 1.10},
+    "kyle connor":       {"shots": 1.02, "goals": 1.05, "points": 1.05},
+    "kirill kaprizov":   {"shots": 1.02, "goals": 1.00, "points": 1.02},
+    "roman josi":        {"shots": 1.05, "goals": 1.08, "points": 1.10},
+    "adam fox":          {"shots": 1.02, "goals": 1.05, "points": 1.08},
+    "quinn hughes":      {"shots": 1.00, "goals": 1.00, "points": 1.05},
+    "mikko rantanen":    {"shots": 1.05, "goals": 1.10, "points": 1.08},
+    "charlie mcavoy":    {"shots": 1.02, "goals": 1.05, "points": 1.05},
+    "jake guentzel":     {"shots": 1.05, "goals": 1.15, "points": 1.12},  # excellent en series
+    "evgeni malkin":     {"shots": 1.02, "goals": 1.05, "points": 1.08},
+    "sidney crosby":     {"shots": 1.05, "goals": 1.10, "points": 1.15},
+    "nico hischier":     {"shots": 1.02, "goals": 1.05, "points": 1.05},
+}
 
 # ── LISTE BLESSURES MANUELLE ──────────────────────────────────────────────────
 # L'API NHL.com ne met pas toujours a jour les statuts IR/LTIR correctement.
@@ -380,8 +432,8 @@ class PropsAnalyzer:
                         dk_odds = rp["over_odds"]
                         pv = _poisson_over(shots_adj, sl) / 100
                         sp = round(pv * 100, 1)
-                        se = _edge(sp, dk_impl)
-                        if se >= MIN_EDGE and dk_odds >= MIN_ODDS:
+                        se = min(_edge(sp, dk_impl), MAX_EDGE_DISPLAY)
+                        if se >= MIN_EDGE_SHOTS and dk_odds >= MIN_ODDS:
                             markets.append({"type":"shots","label":"Shots Over "+str(sl),
                                 "prob":sp,"edge":se,"kelly":_kelly(sp, dk_impl/100, dk_odds),
                                 "est_odds":dk_odds,"dk_implied":round(dk_impl,1),
@@ -391,7 +443,7 @@ class PropsAnalyzer:
                     for cl in [5.5, 4.5, 3.5, 2.5, 1.5, 0.5]:
                         pv = _poisson_over(shots_adj, cl) / 100
                         if MIN_PROB <= pv <= MAX_PROB:
-                            sl, sp, se = cl, round(pv*100,1), _edge(round(pv*100,1), b365_impl_pct)
+                            sl, sp, se = cl, round(pv*100,1), min(_edge(round(pv*100,1), b365_impl_pct), MAX_EDGE_DISPLAY)
                             break
                     if sl is None:
                         bd = 99.0
@@ -399,9 +451,9 @@ class PropsAnalyzer:
                             pv = _poisson_over(shots_adj, cl) / 100
                             d = abs(pv - 0.5)
                             if d < bd:
-                                bd, sl, sp, se = d, cl, round(pv*100,1), _edge(round(pv*100,1), b365_impl_pct)
+                                bd, sl, sp, se = d, cl, round(pv*100,1), min(_edge(round(pv*100,1), b365_impl_pct), MAX_EDGE_DISPLAY)
                     so = _est_odds(sp)
-                    if sl and se >= MIN_EDGE and so >= MIN_ODDS:
+                    if sl and se >= MIN_EDGE_SHOTS and so >= MIN_ODDS:
                         markets.append({"type":"shots","label":"Shots Over "+str(sl),
                             "prob":sp,"edge":se,"kelly":_kelly(sp,B365_VIG_IMPL,B365_VIG_ODDS),
                             "est_odds":so,"dk_implied":round(b365_impl_pct,1),
@@ -417,7 +469,7 @@ class PropsAnalyzer:
                         dk_odds = rp["over_odds"]
                         pv = _poisson_over(goals_adj, rp["line"]) / 100
                         gp = round(pv * 100, 1)
-                        ge = _edge(gp, dk_impl)
+                        ge = min(_edge(gp, dk_impl), MAX_EDGE_DISPLAY)
                         if ge >= MIN_EDGE and dk_odds >= MIN_ODDS:
                             markets.append({"type":"goals","label":gl,
                                 "prob":gp,"edge":ge,"kelly":_kelly(gp, dk_impl/100, dk_odds),
@@ -429,7 +481,7 @@ class PropsAnalyzer:
                         gp, gl = round(_poisson_over(goals_adj, 1.5), 1), "Buts Over 1.5"
                     else:
                         gp, gl = round(gr*100,1), "Buts Over 0.5"
-                    ge, go = _edge(gp, b365_impl_pct), _est_odds(gp)
+                    ge, go = min(_edge(gp, b365_impl_pct), MAX_EDGE_DISPLAY), _est_odds(gp)
                     if ge >= MIN_EDGE and go >= MIN_ODDS:
                         markets.append({"type":"goals","label":gl,
                             "prob":gp,"edge":ge,"kelly":_kelly(gp,B365_VIG_IMPL,B365_VIG_ODDS),
@@ -448,7 +500,7 @@ class PropsAnalyzer:
                         dk_odds = rp["over_odds"]
                         pv = _poisson_over(points_adj, rp["line"]) / 100
                         pp2 = round(pv * 100, 1)
-                        pe = _edge(pp2, dk_impl)
+                        pe = min(_edge(pp2, dk_impl), MAX_EDGE_DISPLAY)
                         if pe >= MIN_EDGE and dk_odds >= MIN_ODDS:
                             markets.append({"type":"points","label":pl,
                                 "prob":pp2,"edge":pe,"kelly":_kelly(pp2, dk_impl/100, dk_odds),
@@ -460,7 +512,7 @@ class PropsAnalyzer:
                         pp2, pl = round(_poisson_over(points_adj, 1.5), 1), "Points Over 1.5"
                     else:
                         pp2, pl = round(pr_raw*100,1), "Points Over 0.5"
-                    pe, po = _edge(pp2, b365_impl_pct), _est_odds(pp2)
+                    pe, po = min(_edge(pp2, b365_impl_pct), MAX_EDGE_DISPLAY), _est_odds(pp2)
                     if pe >= MIN_EDGE and po >= MIN_ODDS:
                         markets.append({"type":"points","label":pl,
                             "prob":pp2,"edge":pe,"kelly":_kelly(pp2,B365_VIG_IMPL,B365_VIG_ODDS),
@@ -657,48 +709,119 @@ class PropsAnalyzer:
         players.sort(key=lambda x: x.get("points_pg", 0), reverse=True)
         return players[:top_n]
 
-    def _get_player_stats(self, player_id: int, name: str) -> Optional[dict]:
-        if not player_id: return None
-        key = str(player_id)
-        if key in self._stats_cache: return self._stats_cache[key]
-        data = _get(f"{NHL_API}/player/{player_id}/game-log/{SEASON}/{GAME_TYPE}")
-        if not data: return None
-        logs = data.get("gameLog", [])
-        if not logs: return None
-        logs10, logs5 = logs[:10], logs[:5]
-        weights = [math.exp(-0.1*i) for i in range(len(logs10))]
+    def _compute_stats_from_logs(self, logs: list) -> dict:
+        """Calcule les stats moyennes ponderees a partir d'une liste de game logs."""
+        logs10 = logs[:10]
+        logs5  = logs[:5]
+        weights = [math.exp(-0.1 * i) for i in range(len(logs10))]
         total_w = sum(weights)
 
         def parse_toi(val):
             if isinstance(val, str) and ":" in val:
                 parts = val.split(":")
-                return int(parts[0])*60 + int(parts[1])
+                return int(parts[0]) * 60 + int(parts[1])
             return float(val) if val else 0.0
 
         def wavg(field):
             return sum(
-                parse_toi(logs10[i].get(field,0))*weights[i] if field=="toi"
-                else logs10[i].get(field,0)*weights[i]
+                parse_toi(logs10[i].get(field, 0)) * weights[i] if field == "toi"
+                else logs10[i].get(field, 0) * weights[i]
                 for i in range(len(logs10))
             ) / total_w
 
         toi_sec = wavg("toi")
-        result = {
-            "shots_pg":     round(wavg("shots"),  2),
-            "goals_pg":     round(wavg("goals"),  3),
-            "assists_pg":   round(wavg("assists"), 3),
-            "points_pg":    round(wavg("points"),  3),
-            "toi_str":      f"{int(toi_sec//60)}:{int(toi_sec%60):02d}",
-            "n_games":      len(logs10),
-            "last5_shots":  sum(g.get("shots",0)  for g in logs5),
-            "last5_goals":  sum(g.get("goals",0)  for g in logs5),
-            "last5_points": sum(g.get("points",0) for g in logs5),
-            "last10_shots": sum(g.get("shots",0)  for g in logs10),
-            "last10_goals": sum(g.get("goals",0)  for g in logs10),
-            "last10_points":sum(g.get("points",0) for g in logs10),
-            "season_goals": sum(g.get("goals",0)  for g in logs),
-            "season_points":sum(g.get("points",0) for g in logs),
+        return {
+            "shots_pg":      round(wavg("shots"),   2),
+            "goals_pg":      round(wavg("goals"),   3),
+            "assists_pg":    round(wavg("assists"),  3),
+            "points_pg":     round(wavg("points"),   3),
+            "toi_str":       f"{int(toi_sec//60)}:{int(toi_sec%60):02d}",
+            "n_games":       len(logs10),
+            "last5_shots":   sum(g.get("shots",  0) for g in logs5),
+            "last5_goals":   sum(g.get("goals",  0) for g in logs5),
+            "last5_points":  sum(g.get("points", 0) for g in logs5),
+            "last10_shots":  sum(g.get("shots",  0) for g in logs10),
+            "last10_goals":  sum(g.get("goals",  0) for g in logs10),
+            "last10_points": sum(g.get("points", 0) for g in logs10),
+            "season_goals":  sum(g.get("goals",  0) for g in logs),
+            "season_points": sum(g.get("points", 0) for g in logs),
         }
+
+    def _get_player_stats(self, player_id: int, name: str) -> Optional[dict]:
+        if not player_id:
+            return None
+        key = str(player_id)
+        if key in self._stats_cache:
+            return self._stats_cache[key]
+
+        # 1. Stats saison reguliere
+        rs_data = _get(f"{NHL_API}/player/{player_id}/game-log/{SEASON}/{GAME_TYPE}")
+        rs_logs = rs_data.get("gameLog", []) if rs_data else []
+
+        # 2. Stats series en cours (game_type=3) — vides si pas encore en series
+        po_data = _get(f"{NHL_API}/player/{player_id}/game-log/{SEASON}/{GAME_TYPE_PLAYOFFS}")
+        po_logs = po_data.get("gameLog", []) if po_data else []
+
+        if not rs_logs and not po_logs:
+            return None
+
+        name_lower = name.lower().strip()
+        pf = PLAYOFF_FACTORS.get(name_lower, {})
+
+        if len(po_logs) >= 2:
+            # Assez de matchs de series: blender 70% series / 30% saison reguliere
+            po_stats = self._compute_stats_from_logs(po_logs)
+            rs_stats = self._compute_stats_from_logs(rs_logs) if rs_logs else po_stats
+            result = {
+                "shots_pg":      round(po_stats["shots_pg"]  * 0.70 + rs_stats["shots_pg"]  * 0.30, 2),
+                "goals_pg":      round(po_stats["goals_pg"]  * 0.70 + rs_stats["goals_pg"]  * 0.30, 3),
+                "assists_pg":    round(po_stats["assists_pg"] * 0.70 + rs_stats["assists_pg"] * 0.30, 3),
+                "points_pg":     round(po_stats["points_pg"] * 0.70 + rs_stats["points_pg"] * 0.30, 3),
+                "toi_str":       po_stats["toi_str"],
+                "n_games":       po_stats["n_games"],
+                "last5_shots":   po_stats["last5_shots"],
+                "last5_goals":   po_stats["last5_goals"],
+                "last5_points":  po_stats["last5_points"],
+                "last10_shots":  po_stats["last10_shots"],
+                "last10_goals":  po_stats["last10_goals"],
+                "last10_points": po_stats["last10_points"],
+                "season_goals":  po_stats["season_goals"],
+                "season_points": po_stats["season_points"],
+                "playoff_games": len(po_logs),
+                "playoff_mode":  True,
+            }
+            print(f"      Series: {len(po_logs)} matchs — stats blendees 70/30 pour {name}")
+        else:
+            # Pas encore de stats de series: saison reguliere × facteurs historiques + ajust. ligue
+            result = self._compute_stats_from_logs(rs_logs) if rs_logs else None
+            if not result:
+                return None
+
+            shots_f  = pf.get("shots",  PLAYOFF_LEAGUE_SHOTS)
+            goals_f  = pf.get("goals",  PLAYOFF_LEAGUE_GOALS)
+            points_f = pf.get("points", (PLAYOFF_LEAGUE_SHOTS + PLAYOFF_LEAGUE_GOALS) / 2)
+
+            # Appliquer l'ajustement ligue si le joueur n'est pas dans PLAYOFF_FACTORS
+            if not pf:
+                shots_f  *= PLAYOFF_LEAGUE_SHOTS / 0.90   # deja inclu dans la constante
+                goals_f  *= PLAYOFF_LEAGUE_GOALS / 0.88
+                points_f = (shots_f + goals_f) / 2
+
+            adj_shots  = min(result["shots_pg"]  * shots_f,  8.0)
+            adj_goals  = min(result["goals_pg"]  * goals_f,  1.5)
+            adj_points = min(result["points_pg"] * points_f, 3.0)
+
+            if pf:
+                print(f"      Facteur series historique applique: {name} ({shots_f:.2f}x shots)")
+            else:
+                print(f"      Ajust. ligue series applique: {name} ({PLAYOFF_LEAGUE_SHOTS:.2f}x shots)")
+
+            result["shots_pg"]  = round(adj_shots,  2)
+            result["goals_pg"]  = round(adj_goals,  3)
+            result["points_pg"] = round(adj_points, 3)
+            result["playoff_games"] = len(po_logs)
+            result["playoff_mode"]  = True
+
         self._stats_cache[key] = result
         return result
 

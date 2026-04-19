@@ -34,7 +34,7 @@ STAT_CONFIGS = [
     {"key": "total_bases", "label": "Buts totaux",       "min_avg": 1.5, "player_type": "batter"},
 ]
 
-MIN_EDGE   = 5.0
+MIN_EDGE   = 8.0
 MAX_EDGE   = 22.0
 DK_IMPLIED = 52.63
 DK_ODDS    = 1.909
