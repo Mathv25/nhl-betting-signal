@@ -1,8 +1,9 @@
 """
-Backtester NHL + NBA Signal - Resolution automatique complete
+Backtester NHL + NBA + MLB Signal - Resolution automatique complete
 - value_bets     : ML / puck line / totals via scores NHL API
 - props_analysis : shots / goals / points via game log joueur NHL API
 - nba_analysis   : points / rebonds / passes / 3pts via BallDontLie API
+- mlb_analysis   : strikeouts / hits / total bases via MLB Stats API
 Persiste dans docs/results.json
 """
 
@@ -11,12 +12,14 @@ import os
 import sys
 import time
 import math
+import unicodedata
 import requests
 from datetime import datetime, timedelta
 from typing import Optional
 
 NHL_API      = "https://api-web.nhle.com/v1"
 BDLIE_URL    = "https://www.balldontlie.io/api/v1"
+MLB_API      = "https://statsapi.mlb.com/api/v1"
 RESULTS_PATH = os.path.join(os.path.dirname(__file__), "../docs/results.json")
 SIGNAL_PATH  = os.path.join(os.path.dirname(__file__), "../docs/signal.json")
 ARCHIVE_DIR  = os.path.join(os.path.dirname(__file__), "../docs/archive")
@@ -439,6 +442,135 @@ def resolve_nba_prop(bet: dict, target_date: str) -> Optional[str]:
     print(result)
     return result
 
+# ── Resolution props MLB ───────────────────────────────────────────────────────
+
+_mlb_game_pk_cache = {}
+
+
+def _team_name_match(api_name: str, our_name: str) -> bool:
+    """Compare noms d'equipes MLB (tolerant aux variantes mineures)."""
+    a = api_name.lower().strip()
+    b = our_name.lower().strip()
+    if a == b:
+        return True
+    # Dernier mot (ex: "Yankees" dans "New York Yankees")
+    last_a = a.split()[-1]
+    last_b = b.split()[-1]
+    return last_a == last_b
+
+
+def _normalize(s: str) -> str:
+    """Supprime les accents et met en minuscules."""
+    return unicodedata.normalize("NFD", s).encode("ascii", "ignore").decode("ascii").lower().strip()
+
+
+def _player_name_match(api_name: str, our_name: str) -> bool:
+    """Match joueur MLB: exact ou par nom de famille (tolerant aux accents et suffixes Jr./Sr.)."""
+    a = _normalize(api_name)
+    b = _normalize(our_name)
+    if a == b:
+        return True
+    # Supprimer suffixes Jr./Sr./II/III
+    for suffix in (" jr.", " sr.", " ii", " iii", " iv"):
+        a = a.replace(suffix, "")
+        b = b.replace(suffix, "")
+    a = a.strip()
+    b = b.strip()
+    if a == b:
+        return True
+    last_a = a.split()[-1] if a else ""
+    last_b = b.split()[-1] if b else ""
+    first_a = a.split()[0] if a else ""
+    first_b = b.split()[0] if b else ""
+    # Meme nom de famille + meme initiale prenom
+    if last_a == last_b and len(last_a) > 3 and first_a and first_b and first_a[0] == first_b[0]:
+        return True
+    return False
+
+
+def get_mlb_game_pk(home_team: str, away_team: str, target_date: str) -> Optional[int]:
+    """Trouve le gamePk MLB pour un matchup et une date."""
+    cache_key = f"{target_date}|{home_team}|{away_team}"
+    if cache_key in _mlb_game_pk_cache:
+        return _mlb_game_pk_cache[cache_key]
+
+    data = _get(f"{MLB_API}/schedule", {
+        "sportId": 1,
+        "date":    target_date,
+        "hydrate": "team",
+    })
+    if not data:
+        _mlb_game_pk_cache[cache_key] = None
+        return None
+
+    for d in data.get("dates", []):
+        for game in d.get("games", []):
+            h_name = game.get("teams", {}).get("home", {}).get("team", {}).get("name", "")
+            a_name = game.get("teams", {}).get("away", {}).get("team", {}).get("name", "")
+            if _team_name_match(h_name, home_team) and _team_name_match(a_name, away_team):
+                pk = game.get("gamePk")
+                _mlb_game_pk_cache[cache_key] = pk
+                return pk
+
+    _mlb_game_pk_cache[cache_key] = None
+    return None
+
+
+def resolve_mlb_prop(prop: dict, target_date: str) -> Optional[str]:
+    """Resout un prop MLB via le boxscore MLB Stats API."""
+    player    = prop.get("player", "")
+    stat_key  = prop.get("stat_key", "")
+    line      = prop.get("line", 0)
+    game_home = prop.get("_game_home", "")
+    game_away = prop.get("_game_away", "")
+
+    if not player or not stat_key or not game_home:
+        return None
+
+    game_pk = get_mlb_game_pk(game_home, game_away, target_date)
+    if not game_pk:
+        print(f"    ⚠ Game MLB introuvable: {game_away} @ {game_home} ({target_date})")
+        return None
+
+    time.sleep(0.5)
+    boxscore = _get(f"{MLB_API}/game/{game_pk}/boxscore")
+    if not boxscore:
+        print(f"    ⚠ Boxscore MLB introuvable: gamePk={game_pk}")
+        return None
+
+    # Chercher le joueur dans home et away
+    for side in ("home", "away"):
+        players = boxscore.get("teams", {}).get(side, {}).get("players", {})
+        for pid, pdata in players.items():
+            api_name = pdata.get("person", {}).get("fullName", "")
+            if not _player_name_match(api_name, player):
+                continue
+
+            stats    = pdata.get("stats", {})
+            batting  = stats.get("batting",  {})
+            pitching = stats.get("pitching", {})
+
+            if stat_key == "hits":
+                actual = batting.get("hits", None)
+            elif stat_key == "total_bases":
+                actual = batting.get("totalBases", None)
+            elif stat_key == "strikeouts":
+                actual = pitching.get("strikeOuts", None)
+            else:
+                return None
+
+            if actual is None:
+                print(f"    ⚠ Stat {stat_key} absente pour {player}")
+                return None
+
+            result = "W" if actual > line else "L"
+            print(f"    {player}: {stat_key}={actual} vs {line} -> {result}")
+            return result
+
+    print(f"    ⚠ Joueur MLB introuvable dans boxscore: {player}")
+    return None
+
+
 # ── Persistance ────────────────────────────────────────────────────────────────
 
 def load_results() -> dict:
@@ -547,6 +679,7 @@ def run_for_date(target_date: str):
     value_bets    = signal.get("value_bets", [])
     props_by_game = signal.get("props_analysis", [])
     nba_by_game   = signal.get("nba_analysis", [])
+    mlb_by_game   = signal.get("mlb_analysis", [])
 
     # Collecter tous les NHL props
     all_nhl_props = []
@@ -570,10 +703,22 @@ def run_for_date(target_date: str):
             b["_game_away"] = away
             all_nba_props.append(b)
 
+    # Collecter tous les MLB props
+    all_mlb_props = []
+    for game_analysis in mlb_by_game:
+        home = game_analysis.get("home_team", "")
+        away = game_analysis.get("away_team", "")
+        for b in game_analysis.get("bets", []):
+            b = dict(b)
+            b["_game_home"] = home
+            b["_game_away"] = away
+            all_mlb_props.append(b)
+
     print(f"NHL value bets:  {len(value_bets)}")
     print(f"NHL props:       {len(all_nhl_props)}")
     print(f"NBA props:       {len(all_nba_props)}")
-    print(f"TOTAL:           {len(value_bets) + len(all_nhl_props) + len(all_nba_props)}")
+    print(f"MLB props:       {len(all_mlb_props)}")
+    print(f"TOTAL:           {len(value_bets) + len(all_nhl_props) + len(all_nba_props) + len(all_mlb_props)}")
 
     # Scores NHL
     print(f"\nFetch scores NHL {target_date}...")
@@ -672,6 +817,35 @@ def run_for_date(target_date: str):
                 "sport":          "nba",
                 "bet_type":       "prop",
                 "market_type":    prop.get("stat_key", "pts"),
+                "game":           game_str,
+                "name":           player,
+                "bet":            f"{player} — {market}",
+                "edge_pct":       prop.get("edge_pct", 0),
+                "our_prob":       prop.get("our_prob", 0),
+                "b365_odds":      prop.get("est_odds", prop.get("b365_odds", 0)),
+                "b365_implied":   prop.get("dk_implied", prop.get("b365_implied", 0)),
+                "kelly_fraction": prop.get("kelly", prop.get("kelly_fraction", 0)),
+                "result":         result or "?",
+            })
+
+    # ── 4. MLB props ───────────────────────────────────────────────────────────
+    if all_mlb_props:
+        print(f"\n--- MLB PROPS ({len(all_mlb_props)}) ---")
+        for prop in all_mlb_props:
+            player   = prop.get("player", "")
+            market   = prop.get("market", "")
+            stat_key = prop.get("stat_key", "")
+            bet_id   = f"{target_date}|prop_mlb|{player}|{market}"
+            game_str = f"{prop.get('_game_away','')} @ {prop.get('_game_home','')}"
+
+            print(f"  {player} | {market}")
+            result = resolve_mlb_prop(prop, target_date)
+            upsert(bet_id, {
+                "id":             bet_id,
+                "date":           target_date,
+                "sport":          "mlb",
+                "bet_type":       "prop",
+                "market_type":    stat_key,
                 "game":           game_str,
                 "name":           player,
                 "bet":            f"{player} — {market}",
