@@ -654,6 +654,124 @@ def compute_summary(bets: list) -> dict:
         "last_updated": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
 
+# ── Re-resolution des bets en attente ─────────────────────────────────────────
+
+def _parse_game_str(game_str: str):
+    """'Away @ Home' -> (home, away)"""
+    if " @ " in game_str:
+        away, home = game_str.split(" @ ", 1)
+        return home.strip(), away.strip()
+    return "", ""
+
+
+def _parse_line_from_str(s: str) -> float:
+    """Extrait la ligne numerique depuis 'Over 5.5' ou 'Points Over 25.5'."""
+    import re
+    m = re.search(r"(\d+\.?\d*)\s*$", s.strip())
+    if m:
+        return float(m.group(1))
+    # Chercher apres Over/Under
+    m2 = re.search(r"(?:over|under)\s+(\d+\.?\d*)", s, re.IGNORECASE)
+    if m2:
+        return float(m2.group(1))
+    return 0.0
+
+
+def retry_unresolved(results_data: dict, max_days: int = 14) -> int:
+    """
+    Retente la resolution de tous les bets '?' des derniers max_days jours.
+    Groupe par date et sport pour minimiser les appels API.
+    Retourne le nombre de bets nouvellement resolus.
+    """
+    from datetime import date as date_cls, timedelta
+
+    cutoff    = (datetime.utcnow().date() - timedelta(days=max_days)).isoformat()
+    pending   = [
+        b for b in results_data["bets"]
+        if b.get("result") == "?" and b.get("date", "") >= cutoff
+    ]
+
+    if not pending:
+        print("  Aucun bet en attente dans les 14 derniers jours.")
+        return 0
+
+    # Grouper par date
+    by_date = {}
+    for b in pending:
+        by_date.setdefault(b["date"], []).append(b)
+
+    total_resolved = 0
+
+    for target_date in sorted(by_date.keys()):
+        bets_for_date = by_date[target_date]
+        print(f"\n  Retry {target_date}: {len(bets_for_date)} bets en attente")
+
+        # Scores NHL (une seule fois par date)
+        nhl_scores = get_nhl_scores(target_date)
+
+        for bet in bets_for_date:
+            sport    = bet.get("sport", "nhl")
+            bet_type = bet.get("bet_type", "team")
+            result   = None
+
+            try:
+                if sport == "nhl" and bet_type == "team":
+                    result = resolve_team_bet(bet, nhl_scores)
+
+                elif sport == "nhl" and bet_type == "prop":
+                    home, away = _parse_game_str(bet.get("game", ""))
+                    # Extraire market depuis le champ bet "Name — Market"
+                    bet_str = bet.get("bet", "")
+                    market  = bet_str.split(" — ", 1)[1].strip() if " — " in bet_str else ""
+                    prop = {
+                        "name":        bet.get("name", ""),
+                        "team":        bet.get("team", ""),
+                        "market":      market,
+                        "market_type": bet.get("market_type", ""),
+                        "_game_home":  home,
+                        "_game_away":  away,
+                    }
+                    result = resolve_nhl_prop(prop, target_date)
+
+                elif sport == "nba":
+                    bet_str  = bet.get("bet", "")
+                    market   = bet_str.split(" — ", 1)[1].strip() if " — " in bet_str else ""
+                    stat_key = bet.get("market_type", "pts")
+                    prop = {
+                        "name":     bet.get("name", ""),
+                        "market":   market,
+                        "stat_key": stat_key,
+                    }
+                    result = resolve_nba_prop(prop, target_date)
+
+                elif sport == "mlb":
+                    home, away = _parse_game_str(bet.get("game", ""))
+                    bet_str  = bet.get("bet", "")
+                    market   = bet_str.split(" — ", 1)[1].strip() if " — " in bet_str else ""
+                    line     = bet.get("line", 0) or _parse_line_from_str(market)
+                    stat_key = bet.get("market_type", "")
+                    prop = {
+                        "player":     bet.get("name", ""),
+                        "stat_key":   stat_key,
+                        "line":       line,
+                        "market":     market,
+                        "_game_home": home,
+                        "_game_away": away,
+                    }
+                    result = resolve_mlb_prop(prop, target_date)
+
+            except Exception as e:
+                print(f"    ⚠ Erreur retry {bet.get('id','?')}: {e}")
+                continue
+
+            if result in ("W", "L"):
+                bet["result"] = result
+                total_resolved += 1
+                print(f"    ✓ Resolu: {bet.get('name', bet.get('bet',''))[:40]} → {result}")
+
+    return total_resolved
+
+
 # ── Main ───────────────────────────────────────────────────────────────────────
 
 def run_for_date(target_date: str):
@@ -787,6 +905,7 @@ def run_for_date(target_date: str):
             "market_type":    prop.get("market_type", ""),
             "game":           game_str,
             "name":           name,
+            "team":           prop.get("team", ""),
             "bet":            f"{name} — {market}",
             "edge_pct":       prop.get("edge_pct", 0),
             "our_prob":       prop.get("our_prob", 0),
@@ -819,7 +938,9 @@ def run_for_date(target_date: str):
                 "market_type":    prop.get("stat_key", "pts"),
                 "game":           game_str,
                 "name":           player,
+                "team":           prop.get("team", ""),
                 "bet":            f"{player} — {market}",
+                "line":           prop.get("line", 0),
                 "edge_pct":       prop.get("edge_pct", 0),
                 "our_prob":       prop.get("our_prob", 0),
                 "b365_odds":      prop.get("est_odds", prop.get("b365_odds", 0)),
@@ -848,6 +969,8 @@ def run_for_date(target_date: str):
                 "market_type":    stat_key,
                 "game":           game_str,
                 "name":           player,
+                "team":           prop.get("team", ""),
+                "line":           prop.get("line", 0),
                 "bet":            f"{player} — {market}",
                 "edge_pct":       prop.get("edge_pct", 0),
                 "our_prob":       prop.get("our_prob", 0),
@@ -857,7 +980,7 @@ def run_for_date(target_date: str):
                 "result":         result or "?",
             })
 
-    # Sommaire + save
+    # Sommaire partiel + save intermediaire
     results_data["summary"] = compute_summary(results_data["bets"])
     save_results(results_data)
 
@@ -870,6 +993,19 @@ def run_for_date(target_date: str):
         for t, info in sorted(s["by_type"].items()):
             wr = round(info["wins"] / info["n"] * 100) if info["n"] else 0
             print(f"  {t}: {info['n']} bets | {wr}% WR | {info['profit']:+.2f}u")
+
+    # Re-resolution des bets en attente (14 derniers jours)
+    print(f"\n{'='*60}")
+    print("RETRY — bets non-resolus (14 derniers jours)")
+    print(f"{'='*60}")
+    newly_resolved = retry_unresolved(results_data)
+    print(f"\n  {newly_resolved} bet(s) supplementaire(s) resolus")
+
+    # Sommaire final + save
+    results_data["summary"] = compute_summary(results_data["bets"])
+    save_results(results_data)
+    s2 = results_data["summary"]
+    print(f"  Cumul final: {s2['total']} bets | WR {s2['win_rate']}% | ROI {s2['roi']:+.1f}%")
 
 
 if __name__ == "__main__":
