@@ -119,146 +119,17 @@ class ReportGenerator:
 
     def _performance_section(self) -> str:
         """
-        Lit docs/results.json et genere la section Performance.
-        Si le fichier n'existe pas encore, affiche un message d'attente.
+        Retourne un conteneur vide: les donnees sont chargees dynamiquement
+        via fetch('results.json') dans le navigateur a chaque affichage de l'onglet.
         """
-        results_path = os.path.join(os.path.dirname(__file__), "../docs/results.json")
-        if not os.path.exists(results_path):
-            return (
-                "<div class='perf-empty'>"
-                "<div class='perf-empty-icon'>📊</div>"
-                "<div class='perf-empty-title'>Aucune donnee de performance</div>"
-                "<div class='perf-empty-sub'>Le backtester resout automatiquement les bets chaque matin. "
-                "Les resultats apparaitront ici apres le premier run complet.</div>"
-                "</div>"
-            )
-
-        try:
-            with open(results_path) as f:
-                data = json.load(f)
-        except Exception:
-            return "<div class='perf-empty'>Erreur lecture results.json</div>"
-
-        s    = data.get("summary", {})
-        bets = data.get("bets", [])
-
-        total    = s.get("total", 0)
-        wins     = s.get("wins", 0)
-        losses   = s.get("losses", 0)
-        win_rate = s.get("win_rate", 0.0)
-        profit   = s.get("profit", 0.0)
-        roi      = s.get("roi", 0.0)
-        by_edge  = s.get("by_edge", {})
-        updated  = s.get("last_updated", "")
-
-        if total == 0:
-            return (
-                "<div class='perf-empty'>"
-                "<div class='perf-empty-icon'>⏳</div>"
-                "<div class='perf-empty-title'>En attente de resultats</div>"
-                "<div class='perf-empty-sub'>Des bets ont ete enregistres mais aucun match n'est encore resolu. "
-                "Revenez demain matin.</div>"
-                "</div>"
-            )
-
-        profit_color = "#1D9E75" if profit >= 0 else "#A32D2D"
-        roi_color    = "#1D9E75" if roi >= 0 else "#A32D2D"
-        profit_sign  = "+" if profit >= 0 else ""
-        roi_sign     = "+" if roi >= 0 else ""
-
-        # Stat boxes
-        html = (
-            "<div class='perf-wrap'>"
-            "<div class='perf-title'>Performance cumulee du modele</div>"
-
-            "<div class='perf-grid'>"
-            "<div class='perf-box'><div class='perf-label'>Bets resolus</div>"
-            "<div class='perf-val'>" + str(total) + "</div></div>"
-
-            "<div class='perf-box'><div class='perf-label'>Win Rate</div>"
-            "<div class='perf-val' style='color:" + ("#1D9E75" if win_rate >= 55 else "#BA7517" if win_rate >= 50 else "#A32D2D") + "'>"
-            + str(win_rate) + "%</div></div>"
-
-            "<div class='perf-box'><div class='perf-label'>Profit (unites)</div>"
-            "<div class='perf-val' style='color:" + profit_color + "'>"
-            + profit_sign + str(profit) + "u</div></div>"
-
-            "<div class='perf-box'><div class='perf-label'>ROI</div>"
-            "<div class='perf-val' style='color:" + roi_color + "'>"
-            + roi_sign + str(roi) + "%</div></div>"
+        return (
+            "<div id='perf-content'>"
+            "<div class='perf-empty'>"
+            "<div class='perf-empty-icon' style='font-size:28px'>⏳</div>"
+            "<div class='perf-empty-sub'>Chargement des performances...</div>"
+            "</div>"
             "</div>"
         )
-
-        # Par tranche d'edge
-        if by_edge:
-            html += "<div class='perf-section-title'>Par tranche d'edge</div><div class='perf-edge-table'>"
-            for label, info in by_edge.items():
-                n   = info.get("n", 0)
-                w   = info.get("wins", 0)
-                p   = info.get("profit", 0.0)
-                wr  = round(w / n * 100, 1) if n > 0 else 0
-                pc  = "#1D9E75" if p >= 0 else "#A32D2D"
-                ps  = "+" if p >= 0 else ""
-                html += (
-                    "<div class='perf-edge-row'>"
-                    "<span class='perf-edge-label'>Edge " + label + "%</span>"
-                    "<span class='perf-edge-n'>" + str(n) + " bets</span>"
-                    "<span class='perf-edge-wr'>" + str(wr) + "% WR</span>"
-                    "<span class='perf-edge-profit' style='color:" + pc + "'>" + ps + str(p) + "u</span>"
-                    "</div>"
-                )
-            html += "</div>"
-
-        # Historique des bets recents (max 30, du plus recent au plus vieux)
-        resolved = [b for b in bets if b.get("result") in ("W", "L")]
-        pending  = [b for b in bets if b.get("result") == "?"]
-        recent   = list(reversed(resolved))[:30]
-
-        if recent:
-            html += "<div class='perf-section-title'>Historique recents (" + str(len(resolved)) + " resolus"
-            if pending:
-                html += ", " + str(len(pending)) + " en attente"
-            html += ")</div>"
-            html += "<div class='perf-hist'>"
-            for b in recent:
-                result = b.get("result", "?")
-                rc  = "#1D9E75" if result == "W" else "#A32D2D"
-                rb  = "#E1F5EE" if result == "W" else "#FCEBEB"
-                ep  = b.get("edge_pct", 0)
-                odds = b.get("b365_odds", 0)
-                prob = b.get("our_prob", 0)
-                kelly = min(b.get("kelly_fraction", 0), 3.0)
-                profit_bet = round(kelly * (odds - 1), 2) if result == "W" else round(-kelly, 2)
-                ps = "+" if profit_bet >= 0 else ""
-
-                html += (
-                    "<div class='perf-hist-row'>"
-                    "<div class='perf-hist-left'>"
-                    "<span class='perf-hist-result' style='background:" + rb + ";color:" + rc + "'>" + result + "</span>"
-                    "<div>"
-                    "<div class='perf-hist-bet'>" + b.get("bet", "") + "</div>"
-                    "<div class='perf-hist-game'>" + b.get("game", "") + " · " + b.get("date", "") + "</div>"
-                    "</div>"
-                    "</div>"
-                    "<div class='perf-hist-right'>"
-                    "<span class='perf-hist-edge'>+" + str(ep) + "% edge</span>"
-                    "<span class='perf-hist-profit' style='color:" + rc + "'>" + ps + str(profit_bet) + "u</span>"
-                    "</div>"
-                    "</div>"
-                )
-            html += "</div>"
-
-        if updated:
-            try:
-                dt = datetime.fromisoformat(updated.replace("Z", "+00:00"))
-                dt_et = dt.astimezone(pytz.timezone("America/Toronto"))
-                upd_str = dt_et.strftime("%d %b %Y a %H:%M ET")
-            except Exception:
-                upd_str = updated
-            html += "<div class='perf-updated'>Mis a jour le " + upd_str + "</div>"
-
-        html += "</div>"  # /perf-wrap
-        return html
 
     def _bet_cards(self, value_bets):
         if not value_bets:
@@ -788,7 +659,103 @@ class ReportGenerator:
             "document.querySelectorAll('[id^=\"tab-\"]').forEach(function(el){el.style.display='none';});"
             "document.getElementById(id).style.display='block';"
             "document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active');});"
-            "btn.classList.add('active');}"
+            "btn.classList.add('active');"
+            "if(id==='tab-perf'){loadPerf();}"
+            "}"
+
+            "function loadPerf(){"
+            "fetch('results.json?t='+Date.now())"
+            ".then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})"
+            ".then(function(data){renderPerf(data);})"
+            ".catch(function(){document.getElementById('perf-content').innerHTML="
+            "\"<div class='perf-empty'><div class='perf-empty-icon'>📊</div>"
+            "<div class='perf-empty-title'>Aucune donnee de performance</div>"
+            "<div class='perf-empty-sub'>Le backtester resout automatiquement les bets chaque matin.</div></div>\";});}"
+
+            "function renderPerf(data){"
+            "var s=data.summary||{};"
+            "var bets=data.bets||[];"
+            "var total=s.total||0;"
+            "var wr=s.win_rate||0;"
+            "var profit=s.profit||0;"
+            "var roi=s.roi||0;"
+            "var by_edge=s.by_edge||{};"
+            "var updated=s.last_updated||'';"
+            "if(total===0){"
+            "document.getElementById('perf-content').innerHTML="
+            "\"<div class='perf-empty'><div class='perf-empty-icon'>⏳</div>"
+            "<div class='perf-empty-title'>En attente de resultats</div>"
+            "<div class='perf-empty-sub'>Des bets ont ete enregistres mais aucun match n'est encore resolu.</div></div>\";"
+            "return;}"
+            "var pc=profit>=0?'#1D9E75':'#A32D2D';"
+            "var rc2=roi>=0?'#1D9E75':'#A32D2D';"
+            "var ps=profit>=0?'+':'';"
+            "var rs2=roi>=0?'+':'';"
+            "var wrc=wr>=55?'#1D9E75':wr>=50?'#BA7517':'#A32D2D';"
+            "var h=\"<div class='perf-wrap'>\";"
+            "h+=\"<div class='perf-title'>Performance cumulee du modele</div>\";"
+            "h+=\"<div class='perf-grid'>\";"
+            "h+=\"<div class='perf-box'><div class='perf-label'>Bets resolus</div><div class='perf-val'>\"+total+\"</div></div>\";"
+            "h+=\"<div class='perf-box'><div class='perf-label'>Win Rate</div><div class='perf-val' style='color:\"+wrc+\"'>\"+wr+\"%</div></div>\";"
+            "h+=\"<div class='perf-box'><div class='perf-label'>Profit (unites)</div><div class='perf-val' style='color:\"+pc+\"'>\"+ps+profit+\"u</div></div>\";"
+            "h+=\"<div class='perf-box'><div class='perf-label'>ROI</div><div class='perf-val' style='color:\"+rc2+\"'>\"+rs2+roi+\"%</div></div>\";"
+            "h+=\"</div>\";"
+            "var edgeKeys=Object.keys(by_edge);"
+            "if(edgeKeys.length){"
+            "h+=\"<div class='perf-section-title'>Par tranche d'edge</div><div class='perf-edge-table'>\";"
+            "edgeKeys.forEach(function(label){"
+            "var info=by_edge[label];"
+            "var n=info.n||0;var w=info.wins||0;var p=info.profit||0;"
+            "var wrl=n>0?Math.round(w/n*1000)/10:0;"
+            "var epc=p>=0?'#1D9E75':'#A32D2D';"
+            "var eps=p>=0?'+':'';"
+            "h+=\"<div class='perf-edge-row'>\";"
+            "h+=\"<span class='perf-edge-label'>Edge \"+label+\"%</span>\";"
+            "h+=\"<span class='perf-edge-n'>\"+n+\" bets</span>\";"
+            "h+=\"<span class='perf-edge-wr'>\"+wrl+\"% WR</span>\";"
+            "h+=\"<span class='perf-edge-profit' style='color:\"+epc+\"'>\"+eps+p+\"u</span>\";"
+            "h+=\"</div>\";"
+            "});"
+            "h+=\"</div>\";}"
+            "var resolved=bets.filter(function(b){return b.result==='W'||b.result==='L';});"
+            "var pending=bets.filter(function(b){return b.result==='?';});"
+            "var recent=resolved.slice().reverse().slice(0,30);"
+            "if(recent.length){"
+            "h+=\"<div class='perf-section-title'>Historique recents (\"+resolved.length+\" resolus\";"
+            "if(pending.length)h+=\", \"+pending.length+\" en attente\";"
+            "h+=\")</div>\";"
+            "h+=\"<div class='perf-hist'>\";"
+            "recent.forEach(function(b){"
+            "var res=b.result||'?';"
+            "var brc=res==='W'?'#1D9E75':'#A32D2D';"
+            "var brb=res==='W'?'#E1F5EE':'#FCEBEB';"
+            "var ep=b.edge_pct||0;"
+            "var odds=b.b365_odds||0;"
+            "var kelly=Math.min(b.kelly_fraction||0,3.0);"
+            "var pbr=res==='W'?Math.round(kelly*(odds-1)*100)/100:Math.round(-kelly*100)/100;"
+            "var pbs2=pbr>=0?'+':'';"
+            "h+=\"<div class='perf-hist-row'>\";"
+            "h+=\"<div class='perf-hist-left'>\";"
+            "h+=\"<span class='perf-hist-result' style='background:\"+brb+\";color:\"+brc+\"'>\"+res+\"</span>\";"
+            "h+=\"<div><div class='perf-hist-bet'>\"+b.bet+\"</div>\";"
+            "h+=\"<div class='perf-hist-game'>\"+b.game+\" &middot; \"+b.date+\"</div></div>\";"
+            "h+=\"</div>\";"
+            "h+=\"<div class='perf-hist-right'>\";"
+            "h+=\"<span class='perf-hist-edge'>+\"+ep+\"% edge</span>\";"
+            "h+=\"<span class='perf-hist-profit' style='color:\"+brc+\"'>\"+pbs2+pbr+\"u</span>\";"
+            "h+=\"</div></div>\";"
+            "});"
+            "h+=\"</div>\";}"
+            "if(updated){"
+            "try{"
+            "var d=new Date(updated);"
+            "var opts={day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'America/Toronto'};"
+            "var upd=d.toLocaleString('fr-CA',opts)+' ET';"
+            "}catch(e){var upd=updated;}"
+            "h+=\"<div class='perf-updated'>Mis a jour le \"+upd+\"</div>\";}"
+            "h+=\"</div>\";"
+            "document.getElementById('perf-content').innerHTML=h;}"
+
             "function calcEdge(){"
             "var od=parseFloat(document.getElementById('od').value);"
             "var pr=parseFloat(document.getElementById('pr').value);"
