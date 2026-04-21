@@ -2,7 +2,7 @@
 Backtester NHL + NBA + MLB Signal - Resolution automatique complete
 - value_bets     : ML / puck line / totals via scores NHL API
 - props_analysis : shots / goals / points via game log joueur NHL API
-- nba_analysis   : points / rebonds / passes / 3pts via BallDontLie API
+- nba_analysis   : points / rebonds / passes / 3pts via ESPN API (gratuit)
 - mlb_analysis   : strikeouts / hits / total bases via MLB Stats API
 Persiste dans docs/results.json
 """
@@ -18,7 +18,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 NHL_API      = "https://api-web.nhle.com/v1"
-BDLIE_URL    = "https://www.balldontlie.io/api/v1"
+ESPN_NBA     = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba"
 MLB_API      = "https://statsapi.mlb.com/api/v1"
 RESULTS_PATH = os.path.join(os.path.dirname(__file__), "../docs/results.json")
 SIGNAL_PATH  = os.path.join(os.path.dirname(__file__), "../docs/signal.json")
@@ -345,98 +345,135 @@ def resolve_nhl_prop(prop: dict, target_date: str) -> Optional[str]:
     print(result)
     return result
 
-# ── Resolution props NBA joueurs ───────────────────────────────────────────────
+# ── Resolution props NBA joueurs via ESPN API ──────────────────────────────────
 
-_nba_id_cache    = {}
-_nba_stats_cache = {}
-
-
-def get_nba_player_id(name: str) -> Optional[int]:
-    if name in _nba_id_cache:
-        return _nba_id_cache[name]
-    data = _get(f"{BDLIE_URL}/players", {"search": name, "per_page": 5})
-    if data and data.get("data"):
-        pid = data["data"][0]["id"]
-    else:
-        pid = None
-    _nba_id_cache[name] = pid
-    return pid
+_espn_nba_cache: dict = {}  # {date_str: {player_name_lower: {pts,reb,ast,fg3m}}}
 
 
-def get_nba_player_date_stats(player_id: int, target_date: str) -> Optional[dict]:
-    """Retourne les stats NBA d'un joueur pour une date precise."""
-    cache_key = f"{player_id}_{target_date}"
-    if cache_key in _nba_stats_cache:
-        return _nba_stats_cache[cache_key]
+def _espn_date_fmt(date_str: str) -> str:
+    return date_str.replace("-", "")
 
-    data = _get(f"{BDLIE_URL}/stats", {
-        "player_ids[]": player_id,
-        "seasons[]":    2024,
-        "start_date":   target_date,
-        "end_date":     target_date,
-        "per_page":     5,
-    })
-    time.sleep(0.4)
 
-    if not data or not data.get("data"):
-        _nba_stats_cache[cache_key] = None
-        return None
+def _load_espn_nba_date(target_date: str) -> dict:
+    """Charge toutes les stats NBA pour une date via ESPN boxscore API.
+    Retourne {player_name_lower: {pts, reb, ast, fg3m}}."""
+    if target_date in _espn_nba_cache:
+        return _espn_nba_cache[target_date]
 
-    logs = data["data"]
-    if not logs:
-        _nba_stats_cache[cache_key] = None
-        return None
+    all_player_stats: dict = {}
 
-    log = logs[0]
-    result = {
-        "pts":  log.get("pts") or 0,
-        "reb":  log.get("reb") or 0,
-        "ast":  log.get("ast") or 0,
-        "fg3m": log.get("fg3m") or 0,
-        "pra":  (log.get("pts") or 0) + (log.get("reb") or 0) + (log.get("ast") or 0),
-    }
-    _nba_stats_cache[cache_key] = result
-    return result
+    # 1. Scoreboard → liste des event IDs
+    scoreboard = _get(f"{ESPN_NBA}/scoreboard", {"dates": _espn_date_fmt(target_date)})
+    if not scoreboard:
+        _espn_nba_cache[target_date] = all_player_stats
+        return all_player_stats
+
+    events = scoreboard.get("events", [])
+    print(f"    ESPN NBA: {len(events)} match(s) le {target_date}")
+
+    for event in events:
+        game_id = event.get("id")
+        if not game_id:
+            continue
+        time.sleep(0.4)
+        summary = _get(f"{ESPN_NBA}/summary", {"event": game_id})
+        if not summary:
+            continue
+
+        # 2. Parser le boxscore
+        for team_data in summary.get("boxscore", {}).get("players", []):
+            for stats_block in team_data.get("statistics", []):
+                names = stats_block.get("names", [])
+                if not names:
+                    continue
+                idx = {n: i for i, n in enumerate(names)}
+
+                for athlete in stats_block.get("athletes", []):
+                    player_name = athlete.get("athlete", {}).get("displayName", "")
+                    raw_stats   = athlete.get("stats", [])
+                    if not player_name or not raw_stats:
+                        continue
+
+                    def _parse(key: str) -> int:
+                        i = idx.get(key)
+                        if i is None or i >= len(raw_stats):
+                            return 0
+                        val = str(raw_stats[i])
+                        if "-" in val:          # "3-9" format (3PT, FG, FT)
+                            try:
+                                return int(val.split("-")[0])
+                            except Exception:
+                                return 0
+                        try:
+                            return int(val)
+                        except Exception:
+                            return 0
+
+                    all_player_stats[player_name.lower()] = {
+                        "pts":  _parse("PTS"),
+                        "reb":  _parse("REB"),
+                        "ast":  _parse("AST"),
+                        "fg3m": _parse("3PT"),
+                    }
+
+    _espn_nba_cache[target_date] = all_player_stats
+    return all_player_stats
+
+
+def _infer_nba_stat_key(market: str) -> str:
+    """Infere le stat_key NBA depuis le libelle du marche (robuste aux erreurs de stockage)."""
+    m = market.lower()
+    if "rebond" in m or " reb" in m:
+        return "reb"
+    if "passe" in m or "assist" in m:
+        return "ast"
+    if "3pt" in m or "trois" in m or "thre" in m:
+        return "fg3m"
+    return "pts"  # defaut: points
 
 
 def resolve_nba_prop(bet: dict, target_date: str) -> Optional[str]:
-    """Resout un bet NBA prop."""
-    # Le bet stocke "PlayerName — Points Over 25.5"
-    bet_str = bet.get("bet", "")
-    market  = bet.get("market", "")   # ex: "Points Over 25.5"
-    name    = bet.get("name", "")
+    """Resout un bet NBA prop via ESPN boxscore."""
+    bet_str  = bet.get("bet", "")
+    market   = bet.get("market", "")
+    name     = bet.get("name", "")
     stat_key = bet.get("stat_key", "pts")
 
-    # Extraire le nom du joueur depuis bet_str si name est vide
     if not name and " — " in bet_str:
         name = bet_str.split(" — ")[0].strip()
-
     if not name:
         return None
 
-    # Parser la ligne
+    # Parser direction et ligne
     m_upper   = market.upper() if market else bet_str.upper()
     direction = "over" if "OVER" in m_upper else "under"
-    try:
-        clean = m_upper
-        for word in ["POINTS","REBONDS","PASSES","3PTS","PRA","OVER","UNDER"]:
-            clean = clean.replace(word, "")
-        line = float(clean.strip())
-    except Exception:
+    line = bet.get("line", 0) or 0
+    if not line:
+        try:
+            clean = m_upper
+            for word in ["POINTS", "REBONDS", "PASSES", "3PTS", "PRA", "OVER", "UNDER"]:
+                clean = clean.replace(word, "")
+            line = float(clean.strip())
+        except Exception:
+            return None
+
+    # Charger toutes les stats ESPN pour la date
+    all_stats = _load_espn_nba_date(target_date)
+
+    # Chercher le joueur (exact puis par nom de famille)
+    player_stats = all_stats.get(name.lower())
+    if not player_stats:
+        last = name.lower().split()[-1] if name else ""
+        for pname, pstats in all_stats.items():
+            if last and len(last) > 3 and pname.split()[-1] == last:
+                player_stats = pstats
+                break
+
+    if not player_stats:
+        print(f"    ⚠ Stats NBA ESPN introuvables: {name} pour {target_date}")
         return None
 
-    # Trouver l'ID BallDontLie
-    player_id = get_nba_player_id(name)
-    if not player_id:
-        print(f"    ⚠ ID NBA introuvable: {name}")
-        return None
-
-    stats = get_nba_player_date_stats(player_id, target_date)
-    if not stats:
-        print(f"    ⚠ Stats NBA introuvables: {name} pour {target_date}")
-        return None
-
-    actual = stats.get(stat_key, 0) or 0
+    actual = player_stats.get(stat_key, 0)
     print(f"    {name}: {stat_key}={actual} vs {line} ({direction}) -> ", end="")
     result = "W" if (actual > line if direction == "over" else actual < line) else "L"
     print(result)
@@ -642,6 +679,22 @@ def compute_summary(bets: list) -> dict:
         else:
             by_type[key]["profit"] = round(by_type[key]["profit"] - stake, 2)
 
+    # Par sport (agrege)
+    by_sport: dict = {}
+    for b in resolved:
+        sport = b.get("sport", "nhl")
+        if sport not in by_sport:
+            by_sport[sport] = {"n": 0, "wins": 0, "losses": 0, "profit": 0.0}
+        stake = min(b.get("kelly_fraction", 1.0), 3.0)
+        odds  = b.get("b365_odds", 2.0)
+        by_sport[sport]["n"] += 1
+        if b["result"] == "W":
+            by_sport[sport]["wins"]   += 1
+            by_sport[sport]["profit"]  = round(by_sport[sport]["profit"] + stake * (odds - 1), 2)
+        else:
+            by_sport[sport]["losses"] += 1
+            by_sport[sport]["profit"]  = round(by_sport[sport]["profit"] - stake, 2)
+
     return {
         "total":    len(resolved),
         "wins":     wins,
@@ -651,6 +704,7 @@ def compute_summary(bets: list) -> dict:
         "roi":      round(roi, 1),
         "by_edge":  by_edge,
         "by_type":  by_type,
+        "by_sport": by_sport,
         "last_updated": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
 
@@ -736,11 +790,14 @@ def retry_unresolved(results_data: dict, max_days: int = 14) -> int:
                 elif sport == "nba":
                     bet_str  = bet.get("bet", "")
                     market   = bet_str.split(" — ", 1)[1].strip() if " — " in bet_str else ""
-                    stat_key = bet.get("market_type", "pts")
+                    # Inferer le stat_key depuis le libelle (market_type stocke peut etre "pts" par erreur)
+                    stat_key = _infer_nba_stat_key(market)
+                    line     = bet.get("line", 0) or _parse_line_from_str(market)
                     prop = {
                         "name":     bet.get("name", ""),
                         "market":   market,
                         "stat_key": stat_key,
+                        "line":     line,
                     }
                     result = resolve_nba_prop(prop, target_date)
 
@@ -924,9 +981,11 @@ def run_for_date(target_date: str):
             bet_id = f"{target_date}|prop_nba|{player}|{market}"
             game_str = f"{prop.get('_game_away','')} @ {prop.get('_game_home','')}"
 
-            # Enrichir le prop avec name et stat_key pour resolve
-            prop["name"]     = player
-            prop["stat_key"] = NBA_STAT_MAP.get(prop.get("market_raw", ""), "pts")
+            # stat_key directement depuis le prop (set par NBAPropsAnalyzer)
+            # Ne pas utiliser NBA_STAT_MAP avec market_raw=None (tombe toujours sur "pts")
+            prop["name"] = player
+            if not prop.get("stat_key"):
+                prop["stat_key"] = _infer_nba_stat_key(market)
 
             print(f"  {player} | {market}")
             result = resolve_nba_prop(prop, target_date)
