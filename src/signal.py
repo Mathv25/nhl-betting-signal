@@ -121,7 +121,7 @@ def main():
     mlb_analysis = []
     for mg in mlb_games[:10]:
         props_by_market = {}
-        for market in ["pitcher_strikeouts", "batter_hits", "batter_total_bases"]:
+        for market in ["pitcher_strikeouts", "batter_hits", "batter_total_bases", "batter_home_runs"]:
             props = mlb_fetcher.get_player_props(mg["event_id"], market)
             if props:
                 props_by_market[market] = props

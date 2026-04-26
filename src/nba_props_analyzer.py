@@ -10,6 +10,7 @@ STD_FLOOR = {
     "reb":  0.30,
     "ast":  0.35,
     "fg3m": 0.45,
+    "pra":  0.20,  # PRA = pts+reb+ast, variance relative plus basse
 }
 
 LINE_OFFSET = {
@@ -17,6 +18,7 @@ LINE_OFFSET = {
     "reb":  1.0,
     "ast":  1.0,
     "fg3m": 0.5,
+    "pra":  2.0,
 }
 
 STAT_CONFIGS = [
@@ -24,6 +26,7 @@ STAT_CONFIGS = [
     # fg3m retire: 17% WR historique (6 bets) — trop volatile
     {"key": "reb",  "label": "Rebonds", "min_avg": 5.0},   # 70% WR historique
     {"key": "ast",  "label": "Passes",  "min_avg": 4.0},   # 67% WR historique
+    {"key": "pra",  "label": "Pts+Reb+Ast", "min_avg": 25.0},  # PRA combine
 ]
 
 MIN_EDGE   = 10.0  # Releve de 6→10 (WR insuffisant a 6%)
@@ -38,6 +41,7 @@ _STAT_TO_MARKET = {
     "reb":  "player_rebounds",
     "ast":  "player_assists",
     "fg3m": "player_threes",
+    "pra":  "player_points_rebounds_assists",
 }
 
 # ── BLESSURES NBA CONNUES ─────────────────────────────────────────────────────
@@ -332,6 +336,10 @@ class NBAPropsAnalyzer:
                 stats = NBA_PLAYER_STATS.get(player_name)
                 if not stats:
                     continue
+
+                # Calcul PRA dynamique
+                stats = dict(stats)
+                stats["pra"] = round(stats.get("pts", 0) + stats.get("reb", 0) + stats.get("ast", 0), 1)
 
                 for cfg in STAT_CONFIGS:
                     key     = cfg["key"]
