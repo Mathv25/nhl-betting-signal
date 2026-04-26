@@ -1,0 +1,32 @@
+name: NHL Signal - Actualisation toutes les 2h
+on:
+  schedule:
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  refresh-signal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer dependances
+        run: pip install -r requirements.txt
+      - name: Generer le signal
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          GH_WORKFLOW_TOKEN: ${{ secrets.GH_WORKFLOW_TOKEN }}
+        run: |
+          cd src
+          python signal.py
+      - name: Commit et push
+        run: |
+          git config --global user.name "NHL Bot"
+          git config --global user.email "bot@nhl.local"
+          git add docs/signal.json docs/index.html
+          git diff --staged --quiet || git commit -m "Signal refresh $(date +'%Y-%m-%d %H:%M')"
+          git pull --rebase origin main
+          git push
