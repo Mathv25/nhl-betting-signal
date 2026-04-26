@@ -34,11 +34,11 @@ STAT_CONFIGS = [
     {"key": "total_bases", "label": "Buts totaux",       "min_avg": 1.5, "player_type": "batter"},
 ]
 
-MIN_EDGE   = 8.0
+MIN_EDGE   = 12.0  # Releve de 8→12: WR 40% insuffisant
 MAX_EDGE   = 22.0
 DK_IMPLIED = 52.63
 DK_ODDS    = 1.909
-MAX_BETS   = 6
+MAX_BETS   = 4    # Reduit de 6→4: qualite > quantite
 
 _STAT_TO_MARKET = {
     "strikeouts":  "pitcher_strikeouts",

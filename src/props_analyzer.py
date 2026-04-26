@@ -15,13 +15,15 @@ NHL_API   = "https://api-web.nhle.com/v1"
 SEASON    = "20252026"
 GAME_TYPE = "2"
 
-MIN_EDGE             = 10.0  # Minimum edge pour goals/points
-MIN_EDGE_SHOTS       = 15.0  # Seuil plus eleve pour shots (variance plus haute)
+MIN_EDGE             = 15.0  # Releve de 10→15: le modele avait 33% WR sur points
+MIN_EDGE_SHOTS       = 20.0  # Releve de 15→20: 26% WR historique sur shots
 MAX_EDGE_DISPLAY     = 25.0  # Plafond affichage — au-dela = bruit de modele
 B365_VIG_IMPL        = 53.49 / 100   # DK -115 standard = 53.49% implied
 B365_VIG_ODDS        = 1.870          # decimal de -115
 MIN_DEF_RANK_SHOTS   = 22   # Seulement vs defenses reellement faibles (top 10 pires)
 MIN_DEF_RANK_GOALS   = 22   # Meme logique pour les buts
+# Ratio max our_prob/dk_implied — si on est >40% plus optimiste que DK, skip
+MAX_DISAGREEMENT_RATIO = 1.40
 
 GAME_TYPE_PLAYOFFS   = "3"
 
@@ -433,7 +435,8 @@ class PropsAnalyzer:
                         pv = _poisson_over(shots_adj, sl) / 100
                         sp = round(pv * 100, 1)
                         se = min(_edge(sp, dk_impl), MAX_EDGE_DISPLAY)
-                        if se >= MIN_EDGE_SHOTS and dk_odds >= MIN_ODDS:
+                        ratio = (sp / dk_impl) if dk_impl > 0 else 0
+                        if se >= MIN_EDGE_SHOTS and dk_odds >= MIN_ODDS and ratio <= MAX_DISAGREEMENT_RATIO:
                             markets.append({"type":"shots","label":"Shots Over "+str(sl),
                                 "prob":sp,"edge":se,"kelly":_kelly(sp, dk_impl/100, dk_odds),
                                 "est_odds":dk_odds,"dk_implied":round(dk_impl,1),
@@ -470,7 +473,8 @@ class PropsAnalyzer:
                         pv = _poisson_over(goals_adj, rp["line"]) / 100
                         gp = round(pv * 100, 1)
                         ge = min(_edge(gp, dk_impl), MAX_EDGE_DISPLAY)
-                        if ge >= MIN_EDGE and dk_odds >= MIN_ODDS:
+                        ratio_g = (gp / dk_impl) if dk_impl > 0 else 0
+                        if ge >= MIN_EDGE and dk_odds >= MIN_ODDS and ratio_g <= MAX_DISAGREEMENT_RATIO:
                             markets.append({"type":"goals","label":gl,
                                 "prob":gp,"edge":ge,"kelly":_kelly(gp, dk_impl/100, dk_odds),
                                 "est_odds":dk_odds,"dk_implied":round(dk_impl,1),
@@ -501,7 +505,8 @@ class PropsAnalyzer:
                         pv = _poisson_over(points_adj, rp["line"]) / 100
                         pp2 = round(pv * 100, 1)
                         pe = min(_edge(pp2, dk_impl), MAX_EDGE_DISPLAY)
-                        if pe >= MIN_EDGE and dk_odds >= MIN_ODDS:
+                        ratio_p = (pp2 / dk_impl) if dk_impl > 0 else 0
+                        if pe >= MIN_EDGE and dk_odds >= MIN_ODDS and ratio_p <= MAX_DISAGREEMENT_RATIO:
                             markets.append({"type":"points","label":pl,
                                 "prob":pp2,"edge":pe,"kelly":_kelly(pp2, dk_impl/100, dk_odds),
                                 "est_odds":dk_odds,"dk_implied":round(dk_impl,1),

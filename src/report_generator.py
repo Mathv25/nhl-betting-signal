@@ -690,6 +690,20 @@ class ReportGenerator:
             "var dt=new Date(d.generated_at);"
             "el.textContent='Genere le '+dt.toLocaleString('fr-CA',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'America/Toronto'})+' ET';"
             "}catch(e){}}"
+            # Stale signal warning
+            "var stale=document.getElementById('stale-banner');"
+            "if(!stale){stale=document.createElement('div');stale.id='stale-banner';"
+            "stale.style.cssText='background:#FEF3C7;border-left:4px solid #F59E0B;color:#92400E;"
+            "padding:10px 16px;font-size:13px;font-weight:500;margin-bottom:1rem;border-radius:8px;display:none;';"
+            "var wrap=document.querySelector('.wrap');if(wrap)wrap.insertBefore(stale,wrap.firstChild);}"
+            "try{"
+            "var sigDate=d.date||'';"
+            "var todayET=new Date().toLocaleDateString('fr-CA',{timeZone:'America/Toronto'});"
+            "if(sigDate&&sigDate!==todayET){"
+            "stale.textContent='\u26a0\ufe0f Signal du '+sigDate+' — les matchs d\\'aujourd\\'hui ne sont pas encore disponibles. Prochain refresh automatique dans l\\'heure.';"
+            "stale.style.display='block';"
+            "}else{stale.style.display='none';}}"
+            "catch(e){}"
             "}"
 
             # ── Signal tab ───────────────────────────────────────────────────

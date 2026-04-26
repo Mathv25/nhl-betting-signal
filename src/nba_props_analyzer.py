@@ -20,17 +20,17 @@ LINE_OFFSET = {
 }
 
 STAT_CONFIGS = [
-    {"key": "pts",  "label": "Points",  "min_avg": 12.0},
-    {"key": "reb",  "label": "Rebonds", "min_avg": 5.0},
-    {"key": "ast",  "label": "Passes",  "min_avg": 4.0},
-    {"key": "fg3m", "label": "3pts",    "min_avg": 2.0},
+    # pts retire: 34.8% WR historique (69 bets) — modele sans ajustement DEF
+    # fg3m retire: 17% WR historique (6 bets) — trop volatile
+    {"key": "reb",  "label": "Rebonds", "min_avg": 5.0},   # 70% WR historique
+    {"key": "ast",  "label": "Passes",  "min_avg": 4.0},   # 67% WR historique
 ]
 
-MIN_EDGE   = 6.0
+MIN_EDGE   = 10.0  # Releve de 6→10 (WR insuffisant a 6%)
 MAX_EDGE   = 18.0
 DK_IMPLIED = 53.49   # Fallback synthetique (-115 DK standard)
 DK_ODDS    = 1.870   # Fallback synthetique
-MAX_BETS   = 6
+MAX_BETS   = 4      # Reduit de 6→4: qualite > quantite
 
 # Mapping stat key -> market key The Odds API
 _STAT_TO_MARKET = {
