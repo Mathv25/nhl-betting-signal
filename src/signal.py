@@ -110,6 +110,7 @@ def main():
         if props_by_market:
             analysis = nba_analyzer.analyze_game(ng, props_by_market)
             if analysis.get("bets"):
+                analysis["commence_time"] = ng.get("commence_time", "")
                 nba_analysis.append(analysis)
 
     # 5c. MLB props
@@ -127,6 +128,7 @@ def main():
                 props_by_market[market] = props
         analysis = mlb_analyzer.analyze_game(mg, props_by_market if props_by_market else None)
         if analysis.get("bets"):
+            analysis["commence_time"] = mg.get("commence_time", "")
             mlb_analysis.append(analysis)
 
     # 6. Value bets — edge >= 5%, max 10

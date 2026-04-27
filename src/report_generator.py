@@ -708,7 +708,19 @@ class ReportGenerator:
 
             # ── Signal tab ───────────────────────────────────────────────────
             "function renderSignalTab(d){"
-            "var vb=d.value_bets||[];var sigs=d.signals||[];var h='';"
+            "var now=Date.now();"
+            # build map: "Away @ Home" -> commence_time
+            "var ctMap={};"
+            "(d.signals||[]).forEach(function(s){"
+            "var key=s.game.away_team+' @ '+s.game.home_team;"
+            "ctMap[key]=s.game.commence_time;});"
+            "var sigs=(d.signals||[]).filter(function(s){"
+            "try{return new Date(s.game.commence_time).getTime()>now;}catch(e){return true;}});"
+            "var vb=(d.value_bets||[]).filter(function(b){"
+            "var ct=ctMap[b.game||''];"
+            "if(!ct)return true;"
+            "try{return new Date(ct).getTime()>now;}catch(e){return true;}});"
+            "var h='';"
             "h+='<div class=\"sec\">Bets recommandes - Edge minimum 5%</div>';"
             "if(!vb.length){h+='<p class=\"no-bets\">Aucun bet avec edge superieur a 5% aujourd\\'hui.</p>';}"
             "else{vb.forEach(function(b){"
@@ -772,7 +784,11 @@ class ReportGenerator:
 
             # ── NBA tab ──────────────────────────────────────────────────────
             "function renderNBATab(d){"
-            "var nba=d.nba_analysis||[];var h='';"
+            "var now=Date.now();"
+            "var nba=(d.nba_analysis||[]).filter(function(g){"
+            "if(!g.commence_time)return true;"
+            "try{return new Date(g.commence_time).getTime()>now;}catch(e){return true;}});"
+            "var h='';"
             "if(!nba.length){h='<div style=\"color:var(--m);padding:1rem 0;font-size:13px\">Aucune analyse NBA disponible ou pas de matchs ce soir.</div>';}"
             "else{"
             "h='<div class=\"nba-header\">NBA Player Props \u2014 Analyse +EV</div>';"
@@ -811,7 +827,11 @@ class ReportGenerator:
 
             # ── MLB tab ──────────────────────────────────────────────────────
             "function renderMLBTab(d){"
-            "var mlb=d.mlb_analysis||[];var h='';"
+            "var now=Date.now();"
+            "var mlb=(d.mlb_analysis||[]).filter(function(g){"
+            "if(!g.commence_time)return true;"
+            "try{return new Date(g.commence_time).getTime()>now;}catch(e){return true;}});"
+            "var h='';"
             "if(!mlb.length){h='<div style=\"color:var(--m);padding:1rem 0;font-size:13px\">Aucune analyse MLB disponible ou pas de matchs ce soir.</div>';}"
             "else{"
             "h='<div class=\"mlb-header\">MLB Player Props \u2014 Analyse +EV</div>';"
