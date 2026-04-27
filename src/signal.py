@@ -45,6 +45,23 @@ def main():
         print("Aucun match NHL avec cotes DraftKings pour l'instant.")
         print("Le signal existant est conserve. DraftKings poste les cotes en cours de journee.")
         sys.exit(0)
+
+    # Filtrer uniquement les matchs d'aujourd'hui (ET)
+    today_et = now_et.strftime("%Y-%m-%d")
+    def is_today(ct):
+        try:
+            from datetime import timezone as _tz
+            dt = datetime.fromisoformat(ct.replace("Z", "+00:00"))
+            return dt.astimezone(tz).strftime("%Y-%m-%d") == today_et
+        except Exception:
+            return True
+    games_all = games
+    games = [g for g in games if is_today(g.get("commence_time", ""))]
+    if len(games) < len(games_all):
+        print(f"  Filtrage: {len(games_all)} matchs recus -> {len(games)} aujourd'hui ({today_et})")
+    if not games:
+        print("Aucun match NHL aujourd'hui.")
+        sys.exit(0)
     print(f"{len(games)} match(s) trouve(s)")
 
     # 2. Validation alignements NHL.com
@@ -98,7 +115,7 @@ def main():
     print("\nAnalyse NBA props...")
     nba_fetcher  = NBAOddsFetcher(api_key)
     nba_analyzer = NBAPropsAnalyzer()
-    nba_games    = nba_fetcher.get_nba_games()
+    nba_games    = [g for g in nba_fetcher.get_nba_games() if is_today(g.get("commence_time", ""))]
     nba_analysis = []
     for ng in nba_games[:8]:
         props_by_market = {}
@@ -118,7 +135,7 @@ def main():
     print("\nAnalyse MLB props...")
     mlb_fetcher  = MLBOddsFetcher(api_key)
     mlb_analyzer = MLBPropsAnalyzer()
-    mlb_games    = mlb_fetcher.get_mlb_games()
+    mlb_games    = [g for g in mlb_fetcher.get_mlb_games() if is_today(g.get("commence_time", ""))]
     mlb_analysis = []
     for mg in mlb_games[:10]:
         props_by_market = {}
