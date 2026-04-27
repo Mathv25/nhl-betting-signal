@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-27T15:49:36.836617+00:00",
+  "generated_at": "2026-04-27T17:23:52.515505+00:00",
   "date": "2026-04-27",
   "bookmaker": "bet365",
   "total_games": 2,
@@ -42,13 +42,13 @@
           "totals": {
             "over": {
               "line": 5.5,
-              "odds_decimal": 1.8,
-              "implied_prob": 55.56
+              "odds_decimal": 1.83,
+              "implied_prob": 54.64
             },
             "under": {
               "line": 5.5,
-              "odds_decimal": 2.05,
-              "implied_prob": 48.78
+              "odds_decimal": 2.0,
+              "implied_prob": 50.0
             }
           },
           "player_props": []
@@ -390,20 +390,20 @@
           "market": "Points Over 1.5",
           "market_type": "points",
           "our_prob": 45.1,
-          "edge_pct": 23.9,
-          "kelly": 3.4,
+          "edge_pct": 25.0,
+          "kelly": 3.7,
           "market_detail": "1.53 pts proj. · moy 1.23/m",
-          "est_odds": 2.75,
-          "b365_implied": 36.4,
+          "est_odds": 2.8,
+          "b365_implied": 35.7,
           "all_markets": [
             {
               "type": "points",
               "label": "Points Over 1.5",
               "prob": 45.1,
-              "edge": 23.9,
-              "kelly": 3.4,
-              "est_odds": 2.75,
-              "dk_implied": 36.4,
+              "edge": 25.0,
+              "kelly": 3.7,
+              "est_odds": 2.8,
+              "dk_implied": 35.7,
               "detail": "1.53 pts proj. · moy 1.23/m"
             }
           ],
@@ -539,6 +539,31 @@
   ],
   "nba_analysis": [
     {
+      "home_team": "Orlando Magic",
+      "away_team": "Detroit Pistons",
+      "bets": [
+        {
+          "player": "Paolo Banchero",
+          "team": "Orlando Magic",
+          "opponent": "Detroit Pistons",
+          "market": "Pts+Reb+Ast Over 35.5",
+          "stat_key": "pra",
+          "line": 35.5,
+          "avg10": 38.2,
+          "avg5": 38.2,
+          "adj_proj": 38.2,
+          "our_prob": 61.3,
+          "edge_pct": 12.3,
+          "kelly": 3.7,
+          "est_odds": 1.83,
+          "dk_implied": 54.6,
+          "def_rank": 15,
+          "context": []
+        }
+      ],
+      "commence_time": "2026-04-28T00:10:00Z"
+    },
+    {
       "home_team": "Phoenix Suns",
       "away_team": "Oklahoma City Thunder",
       "bets": [
@@ -557,24 +582,6 @@
           "kelly": 3.7,
           "est_odds": 1.94,
           "dk_implied": 51.5,
-          "def_rank": 15,
-          "context": []
-        },
-        {
-          "player": "Chet Holmgren",
-          "team": "Oklahoma City Thunder",
-          "opponent": "Phoenix Suns",
-          "market": "Pts+Reb+Ast Over 27.5",
-          "stat_key": "pra",
-          "line": 27.5,
-          "avg10": 29.0,
-          "avg5": 29.0,
-          "adj_proj": 29.0,
-          "our_prob": 56.8,
-          "edge_pct": 11.8,
-          "kelly": 3.1,
-          "est_odds": 1.97,
-          "dk_implied": 50.8,
           "def_rank": 15,
           "context": []
         },
@@ -602,9 +609,70 @@
   ],
   "mlb_analysis": [
     {
+      "home_team": "Chicago White Sox",
+      "away_team": "Los Angeles Angels",
+      "bets": [
+        {
+          "player": "Mike Trout",
+          "team": "Los Angeles Angels",
+          "opponent": "Chicago White Sox",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.5",
+          "stat_key": "total_bases",
+          "line": 1.5,
+          "season_avg": 2.2,
+          "adj_proj": 2.083,
+          "opp_k_rate": null,
+          "opp_pitcher": "Chris Flexen",
+          "opp_pitcher_k": 5.5,
+          "platoon": "Platoon defavorable (R vs R)",
+          "park_factor": 0.96,
+          "our_prob": 52.7,
+          "edge_pct": 19.5,
+          "kelly": 3.9,
+          "est_odds": 2.27,
+          "dk_implied": 44.1,
+          "context": [
+            "vs Chris Flexen (5.5 K/dep) — Contact",
+            "Platoon defavorable (R vs R)",
+            "Terrain: Favorable lanceurs (PF 0.96)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-04-27T23:40:00Z"
+    },
+    {
       "home_team": "Texas Rangers",
       "away_team": "New York Yankees",
       "bets": [
+        {
+          "player": "Corey Seager",
+          "team": "Texas Rangers",
+          "opponent": "New York Yankees",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.5",
+          "stat_key": "total_bases",
+          "line": 1.5,
+          "season_avg": 2.3,
+          "adj_proj": 2.082,
+          "opp_k_rate": null,
+          "opp_pitcher": "Max Fried",
+          "opp_pitcher_k": 7.8,
+          "platoon": "Platoon defavorable (L vs L)",
+          "park_factor": 1.05,
+          "our_prob": 52.7,
+          "edge_pct": 20.0,
+          "kelly": 3.9,
+          "est_odds": 2.28,
+          "dk_implied": 43.9,
+          "context": [
+            "vs Max Fried (7.8 K/dep) — Correct (7+ K/dep)",
+            "Platoon defavorable (L vs L)",
+            "Terrain: Favorable frappeurs (PF 1.05)",
+            "Confirmer lineup avant de parier"
+          ]
+        },
         {
           "player": "Aaron Judge",
           "team": "New York Yankees",
@@ -634,40 +702,6 @@
         }
       ],
       "commence_time": "2026-04-28T00:06:00Z"
-    },
-    {
-      "home_team": "San Diego Padres",
-      "away_team": "Chicago Cubs",
-      "bets": [
-        {
-          "player": "Xander Bogaerts",
-          "team": "San Diego Padres",
-          "opponent": "Chicago Cubs",
-          "player_type": "batter",
-          "market": "Buts totaux Over 1.5",
-          "stat_key": "total_bases",
-          "line": 1.5,
-          "season_avg": 1.9,
-          "adj_proj": 1.97,
-          "opp_k_rate": null,
-          "opp_pitcher": "Justin Steele",
-          "opp_pitcher_k": 6.8,
-          "platoon": "Platoon avantageux (R vs L)",
-          "park_factor": 0.92,
-          "our_prob": 49.0,
-          "edge_pct": 20.4,
-          "kelly": 3.5,
-          "est_odds": 2.46,
-          "dk_implied": 40.7,
-          "context": [
-            "vs Justin Steele (6.8 K/dep) — Moyen",
-            "Platoon avantageux (R vs L)",
-            "Terrain: Tres favorable lanceurs (PF 0.92)",
-            "Confirmer lineup avant de parier"
-          ]
-        }
-      ],
-      "commence_time": "2026-04-28T01:41:00Z"
     },
     {
       "home_team": "Los Angeles Dodgers",
