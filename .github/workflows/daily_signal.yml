@@ -15,18 +15,25 @@ jobs:
           python-version: '3.11'
       - name: Installer dependances
         run: pip install -r requirements.txt
-      - name: Archiver signal de la veille
+      - name: Archiver signal de la veille (si pas deja fait)
         run: |
-          YESTERDAY=$(date -d "yesterday" +%Y-%m-%d)
           if [ -f docs/signal.json ]; then
             mkdir -p docs/archive
-            cp docs/signal.json docs/archive/signal_${YESTERDAY}.json
-            echo "Signal archive: signal_${YESTERDAY}.json"
+            SIGNAL_DATE=$(python3 -c "import json; d=json.load(open('docs/signal.json')); print(d.get('date',''))" 2>/dev/null || echo "")
+            if [ -n "$SIGNAL_DATE" ]; then
+              ARCHIVE=docs/archive/signal_${SIGNAL_DATE}.json
+              if [ ! -f "$ARCHIVE" ]; then
+                cp docs/signal.json "$ARCHIVE"
+                echo "Signal archive: signal_${SIGNAL_DATE}.json"
+              else
+                echo "Archive existe deja: signal_${SIGNAL_DATE}.json — skip"
+              fi
+            fi
           fi
       - name: Resoudre bets de la veille
         run: |
-          cd src
-          python backtester.py
+          YESTERDAY=$(TZ=America/Toronto date -d "yesterday" +%Y-%m-%d 2>/dev/null || TZ=America/Toronto date -v-1d +%Y-%m-%d)
+          cd src && python backtester.py "$YESTERDAY"
       - name: Generer le signal
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
