@@ -429,6 +429,8 @@ def _infer_nba_stat_key(market: str) -> str:
         return "ast"
     if "3pt" in m or "trois" in m or "thre" in m:
         return "fg3m"
+    if "pra" in m or "pts+reb" in m:
+        return "pra"
     return "pts"  # defaut: points
 
 
@@ -473,7 +475,10 @@ def resolve_nba_prop(bet: dict, target_date: str) -> Optional[str]:
         print(f"    ⚠ Stats NBA ESPN introuvables: {name} pour {target_date}")
         return None
 
-    actual = player_stats.get(stat_key, 0)
+    if stat_key == "pra":
+        actual = player_stats.get("pts", 0) + player_stats.get("reb", 0) + player_stats.get("ast", 0)
+    else:
+        actual = player_stats.get(stat_key, 0)
     print(f"    {name}: {stat_key}={actual} vs {line} ({direction}) -> ", end="")
     result = "W" if (actual > line if direction == "over" else actual < line) else "L"
     print(result)
@@ -593,6 +598,8 @@ def resolve_mlb_prop(prop: dict, target_date: str) -> Optional[str]:
                 actual = batting.get("totalBases", None)
             elif stat_key == "strikeouts":
                 actual = pitching.get("strikeOuts", None)
+            elif stat_key == "home_runs":
+                actual = batting.get("homeRuns", None)
             else:
                 return None
 

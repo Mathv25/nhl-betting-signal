@@ -15,6 +15,32 @@ jobs:
           python-version: '3.11'
       - name: Installer dependances
         run: pip install -r requirements.txt
+      - name: Archiver signal si changement de jour ET
+        run: |
+          if [ -f docs/signal.json ]; then
+            mkdir -p docs/archive
+            SIGNAL_DATE=$(python3 -c "import json; d=json.load(open('docs/signal.json')); print(d.get('date',''))" 2>/dev/null || echo "")
+            TODAY_ET=$(TZ=America/Toronto date +%Y-%m-%d)
+            if [ -n "$SIGNAL_DATE" ] && [ "$SIGNAL_DATE" != "$TODAY_ET" ]; then
+              ARCHIVE=docs/archive/signal_${SIGNAL_DATE}.json
+              if [ ! -f "$ARCHIVE" ]; then
+                cp docs/signal.json "$ARCHIVE"
+                echo "Archive cree: $ARCHIVE"
+              else
+                echo "Archive existe deja: $ARCHIVE"
+              fi
+            fi
+          fi
+      - name: Resoudre bets de la veille si nouvelle journee ET
+        run: |
+          SIGNAL_DATE=$(python3 -c "import json; d=json.load(open('docs/signal.json')); print(d.get('date',''))" 2>/dev/null || echo "")
+          TODAY_ET=$(TZ=America/Toronto date +%Y-%m-%d)
+          if [ -n "$SIGNAL_DATE" ] && [ "$SIGNAL_DATE" != "$TODAY_ET" ]; then
+            echo "Nouvelle journee ET ($SIGNAL_DATE -> $TODAY_ET): resolution des bets"
+            cd src && python backtester.py "$SIGNAL_DATE"
+          else
+            echo "Meme journee ET ($TODAY_ET): pas de resolution"
+          fi
       - name: Generer le signal
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
