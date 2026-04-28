@@ -37,11 +37,13 @@ STAT_CONFIGS = [
     {"key": "home_runs",   "label": "Home Run",          "min_avg": 0.10, "player_type": "batter"},
 ]
 
-MIN_EDGE   = 12.0  # Releve de 8→12: WR 40% insuffisant
+MIN_EDGE   = 12.0
 MAX_EDGE   = 22.0
 DK_IMPLIED = 52.63
 DK_ODDS    = 1.909
-MAX_BETS   = 4    # Reduit de 6→4: qualite > quantite
+MAX_BETS   = 4
+# Si notre modele depasse DK de plus de 20%, le marche a raison — skip
+MAX_DISAGREEMENT_RATIO = 1.20
 
 _STAT_TO_MARKET = {
     "strikeouts":  "pitcher_strikeouts",
@@ -466,10 +468,13 @@ class MLBPropsAnalyzer:
                     dk_impl = DK_IMPLIED
                     dk_odds = DK_ODDS
 
-                prob = _normal_over(adj_mean, std, line)
-                edge = _edge(prob, dk_impl)
+                prob  = _normal_over(adj_mean, std, line)
+                edge  = _edge(prob, dk_impl)
+                ratio = (prob / dk_impl) if dk_impl > 0 else 0
 
                 if not (MIN_EDGE <= edge <= MAX_EDGE):
+                    continue
+                if ratio > MAX_DISAGREEMENT_RATIO:
                     continue
 
                 ev_bets.append({
@@ -550,10 +555,13 @@ class MLBPropsAnalyzer:
                         dk_impl = DK_IMPLIED
                         dk_odds = DK_ODDS
 
-                    prob = _normal_over(adj_mean, std, line)
-                    edge = _edge(prob, dk_impl)
+                    prob  = _normal_over(adj_mean, std, line)
+                    edge  = _edge(prob, dk_impl)
+                    ratio = (prob / dk_impl) if dk_impl > 0 else 0
 
                     if not (MIN_EDGE <= edge <= MAX_EDGE):
+                        continue
+                    if ratio > MAX_DISAGREEMENT_RATIO:
                         continue
 
                     ev_bets.append({

@@ -29,11 +29,54 @@ STAT_CONFIGS = [
     {"key": "pra",  "label": "Pts+Reb+Ast", "min_avg": 25.0},  # PRA combine
 ]
 
-MIN_EDGE   = 10.0  # Releve de 6→10 (WR insuffisant a 6%)
+MIN_EDGE   = 10.0
 MAX_EDGE   = 18.0
-DK_IMPLIED = 53.49   # Fallback synthetique (-115 DK standard)
-DK_ODDS    = 1.870   # Fallback synthetique
-MAX_BETS   = 4      # Reduit de 6→4: qualite > quantite
+DK_IMPLIED = 53.49
+DK_ODDS    = 1.870
+MAX_BETS   = 4
+# Si notre modele est >20% plus optimiste que DK, skip — le marche connait mieux
+MAX_DISAGREEMENT_RATIO = 1.20
+
+# ── FACTEURS DEFENSIFS NBA PAR EQUIPE ────────────────────────────────────────
+# Rebonds accordes par match (plus = plus facile pour rebondeur adverse)
+NBA_DEF_REB_ALLOWED = {
+    "Oklahoma City Thunder": 41.2, "Cleveland Cavaliers": 42.5,
+    "Boston Celtics": 43.0,        "Miami Heat": 43.5,
+    "New York Knicks": 43.8,       "Denver Nuggets": 44.0,
+    "Minnesota Timberwolves": 44.2,"Indiana Pacers": 44.5,
+    "Los Angeles Lakers": 44.5,    "LA Clippers": 44.8,
+    "Philadelphia 76ers": 44.8,    "Atlanta Hawks": 45.0,
+    "Golden State Warriors": 45.2, "Phoenix Suns": 45.5,
+    "Chicago Bulls": 45.5,         "Dallas Mavericks": 45.5,
+    "Milwaukee Bucks": 45.8,       "Sacramento Kings": 46.0,
+    "Houston Rockets": 46.0,       "San Antonio Spurs": 46.2,
+    "Memphis Grizzlies": 46.5,     "New Orleans Pelicans": 46.5,
+    "Detroit Pistons": 46.8,       "Washington Wizards": 47.0,
+    "Charlotte Hornets": 47.0,     "Toronto Raptors": 47.2,
+    "Portland Trail Blazers": 47.5,"Orlando Magic": 47.5,
+    "Brooklyn Nets": 47.8,         "Utah Jazz": 48.5,
+}
+LEAGUE_AVG_DEF_REB = 44.5
+
+# Passes accordees par match (plus = plus facile pour meneur adverse)
+NBA_DEF_AST_ALLOWED = {
+    "Oklahoma City Thunder": 23.0, "Boston Celtics": 23.5,
+    "Minnesota Timberwolves": 24.0,"Cleveland Cavaliers": 24.0,
+    "New York Knicks": 24.5,       "Miami Heat": 25.0,
+    "Denver Nuggets": 25.0,        "Indiana Pacers": 25.5,
+    "Memphis Grizzlies": 25.8,     "Golden State Warriors": 26.0,
+    "Los Angeles Lakers": 26.0,    "LA Clippers": 26.0,
+    "Dallas Mavericks": 26.2,      "Houston Rockets": 26.5,
+    "Milwaukee Bucks": 26.5,       "Philadelphia 76ers": 26.8,
+    "Phoenix Suns": 27.0,          "Sacramento Kings": 27.0,
+    "Atlanta Hawks": 27.2,         "Chicago Bulls": 27.5,
+    "San Antonio Spurs": 27.5,     "Portland Trail Blazers": 27.8,
+    "New Orleans Pelicans": 27.8,  "Detroit Pistons": 28.0,
+    "Washington Wizards": 28.2,    "Charlotte Hornets": 28.5,
+    "Toronto Raptors": 28.5,       "Orlando Magic": 28.8,
+    "Brooklyn Nets": 29.0,         "Utah Jazz": 29.5,
+}
+LEAGUE_AVG_DEF_AST = 26.5
 
 # Mapping stat key -> market key The Odds API
 _STAT_TO_MARKET = {
@@ -350,31 +393,55 @@ class NBAPropsAnalyzer:
                     if mean < min_avg:
                         continue
 
-                    std = _std(mean, key)
+                    # Facteur adversaire selon le marche
+                    # Rebounds: certaines equipes accordent beaucoup plus de rebonds
+                    # Assists: certaines equipes permettent beaucoup plus de passes decisives
+                    if key == "reb":
+                        def_val = NBA_DEF_REB_ALLOWED.get(opp, LEAGUE_AVG_DEF_REB)
+                        def_factor = def_val / LEAGUE_AVG_DEF_REB
+                        adj_mean = round(mean * def_factor, 1)
+                    elif key == "ast":
+                        def_val = NBA_DEF_AST_ALLOWED.get(opp, LEAGUE_AVG_DEF_AST)
+                        def_factor = def_val / LEAGUE_AVG_DEF_AST
+                        adj_mean = round(mean * def_factor, 1)
+                    elif key == "pra":
+                        # PRA: pts stables, reb et ast ajustes par defense adverse
+                        reb_f = NBA_DEF_REB_ALLOWED.get(opp, LEAGUE_AVG_DEF_REB) / LEAGUE_AVG_DEF_REB
+                        ast_f = NBA_DEF_AST_ALLOWED.get(opp, LEAGUE_AVG_DEF_AST) / LEAGUE_AVG_DEF_AST
+                        adj_pts = stats.get("pts", 0)
+                        adj_reb = stats.get("reb", 0) * reb_f
+                        adj_ast = stats.get("ast", 0) * ast_f
+                        adj_mean = round(adj_pts + adj_reb + adj_ast, 1)
+                    else:
+                        adj_mean = mean
+
+                    std = _std(adj_mean, key)
 
                     # Utilise la vraie ligne/cote DK si disponible
                     if use_real:
                         rp = real_lkp.get(player_name.lower(), {}).get(key)
                         if not rp:
-                            # Fallback: cherche par nom de famille
                             last = player_name.lower().split()[-1]
                             for k, v in real_lkp.items():
                                 if k.split()[-1] == last and key in v:
                                     rp = v[key]
                                     break
                         if not rp:
-                            continue  # Pas de ligne DK disponible — skip
+                            continue
 
                         line     = rp["line"]
                         dk_impl  = rp["over_implied"]
                         dk_odds  = rp["over_odds"]
-                        prob     = _normal_over(mean, std, line)
+                        prob     = _normal_over(adj_mean, std, line)
                         e        = _edge(prob, dk_impl)
+                        ratio    = (prob / dk_impl) if dk_impl > 0 else 0
+                        if ratio > MAX_DISAGREEMENT_RATIO:
+                            continue
                     else:
-                        line     = _estimate_line(mean, key)
+                        line     = _estimate_line(adj_mean, key)
                         dk_impl  = DK_IMPLIED
                         dk_odds  = DK_ODDS
-                        prob     = _normal_over(mean, std, line)
+                        prob     = _normal_over(adj_mean, std, line)
                         e        = _edge(prob, dk_impl)
 
                     if not (MIN_EDGE <= e <= MAX_EDGE):
@@ -389,7 +456,7 @@ class NBAPropsAnalyzer:
                         "line":       line,
                         "avg10":      mean,
                         "avg5":       mean,
-                        "adj_proj":   mean,
+                        "adj_proj":   adj_mean,
                         "our_prob":   prob,
                         "edge_pct":   e,
                         "kelly":      _kelly(prob, dk_impl, dk_odds),

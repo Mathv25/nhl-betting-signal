@@ -104,7 +104,9 @@ def main():
             real_props = fetcher.get_nhl_player_props(g["id"], bookmaker=book)
             n_lines = sum(len(v) for v in real_props.values()) if real_props else 0
             print(f"    -> {n_lines} lignes props disponibles ({list(real_props.keys()) if real_props else 'aucune'})")
-            analysis = props_an.analyze_game(g["home_team"], g["away_team"], real_props=real_props)
+            game_total = g.get("markets", {}).get("totals", {}).get("over", {}).get("line")
+            analysis = props_an.analyze_game(g["home_team"], g["away_team"],
+                                             real_props=real_props, game_total=game_total)
             if analysis.get("bets"):
                 props_by_game.append(analysis)
         except Exception as e:

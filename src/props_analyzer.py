@@ -15,15 +15,23 @@ NHL_API   = "https://api-web.nhle.com/v1"
 SEASON    = "20252026"
 GAME_TYPE = "2"
 
-MIN_EDGE             = 15.0  # Releve de 10→15: le modele avait 33% WR sur points
-MIN_EDGE_SHOTS       = 20.0  # Releve de 15→20: 26% WR historique sur shots
-MAX_EDGE_DISPLAY     = 25.0  # Plafond affichage — au-dela = bruit de modele
-B365_VIG_IMPL        = 53.49 / 100   # DK -115 standard = 53.49% implied
-B365_VIG_ODDS        = 1.870          # decimal de -115
-MIN_DEF_RANK_SHOTS   = 22   # Seulement vs defenses reellement faibles (top 10 pires)
-MIN_DEF_RANK_GOALS   = 22   # Meme logique pour les buts
-# Ratio max our_prob/dk_implied — si on est >40% plus optimiste que DK, skip
-MAX_DISAGREEMENT_RATIO = 1.40
+MIN_EDGE             = 15.0
+MIN_EDGE_SHOTS       = 20.0
+MAX_EDGE_DISPLAY     = 25.0
+B365_VIG_IMPL        = 53.49 / 100
+B365_VIG_ODDS        = 1.870
+MIN_DEF_RANK_SHOTS   = 25   # Seulement vs les 8 pires defenses — marche trop efficient
+MIN_DEF_RANK_GOALS   = 24
+
+# Ratios max par marche — si notre modele est plus optimiste que DK au-dela de ce seuil, skip
+# Les books sont bien calibres sur ces marches; on ne doit pas diverger trop
+MAX_DISAGREEMENT_SHOTS  = 1.15  # Shots: marche tres efficient
+MAX_DISAGREEMENT_POINTS = 1.15  # Points: zero-inflation non capturee par Poisson
+MAX_DISAGREEMENT_GOALS  = 1.20  # Buts: legerement moins efficient
+MAX_DISAGREEMENT_RATIO  = 1.20  # Fallback generique
+
+# Total moyen par match NHL (saison 2024-25) — sert de calibrant d'environnement
+LEAGUE_AVG_GAME_TOTAL = 6.2
 
 GAME_TYPE_PLAYOFFS   = "3"
 
@@ -333,7 +341,8 @@ class PropsAnalyzer:
         self._stats_cache    = {}
         self._lineup_fetcher = None
 
-    def analyze_game(self, home_team: str, away_team: str, real_props: dict = None) -> dict:
+    def analyze_game(self, home_team: str, away_team: str, real_props: dict = None,
+                     game_total: float = None) -> dict:
         """
         real_props: dict retourne par OddsFetcher.get_nhl_player_props(event_id).
         Si None -> mode synthetique (retrocompatibilite).
@@ -353,8 +362,9 @@ class PropsAnalyzer:
         home_goalie  = self._get_goalie_stats(home_team)
         away_goalie  = self._get_goalie_stats(away_team)
 
-        home_bets = self._best_bets(home_players, away_team, home_team, 3, lineup_confirmed, props_lkp)
-        away_bets = self._best_bets(away_players, home_team, away_team, 3, lineup_confirmed, props_lkp)
+        gt = game_total if game_total and game_total > 0 else LEAGUE_AVG_GAME_TOTAL
+        home_bets = self._best_bets(home_players, away_team, home_team, 3, lineup_confirmed, props_lkp, gt)
+        away_bets = self._best_bets(away_players, home_team, away_team, 3, lineup_confirmed, props_lkp, gt)
 
         all_bets = home_bets + away_bets
         all_bets.sort(key=lambda x: x["edge_pct"], reverse=True)
@@ -396,11 +406,11 @@ class PropsAnalyzer:
         return (role.get("multiplier", 1.0), role.get("pp", 0),
                 role.get("line", 2), role.get("is_defense", False))
 
-    def _best_bets(self, players, opponent, team, n, lineup_confirmed, props_lkp=None):
+    def _best_bets(self, players, opponent, team, n, lineup_confirmed, props_lkp=None,
+                   game_total: float = LEAGUE_AVG_GAME_TOTAL):
         """
         props_lkp: dict cree par _build_real_props_lookup(real_props).
-        None  -> mode synthetique (retrocompat).
-        dict  -> mode reel; seules les lignes presentes chez DK sont evaluees.
+        game_total: total over/under du match (encode l'environnement de scoring).
         """
         opp_shots      = DEF_SHOTS_ALLOWED.get(opponent, LEAGUE_AVG_SHOTS)
         opp_ga         = DEF_GA_ALLOWED.get(opponent, LEAGUE_AVG_GA)
@@ -409,8 +419,12 @@ class PropsAnalyzer:
         shots_rank_opp = DEF_SHOTS_RANK.get(opponent, 16)
         ga_rank_opp    = DEF_GA_RANK.get(opponent, 16)
         b365_impl_pct  = B365_VIG_IMPL * 100
-        MIN_PROB, MAX_PROB, MIN_ODDS = 0.44, 0.59, 1.65  # Bande serree — evite les extremes
+        MIN_PROB, MAX_PROB, MIN_ODDS = 0.44, 0.59, 1.65
         use_real = props_lkp is not None
+
+        # Facteur d'environnement de scoring: total du match vs moyenne ligue
+        # Encode goalie, defense, attaque des deux equipes en un seul signal de marche
+        game_env_factor = game_total / LEAGUE_AVG_GAME_TOTAL
 
         candidates = []
         for p in players:
@@ -418,9 +432,17 @@ class PropsAnalyzer:
                 continue
 
             mult, pp_unit, line_num, is_defense = self._get_role_multiplier(p["name"], team)
-            shots_adj  = min(p["shots_pg"]  * shots_factor * mult, 8.0)
+
+            # Shots: facteur adversaire × environnement scoring (total du match)
+            shots_adj  = min(p["shots_pg"]  * shots_factor * game_env_factor * mult, 8.0)
             goals_adj  = min(p["goals_pg"]  * goals_factor * mult, 1.5)
-            points_adj = min(p["points_pg"] * ((shots_factor + goals_factor) / 2) * mult, 3.0)
+
+            # Points: part du joueur dans les buts attendus du match
+            # Modele scoring-share: player_pts / league_avg_ga × expected_team_goals
+            # Plus precis que avg × opp_factor car le total encode deja defense + attaque + gardien
+            player_pts_share = p["points_pg"] / LEAGUE_AVG_GA  # part historique du joueur
+            expected_team_goals = game_total / 2               # buts attendus pour son equipe
+            points_adj = min(player_pts_share * expected_team_goals * mult, 3.0)
 
             markets = []
 
@@ -436,7 +458,7 @@ class PropsAnalyzer:
                         sp = round(pv * 100, 1)
                         se = min(_edge(sp, dk_impl), MAX_EDGE_DISPLAY)
                         ratio = (sp / dk_impl) if dk_impl > 0 else 0
-                        if se >= MIN_EDGE_SHOTS and dk_odds >= MIN_ODDS and ratio <= MAX_DISAGREEMENT_RATIO:
+                        if se >= MIN_EDGE_SHOTS and dk_odds >= MIN_ODDS and ratio <= MAX_DISAGREEMENT_SHOTS:
                             markets.append({"type":"shots","label":"Shots Over "+str(sl),
                                 "prob":sp,"edge":se,"kelly":_kelly(sp, dk_impl/100, dk_odds),
                                 "est_odds":dk_odds,"dk_implied":round(dk_impl,1),
@@ -474,7 +496,7 @@ class PropsAnalyzer:
                         gp = round(pv * 100, 1)
                         ge = min(_edge(gp, dk_impl), MAX_EDGE_DISPLAY)
                         ratio_g = (gp / dk_impl) if dk_impl > 0 else 0
-                        if ge >= MIN_EDGE and dk_odds >= MIN_ODDS and ratio_g <= MAX_DISAGREEMENT_RATIO:
+                        if ge >= MIN_EDGE and dk_odds >= MIN_ODDS and ratio_g <= MAX_DISAGREEMENT_GOALS:
                             markets.append({"type":"goals","label":gl,
                                 "prob":gp,"edge":ge,"kelly":_kelly(gp, dk_impl/100, dk_odds),
                                 "est_odds":dk_odds,"dk_implied":round(dk_impl,1),
@@ -506,7 +528,7 @@ class PropsAnalyzer:
                         pp2 = round(pv * 100, 1)
                         pe = min(_edge(pp2, dk_impl), MAX_EDGE_DISPLAY)
                         ratio_p = (pp2 / dk_impl) if dk_impl > 0 else 0
-                        if pe >= MIN_EDGE and dk_odds >= MIN_ODDS and ratio_p <= MAX_DISAGREEMENT_RATIO:
+                        if pe >= MIN_EDGE and dk_odds >= MIN_ODDS and ratio_p <= MAX_DISAGREEMENT_POINTS:
                             markets.append({"type":"points","label":pl,
                                 "prob":pp2,"edge":pe,"kelly":_kelly(pp2, dk_impl/100, dk_odds),
                                 "est_odds":dk_odds,"dk_implied":round(dk_impl,1),
