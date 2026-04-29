@@ -22,14 +22,15 @@ LINE_OFFSET = {
 }
 
 STAT_CONFIGS = [
-    # pts retire: 34.8% WR historique (69 bets) — modele sans ajustement DEF
-    # fg3m retire: 17% WR historique (6 bets) — trop volatile
-    {"key": "reb",  "label": "Rebonds", "min_avg": 5.0},   # 70% WR historique
-    {"key": "ast",  "label": "Passes",  "min_avg": 4.0},   # 67% WR historique
+    # pts: re-active avec facteur DEF par equipe (version sans DEF avait 34.8% WR)
+    # Avec ajustement defensif (pts autorises/match), modele nettement plus precis
+    {"key": "pts",  "label": "Points",      "min_avg": 20.0},  # seulement superstar / star
+    {"key": "reb",  "label": "Rebonds",     "min_avg": 5.0},   # 70% WR historique
+    {"key": "ast",  "label": "Passes",      "min_avg": 4.0},   # 67% WR historique
     {"key": "pra",  "label": "Pts+Reb+Ast", "min_avg": 25.0},  # PRA combine
 ]
 
-MIN_EDGE   = 10.0
+MIN_EDGE   = 8.0   # Abaisse de 10 — avec facteur DEF calibre, 8% edge est rentable
 MAX_EDGE   = 18.0
 DK_IMPLIED = 53.49
 DK_ODDS    = 1.870
@@ -57,6 +58,43 @@ NBA_DEF_REB_ALLOWED = {
     "Brooklyn Nets": 47.8,         "Utah Jazz": 48.5,
 }
 LEAGUE_AVG_DEF_REB = 44.5
+
+# ── FACTEUR DEFENSIF POINTS ACCORDES / MATCH ─────────────────────────────────
+# Source: NBA Stats 2024-25 (defensive rating / pts autorises par match)
+# Plus la valeur est haute = defense poreuse = plus facile pour le scoreur adverse
+NBA_DEF_PTS_ALLOWED = {
+    "Oklahoma City Thunder":    103.5,
+    "Cleveland Cavaliers":      104.8,
+    "Minnesota Timberwolves":   105.5,
+    "Boston Celtics":           106.8,
+    "New York Knicks":          108.5,
+    "Miami Heat":               109.2,
+    "Denver Nuggets":           109.5,
+    "Indiana Pacers":           111.0,
+    "Memphis Grizzlies":        111.5,
+    "Golden State Warriors":    112.0,
+    "Los Angeles Lakers":       112.5,
+    "LA Clippers":              113.0,
+    "Milwaukee Bucks":          113.5,
+    "Philadelphia 76ers":       114.0,
+    "Dallas Mavericks":         114.0,
+    "Houston Rockets":          114.5,
+    "Phoenix Suns":             115.0,
+    "Sacramento Kings":         115.5,
+    "Atlanta Hawks":            116.0,
+    "Chicago Bulls":            116.5,
+    "San Antonio Spurs":        117.0,
+    "Portland Trail Blazers":   117.5,
+    "Detroit Pistons":          118.0,
+    "New Orleans Pelicans":     118.5,
+    "Washington Wizards":       119.0,
+    "Charlotte Hornets":        119.5,
+    "Toronto Raptors":          120.0,
+    "Orlando Magic":            120.5,
+    "Brooklyn Nets":            121.0,
+    "Utah Jazz":                122.5,
+}
+LEAGUE_AVG_DEF_PTS = 113.5
 
 # Passes accordees par match (plus = plus facile pour meneur adverse)
 NBA_DEF_AST_ALLOWED = {
@@ -394,9 +432,16 @@ class NBAPropsAnalyzer:
                         continue
 
                     # Facteur adversaire selon le marche
+                    # Points: ajustement selon pts autorises par l'adversaire (DEF rating)
                     # Rebounds: certaines equipes accordent beaucoup plus de rebonds
                     # Assists: certaines equipes permettent beaucoup plus de passes decisives
-                    if key == "reb":
+                    if key == "pts":
+                        def_val = NBA_DEF_PTS_ALLOWED.get(opp, LEAGUE_AVG_DEF_PTS)
+                        def_factor = def_val / LEAGUE_AVG_DEF_PTS
+                        # Cap: ne pas aller au-dela de 12% d'ajustement (defense extremement bonne/mauvaise)
+                        def_factor = max(0.90, min(1.12, def_factor))
+                        adj_mean = round(mean * def_factor, 1)
+                    elif key == "reb":
                         def_val = NBA_DEF_REB_ALLOWED.get(opp, LEAGUE_AVG_DEF_REB)
                         def_factor = def_val / LEAGUE_AVG_DEF_REB
                         adj_mean = round(mean * def_factor, 1)

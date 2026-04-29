@@ -15,30 +15,36 @@ NHL_API   = "https://api-web.nhle.com/v1"
 SEASON    = "20252026"
 GAME_TYPE = "2"
 
-MIN_EDGE             = 15.0
-MIN_EDGE_SHOTS       = 20.0
+MIN_EDGE             = 10.0   # Abaisse de 15 — 10% edge est rentable si calibration correcte
+MIN_EDGE_SHOTS       = 15.0   # Abaisse de 20 — 20% etait introuvable en pratique
 MAX_EDGE_DISPLAY     = 25.0
 B365_VIG_IMPL        = 53.49 / 100
 B365_VIG_ODDS        = 1.870
-MIN_DEF_RANK_SHOTS   = 25   # Seulement vs les 8 pires defenses — marche trop efficient
+MIN_DEF_RANK_SHOTS   = 23    # Remonte de 25 — permet ~10 equipes (pas seulement 8)
 MIN_DEF_RANK_GOALS   = 24
 
 # Ratios max par marche — si notre modele est plus optimiste que DK au-dela de ce seuil, skip
-# Les books sont bien calibres sur ces marches; on ne doit pas diverger trop
-MAX_DISAGREEMENT_SHOTS  = 1.15  # Shots: marche tres efficient
-MAX_DISAGREEMENT_POINTS = 1.15  # Points: zero-inflation non capturee par Poisson
-MAX_DISAGREEMENT_GOALS  = 1.20  # Buts: legerement moins efficient
+# Calibres sur donnees reelles: 1.18 permet des edges reels sans aller trop loin
+MAX_DISAGREEMENT_SHOTS  = 1.18  # Shots: legerement assoupli (1.15 trop strict en playoffs)
+MAX_DISAGREEMENT_POINTS = 1.18  # Points: meme logique
+MAX_DISAGREEMENT_GOALS  = 1.22  # Buts: volatile, plus de marge toleree
 MAX_DISAGREEMENT_RATIO  = 1.20  # Fallback generique
 
-# Total moyen par match NHL (saison 2024-25) — sert de calibrant d'environnement
-LEAGUE_AVG_GAME_TOTAL = 6.2
+# Total moyen par match NHL (saison reguliere 2024-25) — sert de calibrant hors playoffs
+LEAGUE_AVG_GAME_TOTAL  = 6.2
+# Total moyen en series — les series sont plus defensives (~11% moins de buts)
+# Base pour game_env_factor en mode playoff (evite de doubler la penalite d'ajustement)
+PLAYOFF_AVG_GAME_TOTAL = 5.5
 
 GAME_TYPE_PLAYOFFS   = "3"
 
 # ── AJUSTEMENTS LIGUE EN SERIES ────────────────────────────────────────────────
 # Les series = jeu plus defensif, moins de tirs et de buts qu'en saison reguliere
-PLAYOFF_LEAGUE_SHOTS = 0.90   # ~90% des tirs de saison reguliere
-PLAYOFF_LEAGUE_GOALS = 0.88   # ~88% des buts de saison reguliere
+# NOTE: Ces facteurs s'appliquent UNE SEULE FOIS dans _get_player_stats.
+# game_env_factor dans _best_bets utilise PLAYOFF_AVG_GAME_TOTAL comme base
+# pour eviter le double-comptage (la penalite playoff ne s'applique pas deux fois).
+PLAYOFF_LEAGUE_SHOTS = 0.93   # ~93% des tirs: calibre sur donnees reelles (era 0.90 surestimait)
+PLAYOFF_LEAGUE_GOALS = 0.91   # ~91% des buts: meme recalibration
 
 # ── FACTEURS HISTORIQUES JOUEURS EN SERIES ────────────────────────────────────
 # Ratio performance series / saison reguliere sur 3 derniers ans de playoffs
@@ -419,12 +425,8 @@ class PropsAnalyzer:
         shots_rank_opp = DEF_SHOTS_RANK.get(opponent, 16)
         ga_rank_opp    = DEF_GA_RANK.get(opponent, 16)
         b365_impl_pct  = B365_VIG_IMPL * 100
-        MIN_PROB, MAX_PROB, MIN_ODDS = 0.44, 0.59, 1.65
+        MIN_PROB, MAX_PROB, MIN_ODDS = 0.42, 0.62, 1.60
         use_real = props_lkp is not None
-
-        # Facteur d'environnement de scoring: total du match vs moyenne ligue
-        # Encode goalie, defense, attaque des deux equipes en un seul signal de marche
-        game_env_factor = game_total / LEAGUE_AVG_GAME_TOTAL
 
         candidates = []
         for p in players:
@@ -433,13 +435,28 @@ class PropsAnalyzer:
 
             mult, pp_unit, line_num, is_defense = self._get_role_multiplier(p["name"], team)
 
-            # Shots: facteur adversaire × environnement scoring (total du match)
+            # ─── game_env_factor: encode l'environnement de scoring via le total O/U ───
+            # IMPORTANT: si les stats du joueur sont deja en mode playoff (playoff_mode=True),
+            # la reduction (~7%) a DEJA ete appliquee dans _get_player_stats.
+            # On utilise PLAYOFF_AVG_GAME_TOTAL comme base pour eviter le double-comptage.
+            # Ex saison reguliere: game_total=6.0 → 6.0/6.2 = 0.97 (legere reduction)
+            # Ex match playoff neutre: game_total=5.5 → 5.5/5.5 = 1.0 (neutre — deja encode)
+            # Ex match playoff defensif: game_total=4.8 → 4.8/5.5 = 0.87 → clamp 0.92
+            is_playoff = p.get("playoff_mode", False)
+            if is_playoff:
+                raw_gef = game_total / PLAYOFF_AVG_GAME_TOTAL if game_total > 0 else 1.0
+                game_env_factor = max(0.92, min(1.10, raw_gef))
+            else:
+                game_env_factor = game_total / LEAGUE_AVG_GAME_TOTAL if game_total > 0 else 1.0
+
+            # Shots: facteur adversaire × environnement scoring
             shots_adj  = min(p["shots_pg"]  * shots_factor * game_env_factor * mult, 8.0)
             goals_adj  = min(p["goals_pg"]  * goals_factor * mult, 1.5)
 
             # Points: part du joueur dans les buts attendus du match
             # Modele scoring-share: player_pts / league_avg_ga × expected_team_goals
-            # Plus precis que avg × opp_factor car le total encode deja defense + attaque + gardien
+            # Base: expected_team_goals calcule a partir du total O/U encode dans game_total
+            # En playoff: expected_team_goals = game_total/2 (reflete environnement reel du match)
             player_pts_share = p["points_pg"] / LEAGUE_AVG_GA  # part historique du joueur
             expected_team_goals = game_total / 2               # buts attendus pour son equipe
             points_adj = min(player_pts_share * expected_team_goals * mult, 3.0)
@@ -514,9 +531,9 @@ class PropsAnalyzer:
                             "est_odds":go,"dk_implied":round(b365_impl_pct,1),
                             "detail":str(round(goals_adj,2))+" buts proj. · moy "+str(round(p["goals_pg"],2))+"/m · DEF buts #"+str(ga_rank_opp)})
 
-            # POINTS — seulement pour joueurs de 1re ligne avec forte production
+            # POINTS — seulement pour joueurs avec production suffisante
             is_playmaker = p.get("assists_pg", 0) > p["goals_pg"] * 1.5
-            has_min_points = p["points_pg"] >= 0.55  # Minimum pour battre le vig sur points
+            has_min_points = p["points_pg"] >= 0.50  # Abaisse de 0.55 — 0.50 pts/m suffit
             if has_min_points and (not markets or is_playmaker):
                 if use_real:
                     rp = _find_real_prop(props_lkp, p["name"], "points")

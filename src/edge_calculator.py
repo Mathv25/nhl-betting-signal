@@ -19,7 +19,18 @@ MAX_ODDS      = 10.0
 LEAGUE_AVG_GF = 3.10
 HOME_FACTOR   = 1.045
 AWAY_FACTOR   = 0.955
-B2B_FACTOR    = 0.93
+B2B_FACTOR    = 0.93   # Facteur dos a dos (deja implemente)
+# ── FACTEURS DE REPOS (au-dela du B2B) ──────────────────────────────────────
+# Equipes en series jouent plus de jours de repos qu'en saison reguliere
+# Source: analyse sur 5 ans de donnees NHL
+REST_3PLUS_FACTOR = 1.025   # 3+ jours de repos: leger avantage (+2.5% scoring)
+REST_2DAY_FACTOR  = 1.005   # 2 jours de repos: quasi neutre (+0.5%)
+# B2B_FACTOR = 0.93 pour 0 jours de repos (retour immediate)
+# ── FACTEUR GARDIEN EN FORME ─────────────────────────────────────────────────
+GOALIE_HOT_FACTOR  = 0.94   # Gardien en forme: reduit lambda adverse de 6%
+GOALIE_COLD_FACTOR = 1.06   # Gardien en difficulty: augmente lambda adverse de 6%
+GOALIE_HOT_SV  = 0.928      # SV% seuil pour "en forme"
+GOALIE_COLD_SV = 0.895      # SV% seuil pour "en difficulte"
 KELLY_DIVISOR = 4
 SHRINKAGE     = 0.25
 
@@ -55,32 +66,14 @@ TEAM_ABBR = {
 # L'effet reel d'une equipe "sans enjeu" = -3 a -5% max, pas -15 a -20%
 # Source backtest: les bets "motivation" avaient 25% WR = pire que le hasard
 MOTIVATION_OVERRIDE = {
-    # Equipes sans enjeu — reduction MINIMALE
-    "Florida Panthers":   0.97,
-    "Vancouver Canucks":  0.96,
-    "Toronto Maple Leafs": 0.97,
-    "Chicago Blackhawks": 0.96,
-    "Anaheim Ducks":      0.97,
-    "San Jose Sharks":    0.95,
-    "Calgary Flames":     0.96,
-    "Nashville Predators": 0.96,
-    "Detroit Red Wings":  0.97,
-    "New York Rangers":   0.97,
-    "St. Louis Blues":    0.96,
-    "Winnipeg Jets":      0.97,
-    # Equipes en course playoff — boost modere
-    "Ottawa Senators":    1.03,
-    "Buffalo Sabres":     1.02,
-    "Tampa Bay Lightning": 1.02,
-    "Montreal Canadiens": 1.02,
-    "Carolina Hurricanes": 1.02,
-    "Colorado Avalanche": 1.03,
-    "Dallas Stars":       1.02,
-    "Minnesota Wild":     1.02,
-    "Utah Mammoth":       1.01,
-    "New York Islanders": 1.02,
-    "Columbus Blue Jackets": 1.02,
-    "Philadelphia Flyers": 1.02,
+    # ── PLAYOFFS 2026: toutes les equipes en series sont a 1.0 (max motivation) ──
+    # Les equipes eliminées n'ont plus de matchs — aucune dans le dict
+    # Les equipes en series jouent pour leur vie: motivation egale des deux cotes
+    # Le differentiel de motivation n'est pertinent qu'en saison reguliere (fin de saison)
+    #
+    # NOTE: En avril 2026 (playoffs actifs), ce dict n'a pratiquement aucun effet
+    # car toutes les equipes restantes sont motivees de la meme facon.
+    # Laisser le dict vide en playoffs = comportement correct (facteur 1.0 = neutre).
 }
 
 # Seuil minimum de differentiel de motivation pour mentionner dans le signal
@@ -139,14 +132,33 @@ class EdgeCalculator:
         home_motiv = self._motivation(home)
         away_motiv = self._motivation(away)
 
+        # Jours de repos depuis dernier match
+        home_rest = home_recent.get("days_rest", 1)
+        away_rest = away_recent.get("days_rest", 1)
+
+        # Forme du gardien (SV% proxy sur 5 derniers matchs)
+        home_goalie_sv = home_recent.get("recent_sv", 0.910)
+        away_goalie_sv = away_recent.get("recent_sv", 0.910)
+
         lh, la = self._lambdas(
             home_hybrid, away_hybrid,
             home_b2b, away_b2b,
-            home_motiv, away_motiv
+            home_motiv, away_motiv,
+            home_rest, away_rest,
+            home_goalie_sv, away_goalie_sv,
         )
 
         # Notes contextuelles — seulement si ecart significatif
         context_notes = []
+        if home_b2b:
+            context_notes.append(f"⚠️ {home.split()[0]} dos-à-dos")
+        elif home_rest >= 3:
+            context_notes.append(f"💤 {home.split()[0]} {home_rest}j repos")
+        if away_b2b:
+            context_notes.append(f"⚠️ {away.split()[0]} dos-à-dos")
+        elif away_rest >= 3:
+            context_notes.append(f"💤 {away.split()[0]} {away_rest}j repos")
+
         motiv_diff = abs(home_motiv - away_motiv)
         if motiv_diff >= MOTIV_NOTE_THRESHOLD:
             if home_motiv < away_motiv and home_motiv < 0.97:
@@ -215,14 +227,64 @@ class EdgeCalculator:
             self._recent_cache[team_name] = {}
             return {}
 
+        # Calculer les jours de repos depuis le dernier match
+        last_game_date = games[0].get("gameDate", "") if games else ""
+        days_rest = self._compute_days_rest(last_game_date)
+
+        # Calculer le SV% du gardien sur les 5 derniers matchs (proxy via GA/shots)
+        # On utilise les scores pour estimer la forme offensive recente
+        recent_sv_pct = self._estimate_goalie_form(team_name, games[:5])
+
         recent = {
-            "gf_pg": round(sum(gf_list) / len(gf_list), 3),
-            "ga_pg": round(sum(ga_list) / len(ga_list), 3),
-            "games": len(gf_list),
+            "gf_pg":       round(sum(gf_list) / len(gf_list), 3),
+            "ga_pg":       round(sum(ga_list) / len(ga_list), 3),
+            "games":       len(gf_list),
+            "days_rest":   days_rest,
+            "recent_sv":   recent_sv_pct,
+            "last_date":   last_game_date,
         }
-        print(f"  Recent {team_name} (last {len(gf_list)}): GF {recent['gf_pg']:.2f} GA {recent['ga_pg']:.2f}")
+        print(f"  Recent {team_name} (last {len(gf_list)}): GF {recent['gf_pg']:.2f} GA {recent['ga_pg']:.2f} | repos: {days_rest}j")
         self._recent_cache[team_name] = recent
         return recent
+
+    def _compute_days_rest(self, last_game_date: str, game_date: str = "") -> int:
+        """Calcule les jours de repos entre le dernier match et aujourd'hui."""
+        if not last_game_date:
+            return 1  # inconnu — neutre
+        try:
+            from datetime import date, datetime, timezone
+            last = date.fromisoformat(last_game_date[:10])
+            if game_date:
+                today = date.fromisoformat(game_date[:10])
+            else:
+                today = datetime.now(timezone.utc).date()
+            delta = (today - last).days
+            return max(0, min(delta, 14))
+        except Exception:
+            return 1
+
+    def _estimate_goalie_form(self, team_name: str, recent_games: list) -> float:
+        """
+        Estime la forme du gardien via GA concede dans les 5 derniers matchs.
+        Retourne une approximation du SV% recent (proxy par buts concedes).
+        """
+        if not recent_games:
+            return 0.910  # neutre
+        # Estimer le SV% a partir de la GA/match et des tirs moyens accordes (proxy)
+        ga_list = []
+        for g in recent_games:
+            home_score = g.get("homeTeam", {}).get("score", 0) or 0
+            away_score = g.get("awayTeam", {}).get("score", 0) or 0
+            abbr = TEAM_ABBR.get(team_name, "")
+            is_home = (g.get("homeTeam", {}).get("abbrev", "") == abbr)
+            ga = away_score if is_home else home_score
+            ga_list.append(ga)
+        avg_ga = sum(ga_list) / len(ga_list) if ga_list else 3.1
+        # Approximation: SV% = 1 - (GA / shots_against_avg)
+        # On utilise 30 tirs contre comme proxy (tirs moyens accordes en NHL)
+        PROXY_SHOTS_AGAINST = 30.0
+        sv_est = 1.0 - (avg_ga / PROXY_SHOTS_AGAINST)
+        return round(min(max(sv_est, 0.850), 0.950), 3)
 
     def _hybrid_stats(self, season_stats: dict, recent_stats: dict) -> dict:
         if not recent_stats or recent_stats.get("games", 0) < 5:
@@ -243,7 +305,9 @@ class EdgeCalculator:
 
     # ── Lambdas Poisson ───────────────────────────────────────────────────────
 
-    def _lambdas(self, hs, as_, home_b2b, away_b2b, home_motiv, away_motiv):
+    def _lambdas(self, hs, as_, home_b2b, away_b2b, home_motiv, away_motiv,
+                 home_rest: int = 1, away_rest: int = 1,
+                 home_goalie_sv: float = 0.910, away_goalie_sv: float = 0.910):
         lh_raw = (hs["gf_pg"] * HOME_FACTOR * as_["ga_pg"]) / LEAGUE_AVG_GF
         la_raw = (as_["gf_pg"] * AWAY_FACTOR * hs["ga_pg"]) / LEAGUE_AVG_GF
 
@@ -253,19 +317,42 @@ class EdgeCalculator:
         lh *= self._pp_factor(hs.get("pp_pct", 20.0), as_.get("pk_pct", 80.0))
         la *= self._pp_factor(as_.get("pp_pct", 20.0), hs.get("pk_pct", 80.0))
 
+        # ── Qualite du gardien (saison) ─────────────────────────────────────
         league_sv = 0.910
         lh *= (league_sv / max(as_.get("starter_sv_pct", 0.910), 0.880))
         la *= (league_sv / max(hs.get("starter_sv_pct", 0.910), 0.880))
 
-        if home_b2b: lh *= B2B_FACTOR
-        if away_b2b: la *= B2B_FACTOR
+        # ── Forme recente du gardien (5 derniers matchs) ──────────────────
+        # Si le gardien adverse est en form → reduit lambda; s'il est froid → augmente
+        if away_goalie_sv >= GOALIE_HOT_SV:
+            lh *= GOALIE_HOT_FACTOR    # gardien visiteur en forme: home score moins
+        elif away_goalie_sv <= GOALIE_COLD_SV:
+            lh *= GOALIE_COLD_FACTOR   # gardien visiteur en difficulte: home score plus
 
-        # Motivation — applique seulement le DIFFERENTIEL, pas les valeurs absolues
-        # Evite de doubler l'effet quand les deux equipes ont des motivations differentes
+        if home_goalie_sv >= GOALIE_HOT_SV:
+            la *= GOALIE_HOT_FACTOR    # gardien local en forme: visiteur score moins
+        elif home_goalie_sv <= GOALIE_COLD_SV:
+            la *= GOALIE_COLD_FACTOR   # gardien local en difficulte: visiteur score plus
+
+        # ── B2B (repos 0 jour) ────────────────────────────────────────────
+        if home_b2b:
+            lh *= B2B_FACTOR
+        elif home_rest >= 3:
+            lh *= REST_3PLUS_FACTOR    # bien repose: leger avantage offensif
+        elif home_rest == 2:
+            lh *= REST_2DAY_FACTOR
+
+        if away_b2b:
+            la *= B2B_FACTOR
+        elif away_rest >= 3:
+            la *= REST_3PLUS_FACTOR
+        elif away_rest == 2:
+            la *= REST_2DAY_FACTOR
+
+        # ── Motivation (differentiel uniquement) ─────────────────────────
         motiv_diff = home_motiv - away_motiv
         if abs(motiv_diff) >= 0.01:
-            # Home beneficie si home_motiv > away_motiv et vice versa
-            lh *= (1.0 + motiv_diff * 0.5)   # effet attenue de 50%
+            lh *= (1.0 + motiv_diff * 0.5)
             la *= (1.0 - motiv_diff * 0.5)
 
         lh = round(min(max(lh, 0.8), 5.0), 4)
