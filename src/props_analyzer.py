@@ -87,6 +87,24 @@ PLAYOFF_FACTORS = {
     "evgeni malkin":     {"shots": 1.02, "goals": 1.05, "points": 1.08},
     "sidney crosby":     {"shots": 1.05, "goals": 1.10, "points": 1.15},
     "nico hischier":     {"shots": 1.02, "goals": 1.05, "points": 1.05},
+    # Grinders / vétérans playoffs
+    "brendan gallagher": {"shots": 1.10, "goals": 1.08, "points": 1.02},  # va au net, hype en séries
+    "ryan reaves":       {"shots": 1.05, "goals": 1.05, "points": 1.00},
+    "nick foligno":      {"shots": 1.05, "goals": 1.08, "points": 1.02},
+    "patrick maroon":    {"shots": 1.05, "goals": 1.10, "points": 1.00},  # big game player
+    "tyler toffoli":     {"shots": 1.05, "goals": 1.12, "points": 1.05},
+    "tanner pearson":    {"shots": 1.02, "goals": 1.05, "points": 1.02},
+    # PHI/PIT séries ce soir
+    "sean couturier":    {"shots": 1.05, "goals": 1.10, "points": 1.08},
+    "travis konecny":    {"shots": 1.05, "goals": 1.08, "points": 1.05},
+    "carter hart":       {"shots": 1.00, "goals": 0.90, "points": 0.90},
+    "evgeni malkin":     {"shots": 1.02, "goals": 1.05, "points": 1.08},
+    # UTA/VGK séries ce soir
+    "jack eichel":       {"shots": 1.05, "goals": 1.10, "points": 1.12},  # leadership Vegas
+    "mark stone":        {"shots": 1.08, "goals": 1.10, "points": 1.12},  # clutch player
+    "jonathan marchessault": {"shots": 1.05, "goals": 1.15, "points": 1.10},
+    "dylan guenther":    {"shots": 1.05, "goals": 1.08, "points": 1.05},
+    "clayton keller":    {"shots": 1.02, "goals": 1.05, "points": 1.05},
 }
 
 # ── LISTE BLESSURES MANUELLE ──────────────────────────────────────────────────
@@ -449,8 +467,24 @@ class PropsAnalyzer:
             else:
                 game_env_factor = game_total / LEAGUE_AVG_GAME_TOTAL if game_total > 0 else 1.0
 
-            # Shots: facteur adversaire × environnement scoring
-            shots_adj  = min(p["shots_pg"]  * shots_factor * game_env_factor * mult, 8.0)
+            # ── REGRESSION-TO-MEAN EN PLAYOFFS ────────────────────────────────────────
+            # Quand un joueur est >25% sous sa moyenne L5 ET en mode playoff,
+            # il y a une pression accrue d'elever son jeu (elimination, role de star).
+            # Insight utilisateur: Pastrnak sous moyenne en game elimination → retour attendu.
+            # Formule: max +8% tirant vers la moyenne, proportionnel a l'ecart.
+            last5_shots_raw = p.get("last5_shots", 0)
+            last5_avg_s = last5_shots_raw / 5 if last5_shots_raw else p["shots_pg"]
+            regression_boost = 1.0
+            regression_note = None
+            if is_playoff and p["shots_pg"] > 0 and last5_avg_s > 0:
+                ratio_l5 = last5_avg_s / p["shots_pg"]
+                if ratio_l5 < 0.75:  # >25% sous la moyenne L5
+                    regression_boost = min(1.08, 1.0 + (1.0 - ratio_l5) * 0.15)
+                    regression_note = (f"⚡ Régression attendue — L5: {round(last5_avg_s,1)}/m"
+                                       f" vs moy {p['shots_pg']}/m (+{round((regression_boost-1)*100)}%)")
+
+            # Shots: facteur adversaire × environnement scoring × régression playoffs
+            shots_adj  = min(p["shots_pg"]  * shots_factor * game_env_factor * mult * regression_boost, 8.0)
             goals_adj  = min(p["goals_pg"]  * goals_factor * mult, 1.5)
 
             # Points: part du joueur dans les buts attendus du match
@@ -576,6 +610,8 @@ class PropsAnalyzer:
                 p.get("season_goals",0), p.get("season_points",0),
                 opponent, shots_rank_opp, ga_rank_opp, pp_unit, line_num,
             )
+            if regression_note:
+                context_notes = [regression_note] + context_notes[:3]
 
             # Shots display: utilise la vraie ligne DK si disponible
             s_adj_display = round(min(p["shots_pg"] * shots_factor * mult, 8.0), 1)
