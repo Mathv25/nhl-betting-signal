@@ -52,7 +52,7 @@ jobs:
         run: |
           git config --global user.name "NHL Bot"
           git config --global user.email "bot@nhl.local"
-          git add docs/signal.json docs/index.html
+          git add docs/signal.json docs/index.html docs/results.json docs/archive/
           git diff --staged --quiet || git commit -m "Signal refresh $(date +'%Y-%m-%d %H:%M')"
           git pull --rebase origin main
           git push
