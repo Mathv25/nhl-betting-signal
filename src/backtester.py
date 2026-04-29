@@ -255,19 +255,32 @@ def get_nhl_player_id(player_name: str, team_name: str) -> Optional[int]:
 def get_nhl_player_game_stats(player_id: int, target_date: str,
                                expected_home: str = "", expected_away: str = "") -> Optional[dict]:
     """Retourne les stats du joueur sur target_date.
-    Si expected_home/away fournis, valide que le match correspond aux bonnes equipes
-    (evite de resoudre un prop avec les stats d'un match different)."""
-    data = _get(f"{NHL_API}/player/{player_id}/game-log/20252026/2")
-    time.sleep(0.3)
-    if not data:
-        return None
+    Tente SAISON REGULIERE (game_type=2) ET PLAYOFFS (game_type=3) car depuis avril
+    les props sont generes sur des matchs de series.
+    Si expected_home/away fournis, valide que le match correspond aux bonnes equipes."""
+    # Essayer playoffs d'abord si la date est >= avril (debut potentiel des series)
+    # puis saison reguliere comme fallback
+    for game_type in ("3", "2"):
+        data = _get(f"{NHL_API}/player/{player_id}/game-log/20252026/{game_type}")
+        time.sleep(0.3)
+        if not data:
+            continue
+        logs = data.get("gameLog", [])
+        if not logs:
+            continue
 
-    def _abbrevs_match(game_str: str, home_abbr: str, away_abbr: str) -> bool:
-        """Verifie que home_abbr et away_abbr sont dans la chaine de jeu NHL API."""
-        gs = game_str.upper()
-        return home_abbr.upper() in gs and away_abbr.upper() in gs
+        # Chercher le match sur la date cible
+        found = _find_game_log_on_date(logs, target_date, expected_home, expected_away)
+        if found is not None:
+            return found
 
-    for game in data.get("gameLog", []):
+    return None
+
+
+def _find_game_log_on_date(logs: list, target_date: str,
+                            expected_home: str = "", expected_away: str = "") -> Optional[dict]:
+    """Parcourt une liste de game-log NHL et retourne les stats du match sur target_date."""
+    for game in logs:
         if game.get("gameDate", "")[:10] != target_date:
             continue
 
@@ -278,7 +291,7 @@ def get_nhl_player_game_stats(player_id: int, target_date: str,
             opp    = game.get("opponentAbbrev", "")
             team_a = game.get("teamAbbrev", "")
             if h_abbr and a_abbr:
-                game_abbrevs = {opp.upper(), team_a.upper()}
+                game_abbrevs    = {opp.upper(), team_a.upper()}
                 expected_abbrevs = {h_abbr.upper(), a_abbr.upper()}
                 if not game_abbrevs.issubset(expected_abbrevs | {""}):
                     print(f"    ⚠ Match differe: {team_a} vs {opp} (attendu: {h_abbr} vs {a_abbr}) — skip")
