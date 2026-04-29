@@ -186,13 +186,18 @@ def resolve_team_bet(bet: dict, scores: dict) -> Optional[str]:
         if is_home(): return "W" if hs > as_ else "L"
         if is_away(): return "W" if as_ > hs else "L"
 
-    if "-1.5" in bet_str:
-        if is_home(): return "W" if diff >= 2 else "L"
-        if is_away(): return "W" if diff <= -2 else "L"
-
-    if "+1.5" in bet_str:
-        if is_home(): return "W" if diff >= -1 else "L"
-        if is_away(): return "W" if diff <= 1 else "L"
+    # Spreads: parser n'importe quelle valeur (+1.5, -1.5, +2.5, +3.5, etc.)
+    import re as _re
+    spread_m = _re.search(r'([+-]?\d+\.?\d*)', bet_str)
+    if spread_m and ("+" in bet_str or ("-" in bet_str and "ML" not in bet_upper)):
+        try:
+            spread = float(spread_m.group(1))
+            if is_home():
+                return "W" if diff + spread > 0 else ("P" if diff + spread == 0 else "L")
+            if is_away():
+                return "W" if -diff + spread > 0 else ("P" if -diff + spread == 0 else "L")
+        except Exception:
+            pass
 
     if "OVER" in bet_upper:
         try:
@@ -255,11 +260,22 @@ def get_nhl_player_id(player_name: str, team_name: str) -> Optional[int]:
 def get_nhl_player_game_stats(player_id: int, target_date: str,
                                expected_home: str = "", expected_away: str = "") -> Optional[dict]:
     """Retourne les stats du joueur sur target_date.
-    Tente SAISON REGULIERE (game_type=2) ET PLAYOFFS (game_type=3) car depuis avril
-    les props sont generes sur des matchs de series.
-    Si expected_home/away fournis, valide que le match correspond aux bonnes equipes."""
-    # Essayer playoffs d'abord si la date est >= avril (debut potentiel des series)
-    # puis saison reguliere comme fallback
+    Tente PLAYOFFS (game_type=3) ET SAISON REGULIERE (game_type=2).
+    Cherche aussi ±1 jour car les anciens signaux avaient un bug de date ET
+    (matchs du lendemain inclus dans le signal du jour precedent)."""
+    from datetime import date as _date, timedelta as _td
+
+    # Construire les dates candidates: target, +1 jour, -1 jour
+    try:
+        base = _date.fromisoformat(target_date)
+        dates_to_try = [
+            target_date,
+            (base + _td(days=1)).isoformat(),
+            (base - _td(days=1)).isoformat(),
+        ]
+    except Exception:
+        dates_to_try = [target_date]
+
     for game_type in ("3", "2"):
         data = _get(f"{NHL_API}/player/{player_id}/game-log/20252026/{game_type}")
         time.sleep(0.3)
@@ -269,10 +285,11 @@ def get_nhl_player_game_stats(player_id: int, target_date: str,
         if not logs:
             continue
 
-        # Chercher le match sur la date cible
-        found = _find_game_log_on_date(logs, target_date, expected_home, expected_away)
-        if found is not None:
-            return found
+        # Chercher d'abord sur la date exacte, puis ±1 jour
+        for d in dates_to_try:
+            found = _find_game_log_on_date(logs, d, expected_home, expected_away)
+            if found is not None:
+                return found
 
     return None
 
@@ -473,16 +490,31 @@ def resolve_nba_prop(bet: dict, target_date: str) -> Optional[str]:
             return None
 
     # Charger toutes les stats ESPN pour la date
-    all_stats = _load_espn_nba_date(target_date)
+    # Chercher sur target_date et ±1 jour (bug date ET dans anciens signaux)
+    from datetime import date as _date3, timedelta as _td3
+    try:
+        base_nba = _date3.fromisoformat(target_date)
+        nba_dates = [target_date,
+                     (base_nba + _td3(days=1)).isoformat(),
+                     (base_nba - _td3(days=1)).isoformat()]
+    except Exception:
+        nba_dates = [target_date]
 
-    # Chercher le joueur (exact puis par nom de famille)
-    player_stats = all_stats.get(name.lower())
-    if not player_stats:
-        last = name.lower().split()[-1] if name else ""
-        for pname, pstats in all_stats.items():
-            if last and len(last) > 3 and pname.split()[-1] == last:
-                player_stats = pstats
-                break
+    player_stats = None
+    found_date = target_date
+    for nba_d in nba_dates:
+        all_stats = _load_espn_nba_date(nba_d)
+        ps = all_stats.get(name.lower())
+        if not ps:
+            last = name.lower().split()[-1] if name else ""
+            for pname, pstats in all_stats.items():
+                if last and len(last) > 3 and pname.split()[-1] == last:
+                    ps = pstats
+                    break
+        if ps:
+            player_stats = ps
+            found_date = nba_d
+            break
 
     if not player_stats:
         print(f"    ⚠ Stats NBA ESPN introuvables: {name} pour {target_date}")
@@ -780,8 +812,20 @@ def retry_unresolved(results_data: dict, max_days: int = 14) -> int:
         bets_for_date = by_date[target_date]
         print(f"\n  Retry {target_date}: {len(bets_for_date)} bets en attente")
 
-        # Scores NHL (une seule fois par date)
-        nhl_scores = get_nhl_scores(target_date)
+        # Scores NHL: chercher aussi ±1 jour (bug date ET dans anciens signaux)
+        from datetime import date as _date2, timedelta as _td2
+        try:
+            base_d = _date2.fromisoformat(target_date)
+            adj_dates = [target_date,
+                         (base_d + _td2(days=1)).isoformat(),
+                         (base_d - _td2(days=1)).isoformat()]
+        except Exception:
+            adj_dates = [target_date]
+
+        nhl_scores = {}
+        for adj in adj_dates:
+            s = get_nhl_scores(adj)
+            nhl_scores.update(s)
 
         for bet in bets_for_date:
             sport    = bet.get("sport", "nhl")
