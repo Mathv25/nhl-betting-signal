@@ -87,13 +87,21 @@ PLAYOFF_FACTORS = {
     "evgeni malkin":     {"shots": 1.02, "goals": 1.05, "points": 1.08},
     "sidney crosby":     {"shots": 1.05, "goals": 1.10, "points": 1.15},
     "nico hischier":     {"shots": 1.02, "goals": 1.05, "points": 1.05},
-    # Grinders / vétérans playoffs
-    "brendan gallagher": {"shots": 1.10, "goals": 1.08, "points": 1.02},  # va au net, hype en séries
+    # Grinders / vétérans playoffs — seuils assouplis (voir PLAYOFF_GRINDERS)
+    "brendan gallagher": {"shots": 1.12, "goals": 1.08, "points": 1.02},  # validé 2026-04-29
     "ryan reaves":       {"shots": 1.05, "goals": 1.05, "points": 1.00},
-    "nick foligno":      {"shots": 1.05, "goals": 1.08, "points": 1.02},
+    "nick foligno":      {"shots": 1.08, "goals": 1.08, "points": 1.02},
     "patrick maroon":    {"shots": 1.05, "goals": 1.10, "points": 1.00},  # big game player
-    "tyler toffoli":     {"shots": 1.05, "goals": 1.12, "points": 1.05},
-    "tanner pearson":    {"shots": 1.02, "goals": 1.05, "points": 1.02},
+    "tyler toffoli":     {"shots": 1.08, "goals": 1.12, "points": 1.05},
+    "tanner pearson":    {"shots": 1.05, "goals": 1.05, "points": 1.02},
+    "josh anderson":     {"shots": 1.10, "goals": 1.08, "points": 1.00},  # MTL grinder
+    "joel armia":        {"shots": 1.05, "goals": 1.05, "points": 1.00},
+    "tom wilson":        {"shots": 1.08, "goals": 1.08, "points": 1.02},
+    "lars eller":        {"shots": 1.05, "goals": 1.05, "points": 1.00},
+    "nicolas deslauriers": {"shots": 1.05, "goals": 1.02, "points": 1.00},
+    "wayne simmonds":    {"shots": 1.05, "goals": 1.05, "points": 1.00},
+    "zach hyman":        {"shots": 1.08, "goals": 1.12, "points": 1.05},  # net-front EDM
+    "evan rodrigues":    {"shots": 1.05, "goals": 1.02, "points": 1.02},
     # PHI/PIT séries ce soir
     "sean couturier":    {"shots": 1.05, "goals": 1.10, "points": 1.08},
     "travis konecny":    {"shots": 1.05, "goals": 1.08, "points": 1.05},
@@ -105,6 +113,21 @@ PLAYOFF_FACTORS = {
     "jonathan marchessault": {"shots": 1.05, "goals": 1.15, "points": 1.10},
     "dylan guenther":    {"shots": 1.05, "goals": 1.08, "points": 1.05},
     "clayton keller":    {"shots": 1.02, "goals": 1.05, "points": 1.05},
+}
+
+# ── GRINDERS PLAYOFFS ─────────────────────────────────────────────────────────
+# Joueurs dont le style (net-front, physique, vétéran) génère des shots
+# indépendamment de la qualité défensive adverse en playoffs.
+# Seuils assouplis: shots_min 1.5 (vs 2.0) + filtre DEF_RANK ignoré.
+# Insight validé: Gallagher 2026-04-29 (shots payant malgré défense TBL).
+PLAYOFF_GRINDERS = {
+    "brendan gallagher", "josh anderson", "joel armia", "nicolas deslauriers",
+    "nick foligno", "tom wilson", "zach hyman", "ryan reaves",
+    "patrick maroon", "tyler toffoli", "wayne simmonds", "tanner pearson",
+    "lars eller", "evan rodrigues",
+    "sean couturier", "travis konecny",
+    "mark stone", "jonathan marchessault",
+    "jake guentzel", "brad marchand",
 }
 
 # ── LISTE BLESSURES MANUELLE ──────────────────────────────────────────────────
@@ -497,8 +520,13 @@ class PropsAnalyzer:
 
             markets = []
 
-            # SHOTS — seulement vs defense faible ET joueur avec moyenne solide
-            if shots_rank_opp >= MIN_DEF_RANK_SHOTS and p["shots_pg"] >= 2.0:
+            # Grinder playoff: seuils assouplis — valide quel que soit le rang défensif adverse
+            is_grinder = is_playoff and p["name"].lower() in PLAYOFF_GRINDERS
+            shots_min_threshold  = 1.5 if is_grinder else 2.0
+            shots_rank_threshold = 1   if is_grinder else MIN_DEF_RANK_SHOTS  # tous les matchups OK
+
+            # SHOTS — seuils standards, assouplis pour grinders playoffs
+            if shots_rank_opp >= shots_rank_threshold and p["shots_pg"] >= shots_min_threshold:
                 if use_real:
                     rp = _find_real_prop(props_lkp, p["name"], "shots")
                     if rp:
@@ -612,6 +640,8 @@ class PropsAnalyzer:
             )
             if regression_note:
                 context_notes = [regression_note] + context_notes[:3]
+            if is_grinder and not regression_note:
+                context_notes = ["💪 Grinder playoff — net-front, shots indép. de la défense"] + context_notes[:3]
 
             # Shots display: utilise la vraie ligne DK si disponible
             s_adj_display = round(min(p["shots_pg"] * shots_factor * mult, 8.0), 1)
