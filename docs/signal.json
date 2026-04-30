@@ -1,28 +1,54 @@
 {
-  "generated_at": "2026-04-30T02:47:36.590701+00:00",
-  "date": "2026-04-29",
+  "generated_at": "2026-04-30T06:29:26.503821+00:00",
+  "date": "2026-04-30",
   "bookmaker": "bet365",
   "total_games": 2,
-  "total_value_bets": 1,
+  "total_value_bets": 4,
   "signals": [
     {
       "game": {
-        "id": "5c15c0058458a00ae3cce4d5171e658e",
-        "home_team": "Philadelphia Flyers",
-        "away_team": "Pittsburgh Penguins",
-        "commence_time": "2026-04-29T23:50:00Z",
+        "id": "d91a1a692308bcc3e5e624a34c62ff28",
+        "home_team": "Minnesota Wild",
+        "away_team": "Dallas Stars",
+        "commence_time": "2026-04-30T23:10:00Z",
         "bookmaker": "draftkings",
         "markets": {
           "moneyline": {
-            "home": {
-              "team": "Philadelphia Flyers",
-              "odds_decimal": 1.95,
-              "implied_prob": 51.28
-            },
             "away": {
-              "team": "Pittsburgh Penguins",
-              "odds_decimal": 1.8,
-              "implied_prob": 55.56
+              "team": "Dallas Stars",
+              "odds_decimal": 2.02,
+              "implied_prob": 49.5
+            },
+            "home": {
+              "team": "Minnesota Wild",
+              "odds_decimal": 1.82,
+              "implied_prob": 54.95
+            }
+          },
+          "puck_line": {
+            "away": {
+              "team": "Dallas Stars",
+              "spread": 1.5,
+              "odds_decimal": 1.39,
+              "implied_prob": 71.94
+            },
+            "home": {
+              "team": "Minnesota Wild",
+              "spread": -1.5,
+              "odds_decimal": 3.1,
+              "implied_prob": 32.26
+            }
+          },
+          "totals": {
+            "over": {
+              "line": 5.5,
+              "odds_decimal": 1.85,
+              "implied_prob": 54.05
+            },
+            "under": {
+              "line": 5.5,
+              "odds_decimal": 1.98,
+              "implied_prob": 50.51
             }
           },
           "player_props": []
@@ -31,117 +57,620 @@
       },
       "edges": [
         {
-          "edge_pct": 11.86,
-          "edge_raw": 11.86,
-          "kelly_fraction": 3.06,
-          "verdict": "🔥 Forte valeur",
+          "edge_pct": 7.55,
+          "edge_raw": 7.55,
+          "kelly_fraction": 2.26,
+          "verdict": "✅ Bonne valeur",
           "type": "Moneyline",
-          "bet": "Philadelphia Flyers ML",
-          "our_prob": 57.4,
-          "b365_implied": 51.28,
-          "b365_odds": 1.95,
-          "game": "Pittsburgh Penguins @ Philadelphia Flyers",
-          "note": "vs Pittsburgh Penguins",
+          "bet": "Minnesota Wild ML",
+          "our_prob": 59.1,
+          "b365_implied": 54.95,
+          "b365_odds": 1.82,
+          "game": "Dallas Stars @ Minnesota Wild",
+          "note": "vs Dallas Stars",
+          "context_notes": []
+        },
+        {
+          "edge_pct": 9.52,
+          "edge_raw": 9.52,
+          "kelly_fraction": 1.09,
+          "verdict": "🔥 Forte valeur",
+          "type": "Puck Line",
+          "bet": "Minnesota Wild -1.5",
+          "our_prob": 35.3,
+          "b365_implied": 32.26,
+          "b365_odds": 3.1,
+          "game": "Dallas Stars @ Minnesota Wild",
+          "note": "Spread -1.5 buts",
           "context_notes": []
         }
       ]
     },
     {
       "game": {
-        "id": "4868659ab89eec9f59b336ce39d0d61e",
-        "home_team": "Vegas Golden Knights",
-        "away_team": "Utah Mammoth",
-        "commence_time": "2026-04-30T02:20:00Z",
+        "id": "d89705412ebe2b5f2281fb9e44b12459",
+        "home_team": "Anaheim Ducks",
+        "away_team": "Edmonton Oilers",
+        "commence_time": "2026-05-01T02:00:00Z",
         "bookmaker": "draftkings",
         "markets": {
           "moneyline": {
-            "away": {
-              "team": "Utah Mammoth",
-              "odds_decimal": 2.35,
-              "implied_prob": 42.55
-            },
             "home": {
-              "team": "Vegas Golden Knights",
-              "odds_decimal": 1.57,
-              "implied_prob": 63.69
+              "team": "Anaheim Ducks",
+              "odds_decimal": 2.1,
+              "implied_prob": 47.62
+            },
+            "away": {
+              "team": "Edmonton Oilers",
+              "odds_decimal": 1.77,
+              "implied_prob": 56.5
             }
           },
           "puck_line": {
-            "away": {
-              "team": "Utah Mammoth",
-              "spread": 1.5,
-              "odds_decimal": 1.56,
-              "implied_prob": 64.1
-            },
             "home": {
-              "team": "Vegas Golden Knights",
+              "team": "Anaheim Ducks",
+              "spread": 1.5,
+              "odds_decimal": 1.46,
+              "implied_prob": 68.49
+            },
+            "away": {
+              "team": "Edmonton Oilers",
               "spread": -1.5,
-              "odds_decimal": 2.4,
-              "implied_prob": 41.67
+              "odds_decimal": 2.8,
+              "implied_prob": 35.71
             }
           },
           "totals": {
             "over": {
-              "line": 5.5,
-              "odds_decimal": 2.35,
-              "implied_prob": 42.55
+              "line": 6.5,
+              "odds_decimal": 1.62,
+              "implied_prob": 61.73
             },
             "under": {
-              "line": 5.5,
-              "odds_decimal": 1.57,
-              "implied_prob": 63.69
+              "line": 6.5,
+              "odds_decimal": 2.36,
+              "implied_prob": 42.37
             }
           },
           "player_props": []
         },
         "removed_props": []
       },
-      "edges": []
+      "edges": [
+        {
+          "edge_pct": 14.94,
+          "edge_raw": 14.94,
+          "kelly_fraction": 4.75,
+          "verdict": "🔥 Forte valeur",
+          "type": "Moneyline",
+          "bet": "Edmonton Oilers ML",
+          "our_prob": 64.9,
+          "b365_implied": 56.5,
+          "b365_odds": 1.77,
+          "game": "Edmonton Oilers @ Anaheim Ducks",
+          "note": "vs Anaheim Ducks",
+          "context_notes": []
+        },
+        {
+          "edge_pct": 12.0,
+          "edge_raw": 12.01,
+          "kelly_fraction": 1.6,
+          "verdict": "🔥 Forte valeur",
+          "type": "Puck Line",
+          "bet": "Edmonton Oilers -1.5",
+          "our_prob": 40.0,
+          "b365_implied": 35.71,
+          "b365_odds": 2.8,
+          "game": "Edmonton Oilers @ Anaheim Ducks",
+          "note": "Spread -1.5 buts",
+          "context_notes": []
+        }
+      ]
     }
   ],
   "value_bets": [
     {
-      "edge_pct": 11.86,
-      "edge_raw": 11.86,
-      "kelly_fraction": 3.06,
+      "edge_pct": 14.94,
+      "edge_raw": 14.94,
+      "kelly_fraction": 4.75,
       "verdict": "🔥 Forte valeur",
       "type": "Moneyline",
-      "bet": "Philadelphia Flyers ML",
-      "our_prob": 57.4,
-      "b365_implied": 51.28,
-      "b365_odds": 1.95,
-      "game": "Pittsburgh Penguins @ Philadelphia Flyers",
-      "note": "vs Pittsburgh Penguins",
+      "bet": "Edmonton Oilers ML",
+      "our_prob": 64.9,
+      "b365_implied": 56.5,
+      "b365_odds": 1.77,
+      "game": "Edmonton Oilers @ Anaheim Ducks",
+      "note": "vs Anaheim Ducks",
+      "context_notes": []
+    },
+    {
+      "edge_pct": 12.0,
+      "edge_raw": 12.01,
+      "kelly_fraction": 1.6,
+      "verdict": "🔥 Forte valeur",
+      "type": "Puck Line",
+      "bet": "Edmonton Oilers -1.5",
+      "our_prob": 40.0,
+      "b365_implied": 35.71,
+      "b365_odds": 2.8,
+      "game": "Edmonton Oilers @ Anaheim Ducks",
+      "note": "Spread -1.5 buts",
+      "context_notes": []
+    },
+    {
+      "edge_pct": 9.52,
+      "edge_raw": 9.52,
+      "kelly_fraction": 1.09,
+      "verdict": "🔥 Forte valeur",
+      "type": "Puck Line",
+      "bet": "Minnesota Wild -1.5",
+      "our_prob": 35.3,
+      "b365_implied": 32.26,
+      "b365_odds": 3.1,
+      "game": "Dallas Stars @ Minnesota Wild",
+      "note": "Spread -1.5 buts",
+      "context_notes": []
+    },
+    {
+      "edge_pct": 7.55,
+      "edge_raw": 7.55,
+      "kelly_fraction": 2.26,
+      "verdict": "✅ Bonne valeur",
+      "type": "Moneyline",
+      "bet": "Minnesota Wild ML",
+      "our_prob": 59.1,
+      "b365_implied": 54.95,
+      "b365_odds": 1.82,
+      "game": "Dallas Stars @ Minnesota Wild",
+      "note": "vs Dallas Stars",
       "context_notes": []
     }
   ],
-  "props_analysis": [],
-  "nba_analysis": [
+  "props_analysis": [
     {
-      "home_team": "Los Angeles Lakers",
-      "away_team": "Houston Rockets",
+      "home_team": "Minnesota Wild",
+      "away_team": "Dallas Stars",
+      "home_goalie": {
+        "name": "Filip Gustavsson",
+        "sv_pct": 0.855,
+        "saves_pg": 21.2,
+        "gaa": 3.64,
+        "confirmed": true
+      },
+      "away_goalie": {
+        "name": "Casey DeSmith",
+        "sv_pct": 0.89,
+        "saves_pg": 20.4,
+        "gaa": 2.64,
+        "confirmed": true
+      },
+      "home_def_shots": 29.0,
+      "away_def_shots": 27.5,
+      "home_def_ga": 2.95,
+      "away_def_ga": 2.7,
+      "home_shots_rank": 9,
+      "away_shots_rank": 4,
+      "home_ga_rank": 9,
+      "away_ga_rank": 4,
+      "lineup_confirmed": true,
       "bets": [
         {
-          "player": "LeBron James",
-          "team": "Los Angeles Lakers",
-          "opponent": "Houston Rockets",
-          "market": "Pts+Reb+Ast Over 38.5",
-          "stat_key": "pra",
-          "line": 38.5,
-          "avg10": 41.0,
-          "avg5": 41.0,
-          "adj_proj": 41.3,
-          "our_prob": 61.0,
-          "edge_pct": 16.4,
-          "kelly": 4.5,
+          "name": "Miro Heiskanen",
+          "position": "D",
+          "team": "Dallas Stars",
+          "opponent": "Minnesota Wild",
+          "toi": "31:17",
+          "n_games": 5,
+          "line_num": 2,
+          "pp_unit": 1,
+          "is_defense": true,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 64.6,
+          "edge_pct": 10.4,
+          "kelly": 3.7,
+          "market_detail": "1.04 pts proj. · moy 1.02/m",
+          "est_odds": 1.71,
+          "b365_implied": 58.5,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 64.6,
+              "edge": 10.4,
+              "kelly": 3.7,
+              "est_odds": 1.71,
+              "dk_implied": 58.5,
+              "detail": "1.04 pts proj. · moy 1.02/m"
+            }
+          ],
+          "shots_pg": 3.0,
+          "goals_pg": 0.32,
+          "points_pg": 1.02,
+          "shots_adj": 3.2,
+          "shots_line": 2.5,
+          "shots_prob": 62.0,
+          "shots_edge": 39.0,
+          "goals_adj": 0.35,
+          "points_adj": 1.1,
+          "last5_shots": 19,
+          "last10_shots": 19,
+          "last5_goals": 2,
+          "last5_points": 6,
+          "season_goals": 2,
+          "season_points": 6,
+          "opp_shots_rank": 9,
+          "opp_ga_rank": 9,
+          "context_notes": [
+            "⚡ PP1 — avantage numerique",
+            "🔥 Shots en hausse — 3.8/m last 5 vs 1.9/m last 10",
+            "6 pts dans ses 5 derniers matchs"
+          ]
+        }
+      ],
+      "retour_de_flamme": []
+    },
+    {
+      "home_team": "Anaheim Ducks",
+      "away_team": "Edmonton Oilers",
+      "home_goalie": {
+        "name": "Vyacheslav Buteyets",
+        "sv_pct": 0.769,
+        "saves_pg": 10.0,
+        "gaa": 9.0,
+        "confirmed": true
+      },
+      "away_goalie": {
+        "name": "Connor Ingram",
+        "sv_pct": 0.914,
+        "saves_pg": 21.8,
+        "gaa": 2.11,
+        "confirmed": true
+      },
+      "home_def_shots": 34.8,
+      "away_def_shots": 30.1,
+      "home_def_ga": 3.72,
+      "away_def_ga": 3.1,
+      "home_shots_rank": 31,
+      "away_shots_rank": 12,
+      "home_ga_rank": 31,
+      "away_ga_rank": 12,
+      "lineup_confirmed": true,
+      "bets": [
+        {
+          "name": "Kasperi Kapanen",
+          "position": "R",
+          "team": "Edmonton Oilers",
+          "opponent": "Anaheim Ducks",
+          "toi": "17:32",
+          "n_games": 5,
+          "line_num": 2,
+          "pp_unit": 0,
+          "is_defense": false,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 51.8,
+          "edge_pct": 16.1,
+          "kelly": 3.2,
+          "market_detail": "0.73 pts proj. · moy 0.7/m",
+          "est_odds": 2.24,
+          "b365_implied": 44.6,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 51.8,
+              "edge": 16.1,
+              "kelly": 3.2,
+              "est_odds": 2.24,
+              "dk_implied": 44.6,
+              "detail": "0.73 pts proj. · moy 0.7/m"
+            }
+          ],
+          "shots_pg": 2.2,
+          "goals_pg": 0.54,
+          "points_pg": 0.7,
+          "shots_adj": 2.4,
+          "shots_line": 1.5,
+          "shots_prob": 69.2,
+          "shots_edge": 20.3,
+          "goals_adj": 0.65,
+          "points_adj": 0.81,
+          "last5_shots": 14,
+          "last10_shots": 14,
+          "last5_goals": 4,
+          "last5_points": 5,
+          "season_goals": 4,
+          "season_points": 5,
+          "opp_shots_rank": 31,
+          "opp_ga_rank": 31,
+          "context_notes": [
+            "🔥 Shots en hausse — 2.8/m last 5 vs 1.4/m last 10",
+            "4 buts dans ses 5 derniers matchs",
+            "5 pts dans ses 5 derniers matchs",
+            "🎯 Matchup ideal — Anaheim Duck accorde 34.8 shots/m (#31)"
+          ]
+        },
+        {
+          "name": "John Carlson",
+          "position": "D",
+          "team": "Anaheim Ducks",
+          "opponent": "Edmonton Oilers",
+          "toi": "24:35",
+          "n_games": 5,
+          "line_num": 2,
+          "pp_unit": 0,
+          "is_defense": true,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 53.3,
+          "edge_pct": 12.0,
+          "kelly": 2.7,
+          "market_detail": "0.76 pts proj. · moy 0.81/m",
+          "est_odds": 2.1,
+          "b365_implied": 47.6,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 53.3,
+              "edge": 12.0,
+              "kelly": 2.7,
+              "est_odds": 2.1,
+              "dk_implied": 47.6,
+              "detail": "0.76 pts proj. · moy 0.81/m"
+            }
+          ],
+          "shots_pg": 2.0,
+          "goals_pg": 0.12,
+          "points_pg": 0.81,
+          "shots_adj": 1.8,
+          "shots_line": 1.5,
+          "shots_prob": 53.7,
+          "shots_edge": -15.7,
+          "goals_adj": 0.11,
+          "points_adj": 0.71,
+          "last5_shots": 9,
+          "last10_shots": 9,
+          "last5_goals": 0,
+          "last5_points": 4,
+          "season_goals": 0,
+          "season_points": 4,
+          "opp_shots_rank": 12,
+          "opp_ga_rank": 12,
+          "context_notes": [
+            "🔥 Shots en hausse — 1.8/m last 5 vs 0.9/m last 10"
+          ]
+        }
+      ],
+      "retour_de_flamme": []
+    }
+  ],
+  "nba_analysis": [
+    {
+      "home_team": "Philadelphia 76ers",
+      "away_team": "Boston Celtics",
+      "bets": [
+        {
+          "player": "Jayson Tatum",
+          "team": "Boston Celtics",
+          "opponent": "Philadelphia 76ers",
+          "market": "Points Over 25.5",
+          "stat_key": "pts",
+          "line": 25.5,
+          "avg10": 26.9,
+          "avg5": 26.9,
+          "adj_proj": 27.0,
+          "our_prob": 56.7,
+          "edge_pct": 8.2,
+          "kelly": 2.3,
           "est_odds": 1.91,
           "dk_implied": 52.4,
           "def_rank": 15,
           "context": []
         }
       ],
-      "commence_time": "2026-04-30T02:18:45Z"
+      "commence_time": "2026-05-01T00:10:00Z"
     }
   ],
-  "mlb_analysis": []
+  "mlb_analysis": [
+    {
+      "home_team": "Atlanta Braves",
+      "away_team": "Detroit Tigers",
+      "bets": [
+        {
+          "player": "Bryce Elder",
+          "team": "Atlanta Braves",
+          "opponent": "Detroit Tigers",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.8,
+          "adj_proj": 5.83,
+          "opp_k_rate": 21.6,
+          "park_factor": 1.02,
+          "our_prob": 66.7,
+          "edge_pct": 16.0,
+          "kelly": 5.4,
+          "est_odds": 1.74,
+          "dk_implied": 57.5,
+          "context": [
+            "Terrain: Neutre (PF 1.02)"
+          ]
+        }
+      ],
+      "commence_time": "2026-04-30T16:16:00Z"
+    },
+    {
+      "home_team": "Baltimore Orioles",
+      "away_team": "Houston Astros",
+      "bets": [
+        {
+          "player": "Adley Rutschman",
+          "team": "Baltimore Orioles",
+          "opponent": "Houston Astros",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.5",
+          "stat_key": "total_bases",
+          "line": 1.5,
+          "season_avg": 1.9,
+          "adj_proj": 1.972,
+          "opp_k_rate": null,
+          "opp_pitcher": "Hunter Brown",
+          "opp_pitcher_k": 7.2,
+          "platoon": "Switch hitter (avantage platoon)",
+          "park_factor": 1.04,
+          "our_prob": 49.0,
+          "edge_pct": 14.8,
+          "kelly": 2.7,
+          "est_odds": 2.34,
+          "dk_implied": 42.7,
+          "context": [
+            "vs Hunter Brown (7.2 K/dep) — Correct (7+ K/dep)",
+            "Switch hitter (avantage platoon)",
+            "Terrain: Favorable frappeurs (PF 1.04)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-04-30T16:36:00Z"
+    },
+    {
+      "home_team": "Pittsburgh Pirates",
+      "away_team": "St. Louis Cardinals",
+      "bets": [
+        {
+          "player": "Paul Skenes",
+          "team": "Pittsburgh Pirates",
+          "opponent": "St. Louis Cardinals",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.5",
+          "stat_key": "strikeouts",
+          "line": 6.5,
+          "season_avg": 8.8,
+          "adj_proj": 8.19,
+          "opp_k_rate": 20.0,
+          "park_factor": 0.97,
+          "our_prob": 67.0,
+          "edge_pct": 16.5,
+          "kelly": 5.6,
+          "est_odds": 1.74,
+          "dk_implied": 57.5,
+          "context": [
+            "Terrain: Neutre (PF 0.97)"
+          ]
+        }
+      ],
+      "commence_time": "2026-04-30T16:36:00Z"
+    },
+    {
+      "home_team": "Baltimore Orioles",
+      "away_team": "Houston Astros",
+      "bets": [
+        {
+          "player": "Grayson Rodriguez",
+          "team": "Baltimore Orioles",
+          "opponent": "Houston Astros",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 6.5,
+          "adj_proj": 5.59,
+          "opp_k_rate": 18.5,
+          "park_factor": 1.04,
+          "our_prob": 62.5,
+          "edge_pct": 18.8,
+          "kelly": 5.3,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Adversaire K%: 18.5% (difficile)",
+            "Terrain: Favorable frappeurs (PF 1.04)"
+          ]
+        },
+        {
+          "player": "Chris Bassitt",
+          "team": "Baltimore Orioles",
+          "opponent": "Houston Astros",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 6.5,
+          "adj_proj": 5.59,
+          "opp_k_rate": 18.5,
+          "park_factor": 1.04,
+          "our_prob": 62.5,
+          "edge_pct": 18.8,
+          "kelly": 5.3,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Adversaire K%: 18.5% (difficile)",
+            "Terrain: Favorable frappeurs (PF 1.04)"
+          ]
+        },
+        {
+          "player": "Adley Rutschman",
+          "team": "Baltimore Orioles",
+          "opponent": "Houston Astros",
+          "player_type": "batter",
+          "market": "Coups surs Over 0.5",
+          "stat_key": "hits",
+          "line": 0.5,
+          "season_avg": 1.2,
+          "adj_proj": 1.246,
+          "opp_k_rate": null,
+          "opp_pitcher": "Hunter Brown",
+          "opp_pitcher_k": 7.2,
+          "platoon": "Switch hitter (avantage platoon)",
+          "park_factor": 1.04,
+          "our_prob": 62.5,
+          "edge_pct": 18.8,
+          "kelly": 5.3,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Hunter Brown (7.2 K/dep) — Correct (7+ K/dep)",
+            "Switch hitter (avantage platoon)",
+            "Terrain: Favorable frappeurs (PF 1.04)",
+            "Confirmer lineup avant de parier"
+          ]
+        },
+        {
+          "player": "Cedric Mullins",
+          "team": "Baltimore Orioles",
+          "opponent": "Houston Astros",
+          "player_type": "batter",
+          "market": "Coups surs Over 0.5",
+          "stat_key": "hits",
+          "line": 0.5,
+          "season_avg": 1.2,
+          "adj_proj": 1.246,
+          "opp_k_rate": null,
+          "opp_pitcher": "Hunter Brown",
+          "opp_pitcher_k": 7.2,
+          "platoon": "Switch hitter (avantage platoon)",
+          "park_factor": 1.04,
+          "our_prob": 62.5,
+          "edge_pct": 18.8,
+          "kelly": 5.3,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Hunter Brown (7.2 K/dep) — Correct (7+ K/dep)",
+            "Switch hitter (avantage platoon)",
+            "Terrain: Favorable frappeurs (PF 1.04)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-04-30T19:46:00Z"
+    }
+  ]
 }
