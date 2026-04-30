@@ -674,6 +674,9 @@ def load_results() -> dict:
 
 def save_results(data: dict):
     os.makedirs(os.path.dirname(RESULTS_PATH), exist_ok=True)
+    # Toujours trier par date DESC pour que la vue performance affiche les plus récents en premier
+    if "bets" in data:
+        data["bets"] = sorted(data["bets"], key=lambda b: b.get("date", ""), reverse=True)
     with open(RESULTS_PATH, "w") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 

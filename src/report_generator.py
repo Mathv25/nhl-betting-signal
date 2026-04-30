@@ -1121,7 +1121,7 @@ class ReportGenerator:
             "h+=\"</div>\";}"
             "var resolved=bets.filter(function(b){return b.result==='W'||b.result==='L';});"
             "var pending=bets.filter(function(b){return b.result==='?';});"
-            "var recent=resolved.slice().reverse().slice(0,30);"
+            "var recent=resolved.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');}).slice(0,30);"
             "if(recent.length){"
             "h+=\"<div class='perf-section-title'>Historique recents (\"+resolved.length+\" resolus\";"
             "if(pending.length)h+=\", \"+pending.length+\" en attente\";"
