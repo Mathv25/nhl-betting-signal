@@ -30,23 +30,6 @@ def main():
         print("ERREUR: Variable ODDS_API_KEY manquante.")
         sys.exit(1)
 
-    fetcher    = OddsFetcher(api_key)
-    checker    = LineupChecker()
-    lf_fetcher = LineupFetcher()
-    calc       = EdgeCalculator()
-    reporter   = ReportGenerator()
-    props_an   = PropsAnalyzer()
-    props_an._lineup_fetcher = lf_fetcher
-
-    # 1. Cotes DraftKings / bet365
-    print("\nRecuperation des cotes NHL...")
-    games = fetcher.get_nhl_games_b365()
-    if not games:
-        print("Aucun match NHL avec cotes DraftKings pour l'instant.")
-        print("Le signal existant est conserve. DraftKings poste les cotes en cours de journee.")
-        sys.exit(0)
-
-    # Filtrer uniquement les matchs d'aujourd'hui (ET)
     today_et = now_et.strftime("%Y-%m-%d")
     def is_today(ct):
         try:
@@ -55,64 +38,79 @@ def main():
             return dt.astimezone(tz).strftime("%Y-%m-%d") == today_et
         except Exception:
             return True
-    games_all = games
-    games = [g for g in games if is_today(g.get("commence_time", ""))]
-    if len(games) < len(games_all):
-        print(f"  Filtrage: {len(games_all)} matchs recus -> {len(games)} aujourd'hui ({today_et})")
-    if not games:
-        print("Aucun match NHL aujourd'hui.")
-        sys.exit(0)
-    print(f"{len(games)} match(s) trouve(s)")
 
-    # 2. Validation alignements NHL.com
-    print("\nValidation des alignements NHL.com...")
-    games = checker.validate_players(games)
+    fetcher    = OddsFetcher(api_key)
+    checker    = LineupChecker()
+    lf_fetcher = LineupFetcher()
+    calc       = EdgeCalculator()
+    reporter   = ReportGenerator()
+    props_an   = PropsAnalyzer()
+    props_an._lineup_fetcher = lf_fetcher
 
-    # Partage du cache roster entre tous les modules — evite les 429
-    props_an._roster_cache   = checker._roster_cache
-    lf_fetcher._roster_cache = checker._roster_cache
-
-    # 3. Line combos Daily Faceoff (PP1/PP2/lignes)
-    print("\nRecuperation des line combos Daily Faceoff...")
-    teams_today = set()
-    for game in games:
-        teams_today.add(game["home_team"])
-        teams_today.add(game["away_team"])
-    for team in sorted(teams_today):
-        lf_fetcher.get_lineup(team)
-        time.sleep(1.0)
-
-    # 4. Calcul des edges
-    print("\nCalcul des edges...")
-    signals = []
-    for game in games:
-        edges = calc.calculate_all_edges(game)
-        signals.append({"game": game, "edges": edges})
-        if edges:
-            print(f"  {game['away_team']} @ {game['home_team']}: {len(edges)} edge(s)")
-
-    # 5. Analyse props joueurs (top 8 matchs) — cotes DraftKings reelles
-    time.sleep(10)
-    print("\nAnalyse des props joueurs (top matchs)...")
-    top_games = sorted(signals, key=lambda s: len(s["edges"]), reverse=True)[:8]
+    # ── 1. NHL ────────────────────────────────────────────────────────────────
+    print("\nRecuperation des cotes NHL...")
+    games_raw  = fetcher.get_nhl_games_b365()
+    games      = []
+    signals    = []
     props_by_game = []
-    for s in top_games:
-        g = s["game"]
-        try:
-            book = g.get("bookmaker", "draftkings")
-            print(f"  Fetch props {book}: {g['away_team']} @ {g['home_team']}...")
-            real_props = fetcher.get_nhl_player_props(g["id"], bookmaker=book)
-            n_lines = sum(len(v) for v in real_props.values()) if real_props else 0
-            print(f"    -> {n_lines} lignes props disponibles ({list(real_props.keys()) if real_props else 'aucune'})")
-            game_total = g.get("markets", {}).get("totals", {}).get("over", {}).get("line")
-            analysis = props_an.analyze_game(g["home_team"], g["away_team"],
-                                             real_props=real_props, game_total=game_total)
-            if analysis.get("bets"):
-                props_by_game.append(analysis)
-        except Exception as e:
-            print(f"  Props erreur {g['home_team']}: {e}")
 
-    # 5b. NBA props
+    if not games_raw:
+        print("Aucun match NHL avec cotes pour l'instant — passage au MLB/NBA.")
+    else:
+        games_all = games_raw
+        games = [g for g in games_raw if is_today(g.get("commence_time", ""))]
+        if len(games) < len(games_all):
+            print(f"  Filtrage: {len(games_all)} matchs recus -> {len(games)} aujourd'hui ({today_et})")
+        if not games:
+            print("Aucun match NHL aujourd'hui — passage au MLB/NBA.")
+        else:
+            print(f"{len(games)} match(s) trouve(s)")
+
+            # 2. Validation alignements
+            print("\nValidation des alignements NHL.com...")
+            games = checker.validate_players(games)
+            props_an._roster_cache   = checker._roster_cache
+            lf_fetcher._roster_cache = checker._roster_cache
+
+            # 3. Line combos Daily Faceoff
+            print("\nRecuperation des line combos Daily Faceoff...")
+            teams_today = set()
+            for game in games:
+                teams_today.add(game["home_team"])
+                teams_today.add(game["away_team"])
+            for team in sorted(teams_today):
+                lf_fetcher.get_lineup(team)
+                time.sleep(1.0)
+
+            # 4. Edges
+            print("\nCalcul des edges...")
+            for game in games:
+                edges = calc.calculate_all_edges(game)
+                signals.append({"game": game, "edges": edges})
+                if edges:
+                    print(f"  {game['away_team']} @ {game['home_team']}: {len(edges)} edge(s)")
+
+            # 5. Props NHL
+            time.sleep(10)
+            print("\nAnalyse des props joueurs (top matchs)...")
+            top_games = sorted(signals, key=lambda s: len(s["edges"]), reverse=True)[:8]
+            for s in top_games:
+                g = s["game"]
+                try:
+                    book = g.get("bookmaker", "draftkings")
+                    print(f"  Fetch props {book}: {g['away_team']} @ {g['home_team']}...")
+                    real_props = fetcher.get_nhl_player_props(g["id"], bookmaker=book)
+                    n_lines = sum(len(v) for v in real_props.values()) if real_props else 0
+                    print(f"    -> {n_lines} lignes props disponibles")
+                    game_total = g.get("markets", {}).get("totals", {}).get("over", {}).get("line")
+                    analysis = props_an.analyze_game(g["home_team"], g["away_team"],
+                                                     real_props=real_props, game_total=game_total)
+                    if analysis.get("bets"):
+                        props_by_game.append(analysis)
+                except Exception as e:
+                    print(f"  Props erreur {g['home_team']}: {e}")
+
+    # ── 5b. NBA props ─────────────────────────────────────────────────────────
     time.sleep(5)
     print("\nAnalyse NBA props...")
     nba_fetcher  = NBAOddsFetcher(api_key)
@@ -132,13 +130,14 @@ def main():
                 analysis["commence_time"] = ng.get("commence_time", "")
                 nba_analysis.append(analysis)
 
-    # 5c. MLB props
+    # ── 5c. MLB props ─────────────────────────────────────────────────────────
     time.sleep(5)
     print("\nAnalyse MLB props...")
     mlb_fetcher  = MLBOddsFetcher(api_key)
     mlb_analyzer = MLBPropsAnalyzer()
     mlb_games    = [g for g in mlb_fetcher.get_mlb_games() if is_today(g.get("commence_time", ""))]
     mlb_analysis = []
+    print(f"  {len(mlb_games)} partie(s) MLB aujourd'hui ({today_et})")
     for mg in mlb_games[:10]:
         props_by_market = {}
         for market in ["pitcher_strikeouts", "batter_hits", "batter_total_bases", "batter_home_runs"]:
@@ -150,17 +149,23 @@ def main():
             analysis["commence_time"] = mg.get("commence_time", "")
             mlb_analysis.append(analysis)
 
-    # 6. Value bets — edge >= 5%, max 10
+    # ── 6. Vérification: au moins un sport a du contenu ───────────────────────
+    has_content = games or nba_games or mlb_games
+    if not has_content:
+        print("\nAucun match NHL/NBA/MLB aujourd'hui. Signal existant conserve.")
+        sys.exit(0)
+
+    # ── 7. Value bets NHL ─────────────────────────────────────────────────────
     value_bets = sorted(
         [e for s in signals for e in s["edges"] if e["edge_pct"] >= 5.0],
         key=lambda x: x["edge_pct"], reverse=True
     )[:10]
-    print(f"\n{len(value_bets)} bet(s) avec edge >= 5% (top 10)")
+    print(f"\n{len(value_bets)} bet(s) NHL avec edge >= 5% (top 10)")
 
-    # 7. Output
+    # ── 8. Output ─────────────────────────────────────────────────────────────
     output = {
         "generated_at":     datetime.now(timezone.utc).isoformat(),
-        "date":             now_et.strftime("%Y-%m-%d"),
+        "date":             today_et,
         "bookmaker":        "bet365",
         "total_games":      len(games),
         "total_value_bets": len(value_bets),
