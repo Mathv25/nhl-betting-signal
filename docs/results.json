@@ -13,7 +13,7 @@
       "b365_odds": 1.77,
       "b365_implied": 56.5,
       "kelly_fraction": 4.75,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-04-30|Edmonton Oilers @ Anaheim Ducks|Edmonton Oilers -1.5",
@@ -28,7 +28,7 @@
       "b365_odds": 2.8,
       "b365_implied": 35.71,
       "kelly_fraction": 1.6,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-04-30|Dallas Stars @ Minnesota Wild|Minnesota Wild -1.5",
@@ -43,7 +43,7 @@
       "b365_odds": 3.1,
       "b365_implied": 32.26,
       "kelly_fraction": 1.09,
-      "result": "?"
+      "result": "W"
     },
     {
       "id": "2026-04-30|Dallas Stars @ Minnesota Wild|Minnesota Wild ML",
@@ -58,7 +58,7 @@
       "b365_odds": 1.82,
       "b365_implied": 54.95,
       "kelly_fraction": 2.26,
-      "result": "?"
+      "result": "W"
     },
     {
       "id": "2026-04-30|prop_nhl|Miro Heiskanen|Points Over 0.5",
@@ -75,7 +75,7 @@
       "b365_odds": 1.71,
       "b365_implied": 58.5,
       "kelly_fraction": 3.7,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-04-30|prop_nhl|Kasperi Kapanen|Points Over 0.5",
@@ -92,7 +92,7 @@
       "b365_odds": 2.24,
       "b365_implied": 44.6,
       "kelly_fraction": 3.2,
-      "result": "?"
+      "result": "W"
     },
     {
       "id": "2026-04-30|prop_nba|Jayson Tatum|Points Over 25.5",
@@ -110,7 +110,7 @@
       "b365_odds": 1.94,
       "b365_implied": 51.5,
       "kelly_fraction": 2.7,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-04-30|prop_mlb|Bryce Elder|Retraits au baton Over 4.5",
@@ -309,6 +309,42 @@
       "b365_implied": 52.6,
       "kelly_fraction": 3.8,
       "result": "?"
+    },
+    {
+      "id": "2026-04-30|prop_mlb|Ronald Acuna Jr.|Coups surs Over 0.5",
+      "date": "2026-04-30",
+      "sport": "mlb",
+      "bet_type": "prop",
+      "market_type": "hits",
+      "game": "Detroit Tigers @ Atlanta Braves",
+      "name": "Ronald Acuna Jr.",
+      "team": "Atlanta Braves",
+      "line": 0.5,
+      "bet": "Ronald Acuna Jr. — Coups surs Over 0.5",
+      "edge_pct": 12.2,
+      "our_prob": 66.0,
+      "b365_odds": 1.7,
+      "b365_implied": 58.8,
+      "kelly_fraction": 4.4,
+      "result": "W"
+    },
+    {
+      "id": "2026-04-30|prop_mlb|Gunnar Henderson|Coups surs Over 0.5",
+      "date": "2026-04-30",
+      "sport": "mlb",
+      "bet_type": "prop",
+      "market_type": "hits",
+      "game": "Houston Astros @ Baltimore Orioles",
+      "name": "Gunnar Henderson",
+      "team": "Baltimore Orioles",
+      "line": 0.5,
+      "bet": "Gunnar Henderson — Coups surs Over 0.5",
+      "edge_pct": 19.5,
+      "our_prob": 61.3,
+      "b365_odds": 1.95,
+      "b365_implied": 51.3,
+      "kelly_fraction": 5.1,
+      "result": "W"
     },
     {
       "id": "2026-04-29|Pittsburgh Penguins @ Philadelphia Flyers|Philadelphia Flyers ML",
@@ -15314,30 +15350,50 @@
     }
   ],
   "summary": {
-    "total": 648,
-    "wins": 308,
-    "losses": 340,
-    "win_rate": 47.5,
-    "profit": -40.76,
-    "roi": -2.2,
+    "total": 657,
+    "wins": 313,
+    "losses": 344,
+    "win_rate": 47.6,
+    "profit": -38.25,
+    "roi": -2.0,
     "by_edge": {
       "15+": {
-        "n": 383,
-        "wins": 185,
-        "profit": 45.93
+        "n": 385,
+        "wins": 187,
+        "profit": 52.5
       },
       "8-15": {
-        "n": 235,
-        "wins": 112,
-        "profit": -68.87
+        "n": 241,
+        "wins": 114,
+        "profit": -74.78
       },
       "5-8": {
-        "n": 30,
-        "wins": 11,
-        "profit": -17.82
+        "n": 31,
+        "wins": 12,
+        "profit": -15.97
       }
     },
     "by_type": {
+      "nhl_moneyline": {
+        "n": 66,
+        "wins": 35,
+        "profit": 27.13
+      },
+      "nhl_puck line": {
+        "n": 56,
+        "wins": 41,
+        "profit": 53.48
+      },
+      "nhl_points": {
+        "n": 275,
+        "wins": 124,
+        "profit": -12.67
+      },
+      "nba_pts": {
+        "n": 110,
+        "wins": 42,
+        "profit": -90.68
+      },
       "mlb_strikeouts": {
         "n": 10,
         "wins": 6,
@@ -15349,29 +15405,14 @@
         "profit": -4.23
       },
       "mlb_hits": {
-        "n": 6,
-        "wins": 3,
-        "profit": 0.71
-      },
-      "nhl_moneyline": {
-        "n": 64,
-        "wins": 34,
-        "profit": 28.29
+        "n": 8,
+        "wins": 5,
+        "profit": 5.66
       },
       "nba_pra": {
         "n": 4,
         "wins": 1,
         "profit": -6.53
-      },
-      "nhl_puck line": {
-        "n": 54,
-        "wins": 40,
-        "profit": 52.79
-      },
-      "nhl_points": {
-        "n": 273,
-        "wins": 123,
-        "profit": -13.4
       },
       "nba_reb": {
         "n": 11,
@@ -15393,11 +15434,6 @@
         "wins": 1,
         "profit": -12.51
       },
-      "nba_pts": {
-        "n": 109,
-        "wins": 42,
-        "profit": -87.97
-      },
       "nhl_team": {
         "n": 8,
         "wins": 5,
@@ -15405,25 +15441,25 @@
       }
     },
     "by_sport": {
-      "mlb": {
-        "n": 60,
-        "wins": 29,
-        "losses": 31,
-        "profit": -0.67
-      },
       "nhl": {
-        "n": 455,
-        "wins": 225,
-        "losses": 230,
-        "profit": 54.22
+        "n": 461,
+        "wins": 228,
+        "losses": 233,
+        "profit": 54.48
       },
       "nba": {
-        "n": 133,
+        "n": 134,
         "wins": 54,
-        "losses": 79,
-        "profit": -94.32
+        "losses": 80,
+        "profit": -97.02
+      },
+      "mlb": {
+        "n": 62,
+        "wins": 31,
+        "losses": 31,
+        "profit": 4.27
       }
     },
-    "last_updated": "2026-04-30T22:46:06Z"
+    "last_updated": "2026-05-01T06:35:52Z"
   }
 }
