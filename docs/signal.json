@@ -1,42 +1,54 @@
 {
-  "generated_at": "2026-05-03T02:44:23.204050+00:00",
-  "date": "2026-05-02",
+  "generated_at": "2026-05-03T06:28:54.305348+00:00",
+  "date": "2026-05-03",
   "bookmaker": "bet365",
-  "total_games": 1,
-  "total_value_bets": 1,
+  "total_games": 2,
+  "total_value_bets": 2,
   "signals": [
     {
       "game": {
-        "id": "e525b26df615c89d31e7affabdb475e3",
-        "home_team": "Carolina Hurricanes",
-        "away_team": "Philadelphia Flyers",
-        "commence_time": "2026-05-03T00:15:00Z",
+        "id": "6ff22480704fc10dca4fb5f56513a4f4",
+        "home_team": "Tampa Bay Lightning",
+        "away_team": "Montréal Canadiens",
+        "commence_time": "2026-05-03T22:10:00Z",
         "bookmaker": "draftkings",
         "markets": {
-          "puck_line": {
-            "home": {
-              "team": "Carolina Hurricanes",
-              "spread": -3.5,
-              "odds_decimal": 1.57,
-              "implied_prob": 63.69
-            },
+          "moneyline": {
             "away": {
-              "team": "Philadelphia Flyers",
-              "spread": 3.5,
-              "odds_decimal": 2.35,
-              "implied_prob": 42.55
+              "team": "Montréal Canadiens",
+              "odds_decimal": 2.36,
+              "implied_prob": 42.37
+            },
+            "home": {
+              "team": "Tampa Bay Lightning",
+              "odds_decimal": 1.62,
+              "implied_prob": 61.73
+            }
+          },
+          "puck_line": {
+            "away": {
+              "team": "Montréal Canadiens",
+              "spread": 1.5,
+              "odds_decimal": 1.49,
+              "implied_prob": 67.11
+            },
+            "home": {
+              "team": "Tampa Bay Lightning",
+              "spread": -1.5,
+              "odds_decimal": 2.7,
+              "implied_prob": 37.04
             }
           },
           "totals": {
             "over": {
-              "line": 4.5,
-              "odds_decimal": 2.9,
-              "implied_prob": 34.48
+              "line": 5.5,
+              "odds_decimal": 2.24,
+              "implied_prob": 44.64
             },
             "under": {
-              "line": 4.5,
-              "odds_decimal": 1.4,
-              "implied_prob": 71.43
+              "line": 5.5,
+              "odds_decimal": 1.68,
+              "implied_prob": 59.52
             }
           },
           "player_props": []
@@ -45,281 +57,437 @@
       },
       "edges": [
         {
-          "edge_pct": 12.0,
-          "edge_raw": 92.71,
-          "kelly_fraction": 15.0,
-          "verdict": "🔥 Forte valeur",
+          "edge_pct": 6.33,
+          "edge_raw": 6.33,
+          "kelly_fraction": 1.11,
+          "verdict": "✅ Bonne valeur",
+          "type": "Moneyline",
+          "bet": "Montréal Canadiens ML",
+          "our_prob": 45.1,
+          "b365_implied": 42.37,
+          "b365_odds": 2.36,
+          "game": "Montréal Canadiens @ Tampa Bay Lightning",
+          "note": "vs Tampa Bay Lightning",
+          "context_notes": []
+        },
+        {
+          "edge_pct": 5.68,
+          "edge_raw": 5.68,
+          "kelly_fraction": 2.89,
+          "verdict": "✅ Bonne valeur",
           "type": "Puck Line",
-          "bet": "Philadelphia Flyers +3.5",
-          "our_prob": 82.0,
-          "b365_implied": 42.55,
-          "b365_odds": 2.35,
-          "game": "Philadelphia Flyers @ Carolina Hurricanes",
-          "note": "💤 Carolina 8j repos | 💤 Philadelphia 4j repos",
-          "context_notes": [
-            "💤 Carolina 8j repos",
-            "💤 Philadelphia 4j repos"
-          ]
+          "bet": "Montréal Canadiens +1.5",
+          "our_prob": 70.9,
+          "b365_implied": 67.11,
+          "b365_odds": 1.49,
+          "game": "Montréal Canadiens @ Tampa Bay Lightning",
+          "note": "Spread +1.5 buts",
+          "context_notes": []
         }
       ]
+    },
+    {
+      "game": {
+        "id": "dd40fd7156c9a60a0ce8365206fc9310",
+        "home_team": "Colorado Avalanche",
+        "away_team": "Minnesota Wild",
+        "commence_time": "2026-05-04T01:10:15Z",
+        "bookmaker": "draftkings",
+        "markets": {
+          "moneyline": {
+            "home": {
+              "team": "Colorado Avalanche",
+              "odds_decimal": 1.52,
+              "implied_prob": 65.79
+            },
+            "away": {
+              "team": "Minnesota Wild",
+              "odds_decimal": 2.6,
+              "implied_prob": 38.46
+            }
+          },
+          "puck_line": {
+            "home": {
+              "team": "Colorado Avalanche",
+              "spread": -1.5,
+              "odds_decimal": 2.4,
+              "implied_prob": 41.67
+            },
+            "away": {
+              "team": "Minnesota Wild",
+              "spread": 1.5,
+              "odds_decimal": 1.6,
+              "implied_prob": 62.5
+            }
+          },
+          "totals": {
+            "over": {
+              "line": 5.5,
+              "odds_decimal": 1.8,
+              "implied_prob": 55.56
+            },
+            "under": {
+              "line": 5.5,
+              "odds_decimal": 2.05,
+              "implied_prob": 48.78
+            }
+          },
+          "player_props": []
+        },
+        "removed_props": []
+      },
+      "edges": []
     }
   ],
   "value_bets": [
     {
-      "edge_pct": 12.0,
-      "edge_raw": 92.71,
-      "kelly_fraction": 15.0,
-      "verdict": "🔥 Forte valeur",
+      "edge_pct": 6.33,
+      "edge_raw": 6.33,
+      "kelly_fraction": 1.11,
+      "verdict": "✅ Bonne valeur",
+      "type": "Moneyline",
+      "bet": "Montréal Canadiens ML",
+      "our_prob": 45.1,
+      "b365_implied": 42.37,
+      "b365_odds": 2.36,
+      "game": "Montréal Canadiens @ Tampa Bay Lightning",
+      "note": "vs Tampa Bay Lightning",
+      "context_notes": []
+    },
+    {
+      "edge_pct": 5.68,
+      "edge_raw": 5.68,
+      "kelly_fraction": 2.89,
+      "verdict": "✅ Bonne valeur",
       "type": "Puck Line",
-      "bet": "Philadelphia Flyers +3.5",
-      "our_prob": 82.0,
-      "b365_implied": 42.55,
-      "b365_odds": 2.35,
-      "game": "Philadelphia Flyers @ Carolina Hurricanes",
-      "note": "💤 Carolina 8j repos | 💤 Philadelphia 4j repos",
-      "context_notes": [
-        "💤 Carolina 8j repos",
-        "💤 Philadelphia 4j repos"
-      ]
+      "bet": "Montréal Canadiens +1.5",
+      "our_prob": 70.9,
+      "b365_implied": 67.11,
+      "b365_odds": 1.49,
+      "game": "Montréal Canadiens @ Tampa Bay Lightning",
+      "note": "Spread +1.5 buts",
+      "context_notes": []
     }
   ],
-  "props_analysis": [],
-  "nba_analysis": [],
-  "mlb_analysis": [
+  "props_analysis": [
     {
-      "home_team": "Colorado Rockies",
-      "away_team": "Atlanta Braves",
+      "home_team": "Colorado Avalanche",
+      "away_team": "Minnesota Wild",
+      "home_goalie": {
+        "name": "Mackenzie Blackwood",
+        "sv_pct": 0.899,
+        "saves_pg": 22.5,
+        "gaa": 2.68,
+        "confirmed": true
+      },
+      "away_goalie": {
+        "name": "Filip Gustavsson",
+        "sv_pct": 0.855,
+        "saves_pg": 21.2,
+        "gaa": 3.64,
+        "confirmed": true
+      },
+      "home_def_shots": 28.2,
+      "away_def_shots": 29.0,
+      "home_def_ga": 2.8,
+      "away_def_ga": 2.95,
+      "home_shots_rank": 5,
+      "away_shots_rank": 9,
+      "home_ga_rank": 5,
+      "away_ga_rank": 9,
+      "lineup_confirmed": true,
       "bets": [
         {
-          "player": "Ronald Acuna Jr.",
-          "team": "Atlanta Braves",
-          "opponent": "Colorado Rockies",
+          "name": "Devon Toews",
+          "position": "D",
+          "team": "Colorado Avalanche",
+          "opponent": "Minnesota Wild",
+          "toi": "24:18",
+          "n_games": 4,
+          "line_num": 2,
+          "pp_unit": 1,
+          "is_defense": true,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 50.4,
+          "edge_pct": 10.8,
+          "kelly": 2.3,
+          "market_detail": "0.7 pts proj. · moy 0.69/m",
+          "est_odds": 2.2,
+          "b365_implied": 45.5,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 50.4,
+              "edge": 10.8,
+              "kelly": 2.3,
+              "est_odds": 2.2,
+              "dk_implied": 45.5,
+              "detail": "0.7 pts proj. · moy 0.69/m"
+            }
+          ],
+          "shots_pg": 1.3,
+          "goals_pg": 0.24,
+          "points_pg": 0.69,
+          "shots_adj": 1.4,
+          "shots_line": 1.5,
+          "shots_prob": 40.8,
+          "shots_edge": -27.8,
+          "goals_adj": 0.26,
+          "points_adj": 0.75,
+          "last5_shots": 4,
+          "last10_shots": 4,
+          "last5_goals": 1,
+          "last5_points": 3,
+          "season_goals": 1,
+          "season_points": 3,
+          "opp_shots_rank": 9,
+          "opp_ga_rank": 9,
+          "context_notes": [
+            "⚡ Régression attendue — L5: 0.8/m vs moy 1.3/m (+6%)",
+            "⚡ PP1 — avantage numerique",
+            "🔥 Shots en hausse — 0.8/m last 5 vs 0.4/m last 10"
+          ]
+        }
+      ],
+      "retour_de_flamme": []
+    }
+  ],
+  "nba_analysis": [
+    {
+      "home_team": "Detroit Pistons",
+      "away_team": "Orlando Magic",
+      "bets": [
+        {
+          "player": "Paolo Banchero",
+          "team": "Orlando Magic",
+          "opponent": "Detroit Pistons",
+          "market": "Points Over 23.5",
+          "stat_key": "pts",
+          "line": 23.5,
+          "avg10": 24.6,
+          "avg5": 24.6,
+          "adj_proj": 25.6,
+          "our_prob": 61.2,
+          "edge_pct": 16.8,
+          "kelly": 4.6,
+          "est_odds": 1.91,
+          "dk_implied": 52.4,
+          "def_rank": 15,
+          "context": []
+        },
+        {
+          "player": "Cade Cunningham",
+          "team": "Detroit Pistons",
+          "opponent": "Orlando Magic",
+          "market": "Passes Over 8.5",
+          "stat_key": "ast",
+          "line": 8.5,
+          "avg10": 9.0,
+          "avg5": 9.0,
+          "adj_proj": 9.8,
+          "our_prob": 59.2,
+          "edge_pct": 10.7,
+          "kelly": 3.1,
+          "est_odds": 1.87,
+          "dk_implied": 53.5,
+          "def_rank": 15,
+          "context": []
+        }
+      ],
+      "commence_time": "2026-05-03T19:40:00Z"
+    },
+    {
+      "home_team": "Cleveland Cavaliers",
+      "away_team": "Toronto Raptors",
+      "bets": [
+        {
+          "player": "Donovan Mitchell",
+          "team": "Cleveland Cavaliers",
+          "opponent": "Toronto Raptors",
+          "market": "Points Over 25.5",
+          "stat_key": "pts",
+          "line": 25.5,
+          "avg10": 26.0,
+          "avg5": 26.0,
+          "adj_proj": 27.5,
+          "our_prob": 59.8,
+          "edge_pct": 16.1,
+          "kelly": 4.3,
+          "est_odds": 1.94,
+          "dk_implied": 51.5,
+          "def_rank": 15,
+          "context": []
+        },
+        {
+          "player": "Evan Mobley",
+          "team": "Cleveland Cavaliers",
+          "opponent": "Toronto Raptors",
+          "market": "Rebonds Over 8.5",
+          "stat_key": "reb",
+          "line": 8.5,
+          "avg10": 9.4,
+          "avg5": 9.4,
+          "adj_proj": 10.0,
+          "our_prob": 63.1,
+          "edge_pct": 8.6,
+          "kelly": 3.0,
+          "est_odds": 1.72,
+          "dk_implied": 58.1,
+          "def_rank": 15,
+          "context": []
+        }
+      ],
+      "commence_time": "2026-05-03T23:40:00Z"
+    }
+  ],
+  "mlb_analysis": [
+    {
+      "home_team": "New York Yankees",
+      "away_team": "Baltimore Orioles",
+      "bets": [
+        {
+          "player": "Adley Rutschman",
+          "team": "Baltimore Orioles",
+          "opponent": "New York Yankees",
           "player_type": "batter",
           "market": "Buts totaux Over 1.5",
           "stat_key": "total_bases",
           "line": 1.5,
-          "season_avg": 2.4,
-          "adj_proj": 2.477,
+          "season_avg": 1.9,
+          "adj_proj": 1.933,
           "opp_k_rate": null,
-          "opp_pitcher": null,
-          "opp_pitcher_k": 7.5,
-          "platoon": "",
-          "park_factor": 1.15,
-          "our_prob": 63.0,
-          "edge_pct": 19.7,
-          "kelly": 5.6,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
+          "opp_pitcher": "Max Fried",
+          "opp_pitcher_k": 7.8,
+          "platoon": "Switch hitter (avantage platoon)",
+          "park_factor": 1.0,
+          "our_prob": 47.6,
+          "edge_pct": 15.3,
+          "kelly": 2.7,
+          "est_odds": 2.42,
+          "dk_implied": 41.3,
           "context": [
-            "Terrain: Tres favorable frappeurs (PF 1.15)",
-            "Confirmer lineup avant de parier"
-          ]
-        },
-        {
-          "player": "Bryce Elder",
-          "team": "Atlanta Braves",
-          "opponent": "Colorado Rockies",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 5.5",
-          "stat_key": "strikeouts",
-          "line": 5.5,
-          "season_avg": 5.8,
-          "adj_proj": 6.61,
-          "opp_k_rate": 24.5,
-          "park_factor": 1.15,
-          "our_prob": 61.0,
-          "edge_pct": 15.9,
-          "kelly": 4.5,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Adversaire K%: 24.5% (favorable)",
-            "Terrain: Tres favorable frappeurs (PF 1.15)"
-          ]
-        },
-        {
-          "player": "Austin Riley",
-          "team": "Atlanta Braves",
-          "opponent": "Colorado Rockies",
-          "player_type": "batter",
-          "market": "Coups surs Over 0.5",
-          "stat_key": "hits",
-          "line": 0.5,
-          "season_avg": 1.15,
-          "adj_proj": 1.187,
-          "opp_k_rate": null,
-          "opp_pitcher": null,
-          "opp_pitcher_k": 7.5,
-          "platoon": "",
-          "park_factor": 1.15,
-          "our_prob": 60.0,
-          "edge_pct": 14.0,
-          "kelly": 4.0,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Terrain: Tres favorable frappeurs (PF 1.15)",
-            "Confirmer lineup avant de parier"
-          ]
-        },
-        {
-          "player": "Michael Harris II",
-          "team": "Atlanta Braves",
-          "opponent": "Colorado Rockies",
-          "player_type": "batter",
-          "market": "Coups surs Over 0.5",
-          "stat_key": "hits",
-          "line": 0.5,
-          "season_avg": 1.15,
-          "adj_proj": 1.187,
-          "opp_k_rate": null,
-          "opp_pitcher": null,
-          "opp_pitcher_k": 7.5,
-          "platoon": "",
-          "park_factor": 1.15,
-          "our_prob": 60.0,
-          "edge_pct": 14.0,
-          "kelly": 4.0,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Terrain: Tres favorable frappeurs (PF 1.15)",
+            "vs Max Fried (7.8 K/dep) — Correct (7+ K/dep)",
+            "Switch hitter (avantage platoon)",
             "Confirmer lineup avant de parier"
           ]
         }
       ],
-      "commence_time": "2026-05-03T00:11:00Z"
+      "commence_time": "2026-05-03T17:36:00Z"
     },
     {
-      "home_team": "San Diego Padres",
-      "away_team": "Chicago White Sox",
+      "home_team": "Washington Nationals",
+      "away_team": "Milwaukee Brewers",
       "bets": [
         {
-          "player": "Dylan Cease",
-          "team": "San Diego Padres",
-          "opponent": "Chicago White Sox",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 7.0",
-          "stat_key": "strikeouts",
-          "line": 7.0,
-          "season_avg": 8.2,
-          "adj_proj": 8.31,
-          "opp_k_rate": 21.8,
-          "park_factor": 0.92,
-          "our_prob": 61.6,
-          "edge_pct": 17.0,
-          "kelly": 4.8,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Terrain: Tres favorable lanceurs (PF 0.92)"
-          ]
-        },
-        {
-          "player": "Joe Musgrove",
-          "team": "San Diego Padres",
-          "opponent": "Chicago White Sox",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 6.0",
-          "stat_key": "strikeouts",
-          "line": 6.0,
-          "season_avg": 7.0,
-          "adj_proj": 7.1,
-          "opp_k_rate": 21.8,
-          "park_factor": 0.92,
-          "our_prob": 60.1,
-          "edge_pct": 14.2,
-          "kelly": 4.1,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Terrain: Tres favorable lanceurs (PF 0.92)"
-          ]
-        },
-        {
-          "player": "Xander Bogaerts",
-          "team": "San Diego Padres",
-          "opponent": "Chicago White Sox",
-          "player_type": "batter",
-          "market": "Buts totaux Over 1.0",
-          "stat_key": "total_bases",
-          "line": 1.0,
-          "season_avg": 1.9,
-          "adj_proj": 1.762,
-          "opp_k_rate": null,
-          "opp_pitcher": "Chris Flexen",
-          "opp_pitcher_k": 5.5,
-          "platoon": "Platoon defavorable (R vs R)",
-          "park_factor": 0.92,
-          "our_prob": 60.1,
-          "edge_pct": 14.2,
-          "kelly": 4.1,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "vs Chris Flexen (5.5 K/dep) — Contact",
-            "Platoon defavorable (R vs R)",
-            "Terrain: Tres favorable lanceurs (PF 0.92)",
-            "Confirmer lineup avant de parier"
-          ]
-        },
-        {
-          "player": "Michael King",
-          "team": "San Diego Padres",
-          "opponent": "Chicago White Sox",
+          "player": "Brandon Woodruff",
+          "team": "Milwaukee Brewers",
+          "opponent": "Washington Nationals",
           "player_type": "pitcher",
           "market": "Retraits au baton Over 6.5",
           "stat_key": "strikeouts",
           "line": 6.5,
           "season_avg": 7.5,
-          "adj_proj": 7.6,
-          "opp_k_rate": 21.8,
-          "park_factor": 0.92,
-          "our_prob": 59.5,
-          "edge_pct": 13.1,
-          "kelly": 3.7,
+          "adj_proj": 7.85,
+          "opp_k_rate": 22.5,
+          "park_factor": 0.97,
+          "our_prob": 62.9,
+          "edge_pct": 19.5,
+          "kelly": 5.5,
           "est_odds": 1.909,
           "dk_implied": 52.6,
           "context": [
-            "Terrain: Tres favorable lanceurs (PF 0.92)"
+            "Terrain: Neutre (PF 0.97)"
+          ]
+        },
+        {
+          "player": "Freddy Peralta",
+          "team": "Milwaukee Brewers",
+          "opponent": "Washington Nationals",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 7.5",
+          "stat_key": "strikeouts",
+          "line": 7.5,
+          "season_avg": 8.5,
+          "adj_proj": 8.9,
+          "opp_k_rate": 22.5,
+          "park_factor": 0.97,
+          "our_prob": 62.0,
+          "edge_pct": 17.8,
+          "kelly": 5.0,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Neutre (PF 0.97)"
           ]
         }
       ],
-      "commence_time": "2026-05-03T00:41:00Z"
+      "commence_time": "2026-05-03T17:36:00Z"
     },
     {
-      "home_team": "Seattle Mariners",
-      "away_team": "Kansas City Royals",
+      "home_team": "St. Louis Cardinals",
+      "away_team": "Los Angeles Dodgers",
       "bets": [
         {
-          "player": "Bobby Witt Jr.",
-          "team": "Kansas City Royals",
-          "opponent": "Seattle Mariners",
+          "player": "Freddie Freeman",
+          "team": "Los Angeles Dodgers",
+          "opponent": "St. Louis Cardinals",
           "player_type": "batter",
-          "market": "Coups surs Over 0.5",
-          "stat_key": "hits",
-          "line": 0.5,
-          "season_avg": 1.3,
-          "adj_proj": 1.119,
+          "market": "Buts totaux Over 1.5",
+          "stat_key": "total_bases",
+          "line": 1.5,
+          "season_avg": 2.35,
+          "adj_proj": 2.412,
           "opp_k_rate": null,
-          "opp_pitcher": "Logan Gilbert",
+          "opp_pitcher": "Sonny Gray",
           "opp_pitcher_k": 7.8,
-          "platoon": "Platoon defavorable (R vs R)",
-          "park_factor": 0.95,
-          "our_prob": 56.8,
-          "edge_pct": 13.6,
-          "kelly": 3.4,
-          "est_odds": 2.0,
-          "dk_implied": 50.0,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 0.98,
+          "our_prob": 61.6,
+          "edge_pct": 17.6,
+          "kelly": 4.9,
+          "est_odds": 1.91,
+          "dk_implied": 52.4,
           "context": [
-            "vs Logan Gilbert (7.8 K/dep) — Correct (7+ K/dep)",
-            "Platoon defavorable (R vs R)",
-            "Terrain: Favorable lanceurs (PF 0.95)",
+            "vs Sonny Gray (7.8 K/dep) — Correct (7+ K/dep)",
+            "Platoon avantageux (L vs R)",
+            "Terrain: Neutre (PF 0.98)",
             "Confirmer lineup avant de parier"
           ]
         }
       ],
-      "commence_time": "2026-05-03T01:55:00Z"
+      "commence_time": "2026-05-03T18:16:00Z"
+    },
+    {
+      "home_team": "Chicago Cubs",
+      "away_team": "Arizona Diamondbacks",
+      "bets": [
+        {
+          "player": "Justin Steele",
+          "team": "Chicago Cubs",
+          "opponent": "Arizona Diamondbacks",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.0",
+          "stat_key": "strikeouts",
+          "line": 6.0,
+          "season_avg": 6.8,
+          "adj_proj": 7.27,
+          "opp_k_rate": 23.0,
+          "park_factor": 1.02,
+          "our_prob": 62.6,
+          "edge_pct": 18.9,
+          "kelly": 5.4,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Adversaire K%: 23.0% (favorable)",
+            "Terrain: Neutre (PF 1.02)"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-03T18:21:00Z"
     }
   ]
 }
