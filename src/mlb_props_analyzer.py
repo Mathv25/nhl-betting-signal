@@ -37,13 +37,13 @@ STAT_CONFIGS = [
     {"key": "home_runs",   "label": "Home Run",          "min_avg": 0.10, "player_type": "batter"},
 ]
 
-MIN_EDGE   = 12.0
-MAX_EDGE   = 22.0
+MIN_EDGE   = 8.0   # Abaisse de 12 — mode synthétique génère des edges 8-12%
+MAX_EDGE   = 30.0  # Relevé de 22 — évite de bloquer les lignes basses sur bons lanceurs
 DK_IMPLIED = 52.63
 DK_ODDS    = 1.909
 MAX_BETS   = 4
-# Si notre modele depasse DK de plus de 20%, le marche a raison — skip
-MAX_DISAGREEMENT_RATIO = 1.20
+# Si notre modele depasse DK de plus de 25%, le marche a raison — skip
+MAX_DISAGREEMENT_RATIO = 1.25
 
 _STAT_TO_MARKET = {
     "strikeouts":  "pitcher_strikeouts",
