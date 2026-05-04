@@ -14,7 +14,8 @@ from typing import Optional
 from nhl_stats import TeamStats, PlayerStats, LineupValidator
 
 MIN_EDGE_PCT  = 5.0   # Monte de 3 a 5 — les 3-5% perdent de l'argent
-MIN_ODDS      = 1.25
+MIN_ODDS      = 1.25  # Props/spreads: lignes naturellement basses
+MIN_ODDS_ML   = 1.70  # Moneyline: gros favoris < 1.70 = marché trop efficient
 MAX_ODDS      = 10.0
 LEAGUE_AVG_GF = 3.10
 HOME_FACTOR   = 1.045
@@ -374,6 +375,8 @@ class EdgeCalculator:
         for side, prob in [("home", hp), ("away", ap)]:
             m = market.get(side)
             if not m: continue
+            if m["odds_decimal"] < MIN_ODDS_ML:
+                continue  # Gros favoris ML: marché trop efficient, edge surestimé
             e = self._edge(prob, m["implied_prob"] / 100, m["odds_decimal"],
                            max_edge=MAX_EDGE_ML)
             if e:
