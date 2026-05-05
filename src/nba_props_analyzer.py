@@ -1,16 +1,21 @@
 """
-NBA Props Analyzer v4 - Stats 2024-25 hardcodees
-Blessures longues durees retirées de la liste
+NBA Props Analyzer v5 - Optimisation playoffs 2026
+Diagnostic: pts 38.2% WR (110 bets) → marché trop efficient + sur-projection playoffs
+Solution pro:
+  1. PLAYOFF_PTS_FACTOR: rythme playoff ~6% moins de possessions + défenses ciblées
+  2. Seuils d'edge différenciés par marché (pts strict, reb/ast assoupli)
+  3. fg3m désactivé en pratique (16.7% WR — variance trop élevée)
+  4. MAX_DISAGREEMENT serré sur pts, assoupli sur reb/ast
 """
 
 import math
 
 STD_FLOOR = {
     "pts":  0.22,
-    "reb":  0.30,
-    "ast":  0.35,
-    "fg3m": 0.45,
-    "pra":  0.20,  # PRA = pts+reb+ast, variance relative plus basse
+    "reb":  0.28,  # Légèrement réduit — rebonds plus prévisibles que pts
+    "ast":  0.32,  # Légèrement réduit — rôles plus stables en playoffs
+    "fg3m": 0.55,  # Élargi — variance extrême sur 3pts
+    "pra":  0.20,
 }
 
 LINE_OFFSET = {
@@ -22,21 +27,52 @@ LINE_OFFSET = {
 }
 
 STAT_CONFIGS = [
-    # pts: re-active avec facteur DEF par equipe (version sans DEF avait 34.8% WR)
-    # Avec ajustement defensif (pts autorises/match), modele nettement plus precis
-    {"key": "pts",  "label": "Points",      "min_avg": 20.0},  # seulement superstar / star
-    {"key": "reb",  "label": "Rebonds",     "min_avg": 5.0},   # 70% WR historique
-    {"key": "ast",  "label": "Passes",      "min_avg": 4.0},   # 67% WR historique
-    {"key": "pra",  "label": "Pts+Reb+Ast", "min_avg": 25.0},  # PRA combine
+    {"key": "pts",  "label": "Points",      "min_avg": 20.0},
+    {"key": "reb",  "label": "Rebonds",     "min_avg": 4.5},   # Abaissé de 5.0 → plus de bets
+    {"key": "ast",  "label": "Passes",      "min_avg": 3.5},   # Abaissé de 4.0 → plus de bets
+    {"key": "pra",  "label": "Pts+Reb+Ast", "min_avg": 25.0},
 ]
 
-MIN_EDGE   = 8.0   # Abaisse de 10 — avec facteur DEF calibre, 8% edge est rentable
-MAX_EDGE   = 18.0
+# ── SEUILS D'EDGE PAR MARCHÉ ──────────────────────────────────────────────────
+# pts: marché le plus efficient de la NBA → exige edge élevé pour filtrer le bruit
+# reb/ast: inefficiences réelles → seuil bas, historique validé (70%+ WR)
+# fg3m: variance extrême + 16.7% WR → seuil prohibitif = désactivation pratique
+# pra: combiné difficile à calibrer → seuil modéré
+MIN_EDGE_BY_MARKET = {
+    "pts":  13.0,
+    "reb":   5.0,
+    "ast":   5.0,
+    "fg3m": 25.0,  # Effectivement désactivé (quasi impossible à atteindre)
+    "pra":  12.0,
+}
+MAX_EDGE_BY_MARKET = {
+    "pts":  20.0,
+    "reb":  25.0,  # Assoupli — marché moins efficient
+    "ast":  25.0,
+    "fg3m": 30.0,
+    "pra":  22.0,
+}
+
+# ── FACTEUR PLAYOFF NBA ───────────────────────────────────────────────────────
+# En playoffs, le rythme baisse de ~6% (93-95 poss/48 min vs ~100 saison régulière)
+# + défenses ciblées sur les stars → projection pts réduite
+# Reb légèrement en hausse (plus de shots contestés), ast en baisse (plus d'iso)
+PLAYOFF_PTS_FACTOR = 0.90   # -10% : pace + defensive intensity playoffs
+PLAYOFF_REB_FACTOR = 1.03   # +3% : plus de rebonds offensifs et contestés
+PLAYOFF_AST_FACTOR = 0.95   # -5% : moins de ball movement, plus d'iso
+
+# ── MAX DISAGREEMENT PAR MARCHÉ ───────────────────────────────────────────────
+MAX_DISAGREEMENT_BY_MARKET = {
+    "pts":  1.15,  # Serré — DK très efficiente sur pts
+    "reb":  1.25,  # Assoupli — vrais inefficiences ici
+    "ast":  1.25,
+    "fg3m": 1.15,
+    "pra":  1.18,
+}
+
 DK_IMPLIED = 53.49
 DK_ODDS    = 1.870
-MAX_BETS   = 4
-# Si notre modele est >20% plus optimiste que DK, skip — le marche connait mieux
-MAX_DISAGREEMENT_RATIO = 1.20
+MAX_BETS   = 5  # Augmenté de 4 → permet plus de reb/ast sans cap brutal
 
 # ── FACTEURS DEFENSIFS NBA PAR EQUIPE ────────────────────────────────────────
 # Rebonds accordes par match (plus = plus facile pour rebondeur adverse)
@@ -435,32 +471,35 @@ class NBAPropsAnalyzer:
                     # Points: ajustement selon pts autorises par l'adversaire (DEF rating)
                     # Rebounds: certaines equipes accordent beaucoup plus de rebonds
                     # Assists: certaines equipes permettent beaucoup plus de passes decisives
+                    # ── Ajustement adversaire + facteur playoff ────────────────
                     if key == "pts":
                         def_val = NBA_DEF_PTS_ALLOWED.get(opp, LEAGUE_AVG_DEF_PTS)
-                        def_factor = def_val / LEAGUE_AVG_DEF_PTS
-                        # Cap: ne pas aller au-dela de 12% d'ajustement (defense extremement bonne/mauvaise)
-                        def_factor = max(0.90, min(1.12, def_factor))
-                        adj_mean = round(mean * def_factor, 1)
+                        def_factor = max(0.90, min(1.12, def_val / LEAGUE_AVG_DEF_PTS))
+                        adj_mean = round(mean * def_factor * PLAYOFF_PTS_FACTOR, 1)
                     elif key == "reb":
                         def_val = NBA_DEF_REB_ALLOWED.get(opp, LEAGUE_AVG_DEF_REB)
                         def_factor = def_val / LEAGUE_AVG_DEF_REB
-                        adj_mean = round(mean * def_factor, 1)
+                        adj_mean = round(mean * def_factor * PLAYOFF_REB_FACTOR, 1)
                     elif key == "ast":
                         def_val = NBA_DEF_AST_ALLOWED.get(opp, LEAGUE_AVG_DEF_AST)
                         def_factor = def_val / LEAGUE_AVG_DEF_AST
-                        adj_mean = round(mean * def_factor, 1)
+                        adj_mean = round(mean * def_factor * PLAYOFF_AST_FACTOR, 1)
                     elif key == "pra":
-                        # PRA: pts stables, reb et ast ajustes par defense adverse
                         reb_f = NBA_DEF_REB_ALLOWED.get(opp, LEAGUE_AVG_DEF_REB) / LEAGUE_AVG_DEF_REB
                         ast_f = NBA_DEF_AST_ALLOWED.get(opp, LEAGUE_AVG_DEF_AST) / LEAGUE_AVG_DEF_AST
-                        adj_pts = stats.get("pts", 0)
-                        adj_reb = stats.get("reb", 0) * reb_f
-                        adj_ast = stats.get("ast", 0) * ast_f
+                        adj_pts = stats.get("pts", 0) * PLAYOFF_PTS_FACTOR
+                        adj_reb = stats.get("reb", 0) * reb_f * PLAYOFF_REB_FACTOR
+                        adj_ast = stats.get("ast", 0) * ast_f * PLAYOFF_AST_FACTOR
                         adj_mean = round(adj_pts + adj_reb + adj_ast, 1)
                     else:
                         adj_mean = mean
 
                     std = _std(adj_mean, key)
+
+                    # Seuils par marché
+                    min_e = MIN_EDGE_BY_MARKET.get(key, 8.0)
+                    max_e = MAX_EDGE_BY_MARKET.get(key, 20.0)
+                    max_ratio = MAX_DISAGREEMENT_BY_MARKET.get(key, 1.20)
 
                     # Utilise la vraie ligne/cote DK si disponible
                     if use_real:
@@ -480,7 +519,7 @@ class NBAPropsAnalyzer:
                         prob     = _normal_over(adj_mean, std, line)
                         e        = _edge(prob, dk_impl)
                         ratio    = (prob / dk_impl) if dk_impl > 0 else 0
-                        if ratio > MAX_DISAGREEMENT_RATIO:
+                        if ratio > max_ratio:
                             continue
                     else:
                         line     = _estimate_line(adj_mean, key)
@@ -489,7 +528,7 @@ class NBAPropsAnalyzer:
                         prob     = _normal_over(adj_mean, std, line)
                         e        = _edge(prob, dk_impl)
 
-                    if not (MIN_EDGE <= e <= MAX_EDGE):
+                    if not (min_e <= e <= max_e):
                         continue
 
                     ev_bets.append({
