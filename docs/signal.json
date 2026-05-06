@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-05-05T22:55:33.243374+00:00",
+  "generated_at": "2026-05-06T02:40:14.161816+00:00",
   "date": "2026-05-05",
   "bookmaker": "bet365",
   "total_games": 1,
-  "total_value_bets": 0,
+  "total_value_bets": 1,
   "signals": [
     {
       "game": {
@@ -13,310 +13,284 @@
         "commence_time": "2026-05-06T00:10:08Z",
         "bookmaker": "draftkings",
         "markets": {
-          "moneyline": {
-            "home": {
-              "team": "Colorado Avalanche",
-              "odds_decimal": 1.51,
-              "implied_prob": 66.23
-            },
-            "away": {
-              "team": "Minnesota Wild",
-              "odds_decimal": 2.64,
-              "implied_prob": 37.88
-            }
-          },
           "puck_line": {
             "home": {
               "team": "Colorado Avalanche",
-              "spread": -1.5,
-              "odds_decimal": 2.24,
-              "implied_prob": 44.64
+              "spread": -2.5,
+              "odds_decimal": 1.6,
+              "implied_prob": 62.5
             },
             "away": {
               "team": "Minnesota Wild",
-              "spread": 1.5,
-              "odds_decimal": 1.68,
-              "implied_prob": 59.52
+              "spread": 2.5,
+              "odds_decimal": 2.3,
+              "implied_prob": 43.48
             }
           },
           "totals": {
             "over": {
               "line": 6.5,
-              "odds_decimal": 1.95,
-              "implied_prob": 51.28
+              "odds_decimal": 1.28,
+              "implied_prob": 78.12
             },
             "under": {
               "line": 6.5,
-              "odds_decimal": 1.87,
-              "implied_prob": 53.48
+              "odds_decimal": 3.6,
+              "implied_prob": 27.78
             }
           },
           "player_props": []
         },
         "removed_props": []
       },
-      "edges": []
+      "edges": [
+        {
+          "edge_pct": 12.0,
+          "edge_raw": 57.52,
+          "kelly_fraction": 10.62,
+          "verdict": "🔥 Forte valeur",
+          "type": "Puck Line",
+          "bet": "Minnesota Wild +2.5",
+          "our_prob": 68.5,
+          "b365_implied": 43.48,
+          "b365_odds": 2.3,
+          "game": "Minnesota Wild @ Colorado Avalanche",
+          "note": "Spread +2.5 buts",
+          "context_notes": []
+        }
+      ]
     }
   ],
-  "value_bets": [],
+  "value_bets": [
+    {
+      "edge_pct": 12.0,
+      "edge_raw": 57.52,
+      "kelly_fraction": 10.62,
+      "verdict": "🔥 Forte valeur",
+      "type": "Puck Line",
+      "bet": "Minnesota Wild +2.5",
+      "our_prob": 68.5,
+      "b365_implied": 43.48,
+      "b365_odds": 2.3,
+      "game": "Minnesota Wild @ Colorado Avalanche",
+      "note": "Spread +2.5 buts",
+      "context_notes": []
+    }
+  ],
   "props_analysis": [],
   "nba_analysis": [
     {
-      "home_team": "Detroit Pistons",
-      "away_team": "Cleveland Cavaliers",
+      "home_team": "Oklahoma City Thunder",
+      "away_team": "Los Angeles Lakers",
       "bets": [
         {
-          "player": "Jalen Duren",
-          "team": "Detroit Pistons",
-          "opponent": "Cleveland Cavaliers",
-          "market": "Rebonds Over 10.5",
-          "stat_key": "reb",
-          "line": 10.5,
-          "avg10": 12.5,
-          "avg5": 12.5,
-          "adj_proj": 12.3,
-          "our_prob": 64.7,
-          "edge_pct": 15.1,
-          "kelly": 4.9,
-          "est_odds": 1.78,
-          "dk_implied": 56.2,
-          "def_rank": 15,
-          "context": []
-        },
-        {
-          "player": "Max Strus",
-          "team": "Cleveland Cavaliers",
-          "opponent": "Detroit Pistons",
-          "market": "Rebonds Over 4.5",
-          "stat_key": "reb",
-          "line": 4.5,
-          "avg10": 4.6,
-          "avg5": 4.6,
-          "adj_proj": 5.0,
+          "player": "Shai Gilgeous-Alexander",
+          "team": "Oklahoma City Thunder",
+          "opponent": "Los Angeles Lakers",
+          "market": "Passes Over 5.5",
+          "stat_key": "ast",
+          "line": 5.5,
+          "avg10": 6.4,
+          "avg5": 6.4,
+          "adj_proj": 6.0,
           "our_prob": 50.0,
-          "edge_pct": 11.1,
-          "kelly": 2.3,
-          "est_odds": 2.22,
-          "dk_implied": 45.0,
+          "edge_pct": 14.9,
+          "kelly": 2.9,
+          "est_odds": 2.3,
+          "dk_implied": 43.5,
           "def_rank": 15,
           "context": []
         }
       ],
-      "commence_time": "2026-05-05T23:10:00Z"
+      "commence_time": "2026-05-06T00:43:02Z"
     }
   ],
   "mlb_analysis": [
     {
-      "home_team": "Philadelphia Phillies",
-      "away_team": "Athletics",
+      "home_team": "Chicago Cubs",
+      "away_team": "Cincinnati Reds",
       "bets": [
         {
-          "player": "Trea Turner",
-          "team": "Philadelphia Phillies",
-          "opponent": "Athletics",
-          "player_type": "batter",
-          "market": "Buts totaux Over 1.5",
-          "stat_key": "total_bases",
-          "line": 1.5,
-          "season_avg": 2.05,
-          "adj_proj": 1.968,
-          "opp_k_rate": null,
-          "opp_pitcher": null,
-          "opp_pitcher_k": 7.5,
-          "platoon": "",
-          "park_factor": 1.0,
-          "our_prob": 48.9,
-          "edge_pct": 19.9,
-          "kelly": 3.4,
-          "est_odds": 2.45,
-          "dk_implied": 40.8,
-          "context": [
-            "Confirmer lineup avant de parier"
-          ]
-        }
-      ],
-      "commence_time": "2026-05-05T22:41:00Z"
-    },
-    {
-      "home_team": "New York Yankees",
-      "away_team": "Texas Rangers",
-      "bets": [
-        {
-          "player": "Aaron Judge",
-          "team": "New York Yankees",
-          "opponent": "Texas Rangers",
-          "player_type": "batter",
-          "market": "Buts totaux Over 1.5",
-          "stat_key": "total_bases",
-          "line": 1.5,
-          "season_avg": 2.5,
-          "adj_proj": 2.3,
-          "opp_k_rate": null,
-          "opp_pitcher": "Nathan Eovaldi",
-          "opp_pitcher_k": 6.5,
-          "platoon": "Platoon defavorable (R vs R)",
-          "park_factor": 1.0,
-          "our_prob": 58.9,
-          "edge_pct": 17.8,
-          "kelly": 4.4,
-          "est_odds": 2.0,
-          "dk_implied": 50.0,
-          "context": [
-            "vs Nathan Eovaldi (6.5 K/dep) — Moyen",
-            "Platoon defavorable (R vs R)",
-            "Confirmer lineup avant de parier"
-          ]
-        },
-        {
-          "player": "Corey Seager",
-          "team": "Texas Rangers",
-          "opponent": "New York Yankees",
-          "player_type": "batter",
-          "market": "Buts totaux Over 1.5",
-          "stat_key": "total_bases",
-          "line": 1.5,
-          "season_avg": 2.3,
-          "adj_proj": 2.186,
-          "opp_k_rate": null,
-          "opp_pitcher": "Gerrit Cole",
-          "opp_pitcher_k": 8.5,
-          "platoon": "Platoon avantageux (L vs R)",
-          "park_factor": 1.0,
-          "our_prob": 55.8,
-          "edge_pct": 13.2,
-          "kelly": 3.2,
-          "est_odds": 2.03,
-          "dk_implied": 49.3,
-          "context": [
-            "vs Gerrit Cole (8.5 K/dep) — Elite (8.5+ K/dep)",
-            "Platoon avantageux (L vs R)",
-            "Confirmer lineup avant de parier"
-          ]
-        }
-      ],
-      "commence_time": "2026-05-05T23:06:00Z"
-    },
-    {
-      "home_team": "Kansas City Royals",
-      "away_team": "Cleveland Guardians",
-      "bets": [
-        {
-          "player": "Gavin Williams",
-          "team": "Cleveland Guardians",
-          "opponent": "Kansas City Royals",
+          "player": "Justin Steele",
+          "team": "Chicago Cubs",
+          "opponent": "Cincinnati Reds",
           "player_type": "pitcher",
           "market": "Retraits au baton Over 5.5",
           "stat_key": "strikeouts",
           "line": 5.5,
-          "season_avg": 7.0,
-          "adj_proj": 6.84,
-          "opp_k_rate": 21.0,
-          "park_factor": 0.99,
-          "our_prob": 64.5,
-          "edge_pct": 14.8,
-          "kelly": 4.7,
-          "est_odds": 1.78,
-          "dk_implied": 56.2,
+          "season_avg": 6.8,
+          "adj_proj": 6.8,
+          "opp_k_rate": 21.5,
+          "park_factor": 1.02,
+          "our_prob": 63.9,
+          "edge_pct": 21.4,
+          "kelly": 6.0,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
           "context": [
-            "Terrain: Neutre (PF 0.99)"
+            "Terrain: Neutre (PF 1.02)"
           ]
         },
         {
-          "player": "Jose Ramirez",
-          "team": "Cleveland Guardians",
-          "opponent": "Kansas City Royals",
+          "player": "Elly De La Cruz",
+          "team": "Cincinnati Reds",
+          "opponent": "Chicago Cubs",
           "player_type": "batter",
-          "market": "Buts totaux Over 1.5",
-          "stat_key": "total_bases",
-          "line": 1.5,
-          "season_avg": 2.2,
-          "adj_proj": 2.042,
+          "market": "Coups surs Over 0.5",
+          "stat_key": "hits",
+          "line": 0.5,
+          "season_avg": 1.15,
+          "adj_proj": 1.231,
           "opp_k_rate": null,
-          "opp_pitcher": "Cole Ragans",
-          "opp_pitcher_k": 8.5,
+          "opp_pitcher": "Justin Steele",
+          "opp_pitcher_k": 6.8,
           "platoon": "Switch hitter (avantage platoon)",
-          "park_factor": 0.99,
-          "our_prob": 51.4,
-          "edge_pct": 9.6,
-          "kelly": 2.1,
-          "est_odds": 2.13,
-          "dk_implied": 46.9,
+          "park_factor": 1.02,
+          "our_prob": 61.9,
+          "edge_pct": 17.6,
+          "kelly": 5.0,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
           "context": [
-            "vs Cole Ragans (8.5 K/dep) — Elite (8.5+ K/dep)",
+            "vs Justin Steele (6.8 K/dep) — Moyen",
             "Switch hitter (avantage platoon)",
-            "Terrain: Neutre (PF 0.99)",
+            "Terrain: Neutre (PF 1.02)",
             "Confirmer lineup avant de parier"
+          ]
+        },
+        {
+          "player": "Andrew Abbott",
+          "team": "Cincinnati Reds",
+          "opponent": "Chicago Cubs",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.5",
+          "stat_key": "strikeouts",
+          "line": 6.5,
+          "season_avg": 7.2,
+          "adj_proj": 7.77,
+          "opp_k_rate": 23.2,
+          "park_factor": 1.02,
+          "our_prob": 61.8,
+          "edge_pct": 17.4,
+          "kelly": 4.9,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Adversaire K%: 23.2% (favorable)",
+            "Terrain: Neutre (PF 1.02)"
+          ]
+        },
+        {
+          "player": "Kyle Hendricks",
+          "team": "Chicago Cubs",
+          "opponent": "Cincinnati Reds",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.5,
+          "adj_proj": 5.5,
+          "opp_k_rate": 21.5,
+          "park_factor": 1.02,
+          "our_prob": 60.9,
+          "edge_pct": 15.7,
+          "kelly": 4.5,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Neutre (PF 1.02)"
           ]
         }
       ],
-      "commence_time": "2026-05-05T23:41:00Z"
+      "commence_time": "2026-05-05T23:39:47Z"
     },
     {
-      "home_team": "Houston Astros",
-      "away_team": "Los Angeles Dodgers",
+      "home_team": "Seattle Mariners",
+      "away_team": "Atlanta Braves",
       "bets": [
         {
-          "player": "Freddie Freeman",
-          "team": "Los Angeles Dodgers",
-          "opponent": "Houston Astros",
+          "player": "Austin Riley",
+          "team": "Atlanta Braves",
+          "opponent": "Seattle Mariners",
           "player_type": "batter",
-          "market": "Buts totaux Over 1.5",
-          "stat_key": "total_bases",
-          "line": 1.5,
-          "season_avg": 2.35,
-          "adj_proj": 2.4,
+          "market": "Coups surs Over 0.5",
+          "stat_key": "hits",
+          "line": 0.5,
+          "season_avg": 1.15,
+          "adj_proj": 0.99,
           "opp_k_rate": null,
-          "opp_pitcher": "Hunter Brown",
+          "opp_pitcher": "George Kirby",
+          "opp_pitcher_k": 7.2,
+          "platoon": "Platoon defavorable (R vs R)",
+          "park_factor": 0.95,
+          "our_prob": 49.4,
+          "edge_pct": 21.1,
+          "kelly": 3.6,
+          "est_odds": 2.45,
+          "dk_implied": 40.8,
+          "context": [
+            "vs George Kirby (7.2 K/dep) — Correct (7+ K/dep)",
+            "Platoon defavorable (R vs R)",
+            "Terrain: Favorable lanceurs (PF 0.95)",
+            "Confirmer lineup avant de parier"
+          ]
+        },
+        {
+          "player": "Michael Harris II",
+          "team": "Atlanta Braves",
+          "opponent": "Seattle Mariners",
+          "player_type": "batter",
+          "market": "Coups surs Over 0.5",
+          "stat_key": "hits",
+          "line": 0.5,
+          "season_avg": 1.15,
+          "adj_proj": 1.163,
+          "opp_k_rate": null,
+          "opp_pitcher": "George Kirby",
           "opp_pitcher_k": 7.2,
           "platoon": "Platoon avantageux (L vs R)",
-          "park_factor": 0.97,
-          "our_prob": 61.3,
-          "edge_pct": 10.3,
-          "kelly": 3.2,
-          "est_odds": 1.8,
-          "dk_implied": 55.6,
+          "park_factor": 0.95,
+          "our_prob": 58.9,
+          "edge_pct": 20.7,
+          "kelly": 4.9,
+          "est_odds": 2.05,
+          "dk_implied": 48.8,
           "context": [
-            "vs Hunter Brown (7.2 K/dep) — Correct (7+ K/dep)",
+            "vs George Kirby (7.2 K/dep) — Correct (7+ K/dep)",
             "Platoon avantageux (L vs R)",
-            "Terrain: Neutre (PF 0.97)",
+            "Terrain: Favorable lanceurs (PF 0.95)",
             "Confirmer lineup avant de parier"
           ]
-        }
-      ],
-      "commence_time": "2026-05-06T00:11:00Z"
-    },
-    {
-      "home_team": "Los Angeles Angels",
-      "away_team": "Chicago White Sox",
-      "bets": [
+        },
         {
-          "player": "Mike Trout",
-          "team": "Los Angeles Angels",
-          "opponent": "Chicago White Sox",
+          "player": "Julio Rodriguez",
+          "team": "Seattle Mariners",
+          "opponent": "Atlanta Braves",
           "player_type": "batter",
-          "market": "Buts totaux Over 1.5",
-          "stat_key": "total_bases",
-          "line": 1.5,
-          "season_avg": 2.2,
-          "adj_proj": 2.125,
+          "market": "Coups surs Over 0.5",
+          "stat_key": "hits",
+          "line": 0.5,
+          "season_avg": 1.25,
+          "adj_proj": 1.177,
           "opp_k_rate": null,
-          "opp_pitcher": "Chris Flexen",
-          "opp_pitcher_k": 5.5,
+          "opp_pitcher": "Bryce Elder",
+          "opp_pitcher_k": 5.8,
           "platoon": "Platoon defavorable (R vs R)",
-          "park_factor": 1.0,
-          "our_prob": 54.0,
-          "edge_pct": 15.6,
-          "kelly": 3.4,
-          "est_odds": 2.14,
-          "dk_implied": 46.7,
+          "park_factor": 0.95,
+          "our_prob": 59.6,
+          "edge_pct": 13.7,
+          "kelly": 3.8,
+          "est_odds": 1.91,
+          "dk_implied": 52.4,
           "context": [
-            "vs Chris Flexen (5.5 K/dep) — Contact",
+            "vs Bryce Elder (5.8 K/dep) — Contact",
             "Platoon defavorable (R vs R)",
+            "Terrain: Favorable lanceurs (PF 0.95)",
             "Confirmer lineup avant de parier"
           ]
         }
       ],
-      "commence_time": "2026-05-06T01:39:00Z"
+      "commence_time": "2026-05-06T01:41:00Z"
     }
   ]
 }
