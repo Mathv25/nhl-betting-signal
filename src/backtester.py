@@ -265,13 +265,12 @@ def get_nhl_player_game_stats(player_id: int, target_date: str,
     (matchs du lendemain inclus dans le signal du jour precedent)."""
     from datetime import date as _date, timedelta as _td
 
-    # Construire les dates candidates: target, +1 jour, -1 jour
+    # Construire les dates candidates: ±3 jours (signal peut lister des matchs 2j à l'avance)
     try:
         base = _date.fromisoformat(target_date)
         dates_to_try = [
-            target_date,
-            (base + _td(days=1)).isoformat(),
-            (base - _td(days=1)).isoformat(),
+            (base + _td(days=i)).isoformat()
+            for i in range(-1, 4)  # -1 à +3 jours
         ]
     except Exception:
         dates_to_try = [target_date]
@@ -345,8 +344,8 @@ def resolve_nhl_prop(prop: dict, target_date: str) -> Optional[str]:
 
     stats = get_nhl_player_game_stats(player_id, target_date, game_home, game_away)
     if not stats:
-        print(f"    ⚠ Stats NHL introuvables: {name} pour {target_date}")
-        return None
+        print(f"    ⚠ Stats NHL introuvables: {name} pour {target_date} → VOID")
+        return "VOID"
 
     # Parser "Shots Over 2.5" -> direction=over, line=2.5
     m_upper   = market.upper()
@@ -517,8 +516,9 @@ def resolve_nba_prop(bet: dict, target_date: str) -> Optional[str]:
             break
 
     if not player_stats:
-        print(f"    ⚠ Stats NBA ESPN introuvables: {name} pour {target_date}")
-        return None
+        # Joueur absent de tous les matchs ESPN sur ±1j → tradé, blessé ou non-convoqué → VOID
+        print(f"    ⚠ Stats NBA ESPN introuvables: {name} pour {target_date} → VOID")
+        return "VOID"
 
     if stat_key == "pra":
         actual = player_stats.get("pts", 0) + player_stats.get("reb", 0) + player_stats.get("ast", 0)
@@ -581,23 +581,30 @@ def get_mlb_game_pk(home_team: str, away_team: str, target_date: str) -> Optiona
     if cache_key in _mlb_game_pk_cache:
         return _mlb_game_pk_cache[cache_key]
 
-    data = _get(f"{MLB_API}/schedule", {
-        "sportId": 1,
-        "date":    target_date,
-        "hydrate": "team",
-    })
-    if not data:
-        _mlb_game_pk_cache[cache_key] = None
-        return None
+    # Tenter ±3 jours (signal peut lister des matchs 2j à l'avance)
+    from datetime import date as _d, timedelta as _td
+    try:
+        base = _d.fromisoformat(target_date)
+        dates_to_try = [(base + _td(days=i)).isoformat() for i in range(-1, 4)]
+    except Exception:
+        dates_to_try = [target_date]
 
-    for d in data.get("dates", []):
-        for game in d.get("games", []):
-            h_name = game.get("teams", {}).get("home", {}).get("team", {}).get("name", "")
-            a_name = game.get("teams", {}).get("away", {}).get("team", {}).get("name", "")
-            if _team_name_match(h_name, home_team) and _team_name_match(a_name, away_team):
-                pk = game.get("gamePk")
-                _mlb_game_pk_cache[cache_key] = pk
-                return pk
+    for try_date in dates_to_try:
+        data = _get(f"{MLB_API}/schedule", {
+            "sportId": 1,
+            "date":    try_date,
+            "hydrate": "team",
+        })
+        if not data:
+            continue
+        for d in data.get("dates", []):
+            for game in d.get("games", []):
+                h_name = game.get("teams", {}).get("home", {}).get("team", {}).get("name", "")
+                a_name = game.get("teams", {}).get("away", {}).get("team", {}).get("name", "")
+                if _team_name_match(h_name, home_team) and _team_name_match(a_name, away_team):
+                    pk = game.get("gamePk")
+                    _mlb_game_pk_cache[cache_key] = pk
+                    return pk
 
     _mlb_game_pk_cache[cache_key] = None
     return None
@@ -649,15 +656,17 @@ def resolve_mlb_prop(prop: dict, target_date: str) -> Optional[str]:
                 return None
 
             if actual is None:
-                print(f"    ⚠ Stat {stat_key} absente pour {player}")
-                return None
+                # Joueur dans le boxscore mais pas de stat → n'a pas pitché (scratché)
+                print(f"    ⚠ Stat {stat_key} absente pour {player} → VOID")
+                return "VOID"
 
             result = "W" if actual > line else "L"
             print(f"    {player}: {stat_key}={actual} vs {line} -> {result}")
             return result
 
-    print(f"    ⚠ Joueur MLB introuvable dans boxscore: {player}")
-    return None
+    # Joueur absent du boxscore = scratché / n'a pas joué
+    print(f"    ⚠ Joueur MLB introuvable dans boxscore: {player} → VOID")
+    return "VOID"
 
 
 # ── Persistance ────────────────────────────────────────────────────────────────
@@ -786,7 +795,7 @@ def _parse_line_from_str(s: str) -> float:
     return 0.0
 
 
-def retry_unresolved(results_data: dict, max_days: int = 14) -> int:
+def retry_unresolved(results_data: dict, max_days: int = 30) -> int:
     """
     Retente la resolution de tous les bets '?' des derniers max_days jours.
     Groupe par date et sport pour minimiser les appels API.
@@ -801,7 +810,7 @@ def retry_unresolved(results_data: dict, max_days: int = 14) -> int:
     ]
 
     if not pending:
-        print("  Aucun bet en attente dans les 14 derniers jours.")
+        print(f"  Aucun bet en attente dans les {max_days} derniers jours.")
         return 0
 
     # Grouper par date
@@ -815,13 +824,14 @@ def retry_unresolved(results_data: dict, max_days: int = 14) -> int:
         bets_for_date = by_date[target_date]
         print(f"\n  Retry {target_date}: {len(bets_for_date)} bets en attente")
 
-        # Scores NHL: chercher aussi ±1 jour (bug date ET dans anciens signaux)
+        # Scores NHL: chercher aussi ±3 jours (signal peut lister des matchs 2j à l'avance)
         from datetime import date as _date2, timedelta as _td2
         try:
             base_d = _date2.fromisoformat(target_date)
-            adj_dates = [target_date,
-                         (base_d + _td2(days=1)).isoformat(),
-                         (base_d - _td2(days=1)).isoformat()]
+            adj_dates = [
+                (base_d + _td2(days=i)).isoformat()
+                for i in range(-1, 4)  # -1 à +3 jours
+            ]
         except Exception:
             adj_dates = [target_date]
 
@@ -844,15 +854,21 @@ def retry_unresolved(results_data: dict, max_days: int = 14) -> int:
                     # Extraire market depuis le champ bet "Name — Market"
                     bet_str = bet.get("bet", "")
                     market  = bet_str.split(" — ", 1)[1].strip() if " — " in bet_str else ""
-                    prop = {
-                        "name":        bet.get("name", ""),
-                        "team":        bet.get("team", ""),
-                        "market":      market,
-                        "market_type": bet.get("market_type", ""),
-                        "_game_home":  home,
-                        "_game_away":  away,
-                    }
-                    result = resolve_nhl_prop(prop, target_date)
+                    team = bet.get("team", "")
+                    # Si team vide, essayer home et away (certains anciens bets n'ont pas ce champ)
+                    teams_to_try = [team] if team else [home, away]
+                    for t in teams_to_try:
+                        prop = {
+                            "name":        bet.get("name", ""),
+                            "team":        t,
+                            "market":      market,
+                            "market_type": bet.get("market_type", ""),
+                            "_game_home":  home,
+                            "_game_away":  away,
+                        }
+                        result = resolve_nhl_prop(prop, target_date)
+                        if result is not None:
+                            break
 
                 elif sport == "nba":
                     bet_str  = bet.get("bet", "")
@@ -888,7 +904,7 @@ def retry_unresolved(results_data: dict, max_days: int = 14) -> int:
                 print(f"    ⚠ Erreur retry {bet.get('id','?')}: {e}")
                 continue
 
-            if result in ("W", "L"):
+            if result in ("W", "L", "VOID"):
                 bet["result"] = result
                 total_resolved += 1
                 print(f"    ✓ Resolu: {bet.get('name', bet.get('bet',''))[:40]} → {result}")
