@@ -581,11 +581,12 @@ def get_mlb_game_pk(home_team: str, away_team: str, target_date: str) -> Optiona
     if cache_key in _mlb_game_pk_cache:
         return _mlb_game_pk_cache[cache_key]
 
-    # Tenter ±3 jours (signal peut lister des matchs 2j à l'avance)
+    # Tenter jusqu'à +3 jours (boxscore parfois disponible le lendemain)
+    # On ne recule PAS (range commence à 0) pour éviter de trouver la partie de la veille
     from datetime import date as _d, timedelta as _td
     try:
         base = _d.fromisoformat(target_date)
-        dates_to_try = [(base + _td(days=i)).isoformat() for i in range(-1, 4)]
+        dates_to_try = [(base + _td(days=i)).isoformat() for i in range(0, 4)]
     except Exception:
         dates_to_try = [target_date]
 
@@ -995,9 +996,13 @@ def run_for_date(target_date: str):
         # Cherche si deja present
         for existing in results_data["bets"]:
             if existing.get("id") == bet_id:
-                if existing.get("result") not in ("W", "L") and entry.get("result") in ("W", "L"):
-                    existing["result"] = entry["result"]
-                    res_count += 1
+                new_result = entry.get("result")
+                old_result = existing.get("result")
+                # Mettre à jour si: nouveau résultat connu (W/L/VOID) et différent de l'ancien
+                if new_result in ("W", "L", "VOID") and new_result != old_result:
+                    existing["result"] = new_result
+                    if old_result not in ("W", "L"):
+                        res_count += 1
                 return
         results_data["bets"].append(entry)
         existing_ids.add(bet_id)
