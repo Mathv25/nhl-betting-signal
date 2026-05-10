@@ -10,6 +10,12 @@ Solution pro:
 
 import math
 
+try:
+    from nba_rolling_stats import get_player_rolling as _nba_rolling
+    HAS_NBA_ROLLING = True
+except ImportError:
+    HAS_NBA_ROLLING = False
+
 STD_FLOOR = {
     "pts":  0.22,
     "reb":  0.28,  # Légèrement réduit — rebonds plus prévisibles que pts
@@ -454,8 +460,18 @@ class NBAPropsAnalyzer:
                 if not stats:
                     continue
 
-                # Calcul PRA dynamique
+                # Calcul PRA dynamique — utiliser stats rolling si disponibles
                 stats = dict(stats)
+                if HAS_NBA_ROLLING:
+                    rolling = _nba_rolling(player_name)
+                    if rolling and rolling.get("games", 0) >= 3:
+                        # Remplacer par les moyennes des N derniers matchs
+                        if rolling.get("pts") is not None:
+                            stats["pts"] = rolling["pts"]
+                        if rolling.get("reb") is not None:
+                            stats["reb"] = rolling["reb"]
+                        if rolling.get("ast") is not None:
+                            stats["ast"] = rolling["ast"]
                 stats["pra"] = round(stats.get("pts", 0) + stats.get("reb", 0) + stats.get("ast", 0), 1)
 
                 for cfg in STAT_CONFIGS:
@@ -520,6 +536,10 @@ class NBAPropsAnalyzer:
                         e        = _edge(prob, dk_impl)
                         ratio    = (prob / dk_impl) if dk_impl > 0 else 0
                         if ratio > max_ratio:
+                            continue
+                        # Sanity check: si notre projection depasse la ligne DK de >35%,
+                        # le marche integre une forme recente qu'on n'a pas — skip
+                        if line > 0 and adj_mean / line > 1.35:
                             continue
                     else:
                         line     = _estimate_line(adj_mean, key)

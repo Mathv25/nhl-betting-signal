@@ -15,6 +15,13 @@ Meilleures pratiques integrees:
 
 import math
 
+try:
+    from mlb_rolling_stats import get_batter_rolling as _mlb_batter_rolling
+    from mlb_rolling_stats import get_pitcher_rolling as _mlb_pitcher_rolling
+    HAS_MLB_ROLLING = True
+except ImportError:
+    HAS_MLB_ROLLING = False
+
 # ── MODELES STATISTIQUES ──────────────────────────────────────────────────────
 STD_FLOOR = {
     "strikeouts":  0.33,
@@ -433,6 +440,13 @@ class MLBPropsAnalyzer:
                 seen.add(pitcher)
                 stats  = MLB_PITCHERS.get(pitcher, {})
                 mean_k = stats.get("strikeouts", 0.0)
+
+                # Remplacer par stats rolling si disponibles
+                if HAS_MLB_ROLLING:
+                    rolling_p = _mlb_pitcher_rolling(pitcher)
+                    if rolling_p and rolling_p.get("games", 0) >= 2:
+                        mean_k = rolling_p["strikeouts"]
+
                 if mean_k < cfg_k["min_avg"]:
                     continue
 
@@ -509,8 +523,19 @@ class MLBPropsAnalyzer:
                 if batter in seen:
                     continue
                 seen.add(batter)
-                stats      = MLB_BATTERS.get(batter, {})
+                stats       = dict(MLB_BATTERS.get(batter, {}))
                 batter_hand = stats.get("bats", "")
+
+                # Remplacer par stats rolling si disponibles (N derniers matchs)
+                if HAS_MLB_ROLLING:
+                    rolling_b = _mlb_batter_rolling(batter)
+                    if rolling_b and rolling_b.get("games", 0) >= 3:
+                        if rolling_b.get("hits") is not None:
+                            stats["hits"]        = rolling_b["hits"]
+                        if rolling_b.get("total_bases") is not None:
+                            stats["total_bases"] = rolling_b["total_bases"]
+                        if rolling_b.get("home_runs") is not None:
+                            stats["home_runs"]   = rolling_b["home_runs"]
 
                 plat_adj, plat_lbl = _platoon_adj(batter_hand, opp_hand)
 
