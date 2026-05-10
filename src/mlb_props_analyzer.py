@@ -154,6 +154,7 @@ MLB_PITCHERS = {
     "Max Fried":            {"strikeouts": 7.8,  "team": "New York Yankees",       "hand": "L"},
     "Logan Gilbert":        {"strikeouts": 7.8,  "team": "Seattle Mariners",       "hand": "R"},
     "Joe Ryan":             {"strikeouts": 7.8,  "team": "Minnesota Twins",        "hand": "R"},
+    "Cody Morris":          {"strikeouts": 5.5,  "team": "Minnesota Twins",        "hand": "R"},
     "Sonny Gray":           {"strikeouts": 7.8,  "team": "St. Louis Cardinals",    "hand": "R"},
     "Luis Castillo":        {"strikeouts": 7.5,  "team": "Seattle Mariners",       "hand": "R"},
     "Corbin Burnes":        {"strikeouts": 7.5,  "team": "Baltimore Orioles",      "hand": "R"},
