@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-10T19:08:46.657877+00:00",
+  "generated_at": "2026-05-10T20:52:25.372877+00:00",
   "date": "2026-05-10",
   "bookmaker": "bet365",
   "total_games": 2,
@@ -286,7 +286,7 @@
           "shots_adj": 2.6,
           "shots_line": 1.5,
           "shots_prob": 73.3,
-          "shots_edge": 17.3,
+          "shots_edge": 15.1,
           "goals_adj": 0.45,
           "points_adj": 1.06,
           "last5_shots": 10,
@@ -446,77 +446,344 @@
       "retour_de_flamme": []
     }
   ],
-  "nba_analysis": [],
-  "mlb_analysis": [
+  "nba_analysis": [
     {
-      "home_team": "Miami Marlins",
-      "away_team": "Washington Nationals",
+      "home_team": "Philadelphia 76ers",
+      "away_team": "New York Knicks",
       "bets": [
         {
-          "player": "Roddery Munoz",
-          "team": "Miami Marlins",
-          "opponent": "Washington Nationals",
+          "player": "Karl-Anthony Towns",
+          "team": "New York Knicks",
+          "opponent": "Philadelphia 76ers",
+          "market": "Pts+Reb+Ast Over 35.5",
+          "stat_key": "pra",
+          "line": 35.5,
+          "avg10": 41.2,
+          "avg5": 41.2,
+          "adj_proj": 39.2,
+          "our_prob": 65.8,
+          "edge_pct": 16.5,
+          "kelly": 5.3,
+          "est_odds": 1.77,
+          "dk_implied": 56.5,
+          "def_rank": 15,
+          "context": []
+        },
+        {
+          "player": "Tyrese Maxey",
+          "team": "Philadelphia 76ers",
+          "opponent": "New York Knicks",
+          "market": "Pts+Reb+Ast Over 31.5",
+          "stat_key": "pra",
+          "line": 31.5,
+          "avg10": 36.9,
+          "avg5": 36.9,
+          "adj_proj": 33.5,
+          "our_prob": 58.9,
+          "edge_pct": 12.4,
+          "kelly": 3.4,
+          "est_odds": 1.91,
+          "dk_implied": 52.4,
+          "def_rank": 15,
+          "context": []
+        }
+      ],
+      "commence_time": "2026-05-10T19:40:00Z"
+    }
+  ],
+  "mlb_analysis": [
+    {
+      "home_team": "Chicago White Sox",
+      "away_team": "Seattle Mariners",
+      "bets": [
+        {
+          "player": "Logan Gilbert",
+          "team": "Seattle Mariners",
+          "opponent": "Chicago White Sox",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.67,
+          "adj_proj": 5.75,
+          "opp_k_rate": 21.8,
+          "park_factor": 0.96,
+          "our_prob": 65.4,
+          "edge_pct": 24.3,
+          "kelly": 6.8,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable lanceurs (PF 0.96)"
+          ]
+        },
+        {
+          "player": "Julio Rodriguez",
+          "team": "Seattle Mariners",
+          "opponent": "Chicago White Sox",
+          "player_type": "batter",
+          "market": "Coups surs Over 0.5",
+          "stat_key": "hits",
+          "line": 0.5,
+          "season_avg": 1.333,
+          "adj_proj": 1.262,
+          "opp_k_rate": null,
+          "opp_pitcher": "Chris Flexen",
+          "opp_pitcher_k": 5.5,
+          "platoon": "Platoon defavorable (R vs R)",
+          "park_factor": 0.96,
+          "our_prob": 63.1,
+          "edge_pct": 19.9,
+          "kelly": 5.6,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Chris Flexen (5.5 K/dep) — Contact",
+            "Platoon defavorable (R vs R)",
+            "Terrain: Favorable lanceurs (PF 0.96)",
+            "Confirmer lineup avant de parier"
+          ]
+        },
+        {
+          "player": "Marco Gonzales",
+          "team": "Seattle Mariners",
+          "opponent": "Chicago White Sox",
           "player_type": "pitcher",
           "market": "Retraits au baton Over 4.5",
           "stat_key": "strikeouts",
           "line": 4.5,
           "season_avg": 5.5,
-          "adj_proj": 5.76,
-          "opp_k_rate": 22.5,
-          "park_factor": 0.95,
-          "our_prob": 65.5,
-          "edge_pct": 24.5,
-          "kelly": 6.9,
+          "adj_proj": 5.58,
+          "opp_k_rate": 21.8,
+          "park_factor": 0.96,
+          "our_prob": 62.4,
+          "edge_pct": 18.6,
+          "kelly": 5.3,
           "est_odds": 1.909,
           "dk_implied": 52.6,
           "context": [
-            "Terrain: Favorable lanceurs (PF 0.95)"
+            "Terrain: Favorable lanceurs (PF 0.96)"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-10T18:11:00Z"
+    },
+    {
+      "home_team": "Milwaukee Brewers",
+      "away_team": "New York Yankees",
+      "bets": [
+        {
+          "player": "Carlos Rodon",
+          "team": "New York Yankees",
+          "opponent": "Milwaukee Brewers",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.5",
+          "stat_key": "strikeouts",
+          "line": 6.5,
+          "season_avg": 8.0,
+          "adj_proj": 7.89,
+          "opp_k_rate": 21.2,
+          "park_factor": 0.96,
+          "our_prob": 63.4,
+          "edge_pct": 20.5,
+          "kelly": 5.8,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable lanceurs (PF 0.96)"
           ]
         },
         {
-          "player": "Braxton Garrett",
-          "team": "Miami Marlins",
-          "opponent": "Washington Nationals",
+          "player": "Gerrit Cole",
+          "team": "New York Yankees",
+          "opponent": "Milwaukee Brewers",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 7.0",
+          "stat_key": "strikeouts",
+          "line": 7.0,
+          "season_avg": 8.5,
+          "adj_proj": 8.38,
+          "opp_k_rate": 21.2,
+          "park_factor": 0.96,
+          "our_prob": 62.5,
+          "edge_pct": 18.8,
+          "kelly": 5.3,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable lanceurs (PF 0.96)"
+          ]
+        },
+        {
+          "player": "Max Fried",
+          "team": "New York Yankees",
+          "opponent": "Milwaukee Brewers",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.67,
+          "adj_proj": 5.59,
+          "opp_k_rate": 21.2,
+          "park_factor": 0.96,
+          "our_prob": 62.5,
+          "edge_pct": 18.8,
+          "kelly": 5.3,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable lanceurs (PF 0.96)"
+          ]
+        },
+        {
+          "player": "Nestor Cortes",
+          "team": "New York Yankees",
+          "opponent": "Milwaukee Brewers",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.0",
+          "stat_key": "strikeouts",
+          "line": 6.0,
+          "season_avg": 7.2,
+          "adj_proj": 7.1,
+          "opp_k_rate": 21.2,
+          "park_factor": 0.96,
+          "our_prob": 60.1,
+          "edge_pct": 14.2,
+          "kelly": 4.1,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable lanceurs (PF 0.96)"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-10T18:11:00Z"
+    },
+    {
+      "home_team": "Texas Rangers",
+      "away_team": "Chicago Cubs",
+      "bets": [
+        {
+          "player": "Kyle Hendricks",
+          "team": "Chicago Cubs",
+          "opponent": "Texas Rangers",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.5,
+          "adj_proj": 5.73,
+          "opp_k_rate": 22.4,
+          "park_factor": 1.05,
+          "our_prob": 65.0,
+          "edge_pct": 23.5,
+          "kelly": 6.6,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable frappeurs (PF 1.05)"
+          ]
+        },
+        {
+          "player": "Nathan Eovaldi",
+          "team": "Texas Rangers",
+          "opponent": "Chicago Cubs",
           "player_type": "pitcher",
           "market": "Retraits au baton Over 5.0",
           "stat_key": "strikeouts",
           "line": 5.0,
-          "season_avg": 6.0,
-          "adj_proj": 6.28,
-          "opp_k_rate": 22.5,
-          "park_factor": 0.95,
-          "our_prob": 64.7,
-          "edge_pct": 22.9,
+          "season_avg": 5.83,
+          "adj_proj": 6.29,
+          "opp_k_rate": 23.2,
+          "park_factor": 1.05,
+          "our_prob": 64.8,
+          "edge_pct": 23.1,
           "kelly": 6.5,
           "est_odds": 1.909,
           "dk_implied": 52.6,
           "context": [
-            "Terrain: Favorable lanceurs (PF 0.95)"
+            "Adversaire K%: 23.2% (favorable)",
+            "Terrain: Favorable frappeurs (PF 1.05)"
           ]
         },
         {
-          "player": "Jesus Luzardo",
-          "team": "Miami Marlins",
-          "opponent": "Washington Nationals",
+          "player": "Marcus Stroman",
+          "team": "Chicago Cubs",
+          "opponent": "Texas Rangers",
           "player_type": "pitcher",
-          "market": "Retraits au baton Over 5.5",
+          "market": "Retraits au baton Over 5.0",
           "stat_key": "strikeouts",
-          "line": 5.5,
-          "season_avg": 6.5,
-          "adj_proj": 6.8,
-          "opp_k_rate": 22.5,
-          "park_factor": 0.95,
-          "our_prob": 63.9,
-          "edge_pct": 21.4,
-          "kelly": 6.0,
+          "line": 5.0,
+          "season_avg": 5.8,
+          "adj_proj": 6.04,
+          "opp_k_rate": 22.4,
+          "park_factor": 1.05,
+          "our_prob": 60.7,
+          "edge_pct": 15.3,
+          "kelly": 4.4,
           "est_odds": 1.909,
           "dk_implied": 52.6,
           "context": [
-            "Terrain: Favorable lanceurs (PF 0.95)"
+            "Terrain: Favorable frappeurs (PF 1.05)"
+          ]
+        },
+        {
+          "player": "Justin Steele",
+          "team": "Chicago Cubs",
+          "opponent": "Texas Rangers",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.0",
+          "stat_key": "strikeouts",
+          "line": 6.0,
+          "season_avg": 6.8,
+          "adj_proj": 7.08,
+          "opp_k_rate": 22.4,
+          "park_factor": 1.05,
+          "our_prob": 59.8,
+          "edge_pct": 13.6,
+          "kelly": 3.9,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable frappeurs (PF 1.05)"
           ]
         }
       ],
-      "commence_time": "2026-05-10T16:16:00Z"
+      "commence_time": "2026-05-10T18:36:00Z"
+    },
+    {
+      "home_team": "Kansas City Royals",
+      "away_team": "Detroit Tigers",
+      "bets": [
+        {
+          "player": "Bobby Witt Jr.",
+          "team": "Kansas City Royals",
+          "opponent": "Detroit Tigers",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.5",
+          "stat_key": "total_bases",
+          "line": 1.5,
+          "season_avg": 2.733,
+          "adj_proj": 2.584,
+          "opp_k_rate": null,
+          "opp_pitcher": "Tarik Skubal",
+          "opp_pitcher_k": 8.8,
+          "platoon": "Platoon avantageux (R vs L)",
+          "park_factor": 0.99,
+          "our_prob": 65.2,
+          "edge_pct": 24.4,
+          "kelly": 6.7,
+          "est_odds": 1.91,
+          "dk_implied": 52.4,
+          "context": [
+            "vs Tarik Skubal (8.8 K/dep) — Elite (8.5+ K/dep)",
+            "Platoon avantageux (R vs L)",
+            "Terrain: Neutre (PF 0.99)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-10T23:21:00Z"
     }
   ]
 }
