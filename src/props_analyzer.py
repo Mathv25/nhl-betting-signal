@@ -643,6 +643,13 @@ class PropsAnalyzer:
             if is_grinder and not regression_note:
                 context_notes = ["💪 Grinder playoff — net-front, shots indép. de la défense"] + context_notes[:3]
 
+            # ── Filtre convergence NHL ────────────────────────────────────────
+            # Exiger au moins 1 signal positif dans le contexte (tendance, rang défensif)
+            positive_signals = sum(1 for note in context_notes
+                                   if any(kw in note for kw in ["🔥", "⭐", "favorable", "PP1", "hausse"]))
+            if positive_signals == 0 and best["edge"] < 15.0:
+                continue  # Edge modéré sans signal positif → trop incertain
+
             # Shots display: utilise la vraie ligne DK si disponible
             s_adj_display = round(min(p["shots_pg"] * shots_factor * mult, 8.0), 1)
             s_line_display = None

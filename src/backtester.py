@@ -760,6 +760,13 @@ def compute_summary(bets: list) -> dict:
             by_sport[sport]["losses"] += 1
             by_sport[sport]["profit"]  = round(by_sport[sport]["profit"] - stake, 2)
 
+    # CLV summary
+    try:
+        from clv_capture import compute_clv_summary
+        clv_summary = compute_clv_summary(bets)
+    except Exception:
+        clv_summary = {}
+
     return {
         "total":    len(resolved),
         "wins":     wins,
@@ -770,6 +777,7 @@ def compute_summary(bets: list) -> dict:
         "by_edge":  by_edge,
         "by_type":  by_type,
         "by_sport": by_sport,
+        "clv":      clv_summary,
         "last_updated": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
 

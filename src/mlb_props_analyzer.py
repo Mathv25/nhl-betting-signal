@@ -548,6 +548,18 @@ class MLBPropsAnalyzer:
                     if mean < cfg["min_avg"]:
                         continue
 
+                    # ── Filtre convergence: forme rolling + contexte ──────────
+                    if HAS_MLB_ROLLING and rolling_b and rolling_b.get("games", 0) >= 3:
+                        rolling_val = rolling_b.get(key, 0)
+                        if rolling_val and rolling_val < cfg["min_avg"]:
+                            continue  # Forme récente sous le seuil → forme contredit le pari
+                    # Exiger au moins 1 signal favorable (lanceur moyen/faible OU platoon)
+                    conv = 0
+                    if pitch_adj >= 1.0: conv += 1
+                    if plat_adj >= 1.06: conv += 1
+                    if conv == 0:
+                        continue
+
                     # Projection ajustee: lanceur adverse + platoon + park factor (HR surtout)
                     park_mult = park_factor if key == "home_runs" else (1.0 + (park_factor - 1.0) * 0.5)
                     adj_mean = round(mean * pitch_adj * plat_adj * park_mult, 3)

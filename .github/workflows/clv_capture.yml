@@ -1,0 +1,40 @@
+name: CLV Capture — Cotes de fermeture
+
+on:
+  schedule:
+    # 23h00 UTC = 19h00 ET — juste avant les matchs du soir
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  capture-clv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer dependances
+        run: pip install -r requirements.txt
+
+      - name: Capturer les cotes de fermeture (CLV)
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          TODAY_ET=$(TZ=America/Toronto date +%Y-%m-%d)
+          echo "Capture CLV pour $TODAY_ET"
+          cd src && python clv_capture.py "$TODAY_ET"
+
+      - name: Commit CLV
+        run: |
+          git config --global user.name "NHL Bot"
+          git config --global user.email "bot@nhl.local"
+          git add docs/results.json
+          git diff --staged --quiet || git commit -m "CLV capture $(date +'%Y-%m-%d %H:%M UTC')"
+          git pull --rebase -X theirs origin main || true
+          git push || true

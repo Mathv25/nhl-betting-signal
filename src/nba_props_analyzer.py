@@ -510,6 +510,15 @@ class NBAPropsAnalyzer:
                     else:
                         adj_mean = mean
 
+                    # ── Filtre convergence NBA ────────────────────────────────
+                    if HAS_NBA_ROLLING:
+                        _rolling_nba = _nba_rolling(player_name)
+                        if _rolling_nba and _rolling_nba.get("games", 0) >= 3:
+                            _rv = _rolling_nba.get(key, 0)
+                            # Si forme récente < 75% de la projection → le marché sait qqch → skip
+                            if _rv and _rv < adj_mean * 0.75:
+                                continue
+
                     std = _std(adj_mean, key)
 
                     # Seuils par marché
