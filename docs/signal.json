@@ -1,228 +1,124 @@
 {
-  "generated_at": "2026-05-11T23:00:01.195598+00:00",
+  "generated_at": "2026-05-12T02:51:34.672627+00:00",
   "date": "2026-05-11",
   "bookmaker": "bet365",
   "total_games": 1,
-  "total_value_bets": 0,
+  "total_value_bets": 1,
   "signals": [
     {
       "game": {
         "id": "5058a52208f300b86ae178b9da64d51e",
         "home_team": "Minnesota Wild",
         "away_team": "Colorado Avalanche",
-        "commence_time": "2026-05-12T00:10:00Z",
+        "commence_time": "2026-05-12T00:11:17Z",
         "bookmaker": "draftkings",
         "markets": {
           "moneyline": {
             "away": {
               "team": "Colorado Avalanche",
-              "odds_decimal": 1.68,
-              "implied_prob": 59.52
+              "odds_decimal": 1.05,
+              "implied_prob": 95.24
             },
             "home": {
               "team": "Minnesota Wild",
-              "odds_decimal": 2.24,
-              "implied_prob": 44.64
+              "odds_decimal": 11.0,
+              "implied_prob": 9.09
             }
           },
           "puck_line": {
             "away": {
               "team": "Colorado Avalanche",
               "spread": -1.5,
-              "odds_decimal": 2.7,
-              "implied_prob": 37.04
+              "odds_decimal": 1.8,
+              "implied_prob": 55.56
             },
             "home": {
               "team": "Minnesota Wild",
               "spread": 1.5,
-              "odds_decimal": 1.49,
-              "implied_prob": 67.11
+              "odds_decimal": 1.95,
+              "implied_prob": 51.28
             }
           },
           "totals": {
             "over": {
-              "line": 6.5,
-              "odds_decimal": 1.95,
-              "implied_prob": 51.28
+              "line": 5.5,
+              "odds_decimal": 1.47,
+              "implied_prob": 68.03
             },
             "under": {
-              "line": 6.5,
-              "odds_decimal": 1.87,
-              "implied_prob": 53.48
+              "line": 5.5,
+              "odds_decimal": 2.65,
+              "implied_prob": 37.74
             }
           },
           "player_props": []
         },
         "removed_props": []
       },
-      "edges": []
+      "edges": [
+        {
+          "edge_pct": 12.0,
+          "edge_raw": 22.33,
+          "kelly_fraction": 5.76,
+          "verdict": "🔥 Forte valeur",
+          "type": "Puck Line",
+          "bet": "Minnesota Wild +1.5",
+          "our_prob": 62.7,
+          "b365_implied": 51.28,
+          "b365_odds": 1.95,
+          "game": "Colorado Avalanche @ Minnesota Wild",
+          "note": "Spread +1.5 buts",
+          "context_notes": []
+        }
+      ]
     }
   ],
-  "value_bets": [],
-  "props_analysis": [
+  "value_bets": [
     {
-      "home_team": "Minnesota Wild",
-      "away_team": "Colorado Avalanche",
-      "home_goalie": {
-        "name": "Filip Gustavsson",
-        "sv_pct": 0.855,
-        "saves_pg": 21.2,
-        "gaa": 3.64,
-        "confirmed": true
-      },
-      "away_goalie": {
-        "name": "Mackenzie Blackwood",
-        "sv_pct": 0.899,
-        "saves_pg": 22.5,
-        "gaa": 2.68,
-        "confirmed": true
-      },
-      "home_def_shots": 29.0,
-      "away_def_shots": 28.2,
-      "home_def_ga": 2.95,
-      "away_def_ga": 2.8,
-      "home_shots_rank": 9,
-      "away_shots_rank": 5,
-      "home_ga_rank": 9,
-      "away_ga_rank": 5,
-      "lineup_confirmed": true,
+      "edge_pct": 12.0,
+      "edge_raw": 22.33,
+      "kelly_fraction": 5.76,
+      "verdict": "🔥 Forte valeur",
+      "type": "Puck Line",
+      "bet": "Minnesota Wild +1.5",
+      "our_prob": 62.7,
+      "b365_implied": 51.28,
+      "b365_odds": 1.95,
+      "game": "Colorado Avalanche @ Minnesota Wild",
+      "note": "Spread +1.5 buts",
+      "context_notes": []
+    }
+  ],
+  "props_analysis": [],
+  "nba_analysis": [],
+  "mlb_analysis": [
+    {
+      "home_team": "Houston Astros",
+      "away_team": "Seattle Mariners",
       "bets": [
         {
-          "name": "Artturi Lehkonen",
-          "position": "L",
-          "team": "Colorado Avalanche",
-          "opponent": "Minnesota Wild",
-          "toi": "17:35",
-          "n_games": 7,
-          "line_num": 2,
-          "pp_unit": 0,
-          "is_defense": false,
-          "lineup_ok": true,
-          "market": "Points Over 0.5",
-          "market_type": "points",
-          "our_prob": 52.0,
-          "edge_pct": 11.3,
-          "kelly": 2.5,
-          "market_detail": "0.73 pts proj. · moy 0.7/m",
-          "est_odds": 2.14,
-          "b365_implied": 46.7,
-          "all_markets": [
-            {
-              "type": "points",
-              "label": "Points Over 0.5",
-              "prob": 52.0,
-              "edge": 11.3,
-              "kelly": 2.5,
-              "est_odds": 2.14,
-              "dk_implied": 46.7,
-              "detail": "0.73 pts proj. · moy 0.7/m"
-            }
-          ],
-          "shots_pg": 1.6,
-          "goals_pg": 0.33,
-          "points_pg": 0.7,
-          "shots_adj": 1.5,
-          "shots_line": 1.5,
-          "shots_prob": 44.2,
-          "shots_edge": -30.6,
-          "goals_adj": 0.31,
-          "points_adj": 0.66,
-          "last5_shots": 9,
-          "last10_shots": 12,
-          "last5_goals": 2,
-          "last5_points": 5,
-          "season_goals": 3,
-          "season_points": 6,
-          "opp_shots_rank": 9,
-          "opp_ga_rank": 9,
-          "context_notes": [
-            "🔥 Shots en hausse — 1.8/m last 5 vs 1.2/m last 10",
-            "5 pts dans ses 5 derniers matchs"
-          ]
-        },
-        {
-          "name": "Gabriel Landeskog",
-          "position": "L",
-          "team": "Colorado Avalanche",
-          "opponent": "Minnesota Wild",
-          "toi": "17:31",
-          "n_games": 7,
-          "line_num": 2,
-          "pp_unit": 0,
-          "is_defense": false,
-          "lineup_ok": true,
-          "market": "Points Over 0.5",
-          "market_type": "points",
-          "our_prob": 63.7,
-          "edge_pct": 10.8,
+          "player": "Hunter Brown",
+          "team": "Houston Astros",
+          "opponent": "Seattle Mariners",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 7.0",
+          "stat_key": "strikeouts",
+          "line": 7.0,
+          "season_avg": 8.5,
+          "adj_proj": 8.14,
+          "opp_k_rate": 20.6,
+          "park_factor": 0.97,
+          "our_prob": 59.4,
+          "edge_pct": 12.9,
           "kelly": 3.7,
-          "market_detail": "1.01 pts proj. · moy 0.97/m",
-          "est_odds": 1.74,
-          "b365_implied": 57.5,
-          "all_markets": [
-            {
-              "type": "points",
-              "label": "Points Over 0.5",
-              "prob": 63.7,
-              "edge": 10.8,
-              "kelly": 3.7,
-              "est_odds": 1.74,
-              "dk_implied": 57.5,
-              "detail": "1.01 pts proj. · moy 0.97/m"
-            }
-          ],
-          "shots_pg": 2.5,
-          "goals_pg": 0.41,
-          "points_pg": 0.97,
-          "shots_adj": 2.4,
-          "shots_line": 2.5,
-          "shots_prob": 43.0,
-          "shots_edge": 0.9,
-          "goals_adj": 0.39,
-          "points_adj": 0.91,
-          "last5_shots": 12,
-          "last10_shots": 17,
-          "last5_goals": 2,
-          "last5_points": 7,
-          "season_goals": 3,
-          "season_points": 8,
-          "opp_shots_rank": 9,
-          "opp_ga_rank": 9,
-          "context_notes": [
-            "🔥 Shots en hausse — 2.4/m last 5 vs 1.7/m last 10",
-            "7 pts dans ses 5 derniers matchs"
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Neutre (PF 0.97)"
           ]
         }
       ],
-      "retour_de_flamme": []
+      "commence_time": "2026-05-12T00:11:00Z"
     }
-  ],
-  "nba_analysis": [
-    {
-      "home_team": "Cleveland Cavaliers",
-      "away_team": "Detroit Pistons",
-      "bets": [
-        {
-          "player": "Donovan Mitchell",
-          "team": "Cleveland Cavaliers",
-          "opponent": "Detroit Pistons",
-          "market": "Rebonds Over 4.5",
-          "stat_key": "reb",
-          "line": 4.5,
-          "avg10": 5.0,
-          "avg5": 5.0,
-          "adj_proj": 5.4,
-          "our_prob": 60.4,
-          "edge_pct": 11.6,
-          "kelly": 3.5,
-          "est_odds": 1.85,
-          "dk_implied": 54.1,
-          "def_rank": 15,
-          "context": []
-        }
-      ],
-      "commence_time": "2026-05-12T00:10:00Z"
-    }
-  ],
-  "mlb_analysis": []
+  ]
 }
