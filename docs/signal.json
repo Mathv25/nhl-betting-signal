@@ -1,159 +1,109 @@
 {
-  "generated_at": "2026-05-13T02:53:39.729988+00:00",
-  "date": "2026-05-12",
+  "generated_at": "2026-05-13T06:50:36.414614+00:00",
+  "date": "2026-05-13",
   "bookmaker": "bet365",
   "total_games": 1,
-  "total_value_bets": 1,
+  "total_value_bets": 0,
   "signals": [
     {
       "game": {
-        "id": "7ae3c1e1386143c564a15ec014e904c1",
-        "home_team": "Vegas Golden Knights",
-        "away_team": "Anaheim Ducks",
-        "commence_time": "2026-05-13T01:55:00Z",
+        "id": "327b6468b9185a0f2524736a859466e1",
+        "home_team": "Colorado Avalanche",
+        "away_team": "Minnesota Wild",
+        "commence_time": "2026-05-14T00:10:00Z",
         "bookmaker": "draftkings",
         "markets": {
           "moneyline": {
-            "away": {
-              "team": "Anaheim Ducks",
-              "odds_decimal": 2.24,
-              "implied_prob": 44.64
-            },
             "home": {
-              "team": "Vegas Golden Knights",
-              "odds_decimal": 1.62,
-              "implied_prob": 61.73
+              "team": "Colorado Avalanche",
+              "odds_decimal": 1.49,
+              "implied_prob": 67.11
+            },
+            "away": {
+              "team": "Minnesota Wild",
+              "odds_decimal": 2.7,
+              "implied_prob": 37.04
             }
           },
           "puck_line": {
-            "away": {
-              "team": "Anaheim Ducks",
-              "spread": 1.5,
-              "odds_decimal": 1.47,
-              "implied_prob": 68.03
-            },
             "home": {
-              "team": "Vegas Golden Knights",
+              "team": "Colorado Avalanche",
               "spread": -1.5,
-              "odds_decimal": 2.65,
-              "implied_prob": 37.74
+              "odds_decimal": 2.2,
+              "implied_prob": 45.45
+            },
+            "away": {
+              "team": "Minnesota Wild",
+              "spread": 1.5,
+              "odds_decimal": 1.7,
+              "implied_prob": 58.82
             }
           },
           "totals": {
             "over": {
               "line": 6.5,
-              "odds_decimal": 1.91,
-              "implied_prob": 52.36
+              "odds_decimal": 1.98,
+              "implied_prob": 50.51
             },
             "under": {
               "line": 6.5,
-              "odds_decimal": 1.83,
-              "implied_prob": 54.64
+              "odds_decimal": 1.85,
+              "implied_prob": 54.05
             }
           },
           "player_props": []
         },
         "removed_props": []
       },
-      "edges": [
-        {
-          "edge_pct": 5.99,
-          "edge_raw": 5.99,
-          "kelly_fraction": 0.87,
-          "verdict": "✅ Bonne valeur",
-          "type": "Puck Line",
-          "bet": "Vegas Golden Knights -1.5",
-          "our_prob": 40.0,
-          "b365_implied": 37.74,
-          "b365_odds": 2.65,
-          "game": "Anaheim Ducks @ Vegas Golden Knights",
-          "note": "💤 Vegas 3j repos | 💤 Anaheim 3j repos",
-          "context_notes": [
-            "💤 Vegas 3j repos",
-            "💤 Anaheim 3j repos"
-          ]
-        }
-      ]
+      "edges": []
     }
   ],
-  "value_bets": [
-    {
-      "edge_pct": 5.99,
-      "edge_raw": 5.99,
-      "kelly_fraction": 0.87,
-      "verdict": "✅ Bonne valeur",
-      "type": "Puck Line",
-      "bet": "Vegas Golden Knights -1.5",
-      "our_prob": 40.0,
-      "b365_implied": 37.74,
-      "b365_odds": 2.65,
-      "game": "Anaheim Ducks @ Vegas Golden Knights",
-      "note": "💤 Vegas 3j repos | 💤 Anaheim 3j repos",
-      "context_notes": [
-        "💤 Vegas 3j repos",
-        "💤 Anaheim 3j repos"
-      ]
-    }
-  ],
+  "value_bets": [],
   "props_analysis": [],
-  "nba_analysis": [],
-  "mlb_analysis": [
+  "nba_analysis": [
     {
-      "home_team": "Texas Rangers",
-      "away_team": "Arizona Diamondbacks",
+      "home_team": "Detroit Pistons",
+      "away_team": "Cleveland Cavaliers",
       "bets": [
         {
-          "player": "Nathan Eovaldi",
-          "team": "Texas Rangers",
-          "opponent": "Arizona Diamondbacks",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 5.0",
-          "stat_key": "strikeouts",
-          "line": 5.0,
-          "season_avg": 5.83,
-          "adj_proj": 6.24,
-          "opp_k_rate": 23.0,
-          "park_factor": 1.05,
-          "our_prob": 64.0,
-          "edge_pct": 21.6,
-          "kelly": 6.1,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Adversaire K%: 23.0% (favorable)",
-            "Terrain: Favorable frappeurs (PF 1.05)"
-          ]
-        }
-      ],
-      "commence_time": "2026-05-13T00:09:00Z"
-    },
-    {
-      "home_team": "Houston Astros",
-      "away_team": "Seattle Mariners",
-      "bets": [
+          "player": "Jalen Duren",
+          "team": "Detroit Pistons",
+          "opponent": "Cleveland Cavaliers",
+          "market": "Pts+Reb+Ast Over 24.5",
+          "stat_key": "pra",
+          "line": 24.5,
+          "avg10": 28.0,
+          "avg5": 28.0,
+          "adj_proj": 26.2,
+          "our_prob": 59.1,
+          "edge_pct": 12.8,
+          "kelly": 3.5,
+          "est_odds": 1.91,
+          "dk_implied": 52.4,
+          "def_rank": 15,
+          "context": []
+        },
         {
-          "player": "Hunter Brown",
-          "team": "Houston Astros",
-          "opponent": "Seattle Mariners",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 7.0",
-          "stat_key": "strikeouts",
-          "line": 7.0,
-          "season_avg": 8.5,
-          "adj_proj": 8.14,
-          "opp_k_rate": 20.6,
-          "park_factor": 0.97,
-          "our_prob": 59.4,
-          "edge_pct": 12.9,
-          "kelly": 3.7,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Terrain: Neutre (PF 0.97)"
-          ]
+          "player": "Donovan Mitchell",
+          "team": "Cleveland Cavaliers",
+          "opponent": "Detroit Pistons",
+          "market": "Rebonds Over 4.5",
+          "stat_key": "reb",
+          "line": 4.5,
+          "avg10": 5.0,
+          "avg5": 5.0,
+          "adj_proj": 5.4,
+          "our_prob": 60.4,
+          "edge_pct": 7.5,
+          "kelly": 2.4,
+          "est_odds": 1.78,
+          "dk_implied": 56.2,
+          "def_rank": 15,
+          "context": []
         }
       ],
-      "commence_time": "2026-05-13T00:11:00Z"
+      "commence_time": "2026-05-14T00:10:00Z"
     }
-  ]
+  ],
+  "mlb_analysis": []
 }
