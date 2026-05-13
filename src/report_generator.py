@@ -29,6 +29,7 @@ class ReportGenerator:
         bet_cards    = self._bet_cards(value_bets)
         rows         = self._rows(signals)
         props_html   = self._props_section(props_by_game)
+        nba_html     = self._nba_section(data.get("nba_analysis", []))
         calc_html    = self._calculator()
         perf_html    = self._performance_section()
         mlb_html     = self._mlb_section(data.get("mlb_analysis", []))
@@ -49,16 +50,27 @@ class ReportGenerator:
             self._header(),
             self._grid(date_str, total_games, total_value),
             "<div id=\"tab-signal\">",
+            # ── NHL market edges ──
             "<div class=\"sec\">Bets recommandes - Edge minimum 5%</div>",
             bet_cards,
-            "<div class=\"sec\" style=\"margin-top:1.5rem\">Tous les matchs</div>",
+            # ── NHL player props ──
+            "<div class=\"sec\" style=\"margin-top:1.5rem\">Props joueurs NHL</div>",
+            props_html if props_html else "<p class=\"no-bets\">Aucun prop NHL identifie.</p>",
+            # ── NBA ──
+            "<div class=\"sec\" style=\"margin-top:1.5rem\">NBA</div>",
+            nba_html if nba_html else "<p class=\"no-bets\">Aucun bet NBA identifie.</p>",
+            # ── MLB ──
+            "<div class=\"sec\" style=\"margin-top:1.5rem\">MLB</div>",
+            mlb_html if mlb_html else "<p class=\"no-bets\">Aucun bet MLB identifie.</p>",
+            # ── Table matchs NHL ──
+            "<div class=\"sec\" style=\"margin-top:1.5rem\">Tous les matchs NHL</div>",
             self._table(rows),
             "</div>",
             "<div id=\"tab-props\" style=\"display:none\">",
             props_html if props_html else "<p class=\"no-bets\">Analyse joueurs disponible apres le prochain run.</p>",
             "</div>",
             "<div id=\"tab-nba\" style=\"display:none\">",
-            self._nba_section(data.get("nba_analysis", [])),
+            nba_html,
             "</div>",
             "<div id=\"tab-mlb\" style=\"display:none\">",
             mlb_html,
@@ -159,8 +171,8 @@ class ReportGenerator:
                 "<span class=\"vd\" style=\"background:" + eb + ";color:" + et + "\">" + vd + "</span>"
                 "</div>"
                 "<div class=\"bs\">"
-                "<div class=\"stat\"><span class=\"sl\">Cote DK</span><span class=\"sv\">" + str(round(b.get("b365_odds", 0), 2)) + "</span></div>"
-                "<div class=\"stat\"><span class=\"sl\">Prob DK</span><span class=\"sv\">" + str(round(b.get("b365_implied", 0), 1)) + "%</span></div>"
+                "<div class=\"stat\"><span class=\"sl\">Cote b365</span><span class=\"sv\">" + str(round(b.get("b365_odds", 0), 2)) + "</span></div>"
+                "<div class=\"stat\"><span class=\"sl\">Prob b365</span><span class=\"sv\">" + str(round(b.get("b365_implied", 0), 1)) + "%</span></div>"
                 "<div class=\"stat\"><span class=\"sl\">Prob modele</span><span class=\"sv\">" + str(round(b.get("our_prob", 0), 1)) + "%</span></div>"
                 "<div class=\"stat\" style=\"color:" + ec + "\"><span class=\"sl\">Edge</span><span class=\"sv\">+" + str(round(ep, 1)) + "%</span></div>"
                 "<div class=\"stat\"><span class=\"sl\">1/4 Kelly</span><span class=\"sv\">" + str(round(b.get("kelly_fraction", 0), 1)) + "% BR</span></div>"
@@ -606,8 +618,8 @@ class ReportGenerator:
                 html += (
                     "<div class='mlb-stat'><span>Park factor</span><strong style='color:" + pf_color + "'>" + str(park_factor) + "</strong></div>"
                     "<div class='mlb-stat'><span>Notre prob</span><strong style='color:" + ec + "'>" + str(prob) + "%</strong></div>"
-                    "<div class='mlb-stat'><span>DK implied</span><strong>" + str(dk_implied) + "%</strong></div>"
-                    "<div class='mlb-stat'><span>Cote est. DK</span><strong>" + str(odds) + "</strong></div>"
+                    "<div class='mlb-stat'><span>b365 implied</span><strong>" + str(dk_implied) + "%</strong></div>"
+                    "<div class='mlb-stat'><span>Cote est. b365</span><strong>" + str(odds) + "</strong></div>"
                     "<div class='mlb-stat'><span>1/4 Kelly</span><strong>" + str(kelly) + "% BR</strong></div>"
                     "</div>"
                 )
@@ -739,8 +751,8 @@ class ReportGenerator:
             "if(note)h+='<div class=\"bg\" style=\"margin-top:4px;font-size:11px\">'+note+'</div>';"
             "h+='</div><span class=\"vd\" style=\"background:'+eb+';color:'+et+'\">'+(b.verdict||'')+'</span></div>';"
             "h+='<div class=\"bs\">';"
-            "h+='<div class=\"stat\"><span class=\"sl\">Cote DK</span><span class=\"sv\">'+(Math.round((b.b365_odds||0)*100)/100)+'</span></div>';"
-            "h+='<div class=\"stat\"><span class=\"sl\">Prob DK</span><span class=\"sv\">'+(Math.round((b.b365_implied||0)*10)/10)+'%</span></div>';"
+            "h+='<div class=\"stat\"><span class=\"sl\">Cote b365</span><span class=\"sv\">'+(Math.round((b.b365_odds||0)*100)/100)+'</span></div>';"
+            "h+='<div class=\"stat\"><span class=\"sl\">Prob b365</span><span class=\"sv\">'+(Math.round((b.b365_implied||0)*10)/10)+'%</span></div>';"
             "h+='<div class=\"stat\"><span class=\"sl\">Prob modele</span><span class=\"sv\">'+(Math.round((b.our_prob||0)*10)/10)+'%</span></div>';"
             "h+='<div class=\"stat\" style=\"color:'+ec+'\"><span class=\"sl\">Edge</span><span class=\"sv\">+'+(Math.round(ep*10)/10)+'%</span></div>';"
             "h+='<div class=\"stat\"><span class=\"sl\">1/4 Kelly</span><span class=\"sv\">'+(Math.round((b.kelly_fraction||0)*10)/10)+'% BR</span></div>';"
@@ -862,8 +874,8 @@ class ReportGenerator:
             "if(b.opp_k_rate!=null)h+='<div class=\"mlb-stat\"><span>K% adverse</span><strong>'+(b.opp_k_rate||0)+'%</strong></div>';"
             "h+='<div class=\"mlb-stat\"><span>Park factor</span><strong style=\"color:'+pfc+'\">'+(b.park_factor||1.0)+'</strong></div>';"
             "h+='<div class=\"mlb-stat\"><span>Notre prob</span><strong style=\"color:'+ec+'\">'+( b.our_prob||0)+'%</strong></div>';"
-            "h+='<div class=\"mlb-stat\"><span>DK implied</span><strong>'+(b.dk_implied||52.6)+'%</strong></div>';"
-            "h+='<div class=\"mlb-stat\"><span>Cote est. DK</span><strong>'+(b.est_odds||0)+'</strong></div>';"
+            "h+='<div class=\"mlb-stat\"><span>b365 implied</span><strong>'+(b.dk_implied||52.6)+'%</strong></div>';"
+            "h+='<div class=\"mlb-stat\"><span>Cote est. b365</span><strong>'+(b.est_odds||0)+'</strong></div>';"
             "h+='<div class=\"mlb-stat\"><span>1/4 Kelly</span><strong>'+(b.kelly||0)+'% BR</strong></div>';"
             "h+='</div>';"
             "(b.context||[]).slice(0,2).forEach(function(n){h+='<div class=\"mlb-note\">'+n+'</div>';});"
