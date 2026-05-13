@@ -10,8 +10,8 @@ import pytz
 
 BASE_URL  = "https://api.the-odds-api.com/v4"
 SPORT     = "basketball_nba"
-BOOKMAKER = "draftkings"
-REGIONS   = "us"
+BOOKMAKER = "bet365"
+REGIONS   = "eu"
 
 PROP_MARKETS = [
     "player_points",
@@ -43,8 +43,9 @@ class NBAOddsFetcher:
 
     def get_nba_games(self) -> list:
         """Retourne les matchs NBA du jour avec leurs event_id."""
+        # Pas de filtre région — on veut tous les matchs du jour.
+        # regions=eu s'applique seulement pour les props.
         data = self._get(f"sports/{SPORT}/events", {
-            "regions":    REGIONS,
             "oddsFormat": "decimal",
         })
         if not data:
