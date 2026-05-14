@@ -46,10 +46,10 @@ STAT_CONFIGS = [
 
 MIN_EDGE   = 8.0   # Abaisse de 12 — mode synthétique génère des edges 8-12%
 MAX_EDGE   = 30.0  # Relevé de 22 — évite de bloquer les lignes basses sur bons lanceurs
-DK_IMPLIED = 52.63
-DK_ODDS    = 1.909
+B365_IMPLIED = 52.63  # ~1.909 cotes b365 standard
+B365_ODDS    = 1.909
 MAX_BETS   = 4
-# Si notre modele depasse DK de plus de 25%, le marche a raison — skip
+# Si notre modele depasse b365 de plus de 25%, le marche a raison — skip
 MAX_DISAGREEMENT_RATIO = 1.25
 
 _STAT_TO_MARKET = {
@@ -187,6 +187,9 @@ MLB_PITCHERS = {
     "Grayson Rodriguez":    {"strikeouts": 6.5,  "team": "Baltimore Orioles",      "hand": "R"},
     "Dean Kremer":          {"strikeouts": 5.8,  "team": "Baltimore Orioles",      "hand": "R"},
     "Cade Povich":          {"strikeouts": 5.5,  "team": "Baltimore Orioles",      "hand": "L"},
+    "Chayce McDermott":     {"strikeouts": 6.0,  "team": "Baltimore Orioles",      "hand": "R"},
+    "Albert Suarez":        {"strikeouts": 5.0,  "team": "Baltimore Orioles",      "hand": "R"},
+    "B. Young":             {"strikeouts": 5.5,  "team": "Baltimore Orioles",      "hand": "L"},
     "Braxton Garrett":      {"strikeouts": 6.0,  "team": "Miami Marlins",          "hand": "L"},
     "Roddery Munoz":        {"strikeouts": 5.5,  "team": "Miami Marlins",          "hand": "R"},
     "Paul Skenes":          {"strikeouts": 8.8,  "team": "Pittsburgh Pirates",     "hand": "R"},
@@ -231,6 +234,32 @@ MLB_PITCHERS = {
     "Tylor Megill":         {"strikeouts": 6.5,  "team": "New York Mets",          "hand": "R"},
     "Bowden Francis":       {"strikeouts": 7.0,  "team": "Toronto Blue Jays",      "hand": "R"},
     "Chris Sale":           {"strikeouts": 8.0,  "team": "Atlanta Braves",         "hand": "L"},
+    # ── Partants 2025-26 manquants ────────────────────────────────────────────
+    "Shota Imanaga":        {"strikeouts": 8.2,  "team": "Chicago Cubs",           "hand": "L"},
+    "Kyle Bradish":         {"strikeouts": 7.0,  "team": "Baltimore Orioles",      "hand": "R"},
+    "Andrew Painter":       {"strikeouts": 8.0,  "team": "Philadelphia Phillies",  "hand": "R"},
+    "Kumar Rocker":         {"strikeouts": 6.5,  "team": "Texas Rangers",          "hand": "R"},
+    "Ryne Nelson":          {"strikeouts": 6.0,  "team": "Arizona Diamondbacks",   "hand": "R"},
+    "Bryce Miller":         {"strikeouts": 6.5,  "team": "Seattle Mariners",       "hand": "R"},
+    "Lance McCullers Jr.":  {"strikeouts": 7.0,  "team": "Houston Astros",         "hand": "R"},
+    "Matthew Liberatore":   {"strikeouts": 5.5,  "team": "St. Louis Cardinals",    "hand": "L"},
+    "J.T. Ginn":            {"strikeouts": 5.5,  "team": "Oakland Athletics",      "hand": "R"},
+    "Robbie Ray":           {"strikeouts": 6.5,  "team": "San Francisco Giants",   "hand": "L"},
+    "Christian Scott":      {"strikeouts": 6.5,  "team": "New York Mets",          "hand": "R"},
+    "Max Meyer":            {"strikeouts": 7.0,  "team": "Miami Marlins",          "hand": "R"},
+    "Jacob Misiorowski":    {"strikeouts": 7.0,  "team": "Milwaukee Brewers",      "hand": "R"},
+    "Noah Schultz":         {"strikeouts": 6.0,  "team": "Chicago White Sox",      "hand": "L"},
+    "Parker Messick":       {"strikeouts": 6.0,  "team": "Cleveland Guardians",    "hand": "L"},
+    "Jake Irvin":           {"strikeouts": 5.5,  "team": "Washington Nationals",   "hand": "R"},
+    "Jose Quintana":        {"strikeouts": 5.5,  "team": "Colorado Rockies",       "hand": "L"},
+    "Griffin Jax":          {"strikeouts": 6.0,  "team": "Tampa Bay Rays",         "hand": "R"},
+    "JR Ritchie":           {"strikeouts": 5.5,  "team": "Atlanta Braves",         "hand": "R"},
+    "Dylan Cease":          {"strikeouts": 8.2,  "team": "Toronto Blue Jays",      "hand": "R"},
+    "Framber Valdez":       {"strikeouts": 6.5,  "team": "Detroit Tigers",         "hand": "L"},
+    "Michael King":         {"strikeouts": 7.5,  "team": "San Diego Padres",       "hand": "R"},
+    "Cal Dollander":        {"strikeouts": 6.5,  "team": "Colorado Rockies",       "hand": "R"},
+    "Kyle Bradish":         {"strikeouts": 7.0,  "team": "Baltimore Orioles",      "hand": "R"},
+    "Jake Burger":          {"strikeouts": 5.5,  "team": "Miami Marlins",          "hand": "R"},
 }
 
 # ── FRAPPEURS ─────────────────────────────────────────────────────────────────
@@ -355,13 +384,13 @@ def _normal_over(mean: float, std: float, line: float) -> float:
     return round(min(max(prob * 100, 1.0), 99.0), 1)
 
 
-def _edge(prob: float, dk_implied: float = DK_IMPLIED) -> float:
+def _edge(prob: float, dk_implied: float = B365_IMPLIED) -> float:
     if dk_implied <= 0:
         return 0.0
     return round((prob - dk_implied) / dk_implied * 100, 1)
 
 
-def _kelly(prob: float, dk_implied: float = DK_IMPLIED, dk_odds: float = DK_ODDS) -> float:
+def _kelly(prob: float, dk_implied: float = B365_IMPLIED, dk_odds: float = B365_ODDS) -> float:
     b = dk_odds - 1
     if b <= 0:
         return 0.0
@@ -390,7 +419,7 @@ class MLBPropsAnalyzer:
 
         park_factor = PARK_FACTORS.get(home, 1.00)
 
-        # Lookup cotes reelles DK
+        # Lookup cotes reelles
         real_lkp = {}
         if props_by_market:
             for stat_key, market_key in _STAT_TO_MARKET.items():
@@ -399,34 +428,96 @@ class MLBPropsAnalyzer:
                     real_lkp.setdefault(pl, {})[stat_key] = prop
         use_real = bool(real_lkp)
 
-        # Lanceur partant reel par equipe — priorite aux cotes DK, sinon dict statique
+        # ── Partants probables depuis MLB API officielle ───────────────────────
+        try:
+            from mlb_starters import fetch_probable_starters, get_starter_for_team
+            _mlb_starters = fetch_probable_starters()
+        except Exception:
+            _mlb_starters = {}
+
+        batting_team_for = {home: away, away: home}  # opp_team -> batting_team
+
         def _actual_starter(opp_team: str):
             """
-            Identifie le vrai partant de l'equipe adverse.
-            Priorite: cotes pitcher_strikeouts DK filtrees par equipe.
-            Fallback: meilleur lanceur connu du dict statique pour cette equipe.
+            Identifie le vrai partant de opp_team.
+            Priorité 1 — MLB Stats API (partants officiels du jour)
+            Priorité 2 — Props Bet365 (inférence depuis les lignes K)
+            Priorité 3 — Dict statique MLB_PITCHERS (fallback)
             """
+            batting_team = batting_team_for.get(opp_team, "")
+
+            # ── 1. MLB API officielle (source de vérité) ──────────────────────
+            if _mlb_starters:
+                try:
+                    from mlb_starters import get_starter_for_team
+                    api_name = get_starter_for_team(opp_team, batting_team, _mlb_starters)
+                    if api_name:
+                        api_lower = api_name.lower()
+                        api_last  = api_lower.split()[-1]
+                        # Match par nom dans MLB_PITCHERS (ignore équipe — trades possibles)
+                        for known, known_stats in MLB_PITCHERS.items():
+                            if (known.lower() == api_lower or
+                                    known.lower().split()[-1] == api_last):
+                                stats = dict(known_stats)
+                                stats["team"] = opp_team  # forcer la bonne équipe
+                                # Enrichir avec la ligne B365 si dispo
+                                if use_real:
+                                    for pl_name, pl_data in real_lkp.items():
+                                        if ("strikeouts" in pl_data and
+                                                (pl_name == api_lower or
+                                                 pl_name.split()[-1] == api_last)):
+                                            stats["strikeouts"] = pl_data["strikeouts"].get("line", stats["strikeouts"])
+                                            break
+                                print(f"    [MLB API] {api_name} ({opp_team}) {stats['strikeouts']} K/dep")
+                                return known, stats
+                        # Pas dans le dict — stats synthétiques via ligne B365
+                        b365_line = LEAGUE_AVG_K_SP
+                        if use_real:
+                            for pl_name, pl_data in real_lkp.items():
+                                if ("strikeouts" in pl_data and
+                                        (pl_name == api_lower or pl_name.split()[-1] == api_last)):
+                                    b365_line = pl_data["strikeouts"].get("line", LEAGUE_AVG_K_SP)
+                                    break
+                        print(f"    [MLB API] {api_name} (hors dict, {b365_line} K/dep, {opp_team})")
+                        return api_name, {"strikeouts": b365_line, "team": opp_team, "hand": "R"}
+                except Exception:
+                    pass
+
+            # ── 2. Inférence depuis les props Bet365 ──────────────────────────
             if use_real:
+                unknown_candidates = []
                 for name, data in real_lkp.items():
                     if "strikeouts" not in data:
                         continue
                     last = name.split()[-1]
-                    # Chercher dans MLB_PITCHERS EN VERIFIANT L'EQUIPE
+                    # Lanceur connu de opp_team dans MLB_PITCHERS
                     for known, known_stats in MLB_PITCHERS.items():
-                        name_match = (known.lower() == name or
-                                      known.lower().split()[-1] == last)
-                        team_match = known_stats.get("team", "") == opp_team
-                        if name_match and team_match:
+                        if (known_stats.get("team", "") == opp_team and
+                                (known.lower() == name or known.lower().split()[-1] == last)):
                             return known, known_stats
-                    # Lanceur pas dans notre dict: verifier si son nom correspond
-                    # a un joueur dont l'equipe est opp_team via approximation
-                    # On ne peut pas confirmer l'equipe — skip pour eviter erreur
-                # Aucun lanceur identifie avec certitude — fallback dict
-            # Fallback: meilleur lanceur connu du dict statique pour opp_team
+                    # Pas un lanceur connu de batting_team → candidat pour opp_team
+                    is_batting = any(
+                        ks.get("team", "") == batting_team and
+                        (kn.lower() == name or kn.lower().split()[-1] == last)
+                        for kn, ks in MLB_PITCHERS.items()
+                    )
+                    if not is_batting:
+                        line = data["strikeouts"].get("line", LEAGUE_AVG_K_SP)
+                        unknown_candidates.append((name, line))
+
+                if unknown_candidates:
+                    unknown_candidates.sort(key=lambda x: x[1], reverse=True)
+                    best_name, best_line = unknown_candidates[0]
+                    display = " ".join(w.capitalize() for w in best_name.split())
+                    print(f"    [MLB Props] Partant inferé: {display} ({best_line} K/dep, {opp_team})")
+                    return display, {"strikeouts": best_line, "team": opp_team, "hand": "R"}
+
+            # ── 3. Dict statique (fallback absolu) ────────────────────────────
             pitchers = _TEAM_PITCHERS.get(opp_team, [])
             if not pitchers:
                 return None, None
             best = max(pitchers, key=lambda p: MLB_PITCHERS[p]["strikeouts"])
+            print(f"    [MLB Fallback] Partant statique: {best} ({opp_team})")
             return best, MLB_PITCHERS[best]
 
         ev_bets = []
@@ -480,8 +571,8 @@ class MLBPropsAnalyzer:
                     dk_odds = rp["over_odds"]
                 else:
                     line    = _estimate_line(adj_mean, "strikeouts")
-                    dk_impl = DK_IMPLIED
-                    dk_odds = DK_ODDS
+                    dk_impl = B365_IMPLIED
+                    dk_odds = B365_ODDS
 
                 prob  = _normal_over(adj_mean, std, line)
                 edge  = _edge(prob, dk_impl)
@@ -590,8 +681,8 @@ class MLBPropsAnalyzer:
                         dk_odds = rp["over_odds"]
                     else:
                         line    = _estimate_line(adj_mean, key)
-                        dk_impl = DK_IMPLIED
-                        dk_odds = DK_ODDS
+                        dk_impl = B365_IMPLIED
+                        dk_odds = B365_ODDS
 
                     prob  = _normal_over(adj_mean, std, line)
                     edge  = _edge(prob, dk_impl)
