@@ -1,6 +1,59 @@
 {
   "bets": [
     {
+      "id": "2026-05-13|prop_nhl|Devon Toews|Points Over 0.5",
+      "date": "2026-05-13",
+      "sport": "nhl",
+      "bet_type": "prop",
+      "market_type": "points",
+      "game": "Minnesota Wild @ Colorado Avalanche",
+      "name": "Devon Toews",
+      "team": "Colorado Avalanche",
+      "bet": "Devon Toews — Points Over 0.5",
+      "edge_pct": 15.6,
+      "our_prob": 57.8,
+      "b365_odds": 2.0,
+      "b365_implied": 50.0,
+      "kelly_fraction": 3.9,
+      "result": "W"
+    },
+    {
+      "id": "2026-05-13|prop_nba|Donovan Mitchell|Rebonds Over 4.5",
+      "date": "2026-05-13",
+      "sport": "nba",
+      "bet_type": "prop",
+      "market_type": "reb",
+      "game": "Cleveland Cavaliers @ Detroit Pistons",
+      "name": "Donovan Mitchell",
+      "team": "Cleveland Cavaliers",
+      "bet": "Donovan Mitchell — Rebonds Over 4.5",
+      "line": 4.5,
+      "edge_pct": 5.0,
+      "our_prob": 60.4,
+      "b365_odds": 1.74,
+      "b365_implied": 57.5,
+      "kelly_fraction": 1.7,
+      "result": "L"
+    },
+    {
+      "id": "2026-05-13|prop_mlb|Max Fried|Retraits au baton Over 3.5",
+      "date": "2026-05-13",
+      "sport": "mlb",
+      "bet_type": "prop",
+      "market_type": "strikeouts",
+      "game": "New York Yankees @ Baltimore Orioles",
+      "name": "Max Fried",
+      "team": "New York Yankees",
+      "line": 3.5,
+      "bet": "Max Fried — Retraits au baton Over 3.5",
+      "edge_pct": 21.8,
+      "our_prob": 80.6,
+      "b365_odds": 1.51,
+      "b365_implied": 66.2,
+      "kelly_fraction": 10.6,
+      "result": "L"
+    },
+    {
       "id": "2026-05-12|prop_nhl|Cole Caufield|Shots Over 2.5",
       "date": "2026-05-12",
       "sport": "nhl",
@@ -17673,16 +17726,16 @@
     }
   ],
   "summary": {
-    "total": 916,
-    "wins": 448,
-    "losses": 468,
+    "total": 919,
+    "wins": 449,
+    "losses": 470,
     "win_rate": 48.9,
-    "profit": -30.63,
+    "profit": -32.33,
     "roi": -1.2,
     "by_edge": {
       "15+": {
-        "n": 523,
-        "wins": 252,
+        "n": 525,
+        "wins": 253,
         "profit": 29.32
       },
       "8-15": {
@@ -17691,21 +17744,31 @@
         "profit": -47.86
       },
       "5-8": {
-        "n": 42,
+        "n": 43,
         "wins": 19,
-        "profit": -12.09
+        "profit": -13.79
       }
     },
     "by_type": {
+      "nhl_points": {
+        "n": 347,
+        "wins": 154,
+        "profit": -50.88
+      },
+      "nba_reb": {
+        "n": 24,
+        "wins": 15,
+        "profit": 14.42
+      },
+      "mlb_strikeouts": {
+        "n": 18,
+        "wins": 10,
+        "profit": 1.28
+      },
       "nhl_shots": {
         "n": 74,
         "wins": 32,
         "profit": -31.54
-      },
-      "nhl_points": {
-        "n": 346,
-        "wins": 153,
-        "profit": -53.88
       },
       "nba_ast": {
         "n": 6,
@@ -17732,20 +17795,10 @@
         "wins": 2,
         "profit": -6.74
       },
-      "nba_reb": {
-        "n": 23,
-        "wins": 15,
-        "profit": 16.12
-      },
       "mlb_hits": {
         "n": 15,
         "wins": 10,
         "profit": 13.39
-      },
-      "mlb_strikeouts": {
-        "n": 17,
-        "wins": 10,
-        "profit": 4.28
       },
       "nba_pts": {
         "n": 116,
@@ -17765,25 +17818,25 @@
     },
     "by_sport": {
       "nhl": {
-        "n": 630,
-        "wins": 317,
+        "n": 631,
+        "wins": 318,
         "losses": 313,
-        "profit": 56.58
+        "profit": 59.6
       },
       "nba": {
-        "n": 157,
+        "n": 158,
         "wins": 66,
-        "losses": 91,
-        "profit": -95.69
+        "losses": 92,
+        "profit": -97.4
       },
       "mlb": {
-        "n": 129,
+        "n": 130,
         "wins": 65,
-        "losses": 64,
-        "profit": 8.52
+        "losses": 65,
+        "profit": 5.52
       }
     },
     "clv": {},
-    "last_updated": "2026-05-13T19:50:53Z"
+    "last_updated": "2026-05-14T06:44:10Z"
   }
 }
