@@ -91,22 +91,34 @@ class OddsFetcher:
 
     def get_nhl_player_props(self, event_id: str, bookmaker: str = "draftkings") -> dict:
         """Fetche les props joueurs NHL pour un match (tous les marches en un seul appel).
+        Essaie le bookmaker principal, puis les autres en cascade si aucun prop trouve.
         Retourne dict {market_key: [{player, line, over_odds, over_implied, under_odds, under_implied}]}
         """
         time.sleep(0.5)
-        region = next((e["region"] for e in BOOKMAKER_PRIORITY if e["key"] == bookmaker), "us")
-        data = self._get(f"sports/{SPORT}/events/{event_id}/odds", {
-            "regions":    region,
-            "markets":    ",".join(NHL_PROP_MARKETS),
-            "oddsFormat": FMT_ODDS,
-            "bookmakers": bookmaker,
-        })
+        # Ordre de priorité: bookmaker demandé en premier, puis les autres
+        books_to_try = [bookmaker] + [e["key"] for e in BOOKMAKER_PRIORITY if e["key"] != bookmaker]
+
+        data = None
+        used_bookmaker = bookmaker
+        for book in books_to_try:
+            region = next((e["region"] for e in BOOKMAKER_PRIORITY if e["key"] == book), "us")
+            data = self._get(f"sports/{SPORT}/events/{event_id}/odds", {
+                "regions":    region,
+                "markets":    ",".join(NHL_PROP_MARKETS),
+                "oddsFormat": FMT_ODDS,
+                "bookmakers": book,
+            })
+            if data and any(bm.get("key") == book and bm.get("markets") for bm in data.get("bookmakers", [])):
+                used_bookmaker = book
+                if book != bookmaker:
+                    print(f"    [Props NHL] {bookmaker} sans props — utilise {book}")
+                break
         if not data:
             return {}
 
         result = {}
         for bm in data.get("bookmakers", []):
-            if bm.get("key") != bookmaker:
+            if bm.get("key") != used_bookmaker:
                 continue
             for mkt in bm.get("markets", []):
                 market_key = mkt.get("key")
