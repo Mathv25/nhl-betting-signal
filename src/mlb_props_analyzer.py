@@ -258,7 +258,6 @@ MLB_PITCHERS = {
     "Michael King":         {"strikeouts": 7.5,  "team": "San Diego Padres",       "hand": "R"},
     "Cal Dollander":        {"strikeouts": 6.5,  "team": "Colorado Rockies",       "hand": "R"},
     "Kyle Bradish":         {"strikeouts": 7.0,  "team": "Baltimore Orioles",      "hand": "R"},
-    "Jake Burger":          {"strikeouts": 5.5,  "team": "Miami Marlins",          "hand": "R"},
 }
 
 # ── FRAPPEURS ─────────────────────────────────────────────────────────────────
@@ -518,6 +517,18 @@ class MLBPropsAnalyzer:
         ev_bets = []
         seen    = set()
 
+        # ── Partants confirmés par MLB API (filtre pour bets lanceurs) ────────
+        confirmed_starter_lasts = set()
+        if _mlb_starters:
+            try:
+                from mlb_starters import get_starter_for_team
+                for tm, op in [(home, away), (away, home)]:
+                    n = get_starter_for_team(tm, op, _mlb_starters)
+                    if n:
+                        confirmed_starter_lasts.add(n.lower().split()[-1])
+            except Exception:
+                pass
+
         # ── LANCEURS ─────────────────────────────────────────────────────────
         cfg_k = next(c for c in STAT_CONFIGS if c["key"] == "strikeouts")
         for team, opp in [(home, away), (away, home)]:
@@ -525,6 +536,11 @@ class MLBPropsAnalyzer:
                 if pitcher in seen:
                     continue
                 seen.add(pitcher)
+                # Filtrer: si MLB API a des partants confirmés, ignorer les non-partants
+                if confirmed_starter_lasts:
+                    pitcher_last = pitcher.lower().split()[-1]
+                    if pitcher_last not in confirmed_starter_lasts:
+                        continue
                 stats  = MLB_PITCHERS.get(pitcher, {})
                 mean_k = stats.get("strikeouts", 0.0)
 
