@@ -33,6 +33,7 @@ class ReportGenerator:
         calc_html    = self._calculator()
         perf_html    = self._performance_section()
         mlb_html     = self._mlb_section(data.get("mlb_analysis", []))
+        ai_html      = self._ai_analysis_section(data.get("ai_analysis", {}))
 
         signal_json = json.dumps(data, ensure_ascii=False, default=str)
 
@@ -65,6 +66,9 @@ class ReportGenerator:
             # ── Table matchs NHL ──
             "<div class=\"sec\" style=\"margin-top:1.5rem\">Tous les matchs NHL</div>",
             self._table(rows),
+            # ── Expert IA ──
+            "<div class=\"sec\" style=\"margin-top:1.5rem\">Analyse experte IA</div>",
+            ai_html,
             "</div>",
             "<div id=\"tab-props\" style=\"display:none\">",
             props_html if props_html else "<p class=\"no-bets\">Analyse joueurs disponible apres le prochain run.</p>",
@@ -80,6 +84,9 @@ class ReportGenerator:
             "</div>",
             "<div id=\"tab-calc\" style=\"display:none\">",
             calc_html,
+            "</div>",
+            "<div id=\"tab-ai\" style=\"display:none\">",
+            ai_html,
             "</div>",
             self._disclaimer(gen_display),
             "</div>",
@@ -104,6 +111,7 @@ class ReportGenerator:
             "<button class=\"tab\" onclick=\"showTab('tab-mlb',this)\">MLB</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-perf',this)\">Performance</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-calc',this)\">Calculateur</button>"
+            "<button class=\"tab\" onclick=\"showTab('tab-ai',this)\">Expert IA</button>"
             "</div>"
             "<button id=\"refreshBtn\" onclick=\"refreshData()\" title=\"Recharger le signal\" style=\""
             "background:none;border:1px solid var(--b);border-radius:8px;padding:5px 12px;"
@@ -627,6 +635,108 @@ class ReportGenerator:
                     html += "<div class='mlb-note'>" + note + "</div>"
                 html += "</div>"
             html += "</div>"
+        return html
+
+    def _ai_analysis_section(self, ai_data: dict) -> str:
+        if not ai_data:
+            return (
+                "<div style='color:var(--m);padding:1.5rem;font-size:13px;background:var(--s);"
+                "border-radius:10px;text-align:center'>"
+                "Analyse IA non disponible — verifiez que ANTHROPIC_API_KEY est configure."
+                "</div>"
+            )
+
+        resume = ai_data.get("resume", "")
+        bets = ai_data.get("bets", [])
+        opportunites = ai_data.get("opportunites_manquees", "")
+        conseil = ai_data.get("conseil_du_jour", "")
+
+        html = "<div style='display:flex;flex-direction:column;gap:1rem'>"
+
+        # Resume
+        if resume:
+            html += (
+                "<div style='background:linear-gradient(135deg,#1a1f2e,#252b3b);border:1px solid #334;"
+                "border-radius:12px;padding:1.2rem 1.5rem'>"
+                "<div style='font-size:11px;font-weight:700;color:#7B93FF;letter-spacing:.1em;margin-bottom:.5rem'>RESUME DU JOUR</div>"
+                "<div style='color:#E2E8F0;font-size:14px;line-height:1.6'>" + resume + "</div>"
+                "</div>"
+            )
+
+        # Bet cards
+        for b in bets:
+            verdict = b.get("verdict", "")
+            confiance = b.get("confiance", 3)
+            bet_name = b.get("bet", "")
+            analyse = b.get("analyse", "")
+            risques = b.get("risques", "")
+            suggestion = b.get("suggestion", "")
+
+            if verdict == "JOUER":
+                v_color = "#0F6E56"
+                v_bg = "#E1F5EE"
+                v_border = "#0F6E56"
+            elif verdict == "JOUER AVEC PRUDENCE":
+                v_color = "#B45309"
+                v_bg = "#FAEEDA"
+                v_border = "#B45309"
+            else:
+                v_color = "#B91C1C"
+                v_bg = "#FEE2E2"
+                v_border = "#B91C1C"
+
+            stars = ("★" * confiance) + ("☆" * (5 - confiance))
+
+            html += (
+                "<div style='background:var(--s);border:1px solid var(--b);border-left:4px solid "
+                + v_border + ";border-radius:12px;padding:1.2rem 1.5rem'>"
+                "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.8rem;gap:.5rem;flex-wrap:wrap'>"
+                "<div style='font-size:14px;font-weight:700;color:var(--t)'>" + bet_name + "</div>"
+                "<div style='display:flex;gap:.5rem;align-items:center;flex-shrink:0'>"
+                "<span style='font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;"
+                "color:" + v_color + ";background:" + v_bg + "'>" + verdict + "</span>"
+                "<span style='font-size:12px;color:#F59E0B;letter-spacing:1px'>" + stars + "</span>"
+                "</div>"
+                "</div>"
+            )
+            if analyse:
+                html += (
+                    "<div style='font-size:13px;color:var(--m);line-height:1.6;margin-bottom:.6rem'>"
+                    + analyse + "</div>"
+                )
+            if risques:
+                html += (
+                    "<div style='font-size:12px;background:#FEF3C7;border-radius:6px;padding:.5rem .8rem;"
+                    "color:#92400E;margin-bottom:.5rem'>"
+                    "<strong>⚠ Risques:</strong> " + risques + "</div>"
+                )
+            if suggestion:
+                html += (
+                    "<div style='font-size:12px;background:#EFF6FF;border-radius:6px;padding:.5rem .8rem;color:#1E40AF'>"
+                    "<strong>💡 Suggestion:</strong> " + suggestion + "</div>"
+                )
+            html += "</div>"
+
+        # Opportunites manquees
+        if opportunites:
+            html += (
+                "<div style='background:var(--s);border:1px solid var(--b);border-radius:12px;padding:1.2rem 1.5rem'>"
+                "<div style='font-size:11px;font-weight:700;color:#7B93FF;letter-spacing:.1em;margin-bottom:.5rem'>OPPORTUNITES MANQUEES</div>"
+                "<div style='font-size:13px;color:var(--m);line-height:1.6'>" + opportunites + "</div>"
+                "</div>"
+            )
+
+        # Conseil du jour
+        if conseil:
+            html += (
+                "<div style='background:linear-gradient(135deg,#0F6E56,#0a5240);border-radius:12px;"
+                "padding:1.2rem 1.5rem'>"
+                "<div style='font-size:11px;font-weight:700;color:#6EE7B7;letter-spacing:.1em;margin-bottom:.5rem'>CONSEIL DU JOUR</div>"
+                "<div style='font-size:14px;color:#fff;line-height:1.6'>" + conseil + "</div>"
+                "</div>"
+            )
+
+        html += "</div>"
         return html
 
     def _calculator(self):

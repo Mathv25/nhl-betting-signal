@@ -15,6 +15,7 @@ from lineup_fetcher import LineupFetcher
 from edge_calculator import EdgeCalculator
 from report_generator import ReportGenerator
 from props_analyzer import PropsAnalyzer
+from ai_analyst import run_analysis
 
 
 def main():
@@ -175,6 +176,11 @@ def main():
         "nba_analysis":     nba_analysis,
         "mlb_analysis":     mlb_analysis,
     }
+
+    # ── 9. Analyse experte IA ─────────────────────────────────────────────────
+    print("\nAnalyse experte IA...")
+    ai_analysis = run_analysis(output)
+    output["ai_analysis"] = ai_analysis
 
     os.makedirs("../docs", exist_ok=True)
     with open("../docs/signal.json", "w", encoding="utf-8") as f:

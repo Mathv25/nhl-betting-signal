@@ -135,7 +135,6 @@ LEAGUE_AVG_K_SP  = 7.5   # K/depart moyen lanceur partant MLB
 MLB_PITCHERS = {
     # Elite
     "Tyler Glasnow":        {"strikeouts": 9.5,  "team": "Los Angeles Dodgers",    "hand": "R"},
-    "Spencer Strider":      {"strikeouts": 9.0,  "team": "Atlanta Braves",         "hand": "R"},
     "Shohei Ohtani":        {"strikeouts": 9.2,  "team": "Los Angeles Dodgers",    "hand": "L"},
     "Tarik Skubal":         {"strikeouts": 8.8,  "team": "Detroit Tigers",         "hand": "L"},
     "Blake Snell":          {"strikeouts": 8.7,  "team": "San Francisco Giants",   "hand": "L"},
@@ -512,13 +511,9 @@ class MLBPropsAnalyzer:
                     print(f"    [MLB Props] Partant inferé: {display} ({best_line} K/dep, {opp_team})")
                     return display, {"strikeouts": best_line, "team": opp_team, "hand": "R"}
 
-            # ── 3. Dict statique (fallback absolu) ────────────────────────────
-            pitchers = _TEAM_PITCHERS.get(opp_team, [])
-            if not pitchers:
-                return None, None
-            best = max(pitchers, key=lambda p: MLB_PITCHERS[p]["strikeouts"])
-            print(f"    [MLB Fallback] Partant statique: {best} ({opp_team})")
-            return best, MLB_PITCHERS[best]
+            # ── 3. Partant inconnu — moyenne ligue (evite faux positifs) ─────────
+            print(f"    [MLB] Partant {opp_team} inconnu — moyenne ligue utilisee")
+            return None, None
 
         ev_bets = []
         seen    = set()
