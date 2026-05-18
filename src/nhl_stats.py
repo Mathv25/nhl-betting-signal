@@ -17,7 +17,7 @@ TEAM_ABBR = {
     "Calgary Flames":"CGY","Carolina Hurricanes":"CAR","Chicago Blackhawks":"CHI",
     "Colorado Avalanche":"COL","Columbus Blue Jackets":"CBJ","Dallas Stars":"DAL",
     "Detroit Red Wings":"DET","Edmonton Oilers":"EDM","Florida Panthers":"FLA",
-    "Los Angeles Kings":"LAK","Minnesota Wild":"MIN","Montreal Canadiens":"MTL",
+    "Los Angeles Kings":"LAK","Minnesota Wild":"MIN","Montreal Canadiens":"MTL","Montréal Canadiens":"MTL",
     "Nashville Predators":"NSH","New Jersey Devils":"NJD","New York Islanders":"NYI",
     "New York Rangers":"NYR","Ottawa Senators":"OTT","Philadelphia Flyers":"PHI",
     "Pittsburgh Penguins":"PIT","San Jose Sharks":"SJS","Seattle Kraken":"SEA",
@@ -43,6 +43,7 @@ TEAM_STATS_FALLBACK = {
     "Minnesota Wild":        {"gf_pg":3.00,"ga_pg":2.85,"pp_pct":19.2,"pk_pct":81.8,"starter_sv_pct":0.913},
     "Pittsburgh Penguins":   {"gf_pg":3.30,"ga_pg":3.05,"pp_pct":22.0,"pk_pct":79.5,"starter_sv_pct":0.908},
     "Montreal Canadiens":    {"gf_pg":3.10,"ga_pg":3.15,"pp_pct":20.0,"pk_pct":79.8,"starter_sv_pct":0.907},
+    "Montréal Canadiens":    {"gf_pg":3.10,"ga_pg":3.15,"pp_pct":20.0,"pk_pct":79.8,"starter_sv_pct":0.907},
     "New Jersey Devils":     {"gf_pg":3.00,"ga_pg":3.10,"pp_pct":19.8,"pk_pct":80.5,"starter_sv_pct":0.909},
     "Ottawa Senators":       {"gf_pg":2.95,"ga_pg":3.10,"pp_pct":19.5,"pk_pct":80.0,"starter_sv_pct":0.909},
     "Buffalo Sabres":        {"gf_pg":3.05,"ga_pg":3.20,"pp_pct":20.5,"pk_pct":79.2,"starter_sv_pct":0.906},
@@ -166,7 +167,32 @@ class LineupValidator:
         return active
 
     def get_probable_starter(self, team_name):
-        return None
+        """Retourne le nom du gardien partant probable (celui avec le plus de matchs joues)."""
+        abbr = TEAM_ABBR.get(team_name, "")
+        if not abbr:
+            return None
+        if abbr in self._roster_cache:
+            roster = self._roster_cache[abbr]
+        else:
+            try:
+                r = requests.get(f"{NHL_API}/roster/{abbr}/current", timeout=8)
+                r.raise_for_status()
+                roster = r.json()
+                self._roster_cache[abbr] = roster
+            except Exception:
+                return None
+        best_name, best_gp = None, -1
+        for p in roster.get("goalies", []):
+            status = p.get("injuryStatus", "")
+            if status in ("IR", "LTIR"):
+                continue
+            fn = p.get("firstName", {}).get("default", "")
+            ln = p.get("lastName",  {}).get("default", "")
+            gp = p.get("gamesPlayed", 0) or 0
+            if gp > best_gp:
+                best_gp  = gp
+                best_name = f"{fn} {ln}".strip()
+        return best_name or None
 
     def is_back_to_back(self, team_name, game_date):
         return False
