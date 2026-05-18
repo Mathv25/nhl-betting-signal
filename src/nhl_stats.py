@@ -166,11 +166,23 @@ class LineupValidator:
         self._roster_cache[abbr] = active
         return active
 
+    _df_cache = {}  # abbr -> goalie name from Daily Faceoff
+
     def get_probable_starter(self, team_name):
-        """Retourne le nom du gardien partant probable (celui avec le plus de matchs joues)."""
+        """Retourne le gardien partant confirme depuis Daily Faceoff.
+        Fallback: gardien avec plus de matchs dans le roster NHL API."""
         abbr = TEAM_ABBR.get(team_name, "")
         if not abbr:
             return None
+
+        # ── 1. Daily Faceoff (source de verite pour partants confirmes) ────────
+        if abbr not in LineupValidator._df_cache:
+            LineupValidator._df_cache = self._fetch_df_starters()
+        goalie = LineupValidator._df_cache.get(abbr)
+        if goalie:
+            return goalie
+
+        # ── 2. Fallback: roster NHL API, gardien avec plus de GP actifs ────────
         if abbr in self._roster_cache:
             roster = self._roster_cache[abbr]
         else:
@@ -183,16 +195,55 @@ class LineupValidator:
                 return None
         best_name, best_gp = None, -1
         for p in roster.get("goalies", []):
-            status = p.get("injuryStatus", "")
-            if status in ("IR", "LTIR"):
+            if p.get("injuryStatus", "") in ("IR", "LTIR"):
                 continue
             fn = p.get("firstName", {}).get("default", "")
             ln = p.get("lastName",  {}).get("default", "")
             gp = p.get("gamesPlayed", 0) or 0
             if gp > best_gp:
-                best_gp  = gp
+                best_gp   = gp
                 best_name = f"{fn} {ln}".strip()
         return best_name or None
+
+    @staticmethod
+    def _fetch_df_starters() -> dict:
+        """Parse Daily Faceoff __NEXT_DATA__ pour les partants confirmes du jour.
+        Retourne {abbr: 'Prenom Nom'}"""
+        import re, json as _json
+        result = {}
+        # Mapping Daily Faceoff teamName -> TEAM_ABBR
+        _NAME_TO_ABBR = {v: k for k, v in TEAM_ABBR.items() if len(k) == 3}
+        try:
+            r = requests.get(
+                "https://www.dailyfaceoff.com/starting-goalies/",
+                headers={"User-Agent": "Mozilla/5.0"},
+                timeout=10,
+            )
+            if not r.ok:
+                return result
+            m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', r.text, re.DOTALL)
+            if not m:
+                return result
+            data  = _json.loads(m.group(1))
+            games = data.get("props", {}).get("pageProps", {}).get("data", [])
+            for g in games:
+                home_name   = g.get("homeGoalieName", "")
+                away_name   = g.get("awayGoalieName", "")
+                home_team   = g.get("homeTeamName", "")
+                away_team   = g.get("awayTeamName", "")
+                home_status = g.get("homeNewsStrengthName", "")
+                away_status = g.get("awayNewsStrengthName", "")
+                # Trouver l'abbrev depuis le nom d'equipe
+                home_abbr = next((a for n, a in TEAM_ABBR.items() if n in home_team or home_team in n), None)
+                away_abbr = next((a for n, a in TEAM_ABBR.items() if n in away_team or away_team in n), None)
+                if home_name and home_abbr:
+                    result[home_abbr] = home_name
+                if away_name and away_abbr:
+                    result[away_abbr] = away_name
+            print(f"  [Goalies DF] {len(result)} partants trouves: {result}")
+        except Exception as e:
+            print(f"  [Goalies DF] Erreur: {e}")
+        return result
 
     def is_back_to_back(self, team_name, game_date):
         return False
