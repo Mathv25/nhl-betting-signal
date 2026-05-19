@@ -132,6 +132,69 @@ def get_starter_for_team(team: str, opponent: str, starters: dict):
     return None
 
 
+_lineup_cache = {}  # date_str -> {team_name: set of player last names}
+
+
+def fetch_confirmed_lineups(date_str: str = None) -> dict:
+    """
+    Retourne {team_name: set(last_names)} pour tous les matchs MLB du jour.
+    Utilise hydrate=lineups de l'API officielle MLB.
+    Si le lineup n'est pas encore posté, retourne un set vide pour cette equipe.
+    """
+    if date_str is None:
+        tz = pytz.timezone("America/Toronto")
+        date_str = datetime.now(tz).strftime("%Y-%m-%d")
+
+    if date_str in _lineup_cache:
+        return _lineup_cache[date_str]
+
+    result = {}
+    try:
+        r = requests.get(MLB_API, params={
+            "sportId": 1,
+            "date": date_str,
+            "hydrate": "lineups",
+        }, timeout=10)
+        r.raise_for_status()
+        data = r.json()
+    except Exception as e:
+        print(f"  [MLB Lineups] Erreur API: {e}")
+        _lineup_cache[date_str] = result
+        return result
+
+    total_lineups = 0
+    for date_entry in data.get("dates", []):
+        for game in date_entry.get("games", []):
+            teams = game.get("teams", {})
+            home_name = TEAM_NAME_MAP.get(teams.get("home", {}).get("team", {}).get("name", ""))
+            away_name = TEAM_NAME_MAP.get(teams.get("away", {}).get("team", {}).get("name", ""))
+            lineups = game.get("lineups", {})
+            home_players = lineups.get("homePlayers", [])
+            away_players = lineups.get("awayPlayers", [])
+            if home_name and home_players:
+                result[home_name] = {p.get("fullName", "").split()[-1].lower() for p in home_players}
+                total_lineups += 1
+            if away_name and away_players:
+                result[away_name] = {p.get("fullName", "").split()[-1].lower() for p in away_players}
+                total_lineups += 1
+
+    print(f"  [MLB Lineups] {total_lineups} lineups confirmes")
+    _lineup_cache[date_str] = result
+    return result
+
+
+def is_in_lineup(player_name: str, team: str, lineups: dict) -> bool:
+    """
+    Retourne True si le joueur est dans le lineup confirme de son equipe.
+    Retourne True aussi si le lineup n'est pas encore disponible (evite faux negatifs).
+    """
+    team_lineup = lineups.get(team)
+    if not team_lineup:
+        return True  # lineup pas encore posté — on inclut par défaut
+    last = player_name.split()[-1].lower()
+    return last in team_lineup
+
+
 if __name__ == "__main__":
     starters = fetch_probable_starters()
     for matchup, pitchers in starters.items():

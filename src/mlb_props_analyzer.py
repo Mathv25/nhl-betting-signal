@@ -428,10 +428,12 @@ class MLBPropsAnalyzer:
 
         # ── Partants probables depuis MLB API officielle ───────────────────────
         try:
-            from mlb_starters import fetch_probable_starters, get_starter_for_team
+            from mlb_starters import fetch_probable_starters, get_starter_for_team, fetch_confirmed_lineups, is_in_lineup
             _mlb_starters = fetch_probable_starters()
+            _mlb_lineups  = fetch_confirmed_lineups()
         except Exception:
             _mlb_starters = {}
+            _mlb_lineups  = {}
 
         batting_team_for = {home: away, away: home}  # opp_team -> batting_team
 
@@ -626,6 +628,13 @@ class MLBPropsAnalyzer:
                 if batter in seen:
                     continue
                 seen.add(batter)
+                # Verifier si le joueur est dans le lineup confirme du jour
+                try:
+                    if _mlb_lineups and not is_in_lineup(batter, team, _mlb_lineups):
+                        print(f"    [MLB Lineup] {batter} absent du lineup {team} — exclu")
+                        continue
+                except Exception:
+                    pass
                 stats       = dict(MLB_BATTERS.get(batter, {}))
                 batter_hand = stats.get("bats", "")
 
