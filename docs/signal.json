@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-20T20:13:15.515495+00:00",
+  "generated_at": "2026-05-20T22:23:31.705789+00:00",
   "date": "2026-05-20",
   "bookmaker": "bet365",
   "total_games": 1,
@@ -194,60 +194,6 @@
       "lineup_confirmed": true,
       "bets": [
         {
-          "name": "Pavel Dorofeyev",
-          "position": "R",
-          "team": "Vegas Golden Knights",
-          "opponent": "Colorado Avalanche",
-          "toi": "16:57",
-          "n_games": 10,
-          "line_num": 2,
-          "pp_unit": 0,
-          "is_defense": false,
-          "lineup_ok": true,
-          "market": "Points Over 0.5",
-          "market_type": "points",
-          "our_prob": 65.3,
-          "edge_pct": 15.6,
-          "kelly": 5.1,
-          "market_detail": "1.06 pts proj. · moy 1.01/m",
-          "est_odds": 1.77,
-          "b365_implied": 56.5,
-          "all_markets": [
-            {
-              "type": "points",
-              "label": "Points Over 0.5",
-              "prob": 65.3,
-              "edge": 15.6,
-              "kelly": 5.1,
-              "est_odds": 1.77,
-              "dk_implied": 56.5,
-              "detail": "1.06 pts proj. · moy 1.01/m"
-            }
-          ],
-          "shots_pg": 2.7,
-          "goals_pg": 0.8,
-          "points_pg": 1.01,
-          "shots_adj": 2.5,
-          "shots_line": 2.5,
-          "shots_prob": 45.6,
-          "shots_edge": -20.7,
-          "goals_adj": 0.72,
-          "points_adj": 0.91,
-          "last5_shots": 13,
-          "last10_shots": 27,
-          "last5_goals": 5,
-          "last5_points": 6,
-          "season_goals": 9,
-          "season_points": 11,
-          "opp_shots_rank": 5,
-          "opp_ga_rank": 5,
-          "context_notes": [
-            "🚨 5 buts dans ses 5 derniers matchs",
-            "6 pts dans ses 5 derniers matchs",
-            "⚠️ Defense solide — Colorado Ava (#5 ligue)"
-          ]
-        },
-        {
           "name": "Tomas Hertl",
           "position": "C",
           "team": "Vegas Golden Knights",
@@ -300,6 +246,60 @@
             "⚡ PP1 — avantage numerique",
             "❄️ Shots en baisse — 0.8/m last 5 vs 1.4/m last 10",
             "⚠️ Defense solide — Colorado Ava (#5 ligue)"
+          ]
+        },
+        {
+          "name": "Devon Toews",
+          "position": "D",
+          "team": "Colorado Avalanche",
+          "opponent": "Vegas Golden Knights",
+          "toi": "25:47",
+          "n_games": 9,
+          "line_num": 2,
+          "pp_unit": 1,
+          "is_defense": true,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 58.8,
+          "edge_pct": 14.6,
+          "kelly": 3.9,
+          "market_detail": "0.89 pts proj. · moy 0.73/m",
+          "est_odds": 1.95,
+          "b365_implied": 51.3,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 58.8,
+              "edge": 14.6,
+              "kelly": 3.9,
+              "est_odds": 1.95,
+              "dk_implied": 51.3,
+              "detail": "0.89 pts proj. · moy 0.73/m"
+            }
+          ],
+          "shots_pg": 1.2,
+          "goals_pg": 0.18,
+          "points_pg": 0.73,
+          "shots_adj": 1.2,
+          "shots_line": 1.5,
+          "shots_prob": 33.7,
+          "shots_edge": -35.7,
+          "goals_adj": 0.19,
+          "points_adj": 0.78,
+          "last5_shots": 4,
+          "last10_shots": 8,
+          "last5_goals": 1,
+          "last5_points": 5,
+          "season_goals": 2,
+          "season_points": 8,
+          "opp_shots_rank": 6,
+          "opp_ga_rank": 6,
+          "context_notes": [
+            "⚡ Régression attendue — L5: 0.8/m vs moy 1.17/m (+5%)",
+            "⚡ PP1 — avantage numerique",
+            "5 pts dans ses 5 derniers matchs"
           ]
         },
         {
@@ -447,7 +447,88 @@
           ]
         }
       ],
-      "commence_time": "2026-05-20T23:06:00Z"
+      "commence_time": "2026-05-20T23:36:00Z"
+    },
+    {
+      "home_team": "San Diego Padres",
+      "away_team": "Los Angeles Dodgers",
+      "bets": [
+        {
+          "player": "Shohei Ohtani",
+          "team": "Los Angeles Dodgers",
+          "opponent": "San Diego Padres",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.0",
+          "stat_key": "strikeouts",
+          "line": 6.0,
+          "season_avg": 7.33,
+          "adj_proj": 7.16,
+          "opp_k_rate": 21.0,
+          "park_factor": 0.92,
+          "our_prob": 61.0,
+          "edge_pct": 15.9,
+          "kelly": 4.5,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Tres favorable lanceurs (PF 0.92)"
+          ]
+        },
+        {
+          "player": "Freddie Freeman",
+          "team": "Los Angeles Dodgers",
+          "opponent": "San Diego Padres",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.0",
+          "stat_key": "total_bases",
+          "line": 1.0,
+          "season_avg": 1.733,
+          "adj_proj": 1.725,
+          "opp_k_rate": null,
+          "opp_pitcher": "Randy Vásquez",
+          "opp_pitcher_k": 7.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 0.92,
+          "our_prob": 58.9,
+          "edge_pct": 11.9,
+          "kelly": 3.4,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Randy Vásquez (7.5 K/dep) — Correct (7+ K/dep)",
+            "Platoon avantageux (L vs R)",
+            "Terrain: Tres favorable lanceurs (PF 0.92)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-21T00:41:00Z"
+    },
+    {
+      "home_team": "Los Angeles Angels",
+      "away_team": "Athletics",
+      "bets": [
+        {
+          "player": "Patrick Sandoval",
+          "team": "Los Angeles Angels",
+          "opponent": "Athletics",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.5",
+          "stat_key": "strikeouts",
+          "line": 6.5,
+          "season_avg": 7.5,
+          "adj_proj": 7.5,
+          "opp_k_rate": 21.5,
+          "park_factor": 1.0,
+          "our_prob": 58.0,
+          "edge_pct": 10.2,
+          "kelly": 2.9,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": []
+        }
+      ],
+      "commence_time": "2026-05-21T01:39:00Z"
     }
   ],
   "ai_analysis": {}
