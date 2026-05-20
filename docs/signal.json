@@ -1,210 +1,593 @@
 {
-  "generated_at": "2026-05-20T00:10:50.056529+00:00",
-  "date": "2026-05-19",
+  "generated_at": "2026-05-20T05:02:12.762810+00:00",
+  "date": "2026-05-20",
   "bookmaker": "bet365",
-  "total_games": 0,
-  "total_value_bets": 0,
-  "signals": [],
-  "value_bets": [],
-  "props_analysis": [],
-  "nba_analysis": [],
-  "mlb_analysis": [
+  "total_games": 1,
+  "total_value_bets": 3,
+  "signals": [
     {
-      "home_team": "Tampa Bay Rays",
-      "away_team": "Baltimore Orioles",
-      "bets": [
+      "game": {
+        "id": "15f3905f9616dd694d6ad7ee037c73b6",
+        "home_team": "Colorado Avalanche",
+        "away_team": "Vegas Golden Knights",
+        "commence_time": "2026-05-21T00:00:47Z",
+        "bookmaker": "draftkings",
+        "markets": {
+          "moneyline": {
+            "home": {
+              "team": "Colorado Avalanche",
+              "odds_decimal": 1.52,
+              "implied_prob": 65.79
+            },
+            "away": {
+              "team": "Vegas Golden Knights",
+              "odds_decimal": 2.6,
+              "implied_prob": 38.46
+            }
+          },
+          "puck_line": {
+            "home": {
+              "team": "Colorado Avalanche",
+              "spread": -1.5,
+              "odds_decimal": 2.3,
+              "implied_prob": 43.48
+            },
+            "away": {
+              "team": "Vegas Golden Knights",
+              "spread": 1.5,
+              "odds_decimal": 1.65,
+              "implied_prob": 60.61
+            }
+          },
+          "totals": {
+            "over": {
+              "line": 6.5,
+              "odds_decimal": 2.02,
+              "implied_prob": 49.5
+            },
+            "under": {
+              "line": 6.5,
+              "odds_decimal": 1.82,
+              "implied_prob": 54.95
+            }
+          },
+          "player_props": []
+        },
+        "removed_props": []
+      },
+      "edges": [
         {
-          "player": "Kyle Bradish",
-          "team": "Baltimore Orioles",
-          "opponent": "Tampa Bay Rays",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 5.0",
-          "stat_key": "strikeouts",
-          "line": 5.0,
-          "season_avg": 6.0,
-          "adj_proj": 6.08,
-          "opp_k_rate": 21.8,
-          "park_factor": 0.97,
-          "our_prob": 61.4,
-          "edge_pct": 16.7,
-          "kelly": 4.7,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Terrain: Neutre (PF 0.97)"
+          "edge_pct": 13.86,
+          "edge_raw": 13.86,
+          "kelly_fraction": 2.08,
+          "verdict": "🔥 Forte valeur",
+          "type": "Moneyline",
+          "bet": "Vegas Golden Knights ML",
+          "our_prob": 43.8,
+          "b365_implied": 38.46,
+          "b365_odds": 2.6,
+          "game": "Vegas Golden Knights @ Colorado Avalanche",
+          "note": "💤 Colorado 7j repos | 💤 Vegas 6j repos",
+          "context_notes": [
+            "💤 Colorado 7j repos",
+            "💤 Vegas 6j repos"
           ]
         },
         {
-          "player": "Adley Rutschman",
-          "team": "Baltimore Orioles",
-          "opponent": "Tampa Bay Rays",
+          "edge_pct": 12.0,
+          "edge_raw": 12.01,
+          "kelly_fraction": 4.53,
+          "verdict": "🔥 Forte valeur",
+          "type": "Puck Line",
+          "bet": "Vegas Golden Knights +1.5",
+          "our_prob": 67.9,
+          "b365_implied": 60.61,
+          "b365_odds": 1.65,
+          "game": "Vegas Golden Knights @ Colorado Avalanche",
+          "note": "💤 Colorado 7j repos | 💤 Vegas 6j repos",
+          "context_notes": [
+            "💤 Colorado 7j repos",
+            "💤 Vegas 6j repos"
+          ]
+        },
+        {
+          "edge_pct": 7.83,
+          "edge_raw": 7.83,
+          "kelly_fraction": 2.34,
+          "verdict": "✅ Bonne valeur",
+          "type": "Total buts",
+          "bet": "Under 6.5",
+          "our_prob": 59.2,
+          "b365_implied": 54.95,
+          "b365_odds": 1.82,
+          "game": "Vegas Golden Knights @ Colorado Avalanche",
+          "note": "💤 Colorado 7j repos | 💤 Vegas 6j repos | Total attendu: 6.1 buts",
+          "context_notes": [
+            "💤 Colorado 7j repos",
+            "💤 Vegas 6j repos",
+            "Total attendu: 6.1 buts"
+          ]
+        }
+      ]
+    }
+  ],
+  "value_bets": [
+    {
+      "edge_pct": 13.86,
+      "edge_raw": 13.86,
+      "kelly_fraction": 2.08,
+      "verdict": "🔥 Forte valeur",
+      "type": "Moneyline",
+      "bet": "Vegas Golden Knights ML",
+      "our_prob": 43.8,
+      "b365_implied": 38.46,
+      "b365_odds": 2.6,
+      "game": "Vegas Golden Knights @ Colorado Avalanche",
+      "note": "💤 Colorado 7j repos | 💤 Vegas 6j repos",
+      "context_notes": [
+        "💤 Colorado 7j repos",
+        "💤 Vegas 6j repos"
+      ]
+    },
+    {
+      "edge_pct": 12.0,
+      "edge_raw": 12.01,
+      "kelly_fraction": 4.53,
+      "verdict": "🔥 Forte valeur",
+      "type": "Puck Line",
+      "bet": "Vegas Golden Knights +1.5",
+      "our_prob": 67.9,
+      "b365_implied": 60.61,
+      "b365_odds": 1.65,
+      "game": "Vegas Golden Knights @ Colorado Avalanche",
+      "note": "💤 Colorado 7j repos | 💤 Vegas 6j repos",
+      "context_notes": [
+        "💤 Colorado 7j repos",
+        "💤 Vegas 6j repos"
+      ]
+    },
+    {
+      "edge_pct": 7.83,
+      "edge_raw": 7.83,
+      "kelly_fraction": 2.34,
+      "verdict": "✅ Bonne valeur",
+      "type": "Total buts",
+      "bet": "Under 6.5",
+      "our_prob": 59.2,
+      "b365_implied": 54.95,
+      "b365_odds": 1.82,
+      "game": "Vegas Golden Knights @ Colorado Avalanche",
+      "note": "💤 Colorado 7j repos | 💤 Vegas 6j repos | Total attendu: 6.1 buts",
+      "context_notes": [
+        "💤 Colorado 7j repos",
+        "💤 Vegas 6j repos",
+        "Total attendu: 6.1 buts"
+      ]
+    }
+  ],
+  "props_analysis": [
+    {
+      "home_team": "Colorado Avalanche",
+      "away_team": "Vegas Golden Knights",
+      "home_goalie": {
+        "name": "Mackenzie Blackwood",
+        "sv_pct": 0.899,
+        "saves_pg": 22.5,
+        "gaa": 2.68,
+        "confirmed": true
+      },
+      "away_goalie": {
+        "name": "Carter Hart",
+        "sv_pct": 0.901,
+        "saves_pg": 18.6,
+        "gaa": 2.26,
+        "confirmed": true
+      },
+      "home_def_shots": 28.2,
+      "away_def_shots": 28.4,
+      "home_def_ga": 2.8,
+      "away_def_ga": 2.85,
+      "home_shots_rank": 5,
+      "away_shots_rank": 6,
+      "home_ga_rank": 5,
+      "away_ga_rank": 6,
+      "lineup_confirmed": true,
+      "bets": [
+        {
+          "name": "Pavel Dorofeyev",
+          "position": "R",
+          "team": "Vegas Golden Knights",
+          "opponent": "Colorado Avalanche",
+          "toi": "16:57",
+          "n_games": 10,
+          "line_num": 2,
+          "pp_unit": 0,
+          "is_defense": false,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 65.3,
+          "edge_pct": 15.6,
+          "kelly": 5.1,
+          "market_detail": "1.06 pts proj. · moy 1.01/m",
+          "est_odds": 1.77,
+          "b365_implied": 56.5,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 65.3,
+              "edge": 15.6,
+              "kelly": 5.1,
+              "est_odds": 1.77,
+              "dk_implied": 56.5,
+              "detail": "1.06 pts proj. · moy 1.01/m"
+            }
+          ],
+          "shots_pg": 2.7,
+          "goals_pg": 0.8,
+          "points_pg": 1.01,
+          "shots_adj": 2.5,
+          "shots_line": 2.5,
+          "shots_prob": 45.6,
+          "shots_edge": -16.5,
+          "goals_adj": 0.72,
+          "points_adj": 0.91,
+          "last5_shots": 13,
+          "last10_shots": 27,
+          "last5_goals": 5,
+          "last5_points": 6,
+          "season_goals": 9,
+          "season_points": 11,
+          "opp_shots_rank": 5,
+          "opp_ga_rank": 5,
+          "context_notes": [
+            "🚨 5 buts dans ses 5 derniers matchs",
+            "6 pts dans ses 5 derniers matchs",
+            "⚠️ Defense solide — Colorado Ava (#5 ligue)"
+          ]
+        },
+        {
+          "name": "Tomas Hertl",
+          "position": "C",
+          "team": "Vegas Golden Knights",
+          "opponent": "Colorado Avalanche",
+          "toi": "12:31",
+          "n_games": 10,
+          "line_num": 2,
+          "pp_unit": 1,
+          "is_defense": false,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 51.4,
+          "edge_pct": 15.2,
+          "kelly": 3.1,
+          "market_detail": "0.72 pts proj. · moy 0.57/m",
+          "est_odds": 2.24,
+          "b365_implied": 44.6,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 51.4,
+              "edge": 15.2,
+              "kelly": 3.1,
+              "est_odds": 2.24,
+              "dk_implied": 44.6,
+              "detail": "0.72 pts proj. · moy 0.57/m"
+            }
+          ],
+          "shots_pg": 1.6,
+          "goals_pg": 0.18,
+          "points_pg": 0.57,
+          "shots_adj": 1.7,
+          "shots_line": 1.5,
+          "shots_prob": 50.7,
+          "shots_edge": -3.2,
+          "goals_adj": 0.2,
+          "points_adj": 0.62,
+          "last5_shots": 4,
+          "last10_shots": 14,
+          "last5_goals": 2,
+          "last5_points": 4,
+          "season_goals": 2,
+          "season_points": 6,
+          "opp_shots_rank": 5,
+          "opp_ga_rank": 5,
+          "context_notes": [
+            "⚡ Régression attendue — L5: 0.8/m vs moy 1.57/m (+7%)",
+            "⚡ PP1 — avantage numerique",
+            "❄️ Shots en baisse — 0.8/m last 5 vs 1.4/m last 10",
+            "⚠️ Defense solide — Colorado Ava (#5 ligue)"
+          ]
+        },
+        {
+          "name": "Ivan Barbashev",
+          "position": "L",
+          "team": "Vegas Golden Knights",
+          "opponent": "Colorado Avalanche",
+          "toi": "17:52",
+          "n_games": 10,
+          "line_num": 2,
+          "pp_unit": 0,
+          "is_defense": false,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 54.7,
+          "edge_pct": 12.1,
+          "kelly": 2.9,
+          "market_detail": "0.79 pts proj. · moy 0.76/m",
+          "est_odds": 2.05,
+          "b365_implied": 48.8,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 54.7,
+              "edge": 12.1,
+              "kelly": 2.9,
+              "est_odds": 2.05,
+              "dk_implied": 48.8,
+              "detail": "0.79 pts proj. · moy 0.76/m"
+            }
+          ],
+          "shots_pg": 1.5,
+          "goals_pg": 0.15,
+          "points_pg": 0.76,
+          "shots_adj": 1.4,
+          "shots_line": 1.5,
+          "shots_prob": 40.8,
+          "shots_edge": -10.3,
+          "goals_adj": 0.13,
+          "points_adj": 0.68,
+          "last5_shots": 11,
+          "last10_shots": 15,
+          "last5_goals": 0,
+          "last5_points": 2,
+          "season_goals": 3,
+          "season_points": 9,
+          "opp_shots_rank": 5,
+          "opp_ga_rank": 5,
+          "context_notes": [
+            "🔥 Shots en hausse — 2.2/m last 5 vs 1.5/m last 10",
+            "⚠️ Defense solide — Colorado Ava (#5 ligue)"
+          ]
+        },
+        {
+          "name": "Artturi Lehkonen",
+          "position": "L",
+          "team": "Colorado Avalanche",
+          "opponent": "Vegas Golden Knights",
+          "toi": "17:35",
+          "n_games": 7,
+          "line_num": 2,
+          "pp_unit": 0,
+          "is_defense": false,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 52.0,
+          "edge_pct": 11.3,
+          "kelly": 2.5,
+          "market_detail": "0.73 pts proj. · moy 0.7/m",
+          "est_odds": 2.14,
+          "b365_implied": 46.7,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 52.0,
+              "edge": 11.3,
+              "kelly": 2.5,
+              "est_odds": 2.14,
+              "dk_implied": 46.7,
+              "detail": "0.73 pts proj. · moy 0.7/m"
+            }
+          ],
+          "shots_pg": 1.6,
+          "goals_pg": 0.33,
+          "points_pg": 0.7,
+          "shots_adj": 1.5,
+          "shots_line": 1.5,
+          "shots_prob": 44.2,
+          "shots_edge": -27.1,
+          "goals_adj": 0.3,
+          "points_adj": 0.64,
+          "last5_shots": 9,
+          "last10_shots": 12,
+          "last5_goals": 2,
+          "last5_points": 5,
+          "season_goals": 3,
+          "season_points": 6,
+          "opp_shots_rank": 6,
+          "opp_ga_rank": 6,
+          "context_notes": [
+            "🔥 Shots en hausse — 1.8/m last 5 vs 1.2/m last 10",
+            "5 pts dans ses 5 derniers matchs"
+          ]
+        }
+      ],
+      "retour_de_flamme": []
+    }
+  ],
+  "nba_analysis": [],
+  "mlb_analysis": [
+    {
+      "home_team": "Colorado Rockies",
+      "away_team": "Texas Rangers",
+      "bets": [
+        {
+          "player": "Nolan Jones",
+          "team": "Colorado Rockies",
+          "opponent": "Texas Rangers",
+          "player_type": "batter",
+          "market": "Coups surs Over 0.5",
+          "stat_key": "hits",
+          "line": 0.5,
+          "season_avg": 1.15,
+          "adj_proj": 1.335,
+          "opp_k_rate": null,
+          "opp_pitcher": "Jack Leiter",
+          "opp_pitcher_k": 6.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 1.15,
+          "our_prob": 65.7,
+          "edge_pct": 24.8,
+          "kelly": 7.0,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Jack Leiter (6.5 K/dep) — Moyen",
+            "Platoon avantageux (L vs R)",
+            "Terrain: Tres favorable frappeurs (PF 1.15)",
+            "Confirmer lineup avant de parier"
+          ]
+        },
+        {
+          "player": "Nolan Jones",
+          "team": "Colorado Rockies",
+          "opponent": "Texas Rangers",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.5",
+          "stat_key": "total_bases",
+          "line": 1.5,
+          "season_avg": 1.95,
+          "adj_proj": 2.264,
+          "opp_k_rate": null,
+          "opp_pitcher": "Jack Leiter",
+          "opp_pitcher_k": 6.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 1.15,
+          "our_prob": 58.0,
+          "edge_pct": 10.2,
+          "kelly": 2.9,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Jack Leiter (6.5 K/dep) — Moyen",
+            "Platoon avantageux (L vs R)",
+            "Terrain: Tres favorable frappeurs (PF 1.15)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-20T19:10:00Z"
+    },
+    {
+      "home_team": "Miami Marlins",
+      "away_team": "Atlanta Braves",
+      "bets": [
+        {
+          "player": "Chris Sale",
+          "team": "Atlanta Braves",
+          "opponent": "Miami Marlins",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 7.0",
+          "stat_key": "strikeouts",
+          "line": 7.0,
+          "season_avg": 8.0,
+          "adj_proj": 8.48,
+          "opp_k_rate": 22.8,
+          "park_factor": 0.95,
+          "our_prob": 63.7,
+          "edge_pct": 21.0,
+          "kelly": 5.9,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable lanceurs (PF 0.95)"
+          ]
+        },
+        {
+          "player": "Matt Olson",
+          "team": "Atlanta Braves",
+          "opponent": "Miami Marlins",
           "player_type": "batter",
           "market": "Buts totaux Over 1.0",
           "stat_key": "total_bases",
           "line": 1.0,
-          "season_avg": 1.6,
-          "adj_proj": 1.671,
+          "season_avg": 1.733,
+          "adj_proj": 1.752,
           "opp_k_rate": null,
-          "opp_pitcher": "Griffin Jax",
-          "opp_pitcher_k": 6.0,
-          "platoon": "Switch hitter (avantage platoon)",
-          "park_factor": 0.97,
-          "our_prob": 57.0,
-          "edge_pct": 8.3,
-          "kelly": 2.4,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "vs Griffin Jax (6.0 K/dep) — Moyen",
-            "Switch hitter (avantage platoon)",
-            "Terrain: Neutre (PF 0.97)",
-            "Confirmer lineup avant de parier"
-          ]
-        }
-      ],
-      "commence_time": "2026-05-19T22:41:00Z"
-    },
-    {
-      "home_team": "Philadelphia Phillies",
-      "away_team": "Cincinnati Reds",
-      "bets": [
-        {
-          "player": "Bryce Harper",
-          "team": "Philadelphia Phillies",
-          "opponent": "Cincinnati Reds",
-          "player_type": "batter",
-          "market": "Buts totaux Over 1.5",
-          "stat_key": "total_bases",
-          "line": 1.5,
-          "season_avg": 2.333,
-          "adj_proj": 2.419,
-          "opp_k_rate": null,
-          "opp_pitcher": "Chase Burns",
+          "opp_pitcher": "Janson Junk",
           "opp_pitcher_k": 7.5,
           "platoon": "Platoon avantageux (L vs R)",
-          "park_factor": 1.0,
-          "our_prob": 61.7,
-          "edge_pct": 17.2,
-          "kelly": 4.9,
+          "park_factor": 0.95,
+          "our_prob": 59.8,
+          "edge_pct": 13.6,
+          "kelly": 3.9,
           "est_odds": 1.909,
           "dk_implied": 52.6,
           "context": [
-            "vs Chase Burns (7.5 K/dep) — Correct (7+ K/dep)",
+            "vs Janson Junk (7.5 K/dep) — Correct (7+ K/dep)",
             "Platoon avantageux (L vs R)",
-            "Confirmer lineup avant de parier"
-          ]
-        },
-        {
-          "player": "Elly De La Cruz",
-          "team": "Cincinnati Reds",
-          "opponent": "Philadelphia Phillies",
-          "player_type": "batter",
-          "market": "Buts totaux Over 1.5",
-          "stat_key": "total_bases",
-          "line": 1.5,
-          "season_avg": 2.2,
-          "adj_proj": 2.239,
-          "opp_k_rate": null,
-          "opp_pitcher": "Jesus Luzardo",
-          "opp_pitcher_k": 7.2,
-          "platoon": "Switch hitter (avantage platoon)",
-          "park_factor": 1.0,
-          "our_prob": 57.3,
-          "edge_pct": 8.9,
-          "kelly": 2.6,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "vs Jesus Luzardo (7.2 K/dep) — Correct (7+ K/dep)",
-            "Switch hitter (avantage platoon)",
+            "Terrain: Favorable lanceurs (PF 0.95)",
             "Confirmer lineup avant de parier"
           ]
         }
       ],
-      "commence_time": "2026-05-19T22:41:00Z"
-    },
-    {
-      "home_team": "Detroit Tigers",
-      "away_team": "Cleveland Guardians",
-      "bets": [
-        {
-          "player": "Parker Messick",
-          "team": "Cleveland Guardians",
-          "opponent": "Detroit Tigers",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 5.5",
-          "stat_key": "strikeouts",
-          "line": 5.5,
-          "season_avg": 6.5,
-          "adj_proj": 6.53,
-          "opp_k_rate": 21.6,
-          "park_factor": 0.99,
-          "our_prob": 59.7,
-          "edge_pct": 13.4,
-          "kelly": 3.8,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Terrain: Neutre (PF 0.99)"
-          ]
-        }
-      ],
-      "commence_time": "2026-05-19T22:41:00Z"
+      "commence_time": "2026-05-20T22:41:00Z"
     },
     {
       "home_team": "New York Yankees",
       "away_team": "Toronto Blue Jays",
       "bets": [
         {
-          "player": "Dylan Cease",
-          "team": "Toronto Blue Jays",
-          "opponent": "New York Yankees",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 6.5",
-          "stat_key": "strikeouts",
-          "line": 6.5,
-          "season_avg": 8.17,
-          "adj_proj": 7.6,
-          "opp_k_rate": 20.0,
+          "player": "Juan Soto",
+          "team": "New York Yankees",
+          "opponent": "Toronto Blue Jays",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.0",
+          "stat_key": "total_bases",
+          "line": 1.0,
+          "season_avg": 1.867,
+          "adj_proj": 1.936,
+          "opp_k_rate": null,
+          "opp_pitcher": "Trey Yesavage",
+          "opp_pitcher_k": 7.5,
+          "platoon": "Platoon avantageux (L vs R)",
           "park_factor": 1.0,
-          "our_prob": 59.5,
-          "edge_pct": 13.1,
-          "kelly": 3.7,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": []
-        }
-      ],
-      "commence_time": "2026-05-19T23:06:00Z"
-    },
-    {
-      "home_team": "Chicago Cubs",
-      "away_team": "Milwaukee Brewers",
-      "bets": [
-        {
-          "player": "Jacob Misiorowski",
-          "team": "Milwaukee Brewers",
-          "opponent": "Chicago Cubs",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 8.0",
-          "stat_key": "strikeouts",
-          "line": 8.0,
-          "season_avg": 8.67,
-          "adj_proj": 9.36,
-          "opp_k_rate": 23.2,
-          "park_factor": 1.02,
-          "our_prob": 61.0,
-          "edge_pct": 15.9,
-          "kelly": 4.5,
+          "our_prob": 65.1,
+          "edge_pct": 23.7,
+          "kelly": 6.7,
           "est_odds": 1.909,
           "dk_implied": 52.6,
           "context": [
-            "Adversaire K%: 23.2% (favorable)",
-            "Terrain: Neutre (PF 1.02)"
+            "vs Trey Yesavage (7.5 K/dep) — Correct (7+ K/dep)",
+            "Platoon avantageux (L vs R)",
+            "Confirmer lineup avant de parier"
+          ]
+        },
+        {
+          "player": "Jazz Chisholm Jr.",
+          "team": "New York Yankees",
+          "opponent": "Toronto Blue Jays",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.0",
+          "stat_key": "total_bases",
+          "line": 1.0,
+          "season_avg": 1.667,
+          "adj_proj": 1.728,
+          "opp_k_rate": null,
+          "opp_pitcher": "Trey Yesavage",
+          "opp_pitcher_k": 7.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 1.0,
+          "our_prob": 59.0,
+          "edge_pct": 12.1,
+          "kelly": 3.5,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Trey Yesavage (7.5 K/dep) — Correct (7+ K/dep)",
+            "Platoon avantageux (L vs R)",
+            "Confirmer lineup avant de parier"
           ]
         }
       ],
-      "commence_time": "2026-05-19T23:41:00Z"
+      "commence_time": "2026-05-20T23:06:00Z"
     }
   ],
   "ai_analysis": {}
