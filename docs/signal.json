@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-22T16:22:18.310095+00:00",
+  "generated_at": "2026-05-22T16:49:49.410924+00:00",
   "date": "2026-05-22",
   "bookmaker": "bet365",
   "total_games": 1,
@@ -29,14 +29,14 @@
             "home": {
               "team": "Colorado Avalanche",
               "spread": -1.5,
-              "odds_decimal": 2.3,
-              "implied_prob": 43.48
+              "odds_decimal": 2.36,
+              "implied_prob": 42.37
             },
             "away": {
               "team": "Vegas Golden Knights",
               "spread": 1.5,
-              "odds_decimal": 1.65,
-              "implied_prob": 60.61
+              "odds_decimal": 1.62,
+              "implied_prob": 61.73
             }
           },
           "totals": {
@@ -72,14 +72,14 @@
         },
         {
           "edge_pct": 12.0,
-          "edge_raw": 15.86,
-          "kelly_fraction": 5.98,
+          "edge_raw": 13.75,
+          "kelly_fraction": 5.44,
           "verdict": "🔥 Forte valeur",
           "type": "Puck Line",
           "bet": "Vegas Golden Knights +1.5",
           "our_prob": 70.2,
-          "b365_implied": 60.61,
-          "b365_odds": 1.65,
+          "b365_implied": 61.73,
+          "b365_odds": 1.62,
           "game": "Vegas Golden Knights @ Colorado Avalanche",
           "note": "Spread +1.5 buts",
           "context_notes": []
@@ -120,14 +120,14 @@
     },
     {
       "edge_pct": 12.0,
-      "edge_raw": 15.86,
-      "kelly_fraction": 5.98,
+      "edge_raw": 13.75,
+      "kelly_fraction": 5.44,
       "verdict": "🔥 Forte valeur",
       "type": "Puck Line",
       "bet": "Vegas Golden Knights +1.5",
       "our_prob": 70.2,
-      "b365_implied": 60.61,
-      "b365_odds": 1.65,
+      "b365_implied": 61.73,
+      "b365_odds": 1.62,
       "game": "Vegas Golden Knights @ Colorado Avalanche",
       "note": "Spread +1.5 buts",
       "context_notes": []
@@ -149,7 +149,90 @@
       ]
     }
   ],
-  "props_analysis": [],
+  "props_analysis": [
+    {
+      "home_team": "Colorado Avalanche",
+      "away_team": "Vegas Golden Knights",
+      "home_goalie": {
+        "name": "Mackenzie Blackwood",
+        "sv_pct": 0.899,
+        "saves_pg": 22.5,
+        "gaa": 2.68,
+        "confirmed": true
+      },
+      "away_goalie": {
+        "name": "Carter Hart",
+        "sv_pct": 0.901,
+        "saves_pg": 18.6,
+        "gaa": 2.26,
+        "confirmed": true
+      },
+      "home_def_shots": 28.2,
+      "away_def_shots": 28.4,
+      "home_def_ga": 2.8,
+      "away_def_ga": 2.85,
+      "home_shots_rank": 5,
+      "away_shots_rank": 6,
+      "home_ga_rank": 5,
+      "away_ga_rank": 6,
+      "lineup_confirmed": true,
+      "bets": [
+        {
+          "name": "Devon Toews",
+          "position": "D",
+          "team": "Colorado Avalanche",
+          "opponent": "Vegas Golden Knights",
+          "toi": "26:03",
+          "n_games": 10,
+          "line_num": 2,
+          "pp_unit": 1,
+          "is_defense": true,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 59.6,
+          "edge_pct": 13.7,
+          "kelly": 3.8,
+          "market_detail": "0.91 pts proj. · moy 0.75/m",
+          "est_odds": 1.91,
+          "b365_implied": 52.4,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 59.6,
+              "edge": 13.7,
+              "kelly": 3.8,
+              "est_odds": 1.91,
+              "dk_implied": 52.4,
+              "detail": "0.91 pts proj. · moy 0.75/m"
+            }
+          ],
+          "shots_pg": 1.3,
+          "goals_pg": 0.16,
+          "points_pg": 0.75,
+          "shots_adj": 1.4,
+          "shots_line": 1.5,
+          "shots_prob": 40.8,
+          "shots_edge": -25.3,
+          "goals_adj": 0.17,
+          "points_adj": 0.79,
+          "last5_shots": 5,
+          "last10_shots": 10,
+          "last5_goals": 0,
+          "last5_points": 2,
+          "season_goals": 2,
+          "season_points": 9,
+          "opp_shots_rank": 6,
+          "opp_ga_rank": 6,
+          "context_notes": [
+            "⚡ PP1 — avantage numerique"
+          ]
+        }
+      ],
+      "retour_de_flamme": []
+    }
+  ],
   "nba_analysis": [],
   "mlb_analysis": [
     {
