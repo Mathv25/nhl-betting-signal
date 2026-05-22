@@ -1168,6 +1168,7 @@ def save_pending_from_signal():
     Lit le signal.json courant et ajoute chaque bet dans results.json comme '?'
     si pas encore present. Appele a chaque run horaire pour ne pas perdre les bets
     de parties d'apres-midi (qui disparaissent du signal une fois la partie commencee).
+    Les frappeurs MLB confirmes absents du lineup sont marques VOID immediatement.
     """
     if not os.path.exists(SIGNAL_PATH):
         return
@@ -1175,6 +1176,18 @@ def save_pending_from_signal():
     import pytz
     tz_et = pytz.timezone("America/Toronto")
     today_et = datetime.now(tz_et).strftime("%Y-%m-%d")
+
+    # Charger les lineups MLB confirmes du jour (pour marquer VOID les absents)
+    _mlb_lineups = {}
+    try:
+        import sys as _sys, os as _os
+        _src = _os.path.dirname(_os.path.abspath(__file__))
+        if _src not in _sys.path:
+            _sys.path.insert(0, _src)
+        from mlb_starters import fetch_confirmed_lineups, is_in_lineup as _is_in_lineup
+        _mlb_lineups = fetch_confirmed_lineups()
+    except Exception:
+        pass
 
     with open(SIGNAL_PATH) as f:
         signal = json.load(f)
@@ -1247,25 +1260,70 @@ def save_pending_from_signal():
         away = game_analysis.get("away_team","")
         for prop in game_analysis.get("bets", []):
             player = prop.get("player",""); market = prop.get("market","")
+            team   = prop.get("team","")
             bid = f"{signal_date}|prop_mlb|{player}|{market}"
+
+            # Si lineup confirme et joueur absent → VOID immediatement
+            result_init = "?"
+            if _mlb_lineups and prop.get("player_type","") != "pitcher":
+                try:
+                    if not _is_in_lineup(player, team, _mlb_lineups):
+                        # Verifier aussi l'equipe adverse (cas ou team est mal renseignee)
+                        opp = away if team == home else home
+                        if not _is_in_lineup(player, opp, _mlb_lineups):
+                            print(f"  [Pending] {player} absent lineup confirme {team} → VOID")
+                            result_init = "VOID"
+                except Exception:
+                    pass
+
             _add(bid, {
                 "id": bid, "date": signal_date, "sport": "mlb", "bet_type": "prop",
                 "market_type": prop.get("stat_key",""),
-                "game": f"{away} @ {home}", "name": player, "team": prop.get("team",""),
+                "game": f"{away} @ {home}", "name": player, "team": team,
                 "bet": f"{player} — {market}", "line": prop.get("line",0),
                 "edge_pct": prop.get("edge_pct",0), "our_prob": prop.get("our_prob",0),
                 "b365_odds": prop.get("est_odds", prop.get("b365_odds",0)),
                 "b365_implied": prop.get("dk_implied", prop.get("b365_implied",0)),
                 "kelly_fraction": prop.get("kelly", prop.get("kelly_fraction",0)),
-                "result": "?",
+                "result": result_init,
             })
 
-    if added > 0:
+    # Mettre a jour les bets MLB '?' deja enregistres si lineup maintenant confirme
+    voided_existing = 0
+    if _mlb_lineups:
+        for bet in results_data["bets"]:
+            if (bet.get("result") != "?" or
+                    bet.get("sport") != "mlb" or
+                    bet.get("market_type") == "strikeouts" or  # lanceurs exclus
+                    bet.get("date") != signal_date):
+                continue
+            player = bet.get("name", "")
+            team   = bet.get("team", "")
+            if not player:
+                continue
+            try:
+                # Extraire les deux equipes du champ game "Away @ Home"
+                game_str = bet.get("game", "")
+                parts = game_str.split(" @ ") if " @ " in game_str else []
+                teams_to_check = [team] + parts
+                in_any = any(
+                    _is_in_lineup(player, t, _mlb_lineups)
+                    for t in teams_to_check if t
+                )
+                # Si aucune des equipes n'a le joueur dans son lineup confirme
+                if not in_any:
+                    bet["result"] = "VOID"
+                    voided_existing += 1
+                    print(f"  [Pending] {player} absent lineup confirme → VOID (update)")
+            except Exception:
+                pass
+
+    if added > 0 or voided_existing > 0:
         results_data["summary"] = compute_summary(results_data["bets"])
         save_results(results_data)
-        print(f"  [Pending] {added} nouveau(x) bet(s) sauvegarde(s) pour {signal_date}")
+        print(f"  [Pending] {added} nouveau(x) | {voided_existing} VOID pour {signal_date}")
     else:
-        print(f"  [Pending] Aucun nouveau bet pour {signal_date}")
+        print(f"  [Pending] Aucun changement pour {signal_date}")
 
 
 if __name__ == "__main__":

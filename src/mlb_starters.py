@@ -133,9 +133,10 @@ def get_starter_for_team(team: str, opponent: str, starters: dict):
 
 
 _lineup_cache = {}  # date_str -> {team_name: set of player last names}
+_lineup_fetch_count = {}  # date_str -> nb de fois fetchee (pour invalider cache si lineups en cours)
 
 
-def fetch_confirmed_lineups(date_str: str = None) -> dict:
+def fetch_confirmed_lineups(date_str: str = None, force_refresh: bool = False) -> dict:
     """
     Retourne {team_name: set(last_names)} pour tous les matchs MLB du jour.
     Utilise hydrate=lineups de l'API officielle MLB.
@@ -145,7 +146,7 @@ def fetch_confirmed_lineups(date_str: str = None) -> dict:
         tz = pytz.timezone("America/Toronto")
         date_str = datetime.now(tz).strftime("%Y-%m-%d")
 
-    if date_str in _lineup_cache:
+    if date_str in _lineup_cache and not force_refresh:
         return _lineup_cache[date_str]
 
     result = {}
