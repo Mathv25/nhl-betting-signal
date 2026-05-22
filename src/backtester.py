@@ -1163,9 +1163,117 @@ def run_for_date(target_date: str):
     print(f"  Cumul final: {s2['total']} bets | WR {s2['win_rate']}% | ROI {s2['roi']:+.1f}%")
 
 
+def save_pending_from_signal():
+    """
+    Lit le signal.json courant et ajoute chaque bet dans results.json comme '?'
+    si pas encore present. Appele a chaque run horaire pour ne pas perdre les bets
+    de parties d'apres-midi (qui disparaissent du signal une fois la partie commencee).
+    """
+    if not os.path.exists(SIGNAL_PATH):
+        return
+
+    import pytz
+    tz_et = pytz.timezone("America/Toronto")
+    today_et = datetime.now(tz_et).strftime("%Y-%m-%d")
+
+    with open(SIGNAL_PATH) as f:
+        signal = json.load(f)
+
+    signal_date = signal.get("date", today_et)
+
+    value_bets    = signal.get("value_bets", [])
+    props_by_game = signal.get("props_analysis", [])
+    nba_by_game   = signal.get("nba_analysis", [])
+    mlb_by_game   = signal.get("mlb_analysis", [])
+
+    results_data = load_results()
+    existing_ids = {b.get("id") for b in results_data["bets"]}
+    added = 0
+
+    def _add(bet_id, entry):
+        nonlocal added
+        if bet_id not in existing_ids:
+            results_data["bets"].append(entry)
+            existing_ids.add(bet_id)
+            added += 1
+
+    for bet in value_bets:
+        bid = f"{signal_date}|{bet.get('game','')}|{bet.get('bet','')}"
+        _add(bid, {
+            "id": bid, "date": signal_date, "sport": "nhl", "bet_type": "team",
+            "market_type": bet.get("type","").lower(), "game": bet.get("game",""),
+            "bet": bet.get("bet",""), "edge_pct": bet.get("edge_pct",0),
+            "our_prob": bet.get("our_prob",0), "b365_odds": bet.get("b365_odds",0),
+            "b365_implied": bet.get("b365_implied",0),
+            "kelly_fraction": bet.get("kelly_fraction",0), "result": "?",
+        })
+
+    for game_analysis in props_by_game:
+        home = game_analysis.get("home_team","")
+        away = game_analysis.get("away_team","")
+        for prop in game_analysis.get("bets", []):
+            name = prop.get("name",""); market = prop.get("market","")
+            bid = f"{signal_date}|prop_nhl|{name}|{market}"
+            _add(bid, {
+                "id": bid, "date": signal_date, "sport": "nhl", "bet_type": "prop",
+                "market_type": prop.get("market_type",""),
+                "game": f"{away} @ {home}", "name": name, "team": prop.get("team",""),
+                "bet": f"{name} — {market}", "edge_pct": prop.get("edge_pct",0),
+                "our_prob": prop.get("our_prob",0), "b365_odds": prop.get("est_odds",0),
+                "b365_implied": prop.get("b365_implied",0),
+                "kelly_fraction": prop.get("kelly",0), "result": "?",
+            })
+
+    for game_analysis in nba_by_game:
+        home = game_analysis.get("home_team","")
+        away = game_analysis.get("away_team","")
+        for prop in game_analysis.get("bets", []):
+            player = prop.get("player",""); market = prop.get("market","")
+            bid = f"{signal_date}|prop_nba|{player}|{market}"
+            _add(bid, {
+                "id": bid, "date": signal_date, "sport": "nba", "bet_type": "prop",
+                "market_type": prop.get("stat_key","pts"),
+                "game": f"{away} @ {home}", "name": player, "team": prop.get("team",""),
+                "bet": f"{player} — {market}", "line": prop.get("line",0),
+                "edge_pct": prop.get("edge_pct",0), "our_prob": prop.get("our_prob",0),
+                "b365_odds": prop.get("est_odds", prop.get("b365_odds",0)),
+                "b365_implied": prop.get("dk_implied", prop.get("b365_implied",0)),
+                "kelly_fraction": prop.get("kelly", prop.get("kelly_fraction",0)),
+                "result": "?",
+            })
+
+    for game_analysis in mlb_by_game:
+        home = game_analysis.get("home_team","")
+        away = game_analysis.get("away_team","")
+        for prop in game_analysis.get("bets", []):
+            player = prop.get("player",""); market = prop.get("market","")
+            bid = f"{signal_date}|prop_mlb|{player}|{market}"
+            _add(bid, {
+                "id": bid, "date": signal_date, "sport": "mlb", "bet_type": "prop",
+                "market_type": prop.get("stat_key",""),
+                "game": f"{away} @ {home}", "name": player, "team": prop.get("team",""),
+                "bet": f"{player} — {market}", "line": prop.get("line",0),
+                "edge_pct": prop.get("edge_pct",0), "our_prob": prop.get("our_prob",0),
+                "b365_odds": prop.get("est_odds", prop.get("b365_odds",0)),
+                "b365_implied": prop.get("dk_implied", prop.get("b365_implied",0)),
+                "kelly_fraction": prop.get("kelly", prop.get("kelly_fraction",0)),
+                "result": "?",
+            })
+
+    if added > 0:
+        results_data["summary"] = compute_summary(results_data["bets"])
+        save_results(results_data)
+        print(f"  [Pending] {added} nouveau(x) bet(s) sauvegarde(s) pour {signal_date}")
+    else:
+        print(f"  [Pending] Aucun nouveau bet pour {signal_date}")
+
+
 if __name__ == "__main__":
-    if len(sys.argv) >= 2:
+    if len(sys.argv) >= 2 and sys.argv[1] == "--save-pending":
+        save_pending_from_signal()
+    elif len(sys.argv) >= 2:
         target = sys.argv[1]
+        run_for_date(target)
     else:
         target = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
-    run_for_date(target)
+        run_for_date(target)

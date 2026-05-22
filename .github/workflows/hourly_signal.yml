@@ -48,6 +48,9 @@ jobs:
         run: |
           cd src
           python signal.py
+      - name: Sauvegarder bets du signal courant comme pending
+        run: |
+          cd src && python backtester.py --save-pending
       - name: Commit et push
         run: |
           git config --global user.name "NHL Bot"
