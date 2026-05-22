@@ -1,80 +1,549 @@
 {
-  "generated_at": "2026-05-22T02:58:01.808353+00:00",
-  "date": "2026-05-21",
+  "generated_at": "2026-05-22T06:50:04.640924+00:00",
+  "date": "2026-05-22",
   "bookmaker": "bet365",
   "total_games": 1,
-  "total_value_bets": 0,
+  "total_value_bets": 3,
   "signals": [
     {
       "game": {
-        "id": "d9aa6127776677dd67d86ba3b93d0353",
-        "home_team": "Carolina Hurricanes",
-        "away_team": "Montréal Canadiens",
-        "commence_time": "2026-05-22T00:20:36Z",
+        "id": "959b72accceca17f9912258671ba38bd",
+        "home_team": "Colorado Avalanche",
+        "away_team": "Vegas Golden Knights",
+        "commence_time": "2026-05-23T00:00:00Z",
         "bookmaker": "draftkings",
         "markets": {
-          "puck_line": {
+          "moneyline": {
             "home": {
-              "team": "Carolina Hurricanes",
-              "spread": 3.5,
-              "odds_decimal": 17.0,
-              "implied_prob": 5.88
+              "team": "Colorado Avalanche",
+              "odds_decimal": 1.52,
+              "implied_prob": 65.79
             },
             "away": {
-              "team": "Montréal Canadiens",
-              "spread": -3.5,
-              "odds_decimal": 1.02,
-              "implied_prob": 98.04
+              "team": "Vegas Golden Knights",
+              "odds_decimal": 2.6,
+              "implied_prob": 38.46
+            }
+          },
+          "puck_line": {
+            "home": {
+              "team": "Colorado Avalanche",
+              "spread": -1.5,
+              "odds_decimal": 2.36,
+              "implied_prob": 42.37
+            },
+            "away": {
+              "team": "Vegas Golden Knights",
+              "spread": 1.5,
+              "odds_decimal": 1.62,
+              "implied_prob": 61.73
             }
           },
           "totals": {
             "over": {
-              "line": 8.5,
-              "odds_decimal": 14.0,
-              "implied_prob": 7.14
+              "line": 6.5,
+              "odds_decimal": 2.1,
+              "implied_prob": 47.62
             },
             "under": {
-              "line": 8.5,
-              "odds_decimal": 1.03,
-              "implied_prob": 97.09
+              "line": 6.5,
+              "odds_decimal": 1.77,
+              "implied_prob": 56.5
             }
           },
           "player_props": []
         },
         "removed_props": []
       },
-      "edges": []
+      "edges": [
+        {
+          "edge_pct": 15.0,
+          "edge_raw": 20.44,
+          "kelly_fraction": 3.06,
+          "verdict": "🔥 Forte valeur",
+          "type": "Moneyline",
+          "bet": "Vegas Golden Knights ML",
+          "our_prob": 46.3,
+          "b365_implied": 38.46,
+          "b365_odds": 2.6,
+          "game": "Vegas Golden Knights @ Colorado Avalanche",
+          "note": "vs Colorado Avalanche",
+          "context_notes": []
+        },
+        {
+          "edge_pct": 12.0,
+          "edge_raw": 13.75,
+          "kelly_fraction": 5.44,
+          "verdict": "🔥 Forte valeur",
+          "type": "Puck Line",
+          "bet": "Vegas Golden Knights +1.5",
+          "our_prob": 70.2,
+          "b365_implied": 61.73,
+          "b365_odds": 1.62,
+          "game": "Vegas Golden Knights @ Colorado Avalanche",
+          "note": "Spread +1.5 buts",
+          "context_notes": []
+        },
+        {
+          "edge_pct": 5.38,
+          "edge_raw": 5.38,
+          "kelly_fraction": 1.71,
+          "verdict": "✅ Bonne valeur",
+          "type": "Total buts",
+          "bet": "Under 6.5",
+          "our_prob": 59.5,
+          "b365_implied": 56.5,
+          "b365_odds": 1.77,
+          "game": "Vegas Golden Knights @ Colorado Avalanche",
+          "note": "Total attendu: 6.1 buts",
+          "context_notes": [
+            "Total attendu: 6.1 buts"
+          ]
+        }
+      ]
     }
   ],
-  "value_bets": [],
-  "props_analysis": [],
+  "value_bets": [
+    {
+      "edge_pct": 15.0,
+      "edge_raw": 20.44,
+      "kelly_fraction": 3.06,
+      "verdict": "🔥 Forte valeur",
+      "type": "Moneyline",
+      "bet": "Vegas Golden Knights ML",
+      "our_prob": 46.3,
+      "b365_implied": 38.46,
+      "b365_odds": 2.6,
+      "game": "Vegas Golden Knights @ Colorado Avalanche",
+      "note": "vs Colorado Avalanche",
+      "context_notes": []
+    },
+    {
+      "edge_pct": 12.0,
+      "edge_raw": 13.75,
+      "kelly_fraction": 5.44,
+      "verdict": "🔥 Forte valeur",
+      "type": "Puck Line",
+      "bet": "Vegas Golden Knights +1.5",
+      "our_prob": 70.2,
+      "b365_implied": 61.73,
+      "b365_odds": 1.62,
+      "game": "Vegas Golden Knights @ Colorado Avalanche",
+      "note": "Spread +1.5 buts",
+      "context_notes": []
+    },
+    {
+      "edge_pct": 5.38,
+      "edge_raw": 5.38,
+      "kelly_fraction": 1.71,
+      "verdict": "✅ Bonne valeur",
+      "type": "Total buts",
+      "bet": "Under 6.5",
+      "our_prob": 59.5,
+      "b365_implied": 56.5,
+      "b365_odds": 1.77,
+      "game": "Vegas Golden Knights @ Colorado Avalanche",
+      "note": "Total attendu: 6.1 buts",
+      "context_notes": [
+        "Total attendu: 6.1 buts"
+      ]
+    }
+  ],
+  "props_analysis": [
+    {
+      "home_team": "Colorado Avalanche",
+      "away_team": "Vegas Golden Knights",
+      "home_goalie": {
+        "name": "Mackenzie Blackwood",
+        "sv_pct": 0.899,
+        "saves_pg": 22.5,
+        "gaa": 2.68,
+        "confirmed": true
+      },
+      "away_goalie": {
+        "name": "Carter Hart",
+        "sv_pct": 0.901,
+        "saves_pg": 18.6,
+        "gaa": 2.26,
+        "confirmed": true
+      },
+      "home_def_shots": 28.2,
+      "away_def_shots": 28.4,
+      "home_def_ga": 2.8,
+      "away_def_ga": 2.85,
+      "home_shots_rank": 5,
+      "away_shots_rank": 6,
+      "home_ga_rank": 5,
+      "away_ga_rank": 6,
+      "lineup_confirmed": true,
+      "bets": [
+        {
+          "name": "Shea Theodore",
+          "position": "D",
+          "team": "Vegas Golden Knights",
+          "opponent": "Colorado Avalanche",
+          "toi": "26:39",
+          "n_games": 10,
+          "line_num": 2,
+          "pp_unit": 1,
+          "is_defense": true,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 59.6,
+          "edge_pct": 16.2,
+          "kelly": 4.3,
+          "market_detail": "0.91 pts proj. · moy 0.75/m",
+          "est_odds": 1.95,
+          "b365_implied": 51.3,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 59.6,
+              "edge": 16.2,
+              "kelly": 4.3,
+              "est_odds": 1.95,
+              "dk_implied": 51.3,
+              "detail": "0.91 pts proj. · moy 0.75/m"
+            }
+          ],
+          "shots_pg": 2.3,
+          "goals_pg": 0.32,
+          "points_pg": 0.75,
+          "shots_adj": 2.4,
+          "shots_line": 1.5,
+          "shots_prob": 69.2,
+          "shots_edge": 8.6,
+          "goals_adj": 0.34,
+          "points_adj": 0.78,
+          "last5_shots": 13,
+          "last10_shots": 24,
+          "last5_goals": 2,
+          "last5_points": 4,
+          "season_goals": 4,
+          "season_points": 9,
+          "opp_shots_rank": 5,
+          "opp_ga_rank": 5,
+          "context_notes": [
+            "⚡ PP1 — avantage numerique",
+            "⚠️ Defense solide — Colorado Ava (#5 ligue)"
+          ]
+        },
+        {
+          "name": "Devon Toews",
+          "position": "D",
+          "team": "Colorado Avalanche",
+          "opponent": "Vegas Golden Knights",
+          "toi": "26:03",
+          "n_games": 10,
+          "line_num": 2,
+          "pp_unit": 1,
+          "is_defense": true,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 59.6,
+          "edge_pct": 11.4,
+          "kelly": 3.3,
+          "market_detail": "0.91 pts proj. · moy 0.75/m",
+          "est_odds": 1.87,
+          "b365_implied": 53.5,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 59.6,
+              "edge": 11.4,
+              "kelly": 3.3,
+              "est_odds": 1.87,
+              "dk_implied": 53.5,
+              "detail": "0.91 pts proj. · moy 0.75/m"
+            }
+          ],
+          "shots_pg": 1.3,
+          "goals_pg": 0.16,
+          "points_pg": 0.75,
+          "shots_adj": 1.4,
+          "shots_line": 1.5,
+          "shots_prob": 40.8,
+          "shots_edge": -26.6,
+          "goals_adj": 0.17,
+          "points_adj": 0.79,
+          "last5_shots": 5,
+          "last10_shots": 10,
+          "last5_goals": 0,
+          "last5_points": 2,
+          "season_goals": 2,
+          "season_points": 9,
+          "opp_shots_rank": 6,
+          "opp_ga_rank": 6,
+          "context_notes": [
+            "⚡ PP1 — avantage numerique"
+          ]
+        }
+      ],
+      "retour_de_flamme": []
+    }
+  ],
   "nba_analysis": [],
   "mlb_analysis": [
     {
-      "home_team": "Los Angeles Angels",
-      "away_team": "Athletics",
+      "home_team": "Philadelphia Phillies",
+      "away_team": "Cleveland Guardians",
       "bets": [
         {
-          "player": "Patrick Sandoval",
-          "team": "Los Angeles Angels",
-          "opponent": "Athletics",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 6.5",
-          "stat_key": "strikeouts",
-          "line": 6.5,
-          "season_avg": 7.5,
-          "adj_proj": 7.5,
-          "opp_k_rate": 21.5,
+          "player": "Bryce Harper",
+          "team": "Philadelphia Phillies",
+          "opponent": "Cleveland Guardians",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.0",
+          "stat_key": "total_bases",
+          "line": 1.0,
+          "season_avg": 1.867,
+          "adj_proj": 1.936,
+          "opp_k_rate": null,
+          "opp_pitcher": "Gavin Williams",
+          "opp_pitcher_k": 7.0,
+          "platoon": "Platoon avantageux (L vs R)",
           "park_factor": 1.0,
-          "our_prob": 58.0,
-          "edge_pct": 10.2,
+          "our_prob": 65.1,
+          "edge_pct": 23.7,
+          "kelly": 6.7,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Gavin Williams (7.0 K/dep) — Correct (7+ K/dep)",
+            "Platoon avantageux (L vs R)",
+            "Confirmer lineup avant de parier"
+          ]
+        },
+        {
+          "player": "Gavin Williams",
+          "team": "Cleveland Guardians",
+          "opponent": "Philadelphia Phillies",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.0",
+          "stat_key": "strikeouts",
+          "line": 6.0,
+          "season_avg": 7.33,
+          "adj_proj": 7.02,
+          "opp_k_rate": 20.6,
+          "park_factor": 1.0,
+          "our_prob": 58.9,
+          "edge_pct": 11.9,
+          "kelly": 3.4,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": []
+        },
+        {
+          "player": "Jose Ramirez",
+          "team": "Cleveland Guardians",
+          "opponent": "Philadelphia Phillies",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.0",
+          "stat_key": "total_bases",
+          "line": 1.0,
+          "season_avg": 1.667,
+          "adj_proj": 1.696,
+          "opp_k_rate": null,
+          "opp_pitcher": "Cristopher Sánchez",
+          "opp_pitcher_k": 7.5,
+          "platoon": "Switch hitter (avantage platoon)",
+          "park_factor": 1.0,
+          "our_prob": 57.9,
+          "edge_pct": 10.0,
           "kelly": 2.9,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Cristopher Sánchez (7.5 K/dep) — Correct (7+ K/dep)",
+            "Switch hitter (avantage platoon)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-22T22:41:00Z"
+    },
+    {
+      "home_team": "New York Yankees",
+      "away_team": "Tampa Bay Rays",
+      "bets": [
+        {
+          "player": "Juan Soto",
+          "team": "New York Yankees",
+          "opponent": "Tampa Bay Rays",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.5",
+          "stat_key": "total_bases",
+          "line": 1.5,
+          "season_avg": 2.4,
+          "adj_proj": 2.488,
+          "opp_k_rate": null,
+          "opp_pitcher": "Nick Martinez",
+          "opp_pitcher_k": 7.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 1.0,
+          "our_prob": 63.2,
+          "edge_pct": 20.1,
+          "kelly": 5.7,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Nick Martinez (7.5 K/dep) — Correct (7+ K/dep)",
+            "Platoon avantageux (L vs R)",
+            "Confirmer lineup avant de parier"
+          ]
+        },
+        {
+          "player": "Gerrit Cole",
+          "team": "New York Yankees",
+          "opponent": "Tampa Bay Rays",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 7.5",
+          "stat_key": "strikeouts",
+          "line": 7.5,
+          "season_avg": 8.5,
+          "adj_proj": 8.62,
+          "opp_k_rate": 21.8,
+          "park_factor": 1.0,
+          "our_prob": 58.6,
+          "edge_pct": 11.3,
+          "kelly": 3.3,
           "est_odds": 1.909,
           "dk_implied": 52.6,
           "context": []
         }
       ],
-      "commence_time": "2026-05-22T01:39:00Z"
+      "commence_time": "2026-05-22T23:06:00Z"
+    },
+    {
+      "home_team": "Boston Red Sox",
+      "away_team": "Minnesota Twins",
+      "bets": [
+        {
+          "player": "Rafael Devers",
+          "team": "Boston Red Sox",
+          "opponent": "Minnesota Twins",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.5",
+          "stat_key": "total_bases",
+          "line": 1.5,
+          "season_avg": 2.4,
+          "adj_proj": 2.488,
+          "opp_k_rate": null,
+          "opp_pitcher": "Connor Prielipp",
+          "opp_pitcher_k": 7.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 1.0,
+          "our_prob": 63.2,
+          "edge_pct": 20.1,
+          "kelly": 5.7,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Connor Prielipp (7.5 K/dep) — Correct (7+ K/dep)",
+            "Platoon avantageux (L vs R)",
+            "Confirmer lineup avant de parier"
+          ]
+        },
+        {
+          "player": "Rafael Devers",
+          "team": "Boston Red Sox",
+          "opponent": "Minnesota Twins",
+          "player_type": "batter",
+          "market": "Coups surs Over 0.5",
+          "stat_key": "hits",
+          "line": 0.5,
+          "season_avg": 1.2,
+          "adj_proj": 1.244,
+          "opp_k_rate": null,
+          "opp_pitcher": "Connor Prielipp",
+          "opp_pitcher_k": 7.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 1.0,
+          "our_prob": 62.4,
+          "edge_pct": 18.6,
+          "kelly": 5.3,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Connor Prielipp (7.5 K/dep) — Correct (7+ K/dep)",
+            "Platoon avantageux (L vs R)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-22T23:11:00Z"
+    },
+    {
+      "home_team": "Atlanta Braves",
+      "away_team": "Washington Nationals",
+      "bets": [
+        {
+          "player": "Michael Harris II",
+          "team": "Atlanta Braves",
+          "opponent": "Washington Nationals",
+          "player_type": "batter",
+          "market": "Coups surs Over 0.5",
+          "stat_key": "hits",
+          "line": 0.5,
+          "season_avg": 1.067,
+          "adj_proj": 1.222,
+          "opp_k_rate": null,
+          "opp_pitcher": "Miles Mikolas",
+          "opp_pitcher_k": 5.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 1.02,
+          "our_prob": 61.5,
+          "edge_pct": 16.9,
+          "kelly": 4.8,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Miles Mikolas (5.5 K/dep) — Contact",
+            "Platoon avantageux (L vs R)",
+            "Terrain: Neutre (PF 1.02)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-22T23:15:00Z"
+    },
+    {
+      "home_team": "Baltimore Orioles",
+      "away_team": "Detroit Tigers",
+      "bets": [
+        {
+          "player": "Gunnar Henderson",
+          "team": "Baltimore Orioles",
+          "opponent": "Detroit Tigers",
+          "player_type": "batter",
+          "market": "Coups surs Over 0.5",
+          "stat_key": "hits",
+          "line": 0.5,
+          "season_avg": 1.067,
+          "adj_proj": 1.128,
+          "opp_k_rate": null,
+          "opp_pitcher": "Jack Flaherty",
+          "opp_pitcher_k": 7.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 1.04,
+          "our_prob": 57.3,
+          "edge_pct": 8.9,
+          "kelly": 2.6,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Jack Flaherty (7.5 K/dep) — Correct (7+ K/dep)",
+            "Platoon avantageux (L vs R)",
+            "Terrain: Favorable frappeurs (PF 1.04)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-22T23:16:00Z"
     }
   ],
   "ai_analysis": {}
