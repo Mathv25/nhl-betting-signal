@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-05-23T17:12:10.753912+00:00",
+  "generated_at": "2026-05-23T19:02:20.192499+00:00",
   "date": "2026-05-23",
   "bookmaker": "bet365",
   "total_games": 1,
-  "total_value_bets": 0,
+  "total_value_bets": 2,
   "signals": [
     {
       "game": {
@@ -16,49 +16,111 @@
           "moneyline": {
             "home": {
               "team": "Carolina Hurricanes",
-              "odds_decimal": 1.46,
-              "implied_prob": 68.49
+              "odds_decimal": 1.49,
+              "implied_prob": 67.11
             },
             "away": {
               "team": "Montréal Canadiens",
-              "odds_decimal": 2.8,
-              "implied_prob": 35.71
+              "odds_decimal": 2.7,
+              "implied_prob": 37.04
             }
           },
           "puck_line": {
             "home": {
               "team": "Carolina Hurricanes",
               "spread": -1.5,
-              "odds_decimal": 2.24,
-              "implied_prob": 44.64
+              "odds_decimal": 2.2,
+              "implied_prob": 45.45
             },
             "away": {
               "team": "Montréal Canadiens",
               "spread": 1.5,
-              "odds_decimal": 1.68,
-              "implied_prob": 59.52
+              "odds_decimal": 1.7,
+              "implied_prob": 58.82
             }
           },
           "totals": {
             "over": {
-              "line": 5.5,
-              "odds_decimal": 1.77,
-              "implied_prob": 56.5
+              "line": 6.5,
+              "odds_decimal": 2.14,
+              "implied_prob": 46.73
             },
             "under": {
-              "line": 5.5,
-              "odds_decimal": 2.1,
-              "implied_prob": 47.62
+              "line": 6.5,
+              "odds_decimal": 1.74,
+              "implied_prob": 57.47
             }
           },
           "player_props": []
         },
         "removed_props": []
       },
-      "edges": []
+      "edges": [
+        {
+          "edge_pct": 5.19,
+          "edge_raw": 5.19,
+          "kelly_fraction": 1.81,
+          "verdict": "✅ Bonne valeur",
+          "type": "Puck Line",
+          "bet": "Montréal Canadiens +1.5",
+          "our_prob": 61.9,
+          "b365_implied": 58.82,
+          "b365_odds": 1.7,
+          "game": "Montréal Canadiens @ Carolina Hurricanes",
+          "note": "Spread +1.5 buts",
+          "context_notes": []
+        },
+        {
+          "edge_pct": 9.83,
+          "edge_raw": 9.83,
+          "kelly_fraction": 3.25,
+          "verdict": "🔥 Forte valeur",
+          "type": "Total buts",
+          "bet": "Under 6.5",
+          "our_prob": 63.1,
+          "b365_implied": 57.47,
+          "b365_odds": 1.74,
+          "game": "Montréal Canadiens @ Carolina Hurricanes",
+          "note": "Total attendu: 5.8 buts",
+          "context_notes": [
+            "Total attendu: 5.8 buts"
+          ]
+        }
+      ]
     }
   ],
-  "value_bets": [],
+  "value_bets": [
+    {
+      "edge_pct": 9.83,
+      "edge_raw": 9.83,
+      "kelly_fraction": 3.25,
+      "verdict": "🔥 Forte valeur",
+      "type": "Total buts",
+      "bet": "Under 6.5",
+      "our_prob": 63.1,
+      "b365_implied": 57.47,
+      "b365_odds": 1.74,
+      "game": "Montréal Canadiens @ Carolina Hurricanes",
+      "note": "Total attendu: 5.8 buts",
+      "context_notes": [
+        "Total attendu: 5.8 buts"
+      ]
+    },
+    {
+      "edge_pct": 5.19,
+      "edge_raw": 5.19,
+      "kelly_fraction": 1.81,
+      "verdict": "✅ Bonne valeur",
+      "type": "Puck Line",
+      "bet": "Montréal Canadiens +1.5",
+      "our_prob": 61.9,
+      "b365_implied": 58.82,
+      "b365_odds": 1.7,
+      "game": "Montréal Canadiens @ Carolina Hurricanes",
+      "note": "Spread +1.5 buts",
+      "context_notes": []
+    }
+  ],
   "props_analysis": [
     {
       "home_team": "Carolina Hurricanes",
@@ -88,11 +150,11 @@
       "lineup_confirmed": true,
       "bets": [
         {
-          "name": "Jackson Blake",
-          "position": "R",
+          "name": "Jordan Staal",
+          "position": "C",
           "team": "Carolina Hurricanes",
           "opponent": "Montréal Canadiens",
-          "toi": "18:15",
+          "toi": "17:49",
           "n_games": 9,
           "line_num": 2,
           "pp_unit": 0,
@@ -100,45 +162,151 @@
           "lineup_ok": true,
           "market": "Points Over 0.5",
           "market_type": "points",
-          "our_prob": 62.8,
-          "edge_pct": 12.9,
-          "kelly": 4.1,
-          "market_detail": "0.99 pts proj. · moy 1.12/m",
-          "est_odds": 1.8,
-          "b365_implied": 55.6,
+          "our_prob": 44.0,
+          "edge_pct": 16.7,
+          "kelly": 2.5,
+          "market_detail": "0.58 pts proj. · moy 0.55/m",
+          "est_odds": 2.65,
+          "b365_implied": 37.7,
           "all_markets": [
             {
               "type": "points",
               "label": "Points Over 0.5",
-              "prob": 62.8,
-              "edge": 12.9,
-              "kelly": 4.1,
-              "est_odds": 1.8,
-              "dk_implied": 55.6,
-              "detail": "0.99 pts proj. · moy 1.12/m"
+              "prob": 44.0,
+              "edge": 16.7,
+              "kelly": 2.5,
+              "est_odds": 2.65,
+              "dk_implied": 37.7,
+              "detail": "0.58 pts proj. · moy 0.55/m"
             }
           ],
-          "shots_pg": 2.4,
-          "goals_pg": 0.39,
-          "points_pg": 1.12,
-          "shots_adj": 2.4,
-          "shots_line": 2.5,
-          "shots_prob": 43.0,
-          "shots_edge": -11.9,
-          "goals_adj": 0.39,
-          "points_adj": 1.12,
-          "last5_shots": 14,
-          "last10_shots": 22,
-          "last5_goals": 3,
-          "last5_points": 7,
-          "season_goals": 4,
-          "season_points": 11,
+          "shots_pg": 1.5,
+          "goals_pg": 0.2,
+          "points_pg": 0.55,
+          "shots_adj": 1.5,
+          "shots_line": 1.5,
+          "shots_prob": 44.2,
+          "shots_edge": -13.8,
+          "goals_adj": 0.2,
+          "points_adj": 0.55,
+          "last5_shots": 4,
+          "last10_shots": 14,
+          "last5_goals": 1,
+          "last5_points": 3,
+          "season_goals": 1,
+          "season_points": 4,
           "opp_shots_rank": 16,
           "opp_ga_rank": 16,
           "context_notes": [
-            "🔥 Shots en hausse — 2.8/m last 5 vs 2.2/m last 10",
+            "⚡ Régression attendue — L5: 0.8/m vs moy 1.52/m (+7%)",
+            "❄️ Shots en baisse — 0.8/m last 5 vs 1.4/m last 10"
+          ]
+        },
+        {
+          "name": "Ivan Demidov",
+          "position": "R",
+          "team": "Montréal Canadiens",
+          "opponent": "Carolina Hurricanes",
+          "toi": "16:39",
+          "n_games": 10,
+          "line_num": 2,
+          "pp_unit": 1,
+          "is_defense": false,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 58.1,
+          "edge_pct": 13.3,
+          "kelly": 3.5,
+          "market_detail": "0.87 pts proj. · moy 0.69/m",
+          "est_odds": 1.95,
+          "b365_implied": 51.3,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 58.1,
+              "edge": 13.3,
+              "kelly": 3.5,
+              "est_odds": 1.95,
+              "dk_implied": 51.3,
+              "detail": "0.87 pts proj. · moy 0.69/m"
+            }
+          ],
+          "shots_pg": 2.3,
+          "goals_pg": 0.36,
+          "points_pg": 0.69,
+          "shots_adj": 2.3,
+          "shots_line": 1.5,
+          "shots_prob": 66.9,
+          "shots_edge": 14.4,
+          "goals_adj": 0.35,
+          "points_adj": 0.68,
+          "last5_shots": 15,
+          "last10_shots": 23,
+          "last5_goals": 3,
+          "last5_points": 5,
+          "season_goals": 3,
+          "season_points": 8,
+          "opp_shots_rank": 1,
+          "opp_ga_rank": 1,
+          "context_notes": [
+            "⚡ PP1 — avantage numerique",
+            "🔥 Shots en hausse — 3.0/m last 5 vs 2.3/m last 10",
             "3 buts dans ses 5 derniers matchs",
-            "7 pts dans ses 5 derniers matchs"
+            "5 pts dans ses 5 derniers matchs"
+          ]
+        },
+        {
+          "name": "K'Andre Miller",
+          "position": "D",
+          "team": "Carolina Hurricanes",
+          "opponent": "Montréal Canadiens",
+          "toi": "23:22",
+          "n_games": 9,
+          "line_num": 2,
+          "pp_unit": 0,
+          "is_defense": true,
+          "lineup_ok": true,
+          "market": "Points Over 0.5",
+          "market_type": "points",
+          "our_prob": 44.7,
+          "edge_pct": 11.8,
+          "kelly": 2.0,
+          "market_detail": "0.59 pts proj. · moy 0.63/m",
+          "est_odds": 2.5,
+          "b365_implied": 40.0,
+          "all_markets": [
+            {
+              "type": "points",
+              "label": "Points Over 0.5",
+              "prob": 44.7,
+              "edge": 11.8,
+              "kelly": 2.0,
+              "est_odds": 2.5,
+              "dk_implied": 40.0,
+              "detail": "0.59 pts proj. · moy 0.63/m"
+            }
+          ],
+          "shots_pg": 1.3,
+          "goals_pg": 0.08,
+          "points_pg": 0.63,
+          "shots_adj": 1.2,
+          "shots_line": 1.5,
+          "shots_prob": 33.7,
+          "shots_edge": -27.8,
+          "goals_adj": 0.07,
+          "points_adj": 0.57,
+          "last5_shots": 5,
+          "last10_shots": 8,
+          "last5_goals": 0,
+          "last5_points": 3,
+          "season_goals": 0,
+          "season_points": 6,
+          "opp_shots_rank": 16,
+          "opp_ga_rank": 16,
+          "context_notes": [
+            "🔥 Shots en hausse — 1.0/m last 5 vs 0.8/m last 10"
           ]
         }
       ],
