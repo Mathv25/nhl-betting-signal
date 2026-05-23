@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-05-23T19:07:23.875819+00:00",
+  "generated_at": "2026-05-23T20:43:52.558996+00:00",
   "date": "2026-05-23",
   "bookmaker": "bet365",
   "total_games": 1,
-  "total_value_bets": 2,
+  "total_value_bets": 1,
   "signals": [
     {
       "game": {
@@ -29,14 +29,14 @@
             "home": {
               "team": "Carolina Hurricanes",
               "spread": -1.5,
-              "odds_decimal": 2.2,
-              "implied_prob": 45.45
+              "odds_decimal": 2.24,
+              "implied_prob": 44.64
             },
             "away": {
               "team": "Montréal Canadiens",
               "spread": 1.5,
-              "odds_decimal": 1.7,
-              "implied_prob": 58.82
+              "odds_decimal": 1.68,
+              "implied_prob": 59.52
             }
           },
           "totals": {
@@ -56,20 +56,6 @@
         "removed_props": []
       },
       "edges": [
-        {
-          "edge_pct": 5.19,
-          "edge_raw": 5.19,
-          "kelly_fraction": 1.81,
-          "verdict": "✅ Bonne valeur",
-          "type": "Puck Line",
-          "bet": "Montréal Canadiens +1.5",
-          "our_prob": 61.9,
-          "b365_implied": 58.82,
-          "b365_odds": 1.7,
-          "game": "Montréal Canadiens @ Carolina Hurricanes",
-          "note": "Spread +1.5 buts",
-          "context_notes": []
-        },
         {
           "edge_pct": 9.83,
           "edge_raw": 9.83,
@@ -105,20 +91,6 @@
       "context_notes": [
         "Total attendu: 5.8 buts"
       ]
-    },
-    {
-      "edge_pct": 5.19,
-      "edge_raw": 5.19,
-      "kelly_fraction": 1.81,
-      "verdict": "✅ Bonne valeur",
-      "type": "Puck Line",
-      "bet": "Montréal Canadiens +1.5",
-      "our_prob": 61.9,
-      "b365_implied": 58.82,
-      "b365_odds": 1.7,
-      "game": "Montréal Canadiens @ Carolina Hurricanes",
-      "note": "Spread +1.5 buts",
-      "context_notes": []
     }
   ],
   "props_analysis": [
@@ -324,16 +296,16 @@
           "team": "Pittsburgh Pirates",
           "opponent": "Toronto Blue Jays",
           "player_type": "pitcher",
-          "market": "Retraits au baton Over 6.5",
+          "market": "Retraits au baton Over 6.0",
           "stat_key": "strikeouts",
-          "line": 6.5,
-          "season_avg": 7.5,
-          "adj_proj": 7.5,
+          "line": 6.0,
+          "season_avg": 7.0,
+          "adj_proj": 7.0,
           "opp_k_rate": 21.5,
           "park_factor": 1.0,
-          "our_prob": 58.0,
-          "edge_pct": 10.2,
-          "kelly": 2.9,
+          "our_prob": 58.6,
+          "edge_pct": 11.3,
+          "kelly": 3.3,
           "est_odds": 1.909,
           "dk_implied": 52.6,
           "context": []
@@ -429,6 +401,40 @@
         }
       ],
       "commence_time": "2026-05-23T20:11:00Z"
+    },
+    {
+      "home_team": "Milwaukee Brewers",
+      "away_team": "Los Angeles Dodgers",
+      "bets": [
+        {
+          "player": "Freddie Freeman",
+          "team": "Los Angeles Dodgers",
+          "opponent": "Milwaukee Brewers",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.0",
+          "stat_key": "total_bases",
+          "line": 1.0,
+          "season_avg": 1.667,
+          "adj_proj": 1.694,
+          "opp_k_rate": null,
+          "opp_pitcher": "Robert Gasser",
+          "opp_pitcher_k": 7.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 0.96,
+          "our_prob": 57.8,
+          "edge_pct": 9.8,
+          "kelly": 2.8,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Robert Gasser (7.5 K/dep) — Correct (7+ K/dep)",
+            "Platoon avantageux (L vs R)",
+            "Terrain: Favorable lanceurs (PF 0.96)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-23T23:16:00Z"
     }
   ],
   "ai_analysis": {}
