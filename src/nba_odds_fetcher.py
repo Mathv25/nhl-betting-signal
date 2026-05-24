@@ -10,8 +10,13 @@ import pytz
 
 BASE_URL  = "https://api.the-odds-api.com/v4"
 SPORT     = "basketball_nba"
-BOOKMAKER = "bet365"
-REGIONS   = "eu"
+
+# Ordre de priorité: bet365 EU en premier, puis DraftKings US en fallback
+BOOKMAKER_PRIORITY = [
+    {"key": "bet365",     "region": "eu"},
+    {"key": "draftkings", "region": "us"},
+    {"key": "fanduel",    "region": "us"},
+]
 
 PROP_MARKETS = [
     "player_points",
@@ -75,54 +80,64 @@ class NBAOddsFetcher:
     def get_player_props(self, event_id: str, market: str) -> list:
         """
         Retourne les props joueurs pour un match et un marche.
+        Essaie bet365 EU en premier, puis DraftKings/FanDuel US en fallback.
         Retourne: liste de dicts {player, market, line, over_odds, over_implied, under_odds}
         """
         time.sleep(0.5)
-        data = self._get(f"sports/{SPORT}/events/{event_id}/odds", {
-            "regions":    REGIONS,
-            "markets":    market,
-            "oddsFormat": "decimal",
-            "bookmakers": BOOKMAKER,
-        })
-        if not data:
-            return []
 
-        props = []
-        for bm in data.get("bookmakers", []):
-            if bm.get("key") != BOOKMAKER:
+        for entry in BOOKMAKER_PRIORITY:
+            book   = entry["key"]
+            region = entry["region"]
+
+            data = self._get(f"sports/{SPORT}/events/{event_id}/odds", {
+                "regions":    region,
+                "markets":    market,
+                "oddsFormat": "decimal",
+                "bookmakers": book,
+            })
+            if not data:
                 continue
-            for mkt in bm.get("markets", []):
-                if mkt.get("key") != market:
+
+            props = []
+            for bm in data.get("bookmakers", []):
+                if bm.get("key") != book:
                     continue
-
-                # Grouper over/under par joueur
-                by_player = {}
-                for outcome in mkt.get("outcomes", []):
-                    player = outcome.get("description", "")
-                    side   = outcome.get("name", "")
-                    if not player or not side:
+                for mkt in bm.get("markets", []):
+                    if mkt.get("key") != market:
                         continue
-                    if player not in by_player:
-                        by_player[player] = {}
-                    by_player[player][side] = {
-                        "odds":    outcome.get("price", 2.0),
-                        "line":    outcome.get("point", 0),
-                        "implied": round(1 / max(outcome.get("price", 2.0), 1.01) * 100, 1),
-                    }
 
-                for player, sides in by_player.items():
-                    over  = sides.get("Over", {})
-                    under = sides.get("Under", {})
-                    if not over or not over.get("line"):
-                        continue
-                    props.append({
-                        "player":        player,
-                        "market":        market,
-                        "line":          over["line"],
-                        "over_odds":     over["odds"],
-                        "over_implied":  over["implied"],
-                        "under_odds":    under.get("odds", 2.0),
-                        "under_implied": under.get("implied", 52.4),
-                    })
+                    by_player = {}
+                    for outcome in mkt.get("outcomes", []):
+                        player = outcome.get("description", "")
+                        side   = outcome.get("name", "")
+                        if not player or not side:
+                            continue
+                        if player not in by_player:
+                            by_player[player] = {}
+                        by_player[player][side] = {
+                            "odds":    outcome.get("price", 2.0),
+                            "line":    outcome.get("point", 0),
+                            "implied": round(1 / max(outcome.get("price", 2.0), 1.01) * 100, 1),
+                        }
 
-        return props
+                    for player, sides in by_player.items():
+                        over  = sides.get("Over", {})
+                        under = sides.get("Under", {})
+                        if not over or not over.get("line"):
+                            continue
+                        props.append({
+                            "player":        player,
+                            "market":        market,
+                            "line":          over["line"],
+                            "over_odds":     over["odds"],
+                            "over_implied":  over["implied"],
+                            "under_odds":    under.get("odds", 2.0),
+                            "under_implied": under.get("implied", 52.4),
+                        })
+
+            if props:
+                if book != "bet365":
+                    print(f"    [NBA Props] bet365 vide — utilise {book} ({region})")
+                return props
+
+        return []
