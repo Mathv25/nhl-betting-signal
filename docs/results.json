@@ -60,7 +60,7 @@
       "b365_odds": 2.5,
       "b365_implied": 40.0,
       "kelly_fraction": 2.1,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-05-26|prop_nba|Chet Holmgren|Rebonds Over 7.5",
@@ -78,7 +78,7 @@
       "b365_odds": 2.08,
       "b365_implied": 48.1,
       "kelly_fraction": 4.2,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-05-26|prop_mlb|Gunnar Henderson|Coups surs Over 0.5",
@@ -96,7 +96,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 6.8,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-05-26|prop_mlb|Cedric Mullins|Coups surs Over 0.5",
@@ -114,7 +114,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 3.2,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-05-26|prop_mlb|Rafael Devers|Coups surs Over 0.5",
@@ -132,7 +132,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 5.3,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-05-26|prop_mlb|Rafael Devers|Buts totaux Over 1.5",
@@ -150,7 +150,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 4.9,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-05-26|prop_mlb|Austin Riley|Buts totaux Over 1.0",
@@ -168,7 +168,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 3.5,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-05-26|prop_mlb|Jazz Chisholm Jr.|Coups surs Over 0.5",
@@ -186,7 +186,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 6.5,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-05-26|prop_mlb|Juan Soto|Buts totaux Over 1.5",
@@ -204,7 +204,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 3.9,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-05-26|prop_nba|Devin Vassell|Passes Over 2.5",
@@ -222,7 +222,7 @@
       "b365_odds": 2.42,
       "b365_implied": 41.3,
       "kelly_fraction": 2.0,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-05-26|prop_mlb|Jazz Chisholm Jr.|Buts totaux Over 1.0",
@@ -240,7 +240,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 6.6,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-05-25|Carolina Hurricanes @ Montréal Canadiens|Under 5.5",
@@ -22333,22 +22333,22 @@
     }
   ],
   "summary": {
-    "total": 1035,
+    "total": 1038,
     "wins": 512,
-    "losses": 523,
-    "win_rate": 49.5,
-    "profit": -22.68,
-    "roi": -0.8,
+    "losses": 526,
+    "win_rate": 49.3,
+    "profit": -31.68,
+    "roi": -1.1,
     "by_edge": {
       "15+": {
-        "n": 589,
+        "n": 590,
         "wins": 290,
-        "profit": 52.3
+        "profit": 49.3
       },
       "8-15": {
-        "n": 395,
+        "n": 397,
         "wins": 196,
-        "profit": -70.41
+        "profit": -76.41
       },
       "5-8": {
         "n": 51,
@@ -22357,6 +22357,16 @@
       }
     },
     "by_type": {
+      "mlb_hits": {
+        "n": 34,
+        "wins": 21,
+        "profit": 19.05
+      },
+      "mlb_total_bases": {
+        "n": 122,
+        "wins": 52,
+        "profit": -44.1
+      },
       "nhl_total buts": {
         "n": 6,
         "wins": 5,
@@ -22371,16 +22381,6 @@
         "n": 58,
         "wins": 31,
         "profit": 1.43
-      },
-      "mlb_hits": {
-        "n": 32,
-        "wins": 21,
-        "profit": 25.05
-      },
-      "mlb_total_bases": {
-        "n": 121,
-        "wins": 52,
-        "profit": -41.1
       },
       "nba_pra": {
         "n": 8,
@@ -22429,6 +22429,12 @@
       }
     },
     "by_sport": {
+      "mlb": {
+        "n": 214,
+        "wins": 104,
+        "losses": 110,
+        "profit": -23.62
+      },
       "nhl": {
         "n": 659,
         "wins": 338,
@@ -22440,15 +22446,9 @@
         "wins": 70,
         "losses": 95,
         "profit": -94.85
-      },
-      "mlb": {
-        "n": 211,
-        "wins": 104,
-        "losses": 107,
-        "profit": -14.64
       }
     },
     "clv": {},
-    "last_updated": "2026-05-26T18:25:50Z"
+    "last_updated": "2026-05-26T20:05:45Z"
   }
 }
