@@ -134,6 +134,46 @@ def get_starter_for_team(team: str, opponent: str, starters: dict):
 
 _lineup_cache = {}  # date_str -> {team_name: set of player last names}
 _lineup_fetch_count = {}  # date_str -> nb de fois fetchee (pour invalider cache si lineups en cours)
+_inactive_cache = {}  # date_str -> set of player last names sur IL/DTD/suspension
+
+
+def fetch_inactive_players(date_str: str = None) -> set:
+    """
+    Retourne un set de last-names (lowercase) des joueurs actuellement sur la IL ou DTD.
+    Utilise l'API MLB roster avec hydrate=injuries pour chaque equipe.
+    Cache par date pour eviter les appels repetes.
+    """
+    if date_str is None:
+        tz = pytz.timezone("America/Toronto")
+        date_str = datetime.now(tz).strftime("%Y-%m-%d")
+
+    if date_str in _inactive_cache:
+        return _inactive_cache[date_str]
+
+    inactive = set()
+    try:
+        # Recupere la liste des joueurs sur IL via l'endpoint injuries
+        r = requests.get(
+            "https://statsapi.mlb.com/api/v1/injuries",
+            params={"sportId": 1},
+            timeout=10,
+        )
+        r.raise_for_status()
+        data = r.json()
+        for entry in data.get("injuries", []):
+            player = entry.get("player", {})
+            full_name = player.get("fullName", "")
+            if full_name:
+                last = full_name.split()[-1].lower()
+                inactive.add(last)
+                # Aussi stocker le nom complet normalisé pour matching exact
+                inactive.add(full_name.lower())
+        print(f"  [MLB Inactive] {len(data.get('injuries', []))} joueurs sur IL/DTD")
+    except Exception as e:
+        print(f"  [MLB Inactive] Erreur API injuries: {e} — on continue sans filtre IL")
+
+    _inactive_cache[date_str] = inactive
+    return inactive
 
 
 def fetch_confirmed_lineups(date_str: str = None, force_refresh: bool = False) -> dict:

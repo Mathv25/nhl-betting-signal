@@ -103,6 +103,10 @@ def main():
                     real_props = fetcher.get_nhl_player_props(g["id"], bookmaker=book)
                     n_lines = sum(len(v) for v in real_props.values()) if real_props else 0
                     print(f"    -> {n_lines} lignes props disponibles")
+                    # Si props pas encore publiées (playoffs soir), fallback mode synthétique
+                    if n_lines == 0:
+                        print(f"    -> Props non disponibles — mode synthétique (modèle stat)")
+                        real_props = None
                     game_total = g.get("markets", {}).get("totals", {}).get("over", {}).get("line")
                     analysis = props_an.analyze_game(g["home_team"], g["away_team"],
                                                      real_props=real_props, game_total=game_total)
