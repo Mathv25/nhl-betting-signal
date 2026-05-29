@@ -24,31 +24,34 @@ except ImportError:
 
 # ── MODELES STATISTIQUES ──────────────────────────────────────────────────────
 STD_FLOOR = {
-    "strikeouts":  0.33,
-    "hits":        0.62,
-    "total_bases": 0.58,
-    "home_runs":   0.80,  # HR tres volatile — STD large
+    "strikeouts":    0.33,
+    "hits":          0.62,
+    "total_bases":   0.58,
+    "home_runs":     0.80,  # HR tres volatile — STD large
+    "runs_scored":   0.55,  # Runs marqués — assez stable pour les hauts de l'ordre
 }
 
 LINE_OFFSET = {
-    "strikeouts":  1.0,
-    "hits":        0.5,
-    "total_bases": 0.5,
-    "home_runs":   0.0,   # Ligne toujours 0.5 (Over/Under 0.5 HR)
+    "strikeouts":    1.0,
+    "hits":          0.5,
+    "total_bases":   0.5,
+    "home_runs":     0.0,   # Ligne toujours 0.5
+    "runs_scored":   0.0,   # Ligne toujours 0.5
 }
 
 STAT_CONFIGS = [
     {"key": "strikeouts",  "label": "Retraits au baton", "min_avg": 5.5,  "player_type": "pitcher"},
-    {"key": "hits",        "label": "Coups surs",        "min_avg": 0.9,  "player_type": "batter"},
-    {"key": "total_bases", "label": "Buts totaux",       "min_avg": 1.5,  "player_type": "batter"},
-    {"key": "home_runs",   "label": "Home Run",          "min_avg": 0.10, "player_type": "batter"},
+    {"key": "hits",        "label": "Coups surs",        "min_avg": 0.9,  "player_type": "batter",  "convergence": 2},
+    {"key": "total_bases", "label": "Buts totaux",       "min_avg": 1.5,  "player_type": "batter",  "convergence": 2},
+    {"key": "home_runs",   "label": "Home Run",          "min_avg": 0.10, "player_type": "batter",  "convergence": 1},
+    {"key": "runs_scored", "label": "Runs marques",      "min_avg": 0.55, "player_type": "batter",  "convergence": 1},
 ]
 
-MIN_EDGE   = 8.0   # Abaisse de 12 — mode synthétique génère des edges 8-12%
-MAX_EDGE   = 30.0  # Relevé de 22 — évite de bloquer les lignes basses sur bons lanceurs
+MIN_EDGE   = 10.0  # Seuil relevé — on garde seulement les vrais edges
+MAX_EDGE   = 35.0
 B365_IMPLIED = 52.63  # ~1.909 cotes b365 standard
 B365_ODDS    = 1.909
-MAX_BETS   = 4
+MAX_BETS   = 5
 # Si notre modele depasse b365 de plus de 25%, le marche a raison — skip
 MAX_DISAGREEMENT_RATIO = 1.25
 
@@ -57,6 +60,7 @@ _STAT_TO_MARKET = {
     "hits":        "batter_hits",
     "total_bases": "batter_total_bases",
     "home_runs":   "batter_home_runs",
+    "runs_scored": "batter_runs_scored",
 }
 
 # ── PARK FACTORS ─────────────────────────────────────────────────────────────
@@ -264,47 +268,48 @@ MLB_PITCHERS = {
 # bats: "R" droitier, "L" gaucher, "S" switch hitter
 # hr: home runs par match (saison reguliere 2024-25)
 MLB_BATTERS = {
-    "Aaron Judge":           {"hits": 1.10, "total_bases": 2.50, "home_runs": 0.29, "team": "New York Yankees",       "bats": "R"},
-    "Luis Arraez":           {"hits": 1.50, "total_bases": 1.85, "home_runs": 0.02, "team": "San Diego Padres",       "bats": "R"},
-    "Freddie Freeman":       {"hits": 1.45, "total_bases": 2.35, "home_runs": 0.14, "team": "Los Angeles Dodgers",    "bats": "L"},
-    "Ronald Acuna Jr.":      {"hits": 1.40, "total_bases": 2.40, "home_runs": 0.16, "team": "Atlanta Braves",         "bats": "R"},
-    "Steven Kwan":           {"hits": 1.30, "total_bases": 1.75, "home_runs": 0.04, "team": "Cleveland Guardians",    "bats": "L"},
-    "Juan Soto":             {"hits": 1.35, "total_bases": 2.30, "home_runs": 0.13, "team": "New York Yankees",       "bats": "L"},
-    "Mookie Betts":          {"hits": 1.35, "total_bases": 2.35, "home_runs": 0.11, "team": "Los Angeles Dodgers",    "bats": "R"},
-    "Corey Seager":          {"hits": 1.35, "total_bases": 2.30, "home_runs": 0.15, "team": "Texas Rangers",          "bats": "L"},
-    "Shohei Ohtani":         {"hits": 1.25, "total_bases": 2.45, "home_runs": 0.30, "team": "Los Angeles Dodgers",    "bats": "L"},
-    "Bobby Witt Jr.":        {"hits": 1.30, "total_bases": 2.15, "home_runs": 0.09, "team": "Kansas City Royals",     "bats": "R"},
-    "Trea Turner":           {"hits": 1.30, "total_bases": 2.05, "home_runs": 0.07, "team": "Philadelphia Phillies",  "bats": "R"},
-    "Bryce Harper":          {"hits": 1.30, "total_bases": 2.35, "home_runs": 0.16, "team": "Philadelphia Phillies",  "bats": "L"},
-    "Vladimir Guerrero Jr.": {"hits": 1.30, "total_bases": 2.10, "home_runs": 0.10, "team": "Toronto Blue Jays",      "bats": "R"},
-    "Jose Ramirez":          {"hits": 1.30, "total_bases": 2.20, "home_runs": 0.12, "team": "Cleveland Guardians",    "bats": "S"},
-    "Bo Bichette":           {"hits": 1.30, "total_bases": 2.00, "home_runs": 0.07, "team": "Toronto Blue Jays",      "bats": "R"},
-    "Yordan Alvarez":        {"hits": 1.25, "total_bases": 2.50, "home_runs": 0.23, "team": "Houston Astros",         "bats": "L"},
-    "Kyle Tucker":           {"hits": 1.25, "total_bases": 2.25, "home_runs": 0.14, "team": "Houston Astros",         "bats": "L"},
-    "Rafael Devers":         {"hits": 1.25, "total_bases": 2.20, "home_runs": 0.15, "team": "Boston Red Sox",         "bats": "L"},
-    "Julio Rodriguez":       {"hits": 1.25, "total_bases": 2.10, "home_runs": 0.09, "team": "Seattle Mariners",       "bats": "R"},
-    "Nolan Arenado":         {"hits": 1.20, "total_bases": 2.00, "home_runs": 0.12, "team": "St. Louis Cardinals",    "bats": "R"},
-    "Fernando Tatis Jr.":    {"hits": 1.20, "total_bases": 2.20, "home_runs": 0.15, "team": "San Diego Padres",       "bats": "R"},
-    "Paul Goldschmidt":      {"hits": 1.20, "total_bases": 2.10, "home_runs": 0.11, "team": "St. Louis Cardinals",    "bats": "R"},
-    "Adley Rutschman":       {"hits": 1.20, "total_bases": 1.90, "home_runs": 0.09, "team": "Baltimore Orioles",      "bats": "S"},
-    "Alex Bregman":          {"hits": 1.20, "total_bases": 2.00, "home_runs": 0.11, "team": "Boston Red Sox",         "bats": "R"},
-    "Francisco Lindor":      {"hits": 1.20, "total_bases": 2.05, "home_runs": 0.10, "team": "New York Mets",          "bats": "S"},
-    "Cedric Mullins":        {"hits": 1.20, "total_bases": 1.85, "home_runs": 0.06, "team": "Baltimore Orioles",      "bats": "S"},
-    "Xander Bogaerts":       {"hits": 1.20, "total_bases": 1.90, "home_runs": 0.08, "team": "San Diego Padres",       "bats": "R"},
-    "Gunnar Henderson":      {"hits": 1.15, "total_bases": 2.10, "home_runs": 0.15, "team": "Baltimore Orioles",      "bats": "L"},
-    "Mike Trout":            {"hits": 1.15, "total_bases": 2.20, "home_runs": 0.18, "team": "Los Angeles Angels",     "bats": "R"},
-    "Nolan Jones":           {"hits": 1.15, "total_bases": 1.95, "home_runs": 0.13, "team": "Colorado Rockies",       "bats": "L"},
-    "Marcus Semien":         {"hits": 1.15, "total_bases": 1.90, "home_runs": 0.09, "team": "Texas Rangers",          "bats": "R"},
-    "Austin Riley":          {"hits": 1.15, "total_bases": 2.15, "home_runs": 0.16, "team": "Atlanta Braves",         "bats": "R"},
-    "Michael Harris II":     {"hits": 1.15, "total_bases": 1.90, "home_runs": 0.08, "team": "Atlanta Braves",         "bats": "L"},
-    "Jazz Chisholm Jr.":     {"hits": 1.15, "total_bases": 2.00, "home_runs": 0.13, "team": "New York Yankees",       "bats": "L"},
-    "Anthony Volpe":         {"hits": 1.15, "total_bases": 1.85, "home_runs": 0.08, "team": "New York Yankees",       "bats": "R"},
-    "Elly De La Cruz":       {"hits": 1.15, "total_bases": 1.95, "home_runs": 0.10, "team": "Cincinnati Reds",        "bats": "S"},
-    "Matt Olson":            {"hits": 1.10, "total_bases": 2.20, "home_runs": 0.18, "team": "Atlanta Braves",         "bats": "L"},
-    "Pete Alonso":           {"hits": 1.10, "total_bases": 2.15, "home_runs": 0.18, "team": "New York Mets",          "bats": "R"},
-    "Byron Buxton":          {"hits": 1.10, "total_bases": 2.20, "home_runs": 0.19, "team": "Minnesota Twins",        "bats": "R"},
-    "Marcell Ozuna":         {"hits": 1.10, "total_bases": 2.10, "home_runs": 0.17, "team": "Atlanta Braves",         "bats": "R"},
-    "Willy Adames":          {"hits": 1.10, "total_bases": 1.90, "home_runs": 0.10, "team": "San Francisco Giants",   "bats": "R"},
+    # runs_scored: runs marqués/match — dépend de la position dans l'ordre et OBP
+    "Aaron Judge":           {"hits": 1.10, "total_bases": 2.50, "home_runs": 0.29, "runs_scored": 0.82, "team": "New York Yankees",       "bats": "R"},
+    "Luis Arraez":           {"hits": 1.50, "total_bases": 1.85, "home_runs": 0.02, "runs_scored": 0.70, "team": "San Diego Padres",       "bats": "R"},
+    "Freddie Freeman":       {"hits": 1.45, "total_bases": 2.35, "home_runs": 0.14, "runs_scored": 0.78, "team": "Los Angeles Dodgers",    "bats": "L"},
+    "Ronald Acuna Jr.":      {"hits": 1.40, "total_bases": 2.40, "home_runs": 0.16, "runs_scored": 0.85, "team": "Atlanta Braves",         "bats": "R"},
+    "Steven Kwan":           {"hits": 1.30, "total_bases": 1.75, "home_runs": 0.04, "runs_scored": 0.72, "team": "Cleveland Guardians",    "bats": "L"},
+    "Juan Soto":             {"hits": 1.35, "total_bases": 2.30, "home_runs": 0.13, "runs_scored": 0.80, "team": "New York Yankees",       "bats": "L"},
+    "Mookie Betts":          {"hits": 1.35, "total_bases": 2.35, "home_runs": 0.11, "runs_scored": 0.82, "team": "Los Angeles Dodgers",    "bats": "R"},
+    "Corey Seager":          {"hits": 1.35, "total_bases": 2.30, "home_runs": 0.15, "runs_scored": 0.75, "team": "Texas Rangers",          "bats": "L"},
+    "Shohei Ohtani":         {"hits": 1.25, "total_bases": 2.45, "home_runs": 0.30, "runs_scored": 0.85, "team": "Los Angeles Dodgers",    "bats": "L"},
+    "Bobby Witt Jr.":        {"hits": 1.30, "total_bases": 2.15, "home_runs": 0.09, "runs_scored": 0.80, "team": "Kansas City Royals",     "bats": "R"},
+    "Trea Turner":           {"hits": 1.30, "total_bases": 2.05, "home_runs": 0.07, "runs_scored": 0.78, "team": "Philadelphia Phillies",  "bats": "R"},
+    "Bryce Harper":          {"hits": 1.30, "total_bases": 2.35, "home_runs": 0.16, "runs_scored": 0.76, "team": "Philadelphia Phillies",  "bats": "L"},
+    "Vladimir Guerrero Jr.": {"hits": 1.30, "total_bases": 2.10, "home_runs": 0.10, "runs_scored": 0.72, "team": "Toronto Blue Jays",      "bats": "R"},
+    "Jose Ramirez":          {"hits": 1.30, "total_bases": 2.20, "home_runs": 0.12, "runs_scored": 0.75, "team": "Cleveland Guardians",    "bats": "S"},
+    "Bo Bichette":           {"hits": 1.30, "total_bases": 2.00, "home_runs": 0.07, "runs_scored": 0.68, "team": "Toronto Blue Jays",      "bats": "R"},
+    "Yordan Alvarez":        {"hits": 1.25, "total_bases": 2.50, "home_runs": 0.23, "runs_scored": 0.72, "team": "Houston Astros",         "bats": "L"},
+    "Kyle Tucker":           {"hits": 1.25, "total_bases": 2.25, "home_runs": 0.14, "runs_scored": 0.70, "team": "Houston Astros",         "bats": "L"},
+    "Rafael Devers":         {"hits": 1.25, "total_bases": 2.20, "home_runs": 0.15, "runs_scored": 0.68, "team": "Boston Red Sox",         "bats": "L"},
+    "Julio Rodriguez":       {"hits": 1.25, "total_bases": 2.10, "home_runs": 0.09, "runs_scored": 0.70, "team": "Seattle Mariners",       "bats": "R"},
+    "Nolan Arenado":         {"hits": 1.20, "total_bases": 2.00, "home_runs": 0.12, "runs_scored": 0.62, "team": "St. Louis Cardinals",    "bats": "R"},
+    "Fernando Tatis Jr.":    {"hits": 1.20, "total_bases": 2.20, "home_runs": 0.15, "runs_scored": 0.72, "team": "San Diego Padres",       "bats": "R"},
+    "Paul Goldschmidt":      {"hits": 1.20, "total_bases": 2.10, "home_runs": 0.11, "runs_scored": 0.65, "team": "St. Louis Cardinals",    "bats": "R"},
+    "Adley Rutschman":       {"hits": 1.20, "total_bases": 1.90, "home_runs": 0.09, "runs_scored": 0.62, "team": "Baltimore Orioles",      "bats": "S"},
+    "Alex Bregman":          {"hits": 1.20, "total_bases": 2.00, "home_runs": 0.11, "runs_scored": 0.65, "team": "Boston Red Sox",         "bats": "R"},
+    "Francisco Lindor":      {"hits": 1.20, "total_bases": 2.05, "home_runs": 0.10, "runs_scored": 0.70, "team": "New York Mets",          "bats": "S"},
+    "Cedric Mullins":        {"hits": 1.20, "total_bases": 1.85, "home_runs": 0.06, "runs_scored": 0.68, "team": "Baltimore Orioles",      "bats": "S"},
+    "Xander Bogaerts":       {"hits": 1.20, "total_bases": 1.90, "home_runs": 0.08, "runs_scored": 0.62, "team": "San Diego Padres",       "bats": "R"},
+    "Gunnar Henderson":      {"hits": 1.15, "total_bases": 2.10, "home_runs": 0.15, "runs_scored": 0.72, "team": "Baltimore Orioles",      "bats": "L"},
+    "Mike Trout":            {"hits": 1.15, "total_bases": 2.20, "home_runs": 0.18, "runs_scored": 0.70, "team": "Los Angeles Angels",     "bats": "R"},
+    "Nolan Jones":           {"hits": 1.15, "total_bases": 1.95, "home_runs": 0.13, "runs_scored": 0.68, "team": "Colorado Rockies",       "bats": "L"},
+    "Marcus Semien":         {"hits": 1.15, "total_bases": 1.90, "home_runs": 0.09, "runs_scored": 0.72, "team": "Texas Rangers",          "bats": "R"},
+    "Austin Riley":          {"hits": 1.15, "total_bases": 2.15, "home_runs": 0.16, "runs_scored": 0.65, "team": "Atlanta Braves",         "bats": "R"},
+    "Michael Harris II":     {"hits": 1.15, "total_bases": 1.90, "home_runs": 0.08, "runs_scored": 0.65, "team": "Atlanta Braves",         "bats": "L"},
+    "Jazz Chisholm Jr.":     {"hits": 1.15, "total_bases": 2.00, "home_runs": 0.13, "runs_scored": 0.70, "team": "New York Yankees",       "bats": "L"},
+    "Anthony Volpe":         {"hits": 1.15, "total_bases": 1.85, "home_runs": 0.08, "runs_scored": 0.68, "team": "New York Yankees",       "bats": "R"},
+    "Elly De La Cruz":       {"hits": 1.15, "total_bases": 1.95, "home_runs": 0.10, "runs_scored": 0.72, "team": "Cincinnati Reds",        "bats": "S"},
+    "Matt Olson":            {"hits": 1.10, "total_bases": 2.20, "home_runs": 0.18, "runs_scored": 0.65, "team": "Atlanta Braves",         "bats": "L"},
+    "Pete Alonso":           {"hits": 1.10, "total_bases": 2.15, "home_runs": 0.18, "runs_scored": 0.62, "team": "New York Mets",          "bats": "R"},
+    "Byron Buxton":          {"hits": 1.10, "total_bases": 2.20, "home_runs": 0.19, "runs_scored": 0.68, "team": "Minnesota Twins",        "bats": "R"},
+    "Marcell Ozuna":         {"hits": 1.10, "total_bases": 2.10, "home_runs": 0.17, "runs_scored": 0.62, "team": "Atlanta Braves",         "bats": "R"},
+    "Willy Adames":          {"hits": 1.10, "total_bases": 1.90, "home_runs": 0.10, "runs_scored": 0.60, "team": "San Francisco Giants",   "bats": "R"},
 }
 
 # ── LOOKUPS ───────────────────────────────────────────────────────────────────
@@ -673,11 +678,14 @@ class MLBPropsAnalyzer:
                         rolling_val = rolling_b.get(key, 0)
                         if rolling_val and rolling_val < cfg["min_avg"]:
                             continue  # Forme récente sous le seuil → forme contredit le pari
-                    # Exiger au moins 1 signal favorable (lanceur moyen/faible OU platoon)
+                    # Convergence requise selon le type de marché
+                    # hits/total_bases: 2 signaux (lanceur ET platoon) — marché compétitif
+                    # HR/runs: 1 signal suffit — contexte (parc, lanceur) plus déterminant
+                    required_conv = cfg.get("convergence", 1)
                     conv = 0
                     if pitch_adj >= 1.0: conv += 1
                     if plat_adj >= 1.06: conv += 1
-                    if conv == 0:
+                    if conv < required_conv:
                         continue
 
                     # Projection ajustee: lanceur adverse + platoon + park factor (HR surtout)

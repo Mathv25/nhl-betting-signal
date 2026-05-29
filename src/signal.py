@@ -145,7 +145,7 @@ def main():
     print(f"  {len(mlb_games)} partie(s) MLB aujourd'hui ({today_et})")
     for mg in mlb_games[:10]:
         props_by_market = {}
-        for market in ["pitcher_strikeouts", "batter_hits", "batter_total_bases", "batter_home_runs"]:
+        for market in ["pitcher_strikeouts", "batter_hits", "batter_total_bases", "batter_home_runs", "batter_runs_scored"]:
             props = mlb_fetcher.get_player_props(mg["event_id"], market)
             if props:
                 props_by_market[market] = props

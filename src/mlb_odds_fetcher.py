@@ -19,6 +19,7 @@ PROP_MARKETS = [
     "batter_hits",
     "batter_total_bases",
     "batter_home_runs",
+    "batter_runs_scored",
 ]
 
 
