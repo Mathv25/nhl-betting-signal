@@ -544,7 +544,14 @@ class MLBPropsAnalyzer:
                 if pitcher in seen:
                     continue
                 seen.add(pitcher)
-                # Filtrer: si MLB API a des partants confirmés, ignorer les non-partants
+                # Check 1 — Roster actif (même logique que frappeurs — exclut IL/DL)
+                try:
+                    if not is_on_active_roster(pitcher, team):
+                        print(f"    [MLB IL] {pitcher} absent du roster actif {team} — exclu")
+                        continue
+                except Exception:
+                    pass
+                # Check 2 — Partant confirmé par MLB API (prioritaire si disponible)
                 if confirmed_starter_lasts:
                     pitcher_last = pitcher.lower().split()[-1]
                     if pitcher_last not in confirmed_starter_lasts:
