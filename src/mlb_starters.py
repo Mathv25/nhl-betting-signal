@@ -134,46 +134,98 @@ def get_starter_for_team(team: str, opponent: str, starters: dict):
 
 _lineup_cache = {}  # date_str -> {team_name: set of player last names}
 _lineup_fetch_count = {}  # date_str -> nb de fois fetchee (pour invalider cache si lineups en cours)
-_inactive_cache = {}  # date_str -> set of player last names sur IL/DTD/suspension
+_active_roster_cache = {}  # team_name -> set of (last_lower, full_lower)
+
+# Mapping nom équipe → team ID MLB Stats API
+TEAM_ID_MAP = {
+    "Arizona Diamondbacks":  109,
+    "Atlanta Braves":        144,
+    "Baltimore Orioles":     110,
+    "Boston Red Sox":        111,
+    "Chicago Cubs":          112,
+    "Chicago White Sox":     145,
+    "Cincinnati Reds":       113,
+    "Cleveland Guardians":   114,
+    "Colorado Rockies":      115,
+    "Detroit Tigers":        116,
+    "Houston Astros":        117,
+    "Kansas City Royals":    118,
+    "Los Angeles Angels":    108,
+    "Los Angeles Dodgers":   119,
+    "Miami Marlins":         146,
+    "Milwaukee Brewers":     158,
+    "Minnesota Twins":       142,
+    "New York Mets":         121,
+    "New York Yankees":      147,
+    "Oakland Athletics":     133,
+    "Philadelphia Phillies": 143,
+    "Pittsburgh Pirates":    134,
+    "San Diego Padres":      135,
+    "San Francisco Giants":  137,
+    "Seattle Mariners":      136,
+    "St. Louis Cardinals":   138,
+    "Tampa Bay Rays":        139,
+    "Texas Rangers":         140,
+    "Toronto Blue Jays":     141,
+    "Washington Nationals":  120,
+}
 
 
-def fetch_inactive_players(date_str: str = None) -> set:
+def fetch_active_roster(team_name: str) -> set:
     """
-    Retourne un set de last-names (lowercase) des joueurs actuellement sur la IL ou DTD.
-    Utilise l'API MLB roster avec hydrate=injuries pour chaque equipe.
-    Cache par date pour eviter les appels repetes.
+    Retourne un set de {last_lower, full_lower} des joueurs sur le roster ACTIF de l'équipe.
+    Les joueurs sur IL ne sont pas dans le roster actif.
+    Cache par équipe (valide pour la durée de l'exécution).
     """
-    if date_str is None:
-        tz = pytz.timezone("America/Toronto")
-        date_str = datetime.now(tz).strftime("%Y-%m-%d")
+    if team_name in _active_roster_cache:
+        return _active_roster_cache[team_name]
 
-    if date_str in _inactive_cache:
-        return _inactive_cache[date_str]
+    team_id = TEAM_ID_MAP.get(team_name)
+    if not team_id:
+        return set()
 
-    inactive = set()
     try:
-        # Recupere la liste des joueurs sur IL via l'endpoint injuries
         r = requests.get(
-            "https://statsapi.mlb.com/api/v1/injuries",
-            params={"sportId": 1},
+            f"https://statsapi.mlb.com/api/v1/teams/{team_id}/roster/active",
             timeout=10,
         )
         r.raise_for_status()
         data = r.json()
-        for entry in data.get("injuries", []):
-            player = entry.get("player", {})
-            full_name = player.get("fullName", "")
-            if full_name:
-                last = full_name.split()[-1].lower()
-                inactive.add(last)
-                # Aussi stocker le nom complet normalisé pour matching exact
-                inactive.add(full_name.lower())
-        print(f"  [MLB Inactive] {len(data.get('injuries', []))} joueurs sur IL/DTD")
+        roster = data.get("roster", [])
+        names = set()
+        for p in roster:
+            full = p.get("person", {}).get("fullName", "")
+            if full:
+                names.add(full.lower())
+                names.add(full.split()[-1].lower())
+        print(f"  [MLB Roster] {team_name}: {len(roster)} joueurs actifs")
+        _active_roster_cache[team_name] = names
+        return names
     except Exception as e:
-        print(f"  [MLB Inactive] Erreur API injuries: {e} — on continue sans filtre IL")
+        print(f"  [MLB Roster] Erreur {team_name}: {e}")
+        _active_roster_cache[team_name] = set()
+        return set()
 
-    _inactive_cache[date_str] = inactive
-    return inactive
+
+def is_on_active_roster(player_name: str, team_name: str) -> bool:
+    """
+    Retourne True si le joueur est sur le roster actif de son équipe.
+    Retourne True aussi si l'équipe n'est pas connue (évite les faux négatifs).
+    """
+    roster = fetch_active_roster(team_name)
+    if not roster:
+        return True  # équipe inconnue — on laisse passer
+    last = player_name.split()[-1].lower()
+    full = player_name.lower()
+    return last in roster or full in roster
+
+
+def fetch_inactive_players(date_str: str = None) -> set:
+    """
+    Rétrocompat — retourne toujours un set vide.
+    Le vrai check se fait via is_on_active_roster() maintenant.
+    """
+    return set()
 
 
 def fetch_confirmed_lineups(date_str: str = None, force_refresh: bool = False) -> dict:

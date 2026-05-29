@@ -428,14 +428,13 @@ class MLBPropsAnalyzer:
 
         # ── Partants probables depuis MLB API officielle ───────────────────────
         try:
-            from mlb_starters import fetch_probable_starters, get_starter_for_team, fetch_confirmed_lineups, is_in_lineup, fetch_inactive_players
+            from mlb_starters import fetch_probable_starters, get_starter_for_team, fetch_confirmed_lineups, is_in_lineup, is_on_active_roster
             _mlb_starters = fetch_probable_starters()
             _mlb_lineups  = fetch_confirmed_lineups()
-            _mlb_inactive = fetch_inactive_players()
         except Exception:
             _mlb_starters = {}
             _mlb_lineups  = {}
-            _mlb_inactive = set()
+            is_on_active_roster = lambda p, t: True  # fallback: on laisse passer
 
         batting_team_for = {home: away, away: home}  # opp_team -> batting_team
 
@@ -630,16 +629,15 @@ class MLBPropsAnalyzer:
                 if batter in seen:
                     continue
                 seen.add(batter)
-                # Verifier si le joueur est sur la IL / DTD (check prioritaire — indépendant du lineup)
+                # Check 1 — Roster actif: exclut les joueurs sur IL, DL, blessés
+                # C'est la source de vérité la plus fiable, indépendante du lineup
                 try:
-                    last_lower = batter.split()[-1].lower()
-                    full_lower = batter.lower()
-                    if _mlb_inactive and (last_lower in _mlb_inactive or full_lower in _mlb_inactive):
-                        print(f"    [MLB IL] {batter} sur liste inactive — exclu")
+                    if not is_on_active_roster(batter, team):
+                        print(f"    [MLB IL] {batter} absent du roster actif {team} — exclu")
                         continue
                 except Exception:
                     pass
-                # Verifier si le joueur est dans le lineup confirme du jour
+                # Check 2 — Lineup confirmé du jour (si disponible)
                 try:
                     if _mlb_lineups and not is_in_lineup(batter, team, _mlb_lineups):
                         print(f"    [MLB Lineup] {batter} absent du lineup {team} — exclu")
