@@ -1,236 +1,185 @@
 {
-  "generated_at": "2026-05-30T02:34:45.069184+00:00",
-  "date": "2026-05-29",
+  "generated_at": "2026-05-30T06:22:40.272609+00:00",
+  "date": "2026-05-30",
   "bookmaker": "bet365",
-  "total_games": 1,
-  "total_value_bets": 2,
-  "signals": [
+  "total_games": 0,
+  "total_value_bets": 0,
+  "signals": [],
+  "value_bets": [],
+  "props_analysis": [],
+  "nba_analysis": [
     {
-      "game": {
-        "id": "6f06d715bb29b056553a7410b6d72a1d",
-        "home_team": "Carolina Hurricanes",
-        "away_team": "Montréal Canadiens",
-        "commence_time": "2026-05-30T00:20:00Z",
-        "bookmaker": "draftkings",
-        "markets": {
-          "puck_line": {
-            "home": {
-              "team": "Carolina Hurricanes",
-              "spread": -4.5,
-              "odds_decimal": 2.6,
-              "implied_prob": 38.46
-            },
-            "away": {
-              "team": "Montréal Canadiens",
-              "spread": 4.5,
-              "odds_decimal": 1.48,
-              "implied_prob": 67.57
-            }
-          },
-          "totals": {
-            "over": {
-              "line": 6.5,
-              "odds_decimal": 1.8,
-              "implied_prob": 55.56
-            },
-            "under": {
-              "line": 6.5,
-              "odds_decimal": 1.95,
-              "implied_prob": 51.28
-            }
-          },
-          "player_props": []
-        },
-        "removed_props": []
-      },
-      "edges": [
-        {
-          "edge_pct": 12.0,
-          "edge_raw": 21.36,
-          "kelly_fraction": 11.12,
-          "verdict": "🔥 Forte valeur",
-          "type": "Puck Line",
-          "bet": "Montréal Canadiens +4.5",
-          "our_prob": 82.0,
-          "b365_implied": 67.57,
-          "b365_odds": 1.48,
-          "game": "Montréal Canadiens @ Carolina Hurricanes",
-          "note": "💤 Carolina 3j repos | 💤 Montréal 3j repos",
-          "context_notes": [
-            "💤 Carolina 3j repos",
-            "💤 Montréal 3j repos"
-          ]
-        },
-        {
-          "edge_pct": 20.0,
-          "edge_raw": 40.13,
-          "kelly_fraction": 10.35,
-          "verdict": "🔥 Forte valeur",
-          "type": "Total buts",
-          "bet": "Under 6.5",
-          "our_prob": 71.9,
-          "b365_implied": 51.28,
-          "b365_odds": 1.95,
-          "game": "Montréal Canadiens @ Carolina Hurricanes",
-          "note": "💤 Carolina 3j repos | 💤 Montréal 3j repos | Total attendu: 5.3 buts",
-          "context_notes": [
-            "💤 Carolina 3j repos",
-            "💤 Montréal 3j repos",
-            "Total attendu: 5.3 buts"
-          ]
-        }
-      ]
-    }
-  ],
-  "value_bets": [
-    {
-      "edge_pct": 20.0,
-      "edge_raw": 40.13,
-      "kelly_fraction": 10.35,
-      "verdict": "🔥 Forte valeur",
-      "type": "Total buts",
-      "bet": "Under 6.5",
-      "our_prob": 71.9,
-      "b365_implied": 51.28,
-      "b365_odds": 1.95,
-      "game": "Montréal Canadiens @ Carolina Hurricanes",
-      "note": "💤 Carolina 3j repos | 💤 Montréal 3j repos | Total attendu: 5.3 buts",
-      "context_notes": [
-        "💤 Carolina 3j repos",
-        "💤 Montréal 3j repos",
-        "Total attendu: 5.3 buts"
-      ]
-    },
-    {
-      "edge_pct": 12.0,
-      "edge_raw": 21.36,
-      "kelly_fraction": 11.12,
-      "verdict": "🔥 Forte valeur",
-      "type": "Puck Line",
-      "bet": "Montréal Canadiens +4.5",
-      "our_prob": 82.0,
-      "b365_implied": 67.57,
-      "b365_odds": 1.48,
-      "game": "Montréal Canadiens @ Carolina Hurricanes",
-      "note": "💤 Carolina 3j repos | 💤 Montréal 3j repos",
-      "context_notes": [
-        "💤 Carolina 3j repos",
-        "💤 Montréal 3j repos"
-      ]
-    }
-  ],
-  "props_analysis": [
-    {
-      "home_team": "Carolina Hurricanes",
-      "away_team": "Montréal Canadiens",
-      "home_goalie": {
-        "name": "Frederik Andersen",
-        "sv_pct": 0.884,
-        "saves_pg": 20.3,
-        "gaa": 2.67,
-        "confirmed": true
-      },
-      "away_goalie": {
-        "name": "Jakub Dobes",
-        "sv_pct": 0.917,
-        "saves_pg": 28.2,
-        "gaa": 2.54,
-        "confirmed": true
-      },
-      "home_def_shots": 26.1,
-      "away_def_shots": 31.0,
-      "home_def_ga": 2.45,
-      "away_def_ga": 3.1,
-      "home_shots_rank": 1,
-      "away_shots_rank": 16,
-      "home_ga_rank": 1,
-      "away_ga_rank": 16,
-      "lineup_confirmed": true,
+      "home_team": "Oklahoma City Thunder",
+      "away_team": "San Antonio Spurs",
       "bets": [
         {
-          "name": "Lane Hutson",
-          "position": "D",
-          "team": "Montréal Canadiens",
-          "opponent": "Carolina Hurricanes",
-          "toi": "24:33",
-          "n_games": 10,
-          "line_num": 2,
-          "pp_unit": 1,
-          "is_defense": true,
-          "lineup_ok": true,
-          "market": "Points Over 0.5",
-          "market_type": "points",
-          "our_prob": 59.3,
-          "edge_pct": 10.9,
-          "kelly": 3.1,
-          "market_detail": "0.9 pts proj. · moy 0.75/m",
-          "est_odds": 1.61,
-          "b365_implied": 53.5,
-          "all_markets": [
-            {
-              "type": "points",
-              "label": "Points Over 0.5",
-              "prob": 59.3,
-              "edge": 10.9,
-              "kelly": 3.1,
-              "est_odds": 1.61,
-              "dk_implied": 53.5,
-              "detail": "0.9 pts proj. · moy 0.75/m"
-            }
-          ],
-          "shots_pg": 0.8,
-          "goals_pg": 0.12,
-          "points_pg": 0.75,
-          "shots_adj": 0.8,
-          "shots_line": 0.5,
-          "shots_prob": 55.1,
-          "shots_edge": 3.0,
-          "goals_adj": 0.11,
-          "points_adj": 0.7,
-          "last5_shots": 4,
-          "last10_shots": 10,
-          "last5_goals": 1,
-          "last5_points": 2,
-          "season_goals": 3,
-          "season_points": 15,
-          "opp_shots_rank": 1,
-          "opp_ga_rank": 1,
-          "context_notes": [
-            "⚡ PP1 — avantage numerique",
-            "⚠️ Defense solide — Carolina Hur (#1 ligue)"
+          "player": "Devin Vassell",
+          "team": "San Antonio Spurs",
+          "opponent": "Oklahoma City Thunder",
+          "market": "Passes Over 2.5",
+          "stat_key": "ast",
+          "line": 2.5,
+          "avg10": 3.5,
+          "avg5": 3.5,
+          "adj_proj": 2.9,
+          "our_prob": 46.0,
+          "edge_pct": 6.2,
+          "kelly": 1.2,
+          "est_odds": 2.31,
+          "dk_implied": 43.3,
+          "def_rank": 15,
+          "context": []
+        }
+      ],
+      "commence_time": "2026-05-31T00:10:00Z"
+    }
+  ],
+  "mlb_analysis": [
+    {
+      "home_team": "Baltimore Orioles",
+      "away_team": "Toronto Blue Jays",
+      "bets": [
+        {
+          "player": "B. Young",
+          "team": "Baltimore Orioles",
+          "opponent": "Toronto Blue Jays",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.5,
+          "adj_proj": 5.5,
+          "opp_k_rate": 21.5,
+          "park_factor": 1.04,
+          "our_prob": 60.9,
+          "edge_pct": 15.7,
+          "kelly": 4.5,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable frappeurs (PF 1.04)"
           ]
         }
       ],
-      "retour_de_flamme": []
-    }
-  ],
-  "nba_analysis": [],
-  "mlb_analysis": [
+      "commence_time": "2026-05-30T20:06:00Z"
+    },
     {
-      "home_team": "Athletics",
-      "away_team": "New York Yankees",
+      "home_team": "Cleveland Guardians",
+      "away_team": "Boston Red Sox",
       "bets": [
         {
-          "player": "Gerrit Cole",
-          "team": "New York Yankees",
-          "opponent": "Athletics",
+          "player": "Parker Messick",
+          "team": "Cleveland Guardians",
+          "opponent": "Boston Red Sox",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 5.5",
+          "stat_key": "strikeouts",
+          "line": 5.5,
+          "season_avg": 6.83,
+          "adj_proj": 6.83,
+          "opp_k_rate": 21.5,
+          "park_factor": 0.97,
+          "our_prob": 64.4,
+          "edge_pct": 22.4,
+          "kelly": 6.3,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Neutre (PF 0.97)"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-30T20:11:00Z"
+    },
+    {
+      "home_team": "Tampa Bay Rays",
+      "away_team": "Los Angeles Angels",
+      "bets": [
+        {
+          "player": "Reid Detmers",
+          "team": "Los Angeles Angels",
+          "opponent": "Tampa Bay Rays",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.0",
+          "stat_key": "strikeouts",
+          "line": 6.0,
+          "season_avg": 7.33,
+          "adj_proj": 7.43,
+          "opp_k_rate": 21.8,
+          "park_factor": 0.97,
+          "our_prob": 64.8,
+          "edge_pct": 23.1,
+          "kelly": 6.5,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Neutre (PF 0.97)"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-30T20:11:00Z"
+    },
+    {
+      "home_team": "New York Mets",
+      "away_team": "Miami Marlins",
+      "bets": [
+        {
+          "player": "Christian Scott",
+          "team": "New York Mets",
+          "opponent": "Miami Marlins",
           "player_type": "pitcher",
           "market": "Retraits au baton Over 5.0",
           "stat_key": "strikeouts",
           "line": 5.0,
-          "season_avg": 6.0,
-          "adj_proj": 6.0,
-          "opp_k_rate": 21.5,
-          "park_factor": 1.0,
-          "our_prob": 60.0,
-          "edge_pct": 14.0,
-          "kelly": 4.0,
+          "season_avg": 5.8,
+          "adj_proj": 6.15,
+          "opp_k_rate": 22.8,
+          "park_factor": 0.97,
+          "our_prob": 62.6,
+          "edge_pct": 18.9,
+          "kelly": 5.4,
           "est_odds": 1.909,
           "dk_implied": 52.6,
-          "context": []
+          "context": [
+            "Terrain: Neutre (PF 0.97)"
+          ]
         }
       ],
-      "commence_time": "2026-05-30T01:41:00Z"
+      "commence_time": "2026-05-30T20:11:00Z"
+    },
+    {
+      "home_team": "Cincinnati Reds",
+      "away_team": "Atlanta Braves",
+      "bets": [
+        {
+          "player": "Michael Harris II",
+          "team": "Atlanta Braves",
+          "opponent": "Cincinnati Reds",
+          "player_type": "batter",
+          "market": "Buts totaux Over 2.0",
+          "stat_key": "total_bases",
+          "line": 2.0,
+          "season_avg": 2.533,
+          "adj_proj": 2.845,
+          "opp_k_rate": null,
+          "opp_pitcher": "Brady Singer",
+          "opp_pitcher_k": 6.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 1.08,
+          "our_prob": 58.3,
+          "edge_pct": 10.8,
+          "kelly": 3.1,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "vs Brady Singer (6.5 K/dep) — Moyen",
+            "Platoon avantageux (L vs R)",
+            "Terrain: Tres favorable frappeurs (PF 1.08)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-05-30T23:16:00Z"
     }
   ],
   "ai_analysis": {}
