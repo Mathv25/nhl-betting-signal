@@ -11,8 +11,8 @@ import pytz
 
 BASE_URL  = "https://api.the-odds-api.com/v4"
 SPORT     = "baseball_mlb"
-BOOKMAKER = "draftkings"
-REGIONS   = "us"
+BOOKMAKER = "bet365"
+REGIONS   = "eu,uk"
 
 PROP_MARKETS = [
     "pitcher_strikeouts",
