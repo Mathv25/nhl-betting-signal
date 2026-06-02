@@ -582,24 +582,12 @@ class MLBPropsAnalyzer:
                 if park_factor != 1.00:
                     context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
 
-                rp = None
-                if use_real:
-                    rp = real_lkp.get(pitcher.lower(), {}).get("strikeouts")
-                    if not rp:
-                        last = pitcher.lower().split()[-1]
-                        for k, v in real_lkp.items():
-                            if k.split()[-1] == last and "strikeouts" in v:
-                                rp = v["strikeouts"]
-                                break
-
-                if rp:
-                    line    = rp["line"]
-                    dk_impl = rp["over_implied"]
-                    dk_odds = rp["over_odds"]
-                else:
-                    line    = _estimate_line(adj_mean, "strikeouts")
-                    dk_impl = B365_IMPLIED
-                    dk_odds = B365_ODDS
+                # Pitchers: toujours mode synthétique — l'algo qui performe à 70% WR
+                # Le modèle estime sa propre ligne vs 52.63% fixe b365.
+                # Les cotes DK pour les lanceurs ne sont pas utilisées ici.
+                line    = _estimate_line(adj_mean, "strikeouts")
+                dk_impl = B365_IMPLIED
+                dk_odds = B365_ODDS
 
                 prob  = _normal_over(adj_mean, std, line)
                 edge  = _edge(prob, dk_impl)
