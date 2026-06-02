@@ -582,6 +582,7 @@ class MLBPropsAnalyzer:
                 if park_factor != 1.00:
                     context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
 
+                rp = None
                 if use_real:
                     rp = real_lkp.get(pitcher.lower(), {}).get("strikeouts")
                     if not rp:
@@ -590,8 +591,8 @@ class MLBPropsAnalyzer:
                             if k.split()[-1] == last and "strikeouts" in v:
                                 rp = v["strikeouts"]
                                 break
-                    if not rp:
-                        continue
+
+                if rp:
                     line    = rp["line"]
                     dk_impl = rp["over_implied"]
                     dk_odds = rp["over_odds"]
