@@ -618,6 +618,83 @@ class MLBPropsAnalyzer:
                     "context":       context,
                 })
 
+        # ── LANCEURS HORS DICT ────────────────────────────────────────────────
+        # Partants confirmés non présents dans MLB_PITCHERS (Schlittler, Martin, etc.)
+        # Utilise la ligne DK comme projection K + mode synthétique b365
+        if use_real and _mlb_starters:
+            try:
+                from mlb_starters import get_starter_for_team as _gst
+                for team, opp in [(home, away), (away, home)]:
+                    api_name = _gst(team, opp, _mlb_starters)
+                    if not api_name:
+                        continue
+                    api_lower = api_name.lower()
+                    api_last  = api_lower.split()[-1]
+                    if api_name in seen or api_lower in seen:
+                        continue
+                    # Skip si déjà dans le dict (analysé dans la boucle précédente)
+                    if any(kn.lower() == api_lower or kn.lower().split()[-1] == api_last
+                           for kn in MLB_PITCHERS):
+                        continue
+                    # Chercher la ligne K sur DK
+                    rp = None
+                    for pl_name, pl_data in real_lkp.items():
+                        if "strikeouts" in pl_data and (
+                            pl_name == api_lower or pl_name.split()[-1] == api_last
+                        ):
+                            rp = pl_data["strikeouts"]
+                            break
+                    if not rp:
+                        continue
+                    seen.add(api_name)
+                    mean_k = rp["line"]
+                    if mean_k < cfg_k["min_avg"]:
+                        continue
+                    try:
+                        if not is_on_active_roster(api_name, team):
+                            continue
+                    except Exception:
+                        pass
+                    opp_k_rate = TEAM_K_RATES.get(opp, LEAGUE_AVG_K)
+                    adj_factor = opp_k_rate / LEAGUE_AVG_K
+                    adj_mean   = round(mean_k * adj_factor, 2)
+                    std        = _std(adj_mean, "strikeouts")
+                    context    = []
+                    if opp_k_rate > LEAGUE_AVG_K + 0.015:
+                        context.append(f"Adversaire K%: {opp_k_rate:.1%} (favorable)")
+                    elif opp_k_rate < LEAGUE_AVG_K - 0.015:
+                        context.append(f"Adversaire K%: {opp_k_rate:.1%} (difficile)")
+                    park_lbl = _park_label(park_factor)
+                    if park_factor != 1.00:
+                        context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
+                    line    = _estimate_line(adj_mean, "strikeouts")
+                    dk_impl = B365_IMPLIED
+                    dk_odds = B365_ODDS
+                    prob    = _normal_over(adj_mean, std, line)
+                    edge    = _edge(prob, dk_impl)
+                    ratio   = (prob / dk_impl) if dk_impl > 0 else 0
+                    if not (MIN_EDGE <= edge <= MAX_EDGE):
+                        continue
+                    if ratio > MAX_DISAGREEMENT_RATIO:
+                        continue
+                    display = " ".join(w.capitalize() for w in api_name.split())
+                    print(f"    [MLB Hors Dict] {display} ({team}) {mean_k} K DK → Edge +{edge}%")
+                    ev_bets.append({
+                        "player": display, "team": team, "opponent": opp,
+                        "player_type": "pitcher",
+                        "market": f"{cfg_k['label']} Over {line}",
+                        "stat_key": "strikeouts", "line": line,
+                        "season_avg": mean_k, "adj_proj": adj_mean,
+                        "opp_k_rate": round(opp_k_rate * 100, 1),
+                        "park_factor": park_factor, "our_prob": prob,
+                        "edge_pct": edge,
+                        "kelly": _kelly(prob, dk_impl, dk_odds),
+                        "est_odds": dk_odds, "dk_implied": round(dk_impl, 1),
+                        "context": context,
+                    })
+            except Exception as e:
+                print(f"  [MLB Hors Dict] Erreur: {e}")
+
         # ── FRAPPEURS ─────────────────────────────────────────────────────────
         for team, opp in [(home, away), (away, home)]:
             # Lanceur adverse le plus fort connu
