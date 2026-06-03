@@ -647,7 +647,19 @@ class MLBPropsAnalyzer:
                     if not rp:
                         continue
                     seen.add(api_name)
+                    display = " ".join(w.capitalize() for w in api_name.split())
+
+                    # Projection: rolling stats si dispo, sinon ligne DK
                     mean_k = rp["line"]
+                    if HAS_MLB_ROLLING:
+                        try:
+                            rp_rolling = _mlb_pitcher_rolling(display)
+                            if rp_rolling and rp_rolling.get("games", 0) >= 2:
+                                mean_k = rp_rolling["strikeouts"]
+                                print(f"      Rolling {display}: {mean_k} K/dep (DK line: {rp['line']})")
+                        except Exception:
+                            pass
+
                     if mean_k < cfg_k["min_avg"]:
                         continue
                     try:
@@ -667,9 +679,10 @@ class MLBPropsAnalyzer:
                     park_lbl = _park_label(park_factor)
                     if park_factor != 1.00:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
-                    line    = _estimate_line(adj_mean, "strikeouts")
-                    dk_impl = B365_IMPLIED
-                    dk_odds = B365_ODDS
+                    # Ligne et cote réelles DK — pas de ligne synthétique inventée
+                    line    = rp["line"]
+                    dk_impl = rp["over_implied"]
+                    dk_odds = rp["over_odds"]
                     prob    = _normal_over(adj_mean, std, line)
                     edge    = _edge(prob, dk_impl)
                     ratio   = (prob / dk_impl) if dk_impl > 0 else 0
@@ -677,8 +690,7 @@ class MLBPropsAnalyzer:
                         continue
                     if ratio > MAX_DISAGREEMENT_RATIO:
                         continue
-                    display = " ".join(w.capitalize() for w in api_name.split())
-                    print(f"    [MLB Hors Dict] {display} ({team}) {mean_k} K DK → Edge +{edge}%")
+                    print(f"    [MLB Hors Dict] {display} ({team}) proj {adj_mean} K vs DK Over {line} ({dk_impl:.1f}% impl) → Edge +{edge}%")
                     ev_bets.append({
                         "player": display, "team": team, "opponent": opp,
                         "player_type": "pitcher",
