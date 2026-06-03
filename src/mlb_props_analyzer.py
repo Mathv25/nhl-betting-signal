@@ -679,10 +679,11 @@ class MLBPropsAnalyzer:
                     park_lbl = _park_label(park_factor)
                     if park_factor != 1.00:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
-                    # Ligne et cote réelles DK — pas de ligne synthétique inventée
+                    # Ligne DK réelle (existe sur le marché) + juice b365 standard assumé
+                    # → vérifier la cote b365 avant de parier (si < 1.75, passer)
                     line    = rp["line"]
-                    dk_impl = rp["over_implied"]
-                    dk_odds = rp["over_odds"]
+                    dk_impl = B365_IMPLIED
+                    dk_odds = B365_ODDS
                     prob    = _normal_over(adj_mean, std, line)
                     edge    = _edge(prob, dk_impl)
                     ratio   = (prob / dk_impl) if dk_impl > 0 else 0
