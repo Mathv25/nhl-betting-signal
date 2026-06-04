@@ -40,7 +40,7 @@ LINE_OFFSET = {
 }
 
 STAT_CONFIGS = [
-    {"key": "strikeouts",  "label": "Retraits au baton", "min_avg": 5.5,  "player_type": "pitcher"},
+    {"key": "strikeouts",  "label": "Retraits au baton", "min_avg": 4.5,  "player_type": "pitcher"},
     {"key": "hits",        "label": "Coups surs",        "min_avg": 0.9,  "player_type": "batter",  "convergence": 2},
     {"key": "total_bases", "label": "Buts totaux",       "min_avg": 1.5,  "player_type": "batter",  "convergence": 2},
     {"key": "home_runs",   "label": "Home Run",          "min_avg": 0.10, "player_type": "batter",  "convergence": 1},
