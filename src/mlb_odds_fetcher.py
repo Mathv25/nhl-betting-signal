@@ -96,29 +96,31 @@ class MLBOddsFetcher:
                 if mkt.get("key") != market:
                     continue
 
-                by_player = {}
+                # Grouper par joueur + ligne (DK offre souvent plusieurs lignes par joueur)
+                by_player_line = {}
                 for outcome in mkt.get("outcomes", []):
                     player = outcome.get("description", "")
                     side   = outcome.get("name", "")
-                    if not player or not side:
+                    line   = outcome.get("point", 0)
+                    if not player or not side or not line:
                         continue
-                    if player not in by_player:
-                        by_player[player] = {}
-                    by_player[player][side] = {
+                    key = (player, line)
+                    if key not in by_player_line:
+                        by_player_line[key] = {}
+                    by_player_line[key][side] = {
                         "odds":    outcome.get("price", 2.0),
-                        "line":    outcome.get("point", 0),
                         "implied": round(1 / max(outcome.get("price", 2.0), 1.01) * 100, 1),
                     }
 
-                for player, sides in by_player.items():
+                for (player, line), sides in sorted(by_player_line.items()):
                     over  = sides.get("Over", {})
                     under = sides.get("Under", {})
-                    if not over or not over.get("line"):
+                    if not over:
                         continue
                     props.append({
                         "player":        player,
                         "market":        market,
-                        "line":          over["line"],
+                        "line":          line,
                         "over_odds":     over["odds"],
                         "over_implied":  over["implied"],
                         "under_odds":    under.get("odds", 2.0),

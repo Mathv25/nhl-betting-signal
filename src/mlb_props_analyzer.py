@@ -422,13 +422,13 @@ class MLBPropsAnalyzer:
 
         park_factor = PARK_FACTORS.get(home, 1.00)
 
-        # Lookup cotes reelles
+        # Lookup cotes reelles — plusieurs lignes par joueur/marché
         real_lkp = {}
         if props_by_market:
             for stat_key, market_key in _STAT_TO_MARKET.items():
                 for prop in props_by_market.get(market_key, []):
                     pl = prop.get("player", "").lower()
-                    real_lkp.setdefault(pl, {})[stat_key] = prop
+                    real_lkp.setdefault(pl, {}).setdefault(stat_key, []).append(prop)
         use_real = bool(real_lkp)
 
         # ── Partants probables depuis MLB API officielle ───────────────────────
@@ -582,52 +582,53 @@ class MLBPropsAnalyzer:
                 if park_factor != 1.00:
                     context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
 
-                # Ligne DK réelle si dispo — évite les lignes trop basses pricées à 1.20
-                # Fallback synthétique si DK n'a pas de ligne pour ce lanceur
-                rp_k = None
+                # Toutes les lignes DK disponibles, sinon ligne synthétique unique
+                rp_k_list = []
                 if use_real:
-                    rp_k = real_lkp.get(pitcher.lower(), {}).get("strikeouts")
-                    if not rp_k:
+                    rp_k_list = real_lkp.get(pitcher.lower(), {}).get("strikeouts", [])
+                    if not rp_k_list:
                         last = pitcher.lower().split()[-1]
                         for k, v in real_lkp.items():
                             if k.split()[-1] == last and "strikeouts" in v:
-                                rp_k = v["strikeouts"]
+                                rp_k_list = v["strikeouts"]
                                 break
-                if rp_k:
-                    line = rp_k["line"]
-                else:
-                    line = _estimate_line(adj_mean, "strikeouts")
-                dk_impl = B365_IMPLIED
-                dk_odds = B365_ODDS
+                if not rp_k_list:
+                    rp_k_list = [{"line": _estimate_line(adj_mean, "strikeouts"),
+                                  "over_odds": B365_ODDS, "over_implied": B365_IMPLIED}]
 
-                prob  = _normal_over(adj_mean, std, line)
-                edge  = _edge(prob, dk_impl)
-                ratio = (prob / dk_impl) if dk_impl > 0 else 0
+                for rp_entry in rp_k_list:
+                    line    = rp_entry["line"]
+                    dk_impl = B365_IMPLIED
+                    dk_odds = B365_ODDS
 
-                if not (MIN_EDGE <= edge <= MAX_EDGE):
-                    continue
-                if ratio > MAX_DISAGREEMENT_RATIO:
-                    continue
+                    prob  = _normal_over(adj_mean, std, line)
+                    edge  = _edge(prob, dk_impl)
+                    ratio = (prob / dk_impl) if dk_impl > 0 else 0
 
-                ev_bets.append({
-                    "player":        pitcher,
-                    "team":          team,
-                    "opponent":      opp,
-                    "player_type":   "pitcher",
-                    "market":        f"{cfg_k['label']} Over {line}",
-                    "stat_key":      "strikeouts",
-                    "line":          line,
-                    "season_avg":    mean_k,
-                    "adj_proj":      adj_mean,
-                    "opp_k_rate":    round(opp_k_rate * 100, 1),
-                    "park_factor":   park_factor,
-                    "our_prob":      prob,
-                    "edge_pct":      edge,
-                    "kelly":         _kelly(prob, dk_impl, dk_odds),
-                    "est_odds":      dk_odds,
-                    "dk_implied":    round(dk_impl, 1),
-                    "context":       context,
-                })
+                    if not (MIN_EDGE <= edge <= MAX_EDGE):
+                        continue
+                    if ratio > MAX_DISAGREEMENT_RATIO:
+                        continue
+
+                    ev_bets.append({
+                        "player":        pitcher,
+                        "team":          team,
+                        "opponent":      opp,
+                        "player_type":   "pitcher",
+                        "market":        f"{cfg_k['label']} Over {line}",
+                        "stat_key":      "strikeouts",
+                        "line":          line,
+                        "season_avg":    mean_k,
+                        "adj_proj":      adj_mean,
+                        "opp_k_rate":    round(opp_k_rate * 100, 1),
+                        "park_factor":   park_factor,
+                        "our_prob":      prob,
+                        "edge_pct":      edge,
+                        "kelly":         _kelly(prob, dk_impl, dk_odds),
+                        "est_odds":      dk_odds,
+                        "dk_implied":    round(dk_impl, 1),
+                        "context":       context,
+                    })
 
         # ── LANCEURS HORS DICT ────────────────────────────────────────────────
         # Partants confirmés non présents dans MLB_PITCHERS (Schlittler, Martin, etc.)
@@ -694,35 +695,39 @@ class MLBPropsAnalyzer:
                     park_lbl = _park_label(park_factor)
                     if park_factor != 1.00:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
-                    # Si DK a une ligne → ligne réelle + synthétique 52.63%
-                    # Si pas de ligne DK → ligne estimée + synthétique (comme dict pitchers)
-                    if rp:
-                        line = rp["line"]
-                    else:
-                        line = _estimate_line(adj_mean, "strikeouts")
-                    dk_impl = B365_IMPLIED
-                    dk_odds = B365_ODDS
-                    prob    = _normal_over(adj_mean, std, line)
-                    edge    = _edge(prob, dk_impl)
-                    ratio   = (prob / dk_impl) if dk_impl > 0 else 0
-                    if not (MIN_EDGE <= edge <= MAX_EDGE):
-                        continue
-                    if ratio > MAX_DISAGREEMENT_RATIO:
-                        continue
-                    print(f"    [MLB Hors Dict] {display} ({team}) proj {adj_mean} K vs DK Over {line} ({dk_impl:.1f}% impl) → Edge +{edge}%")
-                    ev_bets.append({
-                        "player": display, "team": team, "opponent": opp,
-                        "player_type": "pitcher",
-                        "market": f"{cfg_k['label']} Over {line}",
-                        "stat_key": "strikeouts", "line": line,
-                        "season_avg": mean_k, "adj_proj": adj_mean,
-                        "opp_k_rate": round(opp_k_rate * 100, 1),
-                        "park_factor": park_factor, "our_prob": prob,
-                        "edge_pct": edge,
-                        "kelly": _kelly(prob, dk_impl, dk_odds),
-                        "est_odds": dk_odds, "dk_implied": round(dk_impl, 1),
-                        "context": context,
-                    })
+                    # Toutes les lignes DK si dispo, sinon ligne synthétique
+                    rp_list = real_lkp.get(api_lower, {}).get("strikeouts", [])
+                    if not rp_list and rp:
+                        rp_list = [rp]
+                    if not rp_list:
+                        rp_list = [{"line": _estimate_line(adj_mean, "strikeouts"),
+                                    "over_odds": B365_ODDS, "over_implied": B365_IMPLIED}]
+
+                    for rp_entry in rp_list:
+                        line    = rp_entry["line"]
+                        dk_impl = B365_IMPLIED
+                        dk_odds = B365_ODDS
+                        prob    = _normal_over(adj_mean, std, line)
+                        edge    = _edge(prob, dk_impl)
+                        ratio   = (prob / dk_impl) if dk_impl > 0 else 0
+                        if not (MIN_EDGE <= edge <= MAX_EDGE):
+                            continue
+                        if ratio > MAX_DISAGREEMENT_RATIO:
+                            continue
+                        print(f"    [MLB Hors Dict] {display} Over {line} proj {adj_mean} K → Edge +{edge}%")
+                        ev_bets.append({
+                            "player": display, "team": team, "opponent": opp,
+                            "player_type": "pitcher",
+                            "market": f"{cfg_k['label']} Over {line}",
+                            "stat_key": "strikeouts", "line": line,
+                            "season_avg": mean_k, "adj_proj": adj_mean,
+                            "opp_k_rate": round(opp_k_rate * 100, 1),
+                            "park_factor": park_factor, "our_prob": prob,
+                            "edge_pct": edge,
+                            "kelly": _kelly(prob, dk_impl, dk_odds),
+                            "est_odds": dk_odds, "dk_implied": round(dk_impl, 1),
+                            "context": context,
+                        })
             except Exception as e:
                 print(f"  [MLB Hors Dict] Erreur: {e}")
 
@@ -807,55 +812,57 @@ class MLBPropsAnalyzer:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
                     context.append("Confirmer lineup avant de parier")
 
+                    rp_list = []
                     if use_real:
-                        rp = real_lkp.get(batter.lower(), {}).get(key)
-                        if not rp:
+                        rp_list = real_lkp.get(batter.lower(), {}).get(key, [])
+                        if not rp_list:
                             last = batter.lower().split()[-1]
                             for k, v in real_lkp.items():
                                 if k.split()[-1] == last and key in v:
-                                    rp = v[key]
+                                    rp_list = v[key]
                                     break
-                        if not rp:
+                        if not rp_list:
                             continue
-                        line    = rp["line"]
-                        dk_impl = rp["over_implied"]
-                        dk_odds = rp["over_odds"]
                     else:
-                        line    = _estimate_line(adj_mean, key)
-                        dk_impl = B365_IMPLIED
-                        dk_odds = B365_ODDS
+                        rp_list = [{"line": _estimate_line(adj_mean, key),
+                                    "over_odds": B365_ODDS, "over_implied": B365_IMPLIED}]
 
-                    prob  = _normal_over(adj_mean, std, line)
-                    edge  = _edge(prob, dk_impl)
-                    ratio = (prob / dk_impl) if dk_impl > 0 else 0
+                    found_bet = False
+                    for rp_entry in rp_list:
+                        line    = rp_entry["line"]
+                        dk_impl = rp_entry["over_implied"]
+                        dk_odds = rp_entry["over_odds"]
 
-                    if not (MIN_EDGE <= edge <= MAX_EDGE):
-                        continue
-                    if ratio > MAX_DISAGREEMENT_RATIO:
-                        continue
+                        prob  = _normal_over(adj_mean, std, line)
+                        edge  = _edge(prob, dk_impl)
+                        ratio = (prob / dk_impl) if dk_impl > 0 else 0
 
-                    ev_bets.append({
-                        "player":        batter,
-                        "team":          team,
-                        "opponent":      opp,
-                        "player_type":   "batter",
-                        "market":        f"{cfg['label']} Over {line}",
-                        "stat_key":      key,
-                        "line":          line,
-                        "season_avg":    mean,
-                        "adj_proj":      adj_mean,
-                        "opp_k_rate":    None,
-                        "opp_pitcher":   opp_pitcher_name,
-                        "opp_pitcher_k": opp_k,
-                        "platoon":       plat_lbl,
-                        "park_factor":   park_factor,
-                        "our_prob":      prob,
-                        "edge_pct":      edge,
-                        "kelly":         _kelly(prob, dk_impl, dk_odds),
-                        "est_odds":      dk_odds,
-                        "dk_implied":    round(dk_impl, 1),
-                        "context":       context,
-                    })
+                        if not (MIN_EDGE <= edge <= MAX_EDGE):
+                            continue
+                        if ratio > MAX_DISAGREEMENT_RATIO:
+                            continue
+                        ev_bets.append({
+                            "player":        batter,
+                            "team":          team,
+                            "opponent":      opp,
+                            "player_type":   "batter",
+                            "market":        f"{cfg['label']} Over {line}",
+                            "stat_key":      key,
+                            "line":          line,
+                            "season_avg":    mean,
+                            "adj_proj":      adj_mean,
+                            "opp_k_rate":    None,
+                            "opp_pitcher":   opp_pitcher_name,
+                            "opp_pitcher_k": opp_k,
+                            "platoon":       plat_lbl,
+                            "park_factor":   park_factor,
+                            "our_prob":      prob,
+                            "edge_pct":      edge,
+                            "kelly":         _kelly(prob, dk_impl, dk_odds),
+                            "est_odds":      dk_odds,
+                            "dk_implied":    round(dk_impl, 1),
+                            "context":       context,
+                        })
 
         ev_bets.sort(key=lambda x: x["edge_pct"], reverse=True)
         ev_bets = ev_bets[:MAX_BETS]
