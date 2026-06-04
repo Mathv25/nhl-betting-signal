@@ -47,7 +47,7 @@ STAT_CONFIGS = [
     {"key": "runs_scored", "label": "Runs marques",      "min_avg": 0.55, "player_type": "batter",  "convergence": 1},
 ]
 
-MIN_EDGE   = 10.0  # Seuil relevé — on garde seulement les vrais edges
+MIN_EDGE   = 6.0   # Edge minimum — couvre lignes entières b365 (Over 4, 5, 6...)
 MAX_EDGE   = 35.0
 B365_IMPLIED = 52.63  # ~1.909 cotes b365 standard
 B365_ODDS    = 1.909
@@ -588,7 +588,7 @@ class MLBPropsAnalyzer:
                 if park_factor != 1.00:
                     context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
 
-                # Toutes les lignes DK disponibles, sinon ligne synthétique unique
+                # Lignes à évaluer: DK (demi-chiffres) + lignes entières b365 (4, 5, 6, 7...)
                 rp_k_list = []
                 if use_real:
                     rp_k_list = real_lkp.get(pitcher.lower(), {}).get("strikeouts", [])
@@ -598,6 +598,16 @@ class MLBPropsAnalyzer:
                             if k.split()[-1] == last and "strikeouts" in v:
                                 rp_k_list = v["strikeouts"]
                                 break
+                # Ajouter lignes entières b365 (Over 4, 5, 6, 7) autour de la projection
+                b365_lines = []
+                low  = max(int(adj_mean) - 1, 2)
+                high = int(adj_mean) + 3
+                for whole in range(low, high + 1):
+                    b365_lines.append({"line": float(whole), "over_odds": B365_ODDS,
+                                       "over_implied": B365_IMPLIED, "_b365": True})
+                # Dédupliquer: éviter doublons si DK a déjà cette ligne
+                dk_lines_set = {e["line"] for e in rp_k_list}
+                rp_k_list = rp_k_list + [e for e in b365_lines if e["line"] not in dk_lines_set]
                 if not rp_k_list:
                     rp_k_list = [{"line": _estimate_line(adj_mean, "strikeouts"),
                                   "over_odds": B365_ODDS, "over_implied": B365_IMPLIED}]
