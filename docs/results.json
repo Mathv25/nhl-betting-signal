@@ -30,7 +30,7 @@
       "b365_odds": 2.14,
       "b365_implied": 46.7,
       "kelly_fraction": 3.1,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-06-04|prop_mlb|Zack Wheeler|Retraits au baton Over 4.5",
@@ -48,7 +48,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 4.8,
-      "result": "?"
+      "result": "W"
     },
     {
       "id": "2026-06-04|prop_mlb|Jared Jones|Retraits au baton Over 5.0",
@@ -66,7 +66,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 4.2,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-06-04|prop_mlb|Jazz Chisholm Jr.|Coups surs Over 0.5",
@@ -84,7 +84,7 @@
       "b365_odds": 1.56,
       "b365_implied": 64.1,
       "kelly_fraction": 4.7,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-04|prop_mlb|Kai-wei Teng|Retraits au baton Over 4.0",
@@ -102,7 +102,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 6.4,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-06-04|prop_mlb|Ryne Nelson|Retraits au baton Over 3.5",
@@ -120,7 +120,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 5.9,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-06-04|prop_mlb|Chris Sale|Retraits au baton Over 7.0",
@@ -138,7 +138,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 6.0,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-04|prop_mlb|Chris Sale|Retraits au baton Over 7.5",
@@ -156,7 +156,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 2.5,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-04|prop_mlb|Shota Imanaga|Retraits au baton Over 4.0",
@@ -174,7 +174,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 6.8,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-06-04|prop_mlb|Cody Morris|Retraits au baton Over 4.0",
@@ -192,7 +192,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 8.6,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-06-04|prop_mlb|Brayan Bello|Retraits au baton Over 4.0",
@@ -210,7 +210,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 6.4,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-04|prop_mlb|Jazz Chisholm Jr.|Runs marques Over 0.5",
@@ -24303,22 +24303,22 @@
     }
   ],
   "summary": {
-    "total": 1127,
-    "wins": 566,
-    "losses": 561,
-    "win_rate": 50.2,
-    "profit": 10.81,
-    "roi": 0.3,
+    "total": 1132,
+    "wins": 567,
+    "losses": 565,
+    "win_rate": 50.1,
+    "profit": 2.04,
+    "roi": 0.1,
     "by_edge": {
       "15+": {
-        "n": 638,
-        "wins": 322,
-        "profit": 91.8
+        "n": 641,
+        "wins": 323,
+        "profit": 88.53
       },
       "8-15": {
-        "n": 434,
+        "n": 436,
         "wins": 215,
-        "profit": -79.65
+        "profit": -85.15
       },
       "5-8": {
         "n": 55,
@@ -24327,6 +24327,16 @@
       }
     },
     "by_type": {
+      "mlb_strikeouts": {
+        "n": 99,
+        "wins": 59,
+        "profit": 38.91
+      },
+      "mlb_hits": {
+        "n": 49,
+        "wins": 29,
+        "profit": 19.54
+      },
       "nba_ast": {
         "n": 9,
         "wins": 6,
@@ -24336,16 +24346,6 @@
         "n": 31,
         "wins": 20,
         "profit": 22.43
-      },
-      "mlb_strikeouts": {
-        "n": 95,
-        "wins": 58,
-        "profit": 44.68
-      },
-      "mlb_hits": {
-        "n": 48,
-        "wins": 29,
-        "profit": 22.54
       },
       "mlb_total_bases": {
         "n": 133,
@@ -24399,17 +24399,17 @@
       }
     },
     "by_sport": {
+      "mlb": {
+        "n": 281,
+        "wins": 146,
+        "losses": 135,
+        "profit": 16.5
+      },
       "nba": {
         "n": 170,
         "wins": 74,
         "losses": 96,
         "profit": -84.27
-      },
-      "mlb": {
-        "n": 276,
-        "wins": 145,
-        "losses": 131,
-        "profit": 25.26
       },
       "nhl": {
         "n": 681,
@@ -24419,6 +24419,6 @@
       }
     },
     "clv": {},
-    "last_updated": "2026-06-04T19:21:16Z"
+    "last_updated": "2026-06-04T20:01:30Z"
   }
 }
