@@ -557,37 +557,44 @@ class MLBPropsAnalyzer:
                         continue
                 except Exception:
                     pass
-                # Check 2 — Partant confirmé: nom complet en priorité, fallback last name
+                # Check 2 — Partant confirmé par MLB API
                 if confirmed_starter_lasts:
                     pitcher_lower = pitcher.lower()
                     pitcher_last  = pitcher_lower.split()[-1]
-                    # Vérifier que le nom complet du confirmé correspond à ce lanceur
-                    is_confirmed = pitcher_last in confirmed_starter_lasts
-                    if is_confirmed and _mlb_starters:
-                        # Double-check: si un autre lanceur avec même nom de famille est confirmé
+                    if pitcher_last not in confirmed_starter_lasts:
+                        continue
+                    # Si même nom de famille, vérifier la première initiale (Cody vs A. Morris)
+                    if _mlb_starters:
                         try:
                             from mlb_starters import get_starter_for_team as _gst2
                             confirmed_full = _gst2(team, opp, _mlb_starters)
-                            if confirmed_full and confirmed_full.lower().split()[-1] == pitcher_last:
-                                is_confirmed = confirmed_full.lower() == pitcher_lower or \
-                                               confirmed_full.lower().split()[-1] == pitcher_last
+                            if confirmed_full:
+                                cf_last = confirmed_full.lower().split()[-1]
+                                if cf_last == pitcher_last:
+                                    cf_init = confirmed_full.lower().split()[0][0]
+                                    p_init  = pitcher_lower.split()[0][0]
+                                    if cf_init != p_init:
+                                        continue  # mauvais lanceur (ex: Cody vs A. Morris)
                         except Exception:
                             pass
-                    if not is_confirmed:
-                        continue
 
                 stats  = MLB_PITCHERS.get(pitcher, {})
                 mean_k = stats.get("strikeouts", 0.0)
 
                 # Remplacer par stats rolling si disponibles
+                static_k = mean_k
                 if HAS_MLB_ROLLING:
                     rolling_p = _mlb_pitcher_rolling(pitcher)
                     if rolling_p and rolling_p.get("games", 0) >= 2:
                         mean_k = rolling_p["strikeouts"]
+                        print(f"    [MLB Dict] {pitcher}: rolling={mean_k:.1f}K ({rolling_p['games']} dep) static={static_k}")
+                    else:
+                        print(f"    [MLB Dict] {pitcher}: static={mean_k:.1f}K (rolling indispo)")
+                else:
+                    print(f"    [MLB Dict] {pitcher}: static={mean_k:.1f}K")
 
-                print(f"    [MLB Dict] {pitcher} ({team}): mean_k={mean_k:.1f} (min={cfg_k['min_avg']})")
                 if mean_k < cfg_k["min_avg"]:
-                    print(f"      → Filtré: rolling avg {mean_k:.1f} < {cfg_k['min_avg']}")
+                    print(f"      → Filtré: {mean_k:.1f} < min {cfg_k['min_avg']}")
                     continue
 
                 opp_k_rate = TEAM_K_RATES.get(opp, LEAGUE_AVG_K)
