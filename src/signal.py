@@ -154,6 +154,28 @@ def main():
             analysis["commence_time"] = mg.get("commence_time", "")
             mlb_analysis.append(analysis)
 
+    # Récupérer les bets des matchs commencés récemment (≤4h) depuis le signal précédent
+    try:
+        with open("../docs/signal.json", encoding="utf-8") as f:
+            prev = json.load(f)
+        now_utc = datetime.now(timezone.utc)
+        already = {(g.get("home_team"), g.get("away_team")) for g in mlb_analysis}
+        for pg in prev.get("mlb_analysis", []):
+            ct = pg.get("commence_time", "")
+            if not ct:
+                continue
+            game_dt   = datetime.fromisoformat(ct.replace("Z", "+00:00"))
+            hours_ago = (now_utc - game_dt).total_seconds() / 3600
+            key = (pg.get("home_team"), pg.get("away_team"))
+            if 0 < hours_ago <= 4 and key not in already and pg.get("bets"):
+                for b in pg["bets"]:
+                    b["status"] = "started"
+                pg["status"] = "started"
+                mlb_analysis.append(pg)
+                print(f"  [Conservé] {pg.get('away_team')} @ {pg.get('home_team')} (débuté il y a {hours_ago:.1f}h)")
+    except Exception:
+        pass
+
     # ── 6. Vérification: au moins un sport a du contenu ───────────────────────
     has_content = games or nba_games or mlb_games
     if not has_content:

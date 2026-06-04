@@ -571,15 +571,21 @@ class ReportGenerator:
 
         html = "<div class='mlb-header'>MLB Player Props — Analyse +EV</div>"
         for game_data in mlb_analysis:
-            home = game_data.get("home_team", "")
-            away = game_data.get("away_team", "")
-            bets = game_data.get("bets", [])
+            home   = game_data.get("home_team", "")
+            away   = game_data.get("away_team", "")
+            bets   = game_data.get("bets", [])
+            status = game_data.get("status", "")
             if not bets:
                 continue
+            status_badge = (
+                " <span style='background:#FEE2E2;color:#991B1B;font-size:11px;"
+                "padding:2px 8px;border-radius:6px;font-weight:500'>En cours</span>"
+                if status == "started" else ""
+            )
             html += (
                 "<div class='mlb-game'>"
                 "<div class='mlb-matchup'>"
-                + away + " <span class='mlb-at'>@</span> " + home
+                + away + " <span class='mlb-at'>@</span> " + home + status_badge
                 + "</div>"
             )
             for b in bets:
