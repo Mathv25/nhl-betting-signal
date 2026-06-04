@@ -557,11 +557,25 @@ class MLBPropsAnalyzer:
                         continue
                 except Exception:
                     pass
-                # Check 2 — Partant confirmé par MLB API (prioritaire si disponible)
+                # Check 2 — Partant confirmé: nom complet en priorité, fallback last name
                 if confirmed_starter_lasts:
-                    pitcher_last = pitcher.lower().split()[-1]
-                    if pitcher_last not in confirmed_starter_lasts:
+                    pitcher_lower = pitcher.lower()
+                    pitcher_last  = pitcher_lower.split()[-1]
+                    # Vérifier que le nom complet du confirmé correspond à ce lanceur
+                    is_confirmed = pitcher_last in confirmed_starter_lasts
+                    if is_confirmed and _mlb_starters:
+                        # Double-check: si un autre lanceur avec même nom de famille est confirmé
+                        try:
+                            from mlb_starters import get_starter_for_team as _gst2
+                            confirmed_full = _gst2(team, opp, _mlb_starters)
+                            if confirmed_full and confirmed_full.lower().split()[-1] == pitcher_last:
+                                is_confirmed = confirmed_full.lower() == pitcher_lower or \
+                                               confirmed_full.lower().split()[-1] == pitcher_last
+                        except Exception:
+                            pass
+                    if not is_confirmed:
                         continue
+
                 stats  = MLB_PITCHERS.get(pitcher, {})
                 mean_k = stats.get("strikeouts", 0.0)
 
@@ -571,7 +585,9 @@ class MLBPropsAnalyzer:
                     if rolling_p and rolling_p.get("games", 0) >= 2:
                         mean_k = rolling_p["strikeouts"]
 
+                print(f"    [MLB Dict] {pitcher} ({team}): mean_k={mean_k:.1f} (min={cfg_k['min_avg']})")
                 if mean_k < cfg_k["min_avg"]:
+                    print(f"      → Filtré: rolling avg {mean_k:.1f} < {cfg_k['min_avg']}")
                     continue
 
                 opp_k_rate = TEAM_K_RATES.get(opp, LEAGUE_AVG_K)
