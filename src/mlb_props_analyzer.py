@@ -636,7 +636,7 @@ class MLBPropsAnalyzer:
                     if any(kn.lower() == api_lower or kn.lower().split()[-1] == api_last
                            for kn in MLB_PITCHERS):
                         continue
-                    # Chercher la ligne K sur DK
+                    # Chercher la ligne K sur DK (optionnel)
                     rp = None
                     for pl_name, pl_data in real_lkp.items():
                         if "strikeouts" in pl_data and (
@@ -644,21 +644,25 @@ class MLBPropsAnalyzer:
                         ):
                             rp = pl_data["strikeouts"]
                             break
-                    if not rp:
-                        continue
+
                     seen.add(api_name)
                     display = " ".join(w.capitalize() for w in api_name.split())
 
-                    # Projection: rolling stats si dispo, sinon ligne DK
-                    mean_k = rp["line"]
+                    # Projection: rolling stats en priorité, puis ligne DK, puis skip
+                    mean_k = None
                     if HAS_MLB_ROLLING:
                         try:
                             rp_rolling = _mlb_pitcher_rolling(display)
                             if rp_rolling and rp_rolling.get("games", 0) >= 2:
                                 mean_k = rp_rolling["strikeouts"]
-                                print(f"      Rolling {display}: {mean_k} K/dep (DK line: {rp['line']})")
+                                src = f"DK line: {rp['line']}" if rp else "pas de ligne DK"
+                                print(f"      Rolling {display}: {mean_k} K/dep ({src})")
                         except Exception:
                             pass
+                    if mean_k is None and rp:
+                        mean_k = rp["line"]  # fallback: ligne DK comme proxy
+                    if mean_k is None:
+                        continue  # aucune donnée — skip
 
                     if mean_k < cfg_k["min_avg"]:
                         continue
@@ -679,9 +683,12 @@ class MLBPropsAnalyzer:
                     park_lbl = _park_label(park_factor)
                     if park_factor != 1.00:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
-                    # Ligne DK réelle (existe sur le marché) + juice b365 standard assumé
-                    # → vérifier la cote b365 avant de parier (si < 1.75, passer)
-                    line    = rp["line"]
+                    # Si DK a une ligne → ligne réelle + synthétique 52.63%
+                    # Si pas de ligne DK → ligne estimée + synthétique (comme dict pitchers)
+                    if rp:
+                        line = rp["line"]
+                    else:
+                        line = _estimate_line(adj_mean, "strikeouts")
                     dk_impl = B365_IMPLIED
                     dk_odds = B365_ODDS
                     prob    = _normal_over(adj_mean, std, line)
