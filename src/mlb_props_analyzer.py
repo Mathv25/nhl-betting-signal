@@ -623,7 +623,9 @@ class MLBPropsAnalyzer:
 
                     if not (MIN_EDGE <= edge <= MAX_EDGE):
                         continue
-                    if ratio > MAX_DISAGREEMENT_RATIO:
+                    # Ne pas filtrer les lignes entières b365 par MAX_DISAGREEMENT_RATIO
+                    # (le ratio est gonflé artificiellement vs 52.63% synthétique)
+                    if not rp_entry.get("_b365") and ratio > MAX_DISAGREEMENT_RATIO:
                         continue
 
                     ev_bets.append({
