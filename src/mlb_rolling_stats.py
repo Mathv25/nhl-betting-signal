@@ -128,10 +128,23 @@ def get_pitcher_rolling(name: str, n: int = N_PITCHING) -> object:
             _pitching_cache[pid] = None
             return None
 
-        k_total = sum(g["stat"].get("strikeOuts", 0) for g in starts)
+        k_vals = [g["stat"].get("strikeOuts", 0) for g in starts]
+
+        # Exclure les départs aberrants (sortie prématurée, météo, blessure)
+        # Un départ est un outlier si K < mean - 1.5 * std ET K <= 2
+        if len(k_vals) >= 3:
+            mean = sum(k_vals) / len(k_vals)
+            std  = (sum((x - mean) ** 2 for x in k_vals) / len(k_vals)) ** 0.5
+            if std > 0:
+                k_vals = [k for k in k_vals if not (k < mean - 1.5 * std and k <= 2)]
+
+        if not k_vals:
+            _pitching_cache[pid] = None
+            return None
+
         result  = {
-            "strikeouts": round(k_total / len(starts), 2),
-            "games":      len(starts),
+            "strikeouts": round(sum(k_vals) / len(k_vals), 2),
+            "games":      len(k_vals),
         }
         _pitching_cache[pid] = result
         return result
