@@ -611,7 +611,7 @@ class MLBPropsAnalyzer:
                 if park_factor != 1.00:
                     context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
 
-                # Lignes à évaluer: DK (demi-chiffres) + lignes entières b365 (4, 5, 6, 7...)
+                # Lignes DK d'abord — si DK n'a aucune ligne K, lanceur probablement pas partant
                 rp_k_list = []
                 if use_real:
                     rp_k_list = real_lkp.get(pitcher.lower(), {}).get("strikeouts", [])
@@ -621,6 +621,10 @@ class MLBPropsAnalyzer:
                             if k.split()[-1] == last and "strikeouts" in v:
                                 rp_k_list = v["strikeouts"]
                                 break
+                # Pas de ligne DK → lanceur pas confirmé côté marché → skip
+                if use_real and not rp_k_list:
+                    print(f"    [MLB Skip] {pitcher}: aucune ligne K sur DK — probablement pas partant")
+                    continue
                 # Ajouter lignes entières b365 (Over 4, 5, 6, 7) autour de la projection
                 b365_lines = []
                 low  = max(int(adj_mean) - 1, 2)
@@ -628,7 +632,6 @@ class MLBPropsAnalyzer:
                 for whole in range(low, high + 1):
                     b365_lines.append({"line": float(whole), "over_odds": B365_ODDS,
                                        "over_implied": B365_IMPLIED, "_b365": True})
-                # Dédupliquer: éviter doublons si DK a déjà cette ligne
                 dk_lines_set = {e["line"] for e in rp_k_list}
                 rp_k_list = rp_k_list + [e for e in b365_lines if e["line"] not in dk_lines_set]
                 if not rp_k_list:
