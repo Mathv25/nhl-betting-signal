@@ -1,295 +1,232 @@
 {
-  "generated_at": "2026-06-05T02:49:42.892172+00:00",
-  "date": "2026-06-04",
+  "generated_at": "2026-06-05T07:07:21.075723+00:00",
+  "date": "2026-06-05",
   "bookmaker": "bet365",
-  "total_games": 1,
-  "total_value_bets": 2,
-  "signals": [
-    {
-      "game": {
-        "id": "b13d493fbfa40c8c29b896dbc6da1dff",
-        "home_team": "Carolina Hurricanes",
-        "away_team": "Vegas Golden Knights",
-        "commence_time": "2026-06-05T00:23:00Z",
-        "bookmaker": "draftkings",
-        "markets": {
-          "moneyline": {
-            "home": {
-              "team": "Carolina Hurricanes",
-              "odds_decimal": 1.62,
-              "implied_prob": 61.73
-            },
-            "away": {
-              "team": "Vegas Golden Knights",
-              "odds_decimal": 2.24,
-              "implied_prob": 44.64
-            }
-          },
-          "puck_line": {
-            "home": {
-              "team": "Carolina Hurricanes",
-              "spread": -1.5,
-              "odds_decimal": 9.5,
-              "implied_prob": 10.53
-            },
-            "away": {
-              "team": "Vegas Golden Knights",
-              "spread": 1.5,
-              "odds_decimal": 1.06,
-              "implied_prob": 94.34
-            }
-          },
-          "totals": {
-            "over": {
-              "line": 5.5,
-              "odds_decimal": 5.0,
-              "implied_prob": 20.0
-            },
-            "under": {
-              "line": 5.5,
-              "odds_decimal": 1.16,
-              "implied_prob": 86.21
-            }
-          },
-          "player_props": []
-        },
-        "removed_props": []
-      },
-      "edges": [
-        {
-          "edge_pct": 12.0,
-          "edge_raw": 190.41,
-          "kelly_fraction": 5.38,
-          "verdict": "🔥 Forte valeur",
-          "type": "Puck Line",
-          "bet": "Carolina Hurricanes -1.5",
-          "our_prob": 30.6,
-          "b365_implied": 10.53,
-          "b365_odds": 9.5,
-          "game": "Vegas Golden Knights @ Carolina Hurricanes",
-          "note": "Spread -1.5 buts",
-          "context_notes": []
-        },
-        {
-          "edge_pct": 20.0,
-          "edge_raw": 100.6,
-          "kelly_fraction": 6.04,
-          "verdict": "🔥 Forte valeur",
-          "type": "Total buts",
-          "bet": "Over 5.5",
-          "our_prob": 40.1,
-          "b365_implied": 20.0,
-          "b365_odds": 5.0,
-          "game": "Vegas Golden Knights @ Carolina Hurricanes",
-          "note": "Total attendu: 5.1 buts",
-          "context_notes": [
-            "Total attendu: 5.1 buts"
-          ]
-        }
-      ]
-    }
-  ],
-  "value_bets": [
-    {
-      "edge_pct": 20.0,
-      "edge_raw": 100.6,
-      "kelly_fraction": 6.04,
-      "verdict": "🔥 Forte valeur",
-      "type": "Total buts",
-      "bet": "Over 5.5",
-      "our_prob": 40.1,
-      "b365_implied": 20.0,
-      "b365_odds": 5.0,
-      "game": "Vegas Golden Knights @ Carolina Hurricanes",
-      "note": "Total attendu: 5.1 buts",
-      "context_notes": [
-        "Total attendu: 5.1 buts"
-      ]
-    },
-    {
-      "edge_pct": 12.0,
-      "edge_raw": 190.41,
-      "kelly_fraction": 5.38,
-      "verdict": "🔥 Forte valeur",
-      "type": "Puck Line",
-      "bet": "Carolina Hurricanes -1.5",
-      "our_prob": 30.6,
-      "b365_implied": 10.53,
-      "b365_odds": 9.5,
-      "game": "Vegas Golden Knights @ Carolina Hurricanes",
-      "note": "Spread -1.5 buts",
-      "context_notes": []
-    }
-  ],
+  "total_games": 0,
+  "total_value_bets": 0,
+  "signals": [],
+  "value_bets": [],
   "props_analysis": [],
-  "nba_analysis": [],
+  "nba_analysis": [
+    {
+      "home_team": "San Antonio Spurs",
+      "away_team": "New York Knicks",
+      "bets": [
+        {
+          "player": "Devin Vassell",
+          "team": "San Antonio Spurs",
+          "opponent": "New York Knicks",
+          "market": "Passes Over 2.5",
+          "stat_key": "ast",
+          "line": 2.5,
+          "avg10": 3.5,
+          "avg5": 3.5,
+          "adj_proj": 3.1,
+          "our_prob": 54.0,
+          "edge_pct": 16.1,
+          "kelly": 3.5,
+          "est_odds": 2.15,
+          "dk_implied": 46.5,
+          "def_rank": 15,
+          "context": []
+        }
+      ],
+      "commence_time": "2026-06-06T00:40:00Z"
+    }
+  ],
   "mlb_analysis": [
     {
-      "home_team": "Chicago Cubs",
+      "home_team": "Detroit Tigers",
+      "away_team": "Seattle Mariners",
+      "bets": [
+        {
+          "player": "Bryan Woo",
+          "team": "Seattle Mariners",
+          "opponent": "Detroit Tigers",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.0",
+          "stat_key": "strikeouts",
+          "line": 6.0,
+          "season_avg": 7.8,
+          "adj_proj": 7.84,
+          "opp_k_rate": 21.6,
+          "park_factor": 0.99,
+          "our_prob": 69.8,
+          "edge_pct": 32.6,
+          "kelly": 9.1,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Neutre (PF 0.99)"
+          ]
+        },
+        {
+          "player": "Framber Valdez",
+          "team": "Detroit Tigers",
+          "opponent": "Seattle Mariners",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.0",
+          "stat_key": "strikeouts",
+          "line": 4.0,
+          "season_avg": 5.0,
+          "adj_proj": 4.79,
+          "opp_k_rate": 20.6,
+          "park_factor": 0.99,
+          "our_prob": 57.3,
+          "edge_pct": 8.9,
+          "kelly": 2.6,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Neutre (PF 0.99)"
+          ]
+        }
+      ],
+      "commence_time": "2026-06-05T22:41:00Z"
+    },
+    {
+      "home_team": "Toronto Blue Jays",
+      "away_team": "Baltimore Orioles",
+      "bets": [
+        {
+          "player": "B. Young",
+          "team": "Baltimore Orioles",
+          "opponent": "Toronto Blue Jays",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.0",
+          "stat_key": "strikeouts",
+          "line": 4.0,
+          "season_avg": 5.5,
+          "adj_proj": 5.5,
+          "opp_k_rate": 21.5,
+          "park_factor": 1.0,
+          "our_prob": 70.9,
+          "edge_pct": 34.7,
+          "kelly": 9.7,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": []
+        }
+      ],
+      "commence_time": "2026-06-05T23:08:00Z"
+    },
+    {
+      "home_team": "Miami Marlins",
+      "away_team": "Tampa Bay Rays",
+      "bets": [
+        {
+          "player": "Drew Rasmussen",
+          "team": "Tampa Bay Rays",
+          "opponent": "Miami Marlins",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.4,
+          "adj_proj": 5.73,
+          "opp_k_rate": 22.8,
+          "park_factor": 0.95,
+          "our_prob": 65.0,
+          "edge_pct": 23.5,
+          "kelly": 6.6,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable lanceurs (PF 0.95)"
+          ]
+        }
+      ],
+      "commence_time": "2026-06-05T23:11:00Z"
+    },
+    {
+      "home_team": "Atlanta Braves",
+      "away_team": "Pittsburgh Pirates",
+      "bets": [
+        {
+          "player": "Matt Olson",
+          "team": "Atlanta Braves",
+          "opponent": "Pittsburgh Pirates",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.5",
+          "stat_key": "total_bases",
+          "line": 1.5,
+          "season_avg": 1.867,
+          "adj_proj": 2.138,
+          "opp_k_rate": null,
+          "opp_pitcher": "Mitch Keller",
+          "opp_pitcher_k": 4.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 1.02,
+          "our_prob": 54.4,
+          "edge_pct": 19.6,
+          "kelly": 4.1,
+          "est_odds": 2.2,
+          "dk_implied": 45.5,
+          "context": [
+            "vs Mitch Keller (4.5 K/dep) — Contact",
+            "Platoon avantageux (L vs R)",
+            "Terrain: Neutre (PF 1.02)",
+            "Confirmer lineup avant de parier"
+          ]
+        }
+      ],
+      "commence_time": "2026-06-05T23:16:00Z"
+    },
+    {
+      "home_team": "Houston Astros",
       "away_team": "Athletics",
       "bets": [
         {
-          "player": "Shota Imanaga",
-          "team": "Chicago Cubs",
+          "player": "Lance McCullers Jr.",
+          "team": "Houston Astros",
           "opponent": "Athletics",
           "player_type": "pitcher",
           "market": "Retraits au baton Over 4.0",
           "stat_key": "strikeouts",
           "line": 4.0,
-          "season_avg": 5.17,
-          "adj_proj": 5.17,
+          "season_avg": 5.0,
+          "adj_proj": 5.0,
           "opp_k_rate": 21.5,
-          "park_factor": 1.02,
-          "our_prob": 65.3,
-          "edge_pct": 24.1,
-          "kelly": 6.8,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Terrain: Neutre (PF 1.02)"
-          ]
-        }
-      ],
-      "commence_time": "2026-06-05T00:06:00Z"
-    },
-    {
-      "home_team": "Arizona Diamondbacks",
-      "away_team": "Los Angeles Dodgers",
-      "bets": [
-        {
-          "player": "Justin Wrobleski",
-          "team": "Los Angeles Dodgers",
-          "opponent": "Arizona Diamondbacks",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 5.0",
-          "stat_key": "strikeouts",
-          "line": 5.0,
-          "season_avg": 5.8,
-          "adj_proj": 6.2,
-          "opp_k_rate": 23.0,
-          "park_factor": 1.04,
-          "our_prob": 63.4,
-          "edge_pct": 20.5,
-          "kelly": 5.8,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Adversaire K%: 23.0% (favorable)",
-            "Terrain: Favorable frappeurs (PF 1.04)"
-          ]
-        },
-        {
-          "player": "Mookie Betts",
-          "team": "Los Angeles Dodgers",
-          "opponent": "Arizona Diamondbacks",
-          "player_type": "batter",
-          "market": "Runs marques Over 0.5",
-          "stat_key": "runs_scored",
-          "line": 0.5,
-          "season_avg": 0.82,
-          "adj_proj": 0.808,
-          "opp_k_rate": null,
-          "opp_pitcher": "Ryne Nelson",
-          "opp_pitcher_k": 2.5,
-          "platoon": "Platoon defavorable (R vs R)",
-          "park_factor": 1.04,
-          "our_prob": 35.0,
-          "edge_pct": 8.4,
-          "kelly": 1.0,
-          "est_odds": 3.1,
-          "dk_implied": 32.3,
-          "context": [
-            "vs Ryne Nelson (2.5 K/dep) — Contact",
-            "Platoon defavorable (R vs R)",
-            "Terrain: Favorable frappeurs (PF 1.04)",
-            "Confirmer lineup avant de parier"
-          ]
-        }
-      ],
-      "commence_time": "2026-06-05T01:41:00Z"
-    },
-    {
-      "home_team": "Atlanta Braves",
-      "away_team": "Toronto Blue Jays",
-      "bets": [
-        {
-          "player": "Chris Sale",
-          "team": "Atlanta Braves",
-          "opponent": "Toronto Blue Jays",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 7.0",
-          "stat_key": "strikeouts",
-          "line": 7.0,
-          "season_avg": 8.5,
-          "adj_proj": 8.5,
-          "opp_k_rate": 21.5,
-          "park_factor": 1.02,
-          "our_prob": 63.9,
-          "edge_pct": 21.4,
-          "kelly": 6.0,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Terrain: Neutre (PF 1.02)"
-          ],
-          "status": "started"
-        },
-        {
-          "player": "Chris Sale",
-          "team": "Atlanta Braves",
-          "opponent": "Toronto Blue Jays",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 7.5",
-          "stat_key": "strikeouts",
-          "line": 7.5,
-          "season_avg": 8.5,
-          "adj_proj": 8.5,
-          "opp_k_rate": 21.5,
-          "park_factor": 1.02,
-          "our_prob": 57.1,
-          "edge_pct": 8.5,
-          "kelly": 2.5,
-          "est_odds": 1.909,
-          "dk_implied": 52.6,
-          "context": [
-            "Terrain: Neutre (PF 1.02)"
-          ],
-          "status": "started"
-        }
-      ],
-      "commence_time": "2026-06-04T23:15:00Z",
-      "status": "started"
-    },
-    {
-      "home_team": "Houston Astros",
-      "away_team": "Pittsburgh Pirates",
-      "bets": [
-        {
-          "player": "Jared Jones",
-          "team": "Pittsburgh Pirates",
-          "opponent": "Houston Astros",
-          "player_type": "pitcher",
-          "market": "Retraits au baton Over 5.0",
-          "stat_key": "strikeouts",
-          "line": 5.0,
-          "season_avg": 7.0,
-          "adj_proj": 6.02,
-          "opp_k_rate": 18.5,
           "park_factor": 0.97,
-          "our_prob": 60.3,
-          "edge_pct": 14.6,
-          "kelly": 4.2,
+          "our_prob": 61.9,
+          "edge_pct": 17.6,
+          "kelly": 5.0,
           "est_odds": 1.909,
           "dk_implied": 52.6,
           "context": [
-            "Adversaire K%: 18.5% (difficile)",
             "Terrain: Neutre (PF 0.97)"
-          ],
-          "status": "started"
+          ]
         }
       ],
-      "commence_time": "2026-06-05T00:11:00Z",
-      "status": "started"
+      "commence_time": "2026-06-06T00:11:00Z"
+    },
+    {
+      "home_team": "Texas Rangers",
+      "away_team": "Cleveland Guardians",
+      "bets": [
+        {
+          "player": "Parker Messick",
+          "team": "Cleveland Guardians",
+          "opponent": "Texas Rangers",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 5.0",
+          "stat_key": "strikeouts",
+          "line": 5.0,
+          "season_avg": 6.0,
+          "adj_proj": 6.25,
+          "opp_k_rate": 22.4,
+          "park_factor": 1.05,
+          "our_prob": 64.2,
+          "edge_pct": 22.0,
+          "kelly": 6.2,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable frappeurs (PF 1.05)"
+          ]
+        }
+      ],
+      "commence_time": "2026-06-06T00:16:00Z"
     }
   ],
   "ai_analysis": {}
