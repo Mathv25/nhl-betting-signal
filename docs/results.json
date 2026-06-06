@@ -30,7 +30,7 @@
       "b365_odds": 2.1,
       "b365_implied": 47.6,
       "kelly_fraction": 4.0,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-06-06|prop_nhl|Shea Theodore|Points Over 0.5",
@@ -47,7 +47,7 @@
       "b365_odds": 2.0,
       "b365_implied": 50.0,
       "kelly_fraction": 3.3,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-06-06|prop_nhl|Jordan Staal|Points Over 0.5",
@@ -64,7 +64,7 @@
       "b365_odds": 2.54,
       "b365_implied": 39.4,
       "kelly_fraction": 1.8,
-      "result": "?"
+      "result": "VOID"
     },
     {
       "id": "2026-06-06|prop_mlb|Bryce Miller|Retraits au baton Over 4.0",
@@ -82,7 +82,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 5.2,
-      "result": "?"
+      "result": "W"
     },
     {
       "id": "2026-06-06|prop_mlb|Joe Ryan|Retraits au baton Over 6.0",
@@ -100,7 +100,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 5.8,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-06|prop_mlb|Matthew Liberatore|Retraits au baton Over 5.0",
@@ -118,7 +118,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 6.8,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-06|prop_mlb|Matthew Liberatore|Retraits au baton Over 5.5",
@@ -136,7 +136,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 2.1,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-06|prop_mlb|Yordan Alvarez|Buts totaux Over 1.5",
@@ -154,7 +154,7 @@
       "b365_odds": 1.78,
       "b365_implied": 56.2,
       "kelly_fraction": 6.9,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-06|prop_mlb|Matt Olson|Buts totaux Over 1.5",
@@ -172,7 +172,7 @@
       "b365_odds": 2.18,
       "b365_implied": 45.9,
       "kelly_fraction": 2.9,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-06|prop_mlb|Spencer Strider|Retraits au baton Over 6.5",
@@ -190,7 +190,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 2.6,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-06|prop_mlb|Kyle Bradish|Retraits au baton Over 4.5",
@@ -208,7 +208,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 6.1,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-06|prop_mlb|Bobby Witt Jr.|Runs marques Over 0.5",
@@ -244,7 +244,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 5.3,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-05|prop_nba|Devin Vassell|Passes Over 2.5",
@@ -24813,44 +24813,44 @@
     }
   ],
   "summary": {
-    "total": 1148,
-    "wins": 575,
-    "losses": 573,
-    "win_rate": 50.1,
-    "profit": 11.95,
-    "roi": 0.4,
+    "total": 1157,
+    "wins": 576,
+    "losses": 581,
+    "win_rate": 49.8,
+    "profit": -7.92,
+    "roi": -0.2,
     "by_edge": {
       "15+": {
-        "n": 652,
-        "wins": 329,
-        "profit": 100.76
+        "n": 658,
+        "wins": 330,
+        "profit": 88.48
       },
       "8-15": {
-        "n": 440,
+        "n": 442,
         "wins": 217,
-        "profit": -85.36
+        "profit": -90.86
       },
       "5-8": {
-        "n": 56,
+        "n": 57,
         "wins": 29,
-        "profit": -3.44
+        "profit": -5.54
       }
     },
     "by_type": {
+      "mlb_strikeouts": {
+        "n": 115,
+        "wins": 64,
+        "profit": 21.39
+      },
+      "mlb_total_bases": {
+        "n": 137,
+        "wins": 59,
+        "profit": -47.25
+      },
       "nba_ast": {
         "n": 10,
         "wins": 7,
         "profit": 13.66
-      },
-      "mlb_strikeouts": {
-        "n": 108,
-        "wins": 63,
-        "profit": 35.36
-      },
-      "mlb_total_bases": {
-        "n": 135,
-        "wins": 59,
-        "profit": -41.35
       },
       "nhl_total buts": {
         "n": 15,
@@ -24909,17 +24909,17 @@
       }
     },
     "by_sport": {
+      "mlb": {
+        "n": 301,
+        "wins": 152,
+        "losses": 149,
+        "profit": -6.33
+      },
       "nba": {
         "n": 171,
         "wins": 75,
         "losses": 96,
         "profit": -80.84
-      },
-      "mlb": {
-        "n": 292,
-        "wins": 151,
-        "losses": 141,
-        "profit": 13.53
       },
       "nhl": {
         "n": 685,
@@ -24929,6 +24929,6 @@
       }
     },
     "clv": {},
-    "last_updated": "2026-06-06T19:12:48Z"
+    "last_updated": "2026-06-06T19:17:26Z"
   }
 }
