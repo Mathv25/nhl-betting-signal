@@ -47,13 +47,12 @@ STAT_CONFIGS = [
     {"key": "runs_scored", "label": "Runs marques",      "min_avg": 0.55, "player_type": "batter",  "convergence": 1},
 ]
 
-MIN_EDGE   = 6.0   # Edge minimum — couvre lignes entières b365 (Over 4, 5, 6...)
+MIN_EDGE   = 8.0   # Entre ancien 10% et récent 6% — bon équilibre volume/précision
 MAX_EDGE   = 35.0
-B365_IMPLIED = 52.63  # ~1.909 cotes b365 standard
+B365_IMPLIED = 52.63  # ~1.909 cotes b365 standard — référence fixe (algo 70% WR)
 B365_ODDS    = 1.909
 MAX_BETS   = 5
-# Si notre modele depasse b365 de plus de 25%, le marche a raison — skip
-MAX_DISAGREEMENT_RATIO = 1.25
+MAX_DISAGREEMENT_RATIO = 1.30  # Légèrement plus permissif que l'ancien 1.25
 
 _STAT_TO_MARKET = {
     "strikeouts":  "pitcher_strikeouts",
@@ -611,36 +610,41 @@ class MLBPropsAnalyzer:
                 if park_factor != 1.00:
                     context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
 
-                # Lignes DK d'abord — si DK n'a aucune ligne K, lanceur probablement pas partant
-                rp_k_list = []
+                # ── Ligne à parier ──────────────────────────────────────────────
+                # Priorité: ligne DK (réelle) → synthétique estimée (fallback)
+                # Implied: toujours 52.63% (b365 standard ~1.90) — comme l'algo 70% WR
+                # Guard: si DK line > synthétique + 2.0K → marché voit très différemment → skip
+                synthetic_line = _estimate_line(adj_mean, "strikeouts")
+                dk_k_list = []
                 if use_real:
-                    rp_k_list = real_lkp.get(pitcher.lower(), {}).get("strikeouts", [])
-                    if not rp_k_list:
+                    dk_k_list = real_lkp.get(pitcher.lower(), {}).get("strikeouts", [])
+                    if not dk_k_list:
                         last = pitcher.lower().split()[-1]
                         for k, v in real_lkp.items():
                             if k.split()[-1] == last and "strikeouts" in v:
-                                rp_k_list = v["strikeouts"]
+                                dk_k_list = v["strikeouts"]
                                 break
-                # Pas de ligne DK → lanceur pas confirmé côté marché → skip
-                if use_real and not rp_k_list:
-                    print(f"    [MLB Skip] {pitcher}: aucune ligne K sur DK — probablement pas partant")
+
+                if dk_k_list:
+                    # DK a des lignes — vérifier cohérence avec notre modèle
+                    dk_min = min(e["line"] for e in dk_k_list)
+                    if dk_min > synthetic_line + 2.0:
+                        # Ex: Wheeler: DK Over 7.5, synthétique 4.5 → gap 3.0 → marché diverge
+                        print(f"    [MLB Skip] {pitcher}: DK min={dk_min} vs synthétique={synthetic_line} (gap>{2.0}) — skip")
+                        continue
+                    rp_k_list = dk_k_list
+                elif HAS_MLB_ROLLING and rolling_p:
+                    # Pas de props DK mais rolling stats dispo → synthétique (comme ancien algo)
+                    rp_k_list = [{"line": synthetic_line, "over_odds": B365_ODDS,
+                                  "over_implied": B365_IMPLIED}]
+                else:
+                    # Ni DK ni rolling stats → partant non confirmé
+                    print(f"    [MLB Skip] {pitcher}: ni ligne DK ni rolling stats — skip")
                     continue
-                # Ajouter lignes entières b365 (Over 4, 5, 6, 7) autour de la projection
-                b365_lines = []
-                low  = max(int(adj_mean) - 1, 2)
-                high = int(adj_mean) + 3
-                for whole in range(low, high + 1):
-                    b365_lines.append({"line": float(whole), "over_odds": B365_ODDS,
-                                       "over_implied": B365_IMPLIED, "_b365": True})
-                dk_lines_set = {e["line"] for e in rp_k_list}
-                rp_k_list = rp_k_list + [e for e in b365_lines if e["line"] not in dk_lines_set]
-                if not rp_k_list:
-                    rp_k_list = [{"line": _estimate_line(adj_mean, "strikeouts"),
-                                  "over_odds": B365_ODDS, "over_implied": B365_IMPLIED}]
 
                 for rp_entry in rp_k_list:
                     line    = rp_entry["line"]
-                    dk_impl = B365_IMPLIED
+                    dk_impl = B365_IMPLIED  # toujours 52.63% — l'implied synthétique qui marchait
                     dk_odds = B365_ODDS
 
                     prob  = _normal_over(adj_mean, std, line)
@@ -649,9 +653,7 @@ class MLBPropsAnalyzer:
 
                     if not (MIN_EDGE <= edge <= MAX_EDGE):
                         continue
-                    # Ne pas filtrer les lignes entières b365 par MAX_DISAGREEMENT_RATIO
-                    # (le ratio est gonflé artificiellement vs 52.63% synthétique)
-                    if not rp_entry.get("_b365") and ratio > MAX_DISAGREEMENT_RATIO:
+                    if ratio > MAX_DISAGREEMENT_RATIO:
                         continue
 
                     ev_bets.append({
