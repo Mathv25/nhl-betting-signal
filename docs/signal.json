@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-06-11T21:57:35.832066+00:00",
+  "generated_at": "2026-06-11T23:19:42.809352+00:00",
   "date": "2026-06-11",
   "bookmaker": "bet365",
   "total_games": 1,
-  "total_value_bets": 1,
+  "total_value_bets": 0,
   "signals": [
     {
       "game": {
@@ -42,57 +42,23 @@
           "totals": {
             "over": {
               "line": 6.5,
-              "odds_decimal": 2.1,
-              "implied_prob": 47.62
+              "odds_decimal": 2.14,
+              "implied_prob": 46.73
             },
             "under": {
               "line": 6.5,
-              "odds_decimal": 1.77,
-              "implied_prob": 56.5
+              "odds_decimal": 1.74,
+              "implied_prob": 57.47
             }
           },
           "player_props": []
         },
         "removed_props": []
       },
-      "edges": [
-        {
-          "edge_pct": 5.19,
-          "edge_raw": 5.19,
-          "kelly_fraction": 1.65,
-          "verdict": "✅ Bonne valeur",
-          "type": "Total buts",
-          "bet": "Under 6.5",
-          "our_prob": 59.4,
-          "b365_implied": 56.5,
-          "b365_odds": 1.77,
-          "game": "Vegas Golden Knights @ Carolina Hurricanes",
-          "note": "Total attendu: 6.1 buts",
-          "context_notes": [
-            "Total attendu: 6.1 buts"
-          ]
-        }
-      ]
+      "edges": []
     }
   ],
-  "value_bets": [
-    {
-      "edge_pct": 5.19,
-      "edge_raw": 5.19,
-      "kelly_fraction": 1.65,
-      "verdict": "✅ Bonne valeur",
-      "type": "Total buts",
-      "bet": "Under 6.5",
-      "our_prob": 59.4,
-      "b365_implied": 56.5,
-      "b365_odds": 1.77,
-      "game": "Vegas Golden Knights @ Carolina Hurricanes",
-      "note": "Total attendu: 6.1 buts",
-      "context_notes": [
-        "Total attendu: 6.1 buts"
-      ]
-    }
-  ],
+  "value_bets": [],
   "props_analysis": [
     {
       "home_team": "Carolina Hurricanes",
@@ -213,7 +179,7 @@
           "shots_adj": 1.5,
           "shots_line": 1.5,
           "shots_prob": 44.2,
-          "shots_edge": -23.1,
+          "shots_edge": -21.8,
           "goals_adj": 0.26,
           "points_adj": 0.59,
           "last5_shots": 11,
@@ -342,38 +308,53 @@
   "nba_analysis": [],
   "mlb_analysis": [
     {
-      "home_team": "Pittsburgh Pirates",
-      "away_team": "Los Angeles Dodgers",
+      "home_team": "Baltimore Orioles",
+      "away_team": "Seattle Mariners",
       "bets": [
         {
-          "player": "Freddie Freeman",
-          "team": "Los Angeles Dodgers",
-          "opponent": "Pittsburgh Pirates",
-          "player_type": "batter",
-          "market": "Buts totaux Over 1.5",
-          "stat_key": "total_bases",
-          "line": 1.5,
-          "season_avg": 2.4,
-          "adj_proj": 2.681,
-          "opp_k_rate": null,
-          "opp_pitcher": "Mitch Keller",
-          "opp_pitcher_k": 4.5,
-          "platoon": "Platoon avantageux (L vs R)",
-          "park_factor": 0.97,
-          "our_prob": 66.9,
-          "edge_pct": 25.0,
-          "kelly": 7.2,
-          "est_odds": 1.87,
-          "dk_implied": 53.5,
+          "player": "Kyle Bradish",
+          "team": "Baltimore Orioles",
+          "opponent": "Seattle Mariners",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.0",
+          "stat_key": "strikeouts",
+          "line": 4.0,
+          "season_avg": 5.5,
+          "adj_proj": 5.27,
+          "opp_k_rate": 20.6,
+          "park_factor": 1.04,
+          "our_prob": 67.1,
+          "edge_pct": 27.5,
+          "kelly": 7.7,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
           "context": [
-            "vs Mitch Keller (4.5 K/dep) — Contact",
-            "Platoon avantageux (L vs R)",
-            "Terrain: Neutre (PF 0.97)",
-            "Confirmer lineup avant de parier"
+            "Terrain: Favorable frappeurs (PF 1.04)"
+          ]
+        },
+        {
+          "player": "Bryan Woo",
+          "team": "Seattle Mariners",
+          "opponent": "Baltimore Orioles",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 6.5",
+          "stat_key": "strikeouts",
+          "line": 6.5,
+          "season_avg": 7.67,
+          "adj_proj": 7.56,
+          "opp_k_rate": 21.2,
+          "park_factor": 1.04,
+          "our_prob": 58.9,
+          "edge_pct": 11.9,
+          "kelly": 3.4,
+          "est_odds": 1.909,
+          "dk_implied": 52.6,
+          "context": [
+            "Terrain: Favorable frappeurs (PF 1.04)"
           ]
         }
       ],
-      "commence_time": "2026-06-11T22:41:00Z"
+      "commence_time": "2026-06-11T23:10:00Z"
     },
     {
       "home_team": "Chicago White Sox",
@@ -408,6 +389,42 @@
         }
       ],
       "commence_time": "2026-06-11T23:41:00Z"
+    },
+    {
+      "home_team": "Pittsburgh Pirates",
+      "away_team": "Los Angeles Dodgers",
+      "bets": [
+        {
+          "player": "Freddie Freeman",
+          "team": "Los Angeles Dodgers",
+          "opponent": "Pittsburgh Pirates",
+          "player_type": "batter",
+          "market": "Buts totaux Over 1.5",
+          "stat_key": "total_bases",
+          "line": 1.5,
+          "season_avg": 2.4,
+          "adj_proj": 2.681,
+          "opp_k_rate": null,
+          "opp_pitcher": "Mitch Keller",
+          "opp_pitcher_k": 4.5,
+          "platoon": "Platoon avantageux (L vs R)",
+          "park_factor": 0.97,
+          "our_prob": 66.9,
+          "edge_pct": 25.0,
+          "kelly": 7.2,
+          "est_odds": 1.87,
+          "dk_implied": 53.5,
+          "context": [
+            "vs Mitch Keller (4.5 K/dep) — Contact",
+            "Platoon avantageux (L vs R)",
+            "Terrain: Neutre (PF 0.97)",
+            "Confirmer lineup avant de parier"
+          ],
+          "status": "started"
+        }
+      ],
+      "commence_time": "2026-06-11T22:41:00Z",
+      "status": "started"
     }
   ],
   "ai_analysis": {}
