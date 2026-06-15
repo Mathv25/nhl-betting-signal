@@ -1,6 +1,42 @@
 {
   "bets": [
     {
+      "id": "2026-06-15|prop_mlb|Walbert Ureña|Retraits au baton Over 4.5",
+      "date": "2026-06-15",
+      "sport": "mlb",
+      "bet_type": "prop",
+      "market_type": "strikeouts",
+      "game": "Los Angeles Angels @ Arizona Diamondbacks",
+      "name": "Walbert Ureña",
+      "team": "Los Angeles Angels",
+      "bet": "Walbert Ureña — Retraits au baton Over 4.5",
+      "line": 4.5,
+      "edge_pct": 28.3,
+      "our_prob": 67.5,
+      "b365_odds": 1.909,
+      "b365_implied": 52.6,
+      "kelly_fraction": 7.9,
+      "result": "?"
+    },
+    {
+      "id": "2026-06-15|prop_mlb|Paul Skenes|Retraits au baton Over 7.0",
+      "date": "2026-06-15",
+      "sport": "mlb",
+      "bet_type": "prop",
+      "market_type": "strikeouts",
+      "game": "Pittsburgh Pirates @ Athletics",
+      "name": "Paul Skenes",
+      "team": "Pittsburgh Pirates",
+      "bet": "Paul Skenes — Retraits au baton Over 7.0",
+      "line": 7.0,
+      "edge_pct": 14.4,
+      "our_prob": 60.2,
+      "b365_odds": 1.909,
+      "b365_implied": 52.6,
+      "kelly_fraction": 4.1,
+      "result": "?"
+    },
+    {
       "id": "2026-06-14|Carolina Hurricanes @ Vegas Golden Knights|Over 5.5",
       "date": "2026-06-14",
       "sport": "nhl",
@@ -13,7 +49,7 @@
       "b365_odds": 1.77,
       "b365_implied": 56.5,
       "kelly_fraction": 2.03,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-14|prop_nhl|Tomas Hertl|Points Over 0.5",
@@ -30,7 +66,7 @@
       "b365_odds": 2.05,
       "b365_implied": 48.8,
       "kelly_fraction": 3.5,
-      "result": "VOID"
+      "result": "L"
     },
     {
       "id": "2026-06-14|prop_nhl|Jordan Staal|Points Over 0.5",
@@ -47,7 +83,7 @@
       "b365_odds": 2.05,
       "b365_implied": 48.8,
       "kelly_fraction": 3.1,
-      "result": "VOID"
+      "result": "L"
     },
     {
       "id": "2026-06-14|prop_mlb|Fernando Tatis Jr.|Buts totaux Over 1.5",
@@ -299,7 +335,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 6.8,
-      "result": "?"
+      "result": "W"
     },
     {
       "id": "2026-06-14|prop_mlb|Connelly Early|Retraits au baton Over 5.5",
@@ -317,7 +353,7 @@
       "b365_odds": 1.909,
       "b365_implied": 52.6,
       "kelly_fraction": 4.4,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-06-13|prop_nba|Devin Vassell|Passes Over 2.5",
@@ -27087,30 +27123,40 @@
     }
   ],
   "summary": {
-    "total": 1264,
-    "wins": 624,
-    "losses": 640,
-    "win_rate": 49.4,
-    "profit": -50.9,
-    "roi": -1.4,
+    "total": 1269,
+    "wins": 625,
+    "losses": 644,
+    "win_rate": 49.3,
+    "profit": -59.21,
+    "roi": -1.6,
     "by_edge": {
       "15+": {
-        "n": 730,
-        "wins": 362,
-        "profit": 59.56
+        "n": 732,
+        "wins": 363,
+        "profit": 59.29
       },
       "8-15": {
-        "n": 474,
+        "n": 476,
         "wins": 231,
-        "profit": -107.23
+        "profit": -113.23
       },
       "5-8": {
-        "n": 60,
+        "n": 61,
         "wins": 31,
-        "profit": -3.24
+        "profit": -5.27
       }
     },
     "by_type": {
+      "nhl_total buts": {
+        "n": 19,
+        "wins": 9,
+        "profit": -2.61
+      },
+      "nhl_points": {
+        "n": 376,
+        "wins": 169,
+        "profit": -45.15
+      },
       "mlb_total_bases": {
         "n": 153,
         "wins": 63,
@@ -27122,9 +27168,9 @@
         "profit": 29.06
       },
       "mlb_strikeouts": {
-        "n": 182,
-        "wins": 95,
-        "profit": -2.52
+        "n": 184,
+        "wins": 96,
+        "profit": -2.79
       },
       "nba_ast": {
         "n": 13,
@@ -27140,16 +27186,6 @@
         "n": 76,
         "wins": 33,
         "profit": -32.74
-      },
-      "nhl_points": {
-        "n": 374,
-        "wins": 169,
-        "profit": -39.15
-      },
-      "nhl_total buts": {
-        "n": 18,
-        "wins": 9,
-        "profit": -0.58
       },
       "nhl_puck line": {
         "n": 109,
@@ -27183,26 +27219,26 @@
       }
     },
     "by_sport": {
+      "nhl": {
+        "n": 705,
+        "wins": 357,
+        "losses": 348,
+        "profit": 65.75
+      },
       "mlb": {
-        "n": 387,
-        "wins": 190,
-        "losses": 197,
-        "profit": -44.77
+        "n": 389,
+        "wins": 191,
+        "losses": 198,
+        "profit": -45.04
       },
       "nba": {
         "n": 175,
         "wins": 77,
         "losses": 98,
         "profit": -79.59
-      },
-      "nhl": {
-        "n": 702,
-        "wins": 357,
-        "losses": 345,
-        "profit": 73.81
       }
     },
     "clv": {},
-    "last_updated": "2026-06-14T21:05:40Z"
+    "last_updated": "2026-06-15T09:55:53Z"
   }
 }
