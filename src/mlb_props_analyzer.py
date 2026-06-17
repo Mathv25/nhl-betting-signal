@@ -644,7 +644,7 @@ class MLBPropsAnalyzer:
 
                 for rp_entry in rp_k_list:
                     line    = rp_entry["line"]
-                    dk_impl = B365_IMPLIED  # toujours 52.63% — l'implied synthétique qui marchait
+                    dk_impl = max(B365_IMPLIED, rp_entry.get("over_implied", B365_IMPLIED))  # max(52.63%, DK) — évite les lignes à 1.27
                     dk_odds = B365_ODDS
 
                     prob  = _normal_over(adj_mean, std, line)
@@ -748,7 +748,7 @@ class MLBPropsAnalyzer:
 
                     for rp_entry in rp_list:
                         line    = rp_entry["line"]
-                        dk_impl = B365_IMPLIED
+                        dk_impl = max(B365_IMPLIED, rp_entry.get("over_implied", B365_IMPLIED))
                         dk_odds = B365_ODDS
                         prob    = _normal_over(adj_mean, std, line)
                         edge    = _edge(prob, dk_impl)
