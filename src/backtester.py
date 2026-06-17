@@ -611,6 +611,20 @@ def get_mlb_game_pk(home_team: str, away_team: str, target_date: str) -> Optiona
     return None
 
 
+def _is_game_final(game_pk: int) -> bool:
+    """Vérifie si le match est terminé (Final) avant de résoudre."""
+    data = _get(f"{MLB_API}/game/{game_pk}/linescore")
+    if not data:
+        return False
+    state = data.get("currentInningOrdinal","")
+    # Also check via schedule for game state
+    game_data = _get(f"{MLB_API}/game/{game_pk}/feed/live", {"fields": "gameData,status"})
+    if game_data:
+        state_code = game_data.get("gameData", {}).get("status", {}).get("abstractGameState", "")
+        return state_code == "Final"
+    return False
+
+
 def resolve_mlb_prop(prop: dict, target_date: str) -> Optional[str]:
     """Resout un prop MLB via le boxscore MLB Stats API."""
     player    = prop.get("player", "")
@@ -625,6 +639,10 @@ def resolve_mlb_prop(prop: dict, target_date: str) -> Optional[str]:
     game_pk = get_mlb_game_pk(game_home, game_away, target_date)
     if not game_pk:
         print(f"    ⚠ Game MLB introuvable: {game_away} @ {game_home} ({target_date})")
+        return None
+
+    if not _is_game_final(game_pk):
+        print(f"    ⏳ Match pas encore Final: gamePk={game_pk} → retry plus tard")
         return None
 
     time.sleep(0.5)
