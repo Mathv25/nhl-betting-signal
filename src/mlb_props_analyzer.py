@@ -41,8 +41,8 @@ LINE_OFFSET = {
 
 STAT_CONFIGS = [
     {"key": "strikeouts",  "label": "Retraits au baton", "min_avg": 5.0,  "player_type": "pitcher"},
-    {"key": "hits",        "label": "Coups surs",        "min_avg": 0.9,  "player_type": "batter",  "convergence": 2},
-    {"key": "total_bases", "label": "Buts totaux",       "min_avg": 1.5,  "player_type": "batter",  "convergence": 2},
+    {"key": "hits",        "label": "Coups surs",        "min_avg": 0.9,  "player_type": "batter",  "convergence": 1},
+    {"key": "total_bases", "label": "Buts totaux",       "min_avg": 1.5,  "player_type": "batter",  "convergence": 1},
     {"key": "home_runs",   "label": "Home Run",          "min_avg": 0.10, "player_type": "batter",  "convergence": 1},
     {"key": "runs_scored", "label": "Runs marques",      "min_avg": 0.55, "player_type": "batter",  "convergence": 1},
 ]
@@ -366,7 +366,11 @@ def _estimate_line(mean: float, stat_key: str) -> float:
 
 
 def _std(mean: float, stat_key: str) -> float:
-    return max(mean * STD_FLOOR.get(stat_key, 0.35), 0.5)
+    floor = STD_FLOOR.get(stat_key, 0.35)
+    # Pitchers élites (>8 K/dep): variance plus faible, performances plus stables
+    if stat_key == "strikeouts" and mean > 8.0:
+        floor = floor * 0.70
+    return max(mean * floor, 0.5)
 
 
 def _normal_over(mean: float, std: float, line: float) -> float:
@@ -577,20 +581,36 @@ class MLBPropsAnalyzer:
                         except Exception:
                             pass
 
-                stats  = MLB_PITCHERS.get(pitcher, {})
-                mean_k = stats.get("strikeouts", 0.0)
-
-                # Remplacer par stats rolling si disponibles
-                static_k = mean_k
+                # Ne pas utiliser la valeur statique du dict — trop souvent obsolète
+                # Priorité: rolling stats (MLB API) > ligne DK > skip
+                mean_k = None
+                rolling_p = None
+                dk_k_lines_tmp = []
                 if HAS_MLB_ROLLING:
                     rolling_p = _mlb_pitcher_rolling(pitcher)
                     if rolling_p and rolling_p.get("games", 0) >= 2:
                         mean_k = rolling_p["strikeouts"]
-                        print(f"    [MLB Dict] {pitcher}: rolling={mean_k:.1f}K ({rolling_p['games']} dep) static={static_k}")
+
+                if mean_k is None:
+                    # Pas de rolling stats → utiliser la ligne DK médiane comme proxy
+                    dk_k_lines_tmp = real_lkp.get(pitcher.lower(), {}).get("strikeouts", [])
+                    if not dk_k_lines_tmp:
+                        last_tmp = pitcher.lower().split()[-1]
+                        for k_, v_ in real_lkp.items():
+                            if k_.split()[-1] == last_tmp and "strikeouts" in v_:
+                                dk_k_lines_tmp = v_["strikeouts"]
+                                break
+                    if dk_k_lines_tmp:
+                        mid_idx = len(dk_k_lines_tmp) // 2
+                        mean_k = dk_k_lines_tmp[mid_idx]["line"]
                     else:
-                        print(f"    [MLB Dict] {pitcher}: static={mean_k:.1f}K (rolling indispo)")
-                else:
-                    print(f"    [MLB Dict] {pitcher}: static={mean_k:.1f}K")
+                        print(f"    [MLB Skip] {pitcher}: ni rolling stats ni ligne DK → skip")
+                        continue
+
+                if HAS_MLB_ROLLING and rolling_p and rolling_p.get("games", 0) >= 2:
+                    print(f"    [MLB Dict] {pitcher}: rolling={mean_k:.1f}K ({rolling_p['games']} dep)")
+                elif dk_k_lines_tmp:
+                    print(f"    [MLB Dict] {pitcher}: DK line={mean_k:.1f}K (rolling indispo)")
 
                 if mean_k < cfg_k["min_avg"]:
                     print(f"      → Filtré: {mean_k:.1f} < min {cfg_k['min_avg']}")
@@ -644,6 +664,10 @@ class MLBPropsAnalyzer:
 
                 for rp_entry in rp_k_list:
                     line    = rp_entry["line"]
+                    # Skip si DK price cette ligne comme favori (>58% impl) → ligne trop basse
+                    dk_over_impl = rp_entry.get("over_implied", B365_IMPLIED)
+                    if dk_over_impl > 58.0:
+                        continue
                     dk_impl = max(B365_IMPLIED, rp_entry.get("over_implied", B365_IMPLIED))  # max(52.63%, DK) — évite les lignes à 1.27
                     dk_odds = B365_ODDS
 
@@ -748,6 +772,10 @@ class MLBPropsAnalyzer:
 
                     for rp_entry in rp_list:
                         line    = rp_entry["line"]
+                        # Skip si DK price cette ligne comme favori (>58% impl) → ligne trop basse
+                        dk_over_impl = rp_entry.get("over_implied", B365_IMPLIED)
+                        if dk_over_impl > 58.0:
+                            continue
                         dk_impl = max(B365_IMPLIED, rp_entry.get("over_implied", B365_IMPLIED))
                         dk_odds = B365_ODDS
                         prob    = _normal_over(adj_mean, std, line)
