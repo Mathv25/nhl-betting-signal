@@ -1351,10 +1351,44 @@ def save_pending_from_signal():
             except Exception:
                 pass
 
-    if added > 0 or voided_existing > 0:
+    # Re-verifier les bets MLB W/L des 2 derniers jours: corriger les resolutions
+    # faites en cours de partie (avant le fix _is_game_final()). Tourne a chaque
+    # run --save-pending, idempotent si le resultat est deja correct.
+    import pytz as _pytz
+    _tz_et       = _pytz.timezone("America/Toronto")
+    _recent_cut  = (datetime.now(_tz_et).date() - timedelta(days=2)).isoformat()
+    recheck_count = 0
+    for _bet in results_data["bets"]:
+        if (_bet.get("result") not in ("W", "L")
+                or _bet.get("sport") != "mlb"
+                or _bet.get("date", "") < _recent_cut):
+            continue
+        _home, _away = _parse_game_str(_bet.get("game", ""))
+        _bet_str     = _bet.get("bet", "")
+        _market      = _bet_str.split(" — ", 1)[1].strip() if " — " in _bet_str else ""
+        _prop = {
+            "player":     _bet.get("name", ""),
+            "stat_key":   _bet.get("market_type", ""),
+            "line":       _bet.get("line", 0),
+            "market":     _market,
+            "_game_home": _home,
+            "_game_away": _away,
+        }
+        try:
+            _new = resolve_mlb_prop(_prop, _bet.get("date", ""))
+        except Exception:
+            _new = None
+        if _new in ("W", "L", "VOID") and _new != _bet["result"]:
+            print(f"  [Recheck] {_bet.get('name','')} {_bet.get('market_type','')} "
+                  f"{_bet['result']} → {_new}")
+            _bet["result"] = _new
+            recheck_count += 1
+
+    if added > 0 or voided_existing > 0 or recheck_count > 0:
         results_data["summary"] = compute_summary(results_data["bets"])
         save_results(results_data)
-        print(f"  [Pending] {added} nouveau(x) | {voided_existing} VOID pour {signal_date}")
+        print(f"  [Pending] {added} nouveau(x) | {voided_existing} VOID | "
+              f"{recheck_count} rechecks pour {signal_date}")
     else:
         print(f"  [Pending] Aucun changement pour {signal_date}")
 
