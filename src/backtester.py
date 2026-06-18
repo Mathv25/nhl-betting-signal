@@ -613,15 +613,18 @@ def get_mlb_game_pk(home_team: str, away_team: str, target_date: str) -> Optiona
 
 def _is_game_final(game_pk: int) -> bool:
     """Vérifie si le match est terminé (Final) avant de résoudre."""
-    data = _get(f"{MLB_API}/game/{game_pk}/linescore")
-    if not data:
-        return False
-    state = data.get("currentInningOrdinal","")
-    # Also check via schedule for game state
+    # Essayer le live feed en premier (disponible durant et juste après la partie)
     game_data = _get(f"{MLB_API}/game/{game_pk}/feed/live", {"fields": "gameData,status"})
     if game_data:
         state_code = game_data.get("gameData", {}).get("status", {}).get("abstractGameState", "")
         return state_code == "Final"
+    # Fallback: schedule API (live feed expire ~24h après la fin de la partie)
+    sched = _get(f"{MLB_API}/schedule", {"sportId": 1, "gamePk": game_pk})
+    if sched:
+        for d in sched.get("dates", []):
+            for g in d.get("games", []):
+                state = g.get("status", {}).get("abstractGameState", "")
+                return state == "Final"
     return False
 
 
