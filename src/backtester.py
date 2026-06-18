@@ -1213,15 +1213,19 @@ def save_pending_from_signal():
     tz_et = pytz.timezone("America/Toronto")
     today_et = datetime.now(tz_et).strftime("%Y-%m-%d")
 
-    # Charger les lineups MLB confirmes du jour (pour marquer VOID les absents)
-    _mlb_lineups = {}
+    # Charger les lineups et partants MLB confirmes du jour
+    _mlb_lineups   = {}
+    _prob_starters = {}
     try:
         import sys as _sys, os as _os
         _src = _os.path.dirname(_os.path.abspath(__file__))
         if _src not in _sys.path:
             _sys.path.insert(0, _src)
-        from mlb_starters import fetch_confirmed_lineups, is_in_lineup as _is_in_lineup
-        _mlb_lineups = fetch_confirmed_lineups()
+        from mlb_starters import (fetch_confirmed_lineups, is_in_lineup as _is_in_lineup,
+                                   fetch_probable_starters, get_starter_for_team,
+                                   TEAM_NAME_MAP as _TNMAP)
+        _mlb_lineups   = fetch_confirmed_lineups()
+        _prob_starters = fetch_probable_starters(today_et)
     except Exception:
         pass
 
@@ -1351,6 +1355,33 @@ def save_pending_from_signal():
                     bet["result"] = "VOID"
                     voided_existing += 1
                     print(f"  [Pending] {player} absent lineup confirme → VOID (update)")
+            except Exception:
+                pass
+
+    # Verifier lanceurs: voider les props K si le joueur n'est plus le partant probable
+    if _prob_starters:
+        for bet in results_data["bets"]:
+            if (bet.get("result") != "?"
+                    or bet.get("sport") != "mlb"
+                    or bet.get("market_type") != "strikeouts"
+                    or bet.get("date") != signal_date):
+                continue
+            player = bet.get("name", "")
+            team   = bet.get("team", "")
+            if not player or not team:
+                continue
+            try:
+                game_str  = bet.get("game", "")
+                parts     = game_str.split(" @ ") if " @ " in game_str else ["", ""]
+                _g_away, _g_home = parts[0].strip(), parts[1].strip()
+                opponent  = _g_home if team == _g_away else _g_away
+                norm_team = _TNMAP.get(team, team)
+                norm_opp  = _TNMAP.get(opponent, opponent)
+                starter   = get_starter_for_team(norm_team, norm_opp, _prob_starters)
+                if starter is not None and not _player_name_match(player, starter):
+                    bet["result"] = "VOID"
+                    voided_existing += 1
+                    print(f"  [Starters] {player} remplacé par {starter} → VOID")
             except Exception:
                 pass
 
