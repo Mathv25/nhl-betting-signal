@@ -828,6 +828,7 @@ def retry_unresolved(results_data: dict, max_days: int = 30) -> int:
     Groupe par date et sport pour minimiser les appels API.
     Retourne le nombre de bets nouvellement resolus.
     """
+    import pytz
     from datetime import date as date_cls, timedelta
 
     cutoff    = (datetime.utcnow().date() - timedelta(days=max_days)).isoformat()
@@ -835,6 +836,20 @@ def retry_unresolved(results_data: dict, max_days: int = 30) -> int:
         b for b in results_data["bets"]
         if b.get("result") == "?" and b.get("date", "") >= cutoff
     ]
+
+    # Re-verifier aussi les bets MLB W/L des 2 derniers jours: avant le fix
+    # _is_game_final(), des bets etaient resolus en cours de partie (stats partielles).
+    # On re-resout pour corriger — idempotent si le resultat est deja bon.
+    tz_et     = pytz.timezone("America/Toronto")
+    recent_cutoff = (datetime.now(tz_et).date() - timedelta(days=2)).isoformat()
+    pending_ids   = {id(b) for b in pending}
+    for b in results_data["bets"]:
+        if (b.get("result") in ("W", "L")
+                and b.get("sport") == "mlb"
+                and b.get("date", "") >= recent_cutoff
+                and id(b) not in pending_ids):
+            pending.append(b)
+            pending_ids.add(id(b))
 
     if not pending:
         print(f"  Aucun bet en attente dans les {max_days} derniers jours.")
