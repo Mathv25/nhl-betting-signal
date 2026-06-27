@@ -154,27 +154,43 @@ def main():
             analysis["commence_time"] = mg.get("commence_time", "")
             mlb_analysis.append(analysis)
 
-    # Récupérer les bets des matchs commencés récemment (≤4h) depuis le signal précédent
+    # Récupérer depuis le signal précédent les matchs:
+    #   - pas encore commencés (pas encore dans l'API Odds) → conserve tel quel
+    #   - commencés depuis ≤ 2.5h (API Odds les retire dès le début) → marque "started"
+    #   - commencés depuis > 2.5h → ignorés (partie probablement terminée)
     try:
         with open("../docs/signal.json", encoding="utf-8") as f:
             prev = json.load(f)
         now_utc = datetime.now(timezone.utc)
+        prev_date = prev.get("date", "")
         already = {(g.get("home_team"), g.get("away_team")) for g in mlb_analysis}
         for pg in prev.get("mlb_analysis", []):
             ct = pg.get("commence_time", "")
-            if not ct:
+            if not ct or not pg.get("bets"):
                 continue
             game_dt   = datetime.fromisoformat(ct.replace("Z", "+00:00"))
             hours_ago = (now_utc - game_dt).total_seconds() / 3600
             key = (pg.get("home_team"), pg.get("away_team"))
-            if 0 < hours_ago <= 4 and key not in already and pg.get("bets"):
+            if key in already:
+                continue
+            # Partie du même jour ET seulement (évite de trainer des vieux matchs)
+            if game_dt.astimezone(tz).strftime("%Y-%m-%d") != today_et and prev_date != today_et:
+                continue
+            if hours_ago <= 0:
+                # Pas encore commencée — l'API Odds ne l'a pas retournée, conserve
+                mlb_analysis.append(pg)
+                print(f"  [Conservé-futur] {pg.get('away_team')} @ {pg.get('home_team')} (dans {abs(hours_ago):.1f}h)")
+            elif hours_ago <= 2.5:
+                # En cours — marque started
                 for b in pg["bets"]:
                     b["status"] = "started"
                 pg["status"] = "started"
                 mlb_analysis.append(pg)
-                print(f"  [Conservé] {pg.get('away_team')} @ {pg.get('home_team')} (débuté il y a {hours_ago:.1f}h)")
-    except Exception:
-        pass
+                print(f"  [Conservé-en-cours] {pg.get('away_team')} @ {pg.get('home_team')} (débuté il y a {hours_ago:.1f}h)")
+            else:
+                print(f"  [Expiré] {pg.get('away_team')} @ {pg.get('home_team')} (débuté il y a {hours_ago:.1f}h → ignoré)")
+    except Exception as e:
+        print(f"  [Conservation prev signal] erreur: {e}")
 
     # ── 6. Vérification: au moins un sport a du contenu ───────────────────────
     has_content = games or nba_games or mlb_games
