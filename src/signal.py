@@ -140,15 +140,48 @@ def main():
     print("\nAnalyse MLB props...")
     mlb_fetcher  = MLBOddsFetcher(api_key)
     mlb_analyzer = MLBPropsAnalyzer()
-    mlb_games    = [g for g in mlb_fetcher.get_mlb_games() if is_today(g.get("commence_time", ""))]
+
+    # Étape 1: matchs avec cotes DK (API Odds — retire les matchs dès qu'ils commencent)
+    mlb_games_odds = [g for g in mlb_fetcher.get_mlb_games() if is_today(g.get("commence_time", ""))]
+    odds_keys      = {(g["home_team"], g["away_team"]) for g in mlb_games_odds}
+
+    # Étape 2: TOUS les matchs du jour via MLB Stats API (schedule) — inclut les 13h, etc.
+    import requests as _req
+    mlb_schedule_games = []
+    try:
+        _sched = _req.get("https://statsapi.mlb.com/api/v1/schedule",
+                          params={"sportId": 1, "date": today_et, "hydrate": "team"},
+                          timeout=10).json()
+        for _d in _sched.get("dates", []):
+            for _g in _d.get("games", []):
+                _state = _g.get("status", {}).get("abstractGameState", "")
+                if _state == "Final":
+                    continue  # partie terminée, skip
+                _home = _g.get("teams", {}).get("home", {}).get("team", {}).get("name", "")
+                _away = _g.get("teams", {}).get("away", {}).get("team", {}).get("name", "")
+                _ct   = _g.get("gameDate", "")
+                if (_home, _away) not in odds_keys:
+                    mlb_schedule_games.append({
+                        "event_id":      "",
+                        "home_team":     _home,
+                        "away_team":     _away,
+                        "commence_time": _ct,
+                        "_no_odds":      True,
+                    })
+        print(f"  {len(mlb_games_odds)} partie(s) avec cotes DK + {len(mlb_schedule_games)} sans cotes (MLB schedule)")
+    except Exception as _e:
+        print(f"  MLB schedule fallback erreur: {_e}")
+
+    mlb_games    = mlb_games_odds + mlb_schedule_games
     mlb_analysis = []
-    print(f"  {len(mlb_games)} partie(s) MLB aujourd'hui ({today_et})")
-    for mg in mlb_games[:10]:
+    print(f"  {len(mlb_games)} partie(s) MLB total aujourd'hui ({today_et})")
+    for mg in mlb_games[:15]:
         props_by_market = {}
-        for market in ["pitcher_strikeouts", "batter_hits", "batter_total_bases", "batter_home_runs", "batter_runs_scored"]:
-            props = mlb_fetcher.get_player_props(mg["event_id"], market)
-            if props:
-                props_by_market[market] = props
+        if not mg.get("_no_odds"):
+            for market in ["pitcher_strikeouts", "batter_hits", "batter_total_bases", "batter_home_runs", "batter_runs_scored"]:
+                props = mlb_fetcher.get_player_props(mg["event_id"], market)
+                if props:
+                    props_by_market[market] = props
         analysis = mlb_analyzer.analyze_game(mg, props_by_market if props_by_market else None)
         if analysis.get("bets"):
             analysis["commence_time"] = mg.get("commence_time", "")
