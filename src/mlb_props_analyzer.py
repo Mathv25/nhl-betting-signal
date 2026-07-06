@@ -1,16 +1,16 @@
 """
 MLB Props Analyzer
-Marches: pitcher_strikeouts (priorite #1), batter_hits, batter_total_bases
+Marches: pitcher_strikeouts UNIQUEMENT (seul marche profitable — WR 59%+, ROI +13%)
+Retires: batter_hits (WR 45%, ROI -10%), batter_total_bases (WR 37%, ROI -24%),
+         batter_runs_scored (non resolvable par le backtester)
+Edge minimum: 12% (anciennement 8%) — filtre volume/qualite
 
 Meilleures pratiques integrees:
   1. Props lanceurs = marche le plus predictible du baseball (K rate stable)
   2. Ajustement taux K adverse (equipe qui frappe mal = avantage lanceur)
-  3. Ajustement lanceur adverse sur props frappeurs (K/depart du partant oppose)
-  4. Splits main dominante (platoon L/R) — impact significatif sur AVG/OBP
-  5. Park factors (Coors +runs, Oracle Park -runs)
-  6. Distribution normale calibree MLB (variance plus haute que NBA)
-  7. Critere de Kelly fractionne (1/4) pour gestion du risque
-  8. Note de confirmation de lineup (essentiel en MLB)
+  3. Park factors (Coors +runs, Oracle Park -runs)
+  4. Distribution normale calibree MLB
+  5. Critere de Kelly fractionne (1/4) pour gestion du risque
 """
 
 import math
@@ -41,13 +41,9 @@ LINE_OFFSET = {
 
 STAT_CONFIGS = [
     {"key": "strikeouts",  "label": "Retraits au baton", "min_avg": 5.0,  "player_type": "pitcher"},
-    {"key": "hits",        "label": "Coups surs",        "min_avg": 0.9,  "player_type": "batter",  "convergence": 1},
-    {"key": "total_bases", "label": "Buts totaux",       "min_avg": 1.5,  "player_type": "batter",  "convergence": 1},
-    {"key": "home_runs",   "label": "Home Run",          "min_avg": 0.10, "player_type": "batter",  "convergence": 1},
-    {"key": "runs_scored", "label": "Runs marques",      "min_avg": 0.55, "player_type": "batter",  "convergence": 1},
 ]
 
-MIN_EDGE   = 8.0   # Entre ancien 10% et récent 6% — bon équilibre volume/précision
+MIN_EDGE   = 12.0  # Relevé de 8% → 12% — filtre les bets faible conviction (WR 30% sous 12%)
 MAX_EDGE   = 35.0
 B365_IMPLIED = 52.63  # ~1.909 cotes b365 standard — référence fixe (algo 70% WR)
 B365_ODDS    = 1.909
