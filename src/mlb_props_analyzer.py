@@ -400,43 +400,54 @@ def _kelly(prob: float, dk_implied: float = B365_IMPLIED, dk_odds: float = B365_
     return round(max(k, 0.0), 1)
 
 
-# Cotes bet365 typiques par K total exact — basées sur les marchés réels observés
-# Format: {k_total: (odds, implied_pct)}
-B365_K_CURVE = {
-    3:  (1.22, 82.0),
-    4:  (1.48, 67.6),
-    5:  (1.80, 55.6),
-    6:  (2.10, 47.6),
-    7:  (2.60, 38.5),
-    8:  (3.20, 31.3),
-    9:  (4.00, 25.0),
-    10: (5.00, 20.0),
-}
-
-def _k_optimal_line(adj_mean: float, std: float, context: list) -> dict | None:
+def _k_curve(adj_mean: float, std: float) -> list:
     """
-    Génère la courbe de probabilité pour K >= N (N=3 à 10) et retourne
-    la ligne avec le meilleur edge contre les cotes bet365 attendues.
-    Retourne None si aucune ligne n'a d'edge >= MIN_EDGE.
+    Génère la courbe de probabilité pour K >= N (N=3 à 10).
+    On n'invente PAS les cotes bet365 — elles varient par lanceur.
+    L'utilisateur compare nos prob% contre ce qu'il voit sur bet365.
     """
-    best = None
     curve = []
-    for k, (odds, b365_impl) in sorted(B365_K_CURVE.items()):
+    for k in range(3, 11):
         prob = _normal_over(adj_mean, std, k - 0.5)  # P(K >= k) = P(K > k-0.5)
-        edge = round((prob - b365_impl) / b365_impl * 100, 1)
-        kelly = _kelly(prob, b365_impl, odds)
         curve.append({
-            "line":      k - 0.5,    # format Over X.5 pour cohérence backtester
-            "k_exact":   k,          # "Over 4 K" affiché à l'utilisateur
-            "odds":      odds,
-            "b365_impl": b365_impl,
-            "prob":      prob,
-            "edge":      edge,
-            "kelly":     kelly,
+            "line":    k - 0.5,   # format Over X.5 pour cohérence backtester
+            "k_exact": k,
+            "prob":    prob,
         })
-        if edge >= MIN_EDGE and (best is None or edge > best["edge"]):
-            best = curve[-1]
-    return best, curve
+    return curve
+
+
+def _k_best_line(adj_mean: float, std: float) -> dict | None:
+    """
+    Retourne la ligne recommandée: celle juste sous la projection
+    (probabilité ~60-70%) — le sweet spot entre sécurité et valeur.
+    On utilise une ligne synthétique standard, pas les cotes DK.
+    """
+    # Ligne recommandée = floor(proj) → P(K >= floor(proj)) ~55-65%
+    target_k = max(3, int(adj_mean))
+    curve = _k_curve(adj_mean, std)
+    best = None
+    for c in curve:
+        if c["k_exact"] == target_k:
+            best = c
+            break
+    # Si pas trouvé ou prob trop basse, prendre floor-1
+    if best is None or best["prob"] < 50:
+        for c in curve:
+            if c["k_exact"] == max(3, target_k - 1):
+                best = c
+                break
+    if best is None:
+        return None
+    return {
+        "line":      best["line"],
+        "k_exact":   best["k_exact"],
+        "prob":      best["prob"],
+        "est_odds":  B365_ODDS,
+        "dk_implied": B365_IMPLIED,
+        "kelly":     _kelly(best["prob"], B365_IMPLIED, B365_ODDS),
+        "edge":      _edge(best["prob"], B365_IMPLIED),
+    }
 
 
 def _park_label(pf: float) -> str:
@@ -666,20 +677,14 @@ class MLBPropsAnalyzer:
                     context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
 
                 # ── Ligne optimale via courbe bet365 ───────────────────────────
-                # On choisit nous-mêmes le K optimal basé sur notre projection
-                # vs les cotes bet365 typiques — indépendant de la ligne DK
-                best, curve = _k_optimal_line(adj_mean, std, context)
+                # Ligne recommandée basée sur notre projection (pas les cotes DK)
+                best = _k_best_line(adj_mean, std)
                 if best is None:
-                    print(f"    [MLB Skip] {pitcher}: aucune ligne avec edge >= {MIN_EDGE}% (proj={adj_mean:.1f}K)")
                     continue
-
-                # Afficher la courbe complète pour debug
-                curve_str = " | ".join(
-                    f"K≥{c['k_exact']}:{c['prob']:.0f}%@{c['odds']}" for c in curve
-                    if 3 <= c["k_exact"] <= 9
-                )
+                curve = _k_curve(adj_mean, std)
+                curve_str = " | ".join(f"K≥{c['k_exact']}:{c['prob']:.0f}%" for c in curve if 3 <= c["k_exact"] <= 9)
                 print(f"    [MLB Courbe] {pitcher}: {curve_str}")
-                print(f"    [MLB BET]   {pitcher}: Over {best['k_exact']-1}.5 K → edge {best['edge']:.1f}% @ {best['odds']}")
+                print(f"    [MLB BET]   {pitcher}: Over {best['k_exact']-1}.5 K — prob {best['prob']:.0f}% (proj {adj_mean:.1f}K)")
 
                 ev_bets.append({
                     "player":        pitcher,
@@ -696,8 +701,8 @@ class MLBPropsAnalyzer:
                     "our_prob":      best["prob"],
                     "edge_pct":      best["edge"],
                     "kelly":         best["kelly"],
-                    "est_odds":      best["odds"],
-                    "dk_implied":    best["b365_impl"],
+                    "est_odds":      best["est_odds"],
+                    "dk_implied":    best["dk_implied"],
                     "k_curve":       curve,   # courbe complète pour affichage frontend
                     "context":       context,
                 })
@@ -766,12 +771,12 @@ class MLBPropsAnalyzer:
                     park_lbl = _park_label(park_factor)
                     if park_factor != 1.00:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
-                    # Ligne optimale via courbe bet365
-                    best, curve = _k_optimal_line(adj_mean, std, context)
+                    # Ligne recommandée via notre projection
+                    best = _k_best_line(adj_mean, std)
                     if best is None:
-                        print(f"    [MLB Skip Hors Dict] {display}: aucune ligne avec edge >= {MIN_EDGE}%")
                         continue
-                    print(f"    [MLB Hors Dict] {display} Over {best['k_exact']-1}.5 K proj {adj_mean:.1f} → Edge +{best['edge']:.1f}%")
+                    curve = _k_curve(adj_mean, std)
+                    print(f"    [MLB Hors Dict] {display} Over {best['k_exact']-1}.5 K proj {adj_mean:.1f} — prob {best['prob']:.0f}%")
                     ev_bets.append({
                         "player": display, "team": team, "opponent": opp,
                         "player_type": "pitcher",
@@ -782,7 +787,7 @@ class MLBPropsAnalyzer:
                         "park_factor": park_factor, "our_prob": best["prob"],
                         "edge_pct": best["edge"],
                         "kelly": best["kelly"],
-                        "est_odds": best["odds"], "dk_implied": best["b365_impl"],
+                        "est_odds": best["est_odds"], "dk_implied": best["dk_implied"],
                         "k_curve": curve,
                         "context": context,
                     })

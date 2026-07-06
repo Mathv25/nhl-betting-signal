@@ -637,30 +637,35 @@ class ReportGenerator:
                     "<div class='mlb-stat'><span>1/4 Kelly</span><strong>" + str(kelly) + "% BR</strong></div>"
                     "</div>"
                 )
-                # Courbe K complète (pour props lanceurs seulement)
+                # Courbe K — probs par niveau + calculateur d'edge interactif
                 k_curve = b.get("k_curve", [])
                 if k_curve and player_type == "pitcher":
-                    html += "<div class='mlb-k-curve'><span class='mlb-k-curve-title'>Courbe K bet365</span>"
+                    cid = player.replace(" ","_")
+                    html += "<div class='mlb-k-curve'><span class='mlb-k-curve-title'>Prob K — cliquer un niveau puis entrer la cote bet365</span>"
                     for kc in k_curve:
                         k = kc.get("k_exact", 0)
                         if k < 3 or k > 10:
                             continue
-                        kc_edge = kc.get("edge", 0)
                         is_best = abs(kc.get("line", 0) - b.get("line", 0)) < 0.1
-                        kc_col  = "#0F6E56" if kc_edge >= 12 else ("#BA7517" if kc_edge >= 0 else "#9CA3AF")
-                        kc_bg   = "rgba(15,110,86,0.12)" if is_best else "transparent"
-                        kc_bdr  = "2px solid #0F6E56" if is_best else "1px solid #E5E7EB"
+                        kc_bg  = "rgba(15,110,86,0.12)" if is_best else "transparent"
+                        kc_bdr = "2px solid #0F6E56" if is_best else "1px solid #E5E7EB"
+                        prob   = kc.get("prob", 0)
                         html += (
-                            "<div class='mlb-k-cell' style='border:" + kc_bdr + ";background:" + kc_bg + "'>"
+                            "<div class='mlb-k-cell' style='border:" + kc_bdr + ";background:" + kc_bg
+                            + ";cursor:pointer' onclick=\"mlbCalcSel('" + cid + "'," + str(k) + "," + str(prob) + ")\">"
                             "<div class='mlb-k-num'>K≥" + str(k) + "</div>"
-                            "<div class='mlb-k-prob'>" + str(kc.get("prob", 0)) + "%</div>"
-                            "<div class='mlb-k-odds' style='color:" + kc_col + "'>"
-                            + str(kc.get("odds", 0)) + "</div>"
-                            "<div class='mlb-k-edge' style='color:" + kc_col + "'>"
-                            + ("+" if kc_edge >= 0 else "") + str(kc_edge) + "%</div>"
+                            "<div class='mlb-k-prob'>" + str(prob) + "%</div>"
                             "</div>"
                         )
-                    html += "</div>"
+                    html += (
+                        "</div>"
+                        "<div class='mlb-k-calc' id='kc-" + cid + "' style='display:none'>"
+                        "K≥<b id='kc-k-" + cid + "'></b> · Notre prob: <b id='kc-p-" + cid + "'></b>% · "
+                        "Cote bet365: <input id='kc-i-" + cid + "' class='mlb-k-odds-input' type='number' "
+                        "step='0.01' min='1.01' placeholder='ex: 1.41' oninput=\"mlbCalcEdge('" + cid + "')\"> "
+                        "<b id='kc-e-" + cid + "'></b>"
+                        "</div>"
+                    )
                 for note in context[:2]:
                     html += "<div class='mlb-note'>" + note + "</div>"
                 html += "</div>"
@@ -856,6 +861,24 @@ class ReportGenerator:
             "function renderAll(d){"
             "renderHeaderGrid(d);renderSignalTab(d);renderPropsTab(d);renderNBATab(d);renderMLBTab(d);}"
 
+            "function mlbCalcSel(cid,k,prob){"
+            "var el=document.getElementById('kc-'+cid);if(!el)return;"
+            "el.style.display='flex';"
+            "document.getElementById('kc-k-'+cid).textContent=k;"
+            "document.getElementById('kc-p-'+cid).textContent=prob;"
+            "document.getElementById('kc-i-'+cid).value='';"
+            "document.getElementById('kc-e-'+cid).textContent='';}"
+
+            "function mlbCalcEdge(cid){"
+            "var p=parseFloat(document.getElementById('kc-p-'+cid).textContent);"
+            "var o=parseFloat(document.getElementById('kc-i-'+cid).value);"
+            "var el=document.getElementById('kc-e-'+cid);"
+            "if(!o||o<=1){el.textContent='';return;}"
+            "var impl=1/o*100;"
+            "var edge=((p-impl)/impl*100).toFixed(1);"
+            "var col=edge>0?'#0F6E56':'#DC2626';"
+            "el.innerHTML='<b style=\"color:'+col+'\">'+(edge>0?'+':'')+edge+'% edge</b> (b365 impl '+impl.toFixed(1)+'%)';}"
+
             "function renderHeaderGrid(d){"
             "var el;"
             "el=document.getElementById('stat-date');if(el)el.textContent=d.date||'';"
@@ -1044,20 +1067,24 @@ class ReportGenerator:
             "h+='<div class=\"mlb-stat\"><span>1/4 Kelly</span><strong>'+(b.kelly||0)+'% BR</strong></div>';"
             "h+='</div>';"
             "var kc=b.k_curve||[];if(kc.length&&b.player_type==='pitcher'){"
-            "h+='<div class=\"mlb-k-curve\"><span class=\"mlb-k-curve-title\">Courbe K bet365</span>';"
+            "var cid=b.player.replace(/ /g,'_');"
+            "h+='<div class=\"mlb-k-curve\"><span class=\"mlb-k-curve-title\">Prob K — cliquer un niveau puis entrer la cote bet365</span>';"
             "kc.forEach(function(c){"
             "var k=c.k_exact||0;if(k<3||k>10)return;"
             "var isBest=Math.abs((c.line||0)-(b.line||0))<0.1;"
-            "var ce=c.edge||0;var col=ce>=12?'#0F6E56':ce>=0?'#BA7517':'#9CA3AF';"
             "var bg=isBest?'rgba(15,110,86,0.12)':'transparent';"
             "var bdr=isBest?'2px solid #0F6E56':'1px solid #E5E7EB';"
-            "h+='<div class=\"mlb-k-cell\" style=\"border:'+bdr+';background:'+bg+'\">';"
+            "var prob=c.prob||0;"
+            "h+='<div class=\"mlb-k-cell\" style=\"border:'+bdr+';background:'+bg+';cursor:pointer\""
+            " onclick=\"mlbCalcSel(\\''+cid+'\\','+k+','+prob+')\">';"
             "h+='<div class=\"mlb-k-num\">K≥'+k+'</div>';"
-            "h+='<div class=\"mlb-k-prob\">'+(c.prob||0)+'%</div>';"
-            "h+='<div class=\"mlb-k-odds\" style=\"color:'+col+'\">'+(c.odds||0)+'</div>';"
-            "h+='<div class=\"mlb-k-edge\" style=\"color:'+col+'\">'+(ce>=0?'+':'')+ce+'%</div>';"
+            "h+='<div class=\"mlb-k-prob\">'+prob+'%</div>';"
             "h+='</div>';});"
-            "h+='</div>';}"
+            "h+='</div>';"
+            "h+='<div class=\"mlb-k-calc\" id=\"kc-'+cid+'\" style=\"display:none\">';"
+            "h+='K≥<b id=\"kc-k-'+cid+'\"></b> · Notre prob: <b id=\"kc-p-'+cid+'\"></b>% · ';"
+            "h+='Cote bet365: <input id=\"kc-i-'+cid+'\" class=\"mlb-k-odds-input\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"ex: 1.41\" oninput=\"mlbCalcEdge(\\''+cid+'\\')\">';"
+            "h+=' <b id=\"kc-e-'+cid+'\"></b></div>';}"
             "(b.context||[]).slice(0,2).forEach(function(n){h+='<div class=\"mlb-note\">'+n+'</div>';});"
             "h+='</div>';});"
             "h+='</div>';});}"
@@ -1576,11 +1603,15 @@ class ReportGenerator:
             ".mlb-k-curve-title{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--m);"
             "text-transform:uppercase;width:100%;margin-bottom:2px}"
             ".mlb-k-cell{display:flex;flex-direction:column;align-items:center;padding:6px 8px;"
-            "border-radius:6px;min-width:52px;cursor:default}"
+            "border-radius:6px;min-width:48px;transition:opacity .15s}"
+            ".mlb-k-cell:hover{opacity:.8}"
             ".mlb-k-num{font-size:10px;font-weight:700;color:var(--m);letter-spacing:.05em}"
             ".mlb-k-prob{font-size:13px;font-weight:700;color:var(--t);margin:2px 0}"
-            ".mlb-k-odds{font-size:11px;font-weight:600}"
-            ".mlb-k-edge{font-size:10px;font-weight:700;letter-spacing:.03em}"
+            ".mlb-k-calc{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;"
+            "color:var(--m);flex-wrap:wrap}"
+            ".mlb-k-odds-input{width:110px;padding:4px 8px;border:1px solid var(--b);"
+            "border-radius:5px;font-size:12px;background:var(--bg);color:var(--t);outline:none}"
+            ".mlb-k-odds-input:focus{border-color:var(--accent)}"
             # ── General ───────────────────────────────────────────────────
             ".disc{font-size:11px;color:var(--m);margin-top:2rem;padding-top:1rem;border-top:1px solid var(--b);line-height:1.8}"
             ".upd{font-size:11px;color:var(--m);text-align:right;margin-top:.5rem}"
