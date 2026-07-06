@@ -10,6 +10,7 @@ from nba_odds_fetcher import NBAOddsFetcher
 from nba_props_analyzer import NBAPropsAnalyzer
 from mlb_odds_fetcher import MLBOddsFetcher
 from mlb_props_analyzer import MLBPropsAnalyzer
+from mlb_hr_analyzer import analyze_hr_props as _analyze_hr_props
 from lineup_checker import LineupChecker
 from lineup_fetcher import LineupFetcher
 from edge_calculator import EdgeCalculator
@@ -178,11 +179,52 @@ def main():
     for mg in mlb_games[:15]:
         props_by_market = {}
         if not mg.get("_no_odds"):
-            for market in ["pitcher_strikeouts"]:
+            for market in ["pitcher_strikeouts", "batter_home_runs"]:
                 props = mlb_fetcher.get_player_props(mg["event_id"], market)
                 if props:
                     props_by_market[market] = props
         analysis = mlb_analyzer.analyze_game(mg, props_by_market if props_by_market else None)
+
+        # ── HR props: forme récente + splits L/R + H2H ──────────────────────
+        hr_raw = props_by_market.get("batter_home_runs", [])
+        if hr_raw:
+            # Récupérer le lanceur adverse depuis mlb_starters
+            try:
+                from mlb_starters import fetch_probable_starters, get_starter_for_team, TEAM_NAME_MAP as _TNMAP
+                _starters = fetch_probable_starters(today_et)
+                _home_n = _TNMAP.get(mg.get("home_team",""), mg.get("home_team",""))
+                _away_n = _TNMAP.get(mg.get("away_team",""), mg.get("away_team",""))
+            except Exception:
+                _starters, _home_n, _away_n = {}, mg.get("home_team",""), mg.get("away_team","")
+
+            # Analyser HR pour chaque côté (frappeur vs lanceur adverse)
+            for _side, _team, _opp_team in [("home", _home_n, _away_n), ("away", _away_n, _home_n)]:
+                try:
+                    from mlb_starters import get_starter_for_team as _gst
+                    _pitcher = _gst(_opp_team, _team, _starters)
+                except Exception:
+                    _pitcher = None
+                if not _pitcher:
+                    continue
+                _side_props = [
+                    {"player": p["player"], "line": p["line"],
+                     "dk_odds": p.get("dk_odds", 0), "team": _team}
+                    for p in hr_raw
+                    if p.get("team","").lower() in (_team.lower(), _side)
+                ]
+                if not _side_props:
+                    # Si pas de filtrage par équipe, passer tous les props
+                    _side_props = [
+                        {"player": p["player"], "line": p["line"],
+                         "dk_odds": p.get("dk_odds", 0), "team": _team}
+                        for p in hr_raw
+                    ]
+                hr_bets = _analyze_hr_props(mg, _side_props, _pitcher)
+                if hr_bets:
+                    analysis["bets"] = analysis.get("bets", []) + hr_bets
+                    print(f"  [HR] {len(hr_bets)} bet(s) vs {_pitcher}")
+                break  # Analyser une fois par match suffit si pas de split équipe
+
         if analysis.get("bets"):
             analysis["commence_time"] = mg.get("commence_time", "")
             mlb_analysis.append(analysis)
