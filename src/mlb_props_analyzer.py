@@ -679,7 +679,8 @@ class MLBPropsAnalyzer:
                 # ── Ligne optimale via courbe bet365 ───────────────────────────
                 # Ligne recommandée basée sur notre projection (pas les cotes DK)
                 best = _k_best_line(adj_mean, std)
-                if best is None:
+                if best is None or best["edge"] < MIN_EDGE:
+                    print(f"    [MLB Skip] {pitcher}: edge {best['edge'] if best else 'N/A'}% < {MIN_EDGE}% (proj={adj_mean:.1f}K)")
                     continue
                 curve = _k_curve(adj_mean, std)
                 curve_str = " | ".join(f"K≥{c['k_exact']}:{c['prob']:.0f}%" for c in curve if 3 <= c["k_exact"] <= 9)
@@ -773,7 +774,7 @@ class MLBPropsAnalyzer:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
                     # Ligne recommandée via notre projection
                     best = _k_best_line(adj_mean, std)
-                    if best is None:
+                    if best is None or best["edge"] < MIN_EDGE:
                         continue
                     curve = _k_curve(adj_mean, std)
                     print(f"    [MLB Hors Dict] {display} Over {best['k_exact']-1}.5 K proj {adj_mean:.1f} — prob {best['prob']:.0f}%")
