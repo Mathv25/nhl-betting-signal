@@ -605,10 +605,19 @@ class ReportGenerator:
                 opponent    = b.get("opponent", "")
                 context     = b.get("context", [])
 
-                ec = "#0F6E56" if edge >= 15 else "#BA7517"
-                eb = "#E1F5EE" if edge >= 15 else "#FAEEDA"
                 type_icon = "⚾" if player_type == "pitcher" else "🏏"
                 type_label = "Lanceur" if player_type == "pitcher" else "Frappeur"
+
+                # Lanceurs: badge = projection (pas d'edge — cotes bet365 inconnues)
+                # Frappeurs HR: badge = edge réel calculé
+                if player_type == "pitcher":
+                    badge_color = "#2563EB"
+                    badge_bg    = "#EFF6FF"
+                    badge_txt   = "proj " + str(adj_proj) + "K"
+                else:
+                    badge_color = "#0F6E56" if edge >= 15 else "#BA7517"
+                    badge_bg    = "#E1F5EE" if edge >= 15 else "#FAEEDA"
+                    badge_txt   = "+" + str(edge) + "% edge"
 
                 html += (
                     "<div class='mlb-card'>"
@@ -617,26 +626,28 @@ class ReportGenerator:
                     "<span class='mlb-player'>" + type_icon + " " + player + "</span>"
                     "<span class='mlb-meta'>" + type_label + " · " + team.split()[-1] + " vs " + opponent.split()[-1] + "</span>"
                     "</div>"
-                    "<div class='mlb-edge' style='color:" + ec + ";background:" + eb + "'>"
-                    "+" + str(edge) + "% edge"
+                    "<div class='mlb-edge' style='color:" + badge_color + ";background:" + badge_bg + "'>"
+                    + badge_txt +
                     "</div>"
                     "</div>"
                     "<div class='mlb-bet-label'>" + market + "</div>"
                     "<div class='mlb-stats'>"
-                    "<div class='mlb-stat'><span>Moy saison</span><strong>" + str(season_avg) + "</strong></div>"
-                    "<div class='mlb-stat'><span>Proj. ajustee</span><strong>" + str(adj_proj) + "</strong></div>"
+                    "<div class='mlb-stat'><span>Moy saison</span><strong>" + str(season_avg) + "K</strong></div>"
+                    "<div class='mlb-stat'><span>Proj. ajustée</span><strong>" + str(adj_proj) + "K</strong></div>"
                 )
-                if opp_k_rate is not None:
+                if opp_k_rate is not None and player_type == "pitcher":
                     html += "<div class='mlb-stat'><span>K% adverse</span><strong>" + str(opp_k_rate) + "%</strong></div>"
                 pf_color = "#B45309" if park_factor >= 1.08 else ("#0F6E56" if park_factor <= 0.92 else "#6B7280")
-                html += (
-                    "<div class='mlb-stat'><span>Park factor</span><strong style='color:" + pf_color + "'>" + str(park_factor) + "</strong></div>"
-                    "<div class='mlb-stat'><span>Notre prob</span><strong style='color:" + ec + "'>" + str(prob) + "%</strong></div>"
-                    "<div class='mlb-stat'><span>b365 implied</span><strong>" + str(dk_implied) + "%</strong></div>"
-                    "<div class='mlb-stat'><span>Cote est. b365</span><strong>" + str(odds) + "</strong></div>"
-                    "<div class='mlb-stat'><span>1/4 Kelly</span><strong>" + str(kelly) + "% BR</strong></div>"
-                    "</div>"
-                )
+                html += "<div class='mlb-stat'><span>Park factor</span><strong style='color:" + pf_color + "'>" + str(park_factor) + "</strong></div>"
+                if player_type != "pitcher":
+                    ec = "#0F6E56" if edge >= 15 else "#BA7517"
+                    html += (
+                        "<div class='mlb-stat'><span>Notre prob</span><strong style='color:" + ec + "'>" + str(prob) + "%</strong></div>"
+                        "<div class='mlb-stat'><span>1/4 Kelly</span><strong>" + str(kelly) + "% BR</strong></div>"
+                    )
+                else:
+                    html += "<div class='mlb-stat' style='color:var(--m);font-size:11px'>Edge calculé via le calculateur ↑</div>"
+                html += "</div>"
                 # Courbe K — probs par niveau + calculateur d'edge interactif
                 k_curve = b.get("k_curve", [])
                 if k_curve and player_type == "pitcher":
@@ -1054,17 +1065,19 @@ class ReportGenerator:
             "h+='<div class=\"mlb-card-head\"><div>';"
             "h+='<span class=\"mlb-player\">'+icon+' '+(b.player||'')+'</span>';"
             "h+='<span class=\"mlb-meta\">'+lbl+' \u00b7 '+tshort+' vs '+oshort+'</span>';"
-            "h+='</div><div class=\"mlb-edge\" style=\"color:'+ec+';background:'+eb+'\">+'+ep+'% edge</div></div>';"
+            "var isPit=b.player_type==='pitcher';"
+            "var badgeCol=isPit?'#2563EB':ec;var badgeBg=isPit?'#EFF6FF':eb;"
+            "var badgeTxt=isPit?('proj '+(b.adj_proj||0)+'K'):('+'+ep+'% edge');"
+            "h+='</div><div class=\"mlb-edge\" style=\"color:'+badgeCol+';background:'+badgeBg+'\">'+badgeTxt+'</div></div>';"
             "h+='<div class=\"mlb-bet-label\">'+(b.market||'')+'</div>';"
             "h+='<div class=\"mlb-stats\">';"
-            "h+='<div class=\"mlb-stat\"><span>Moy saison</span><strong>'+(b.season_avg||0)+'</strong></div>';"
-            "h+='<div class=\"mlb-stat\"><span>Proj. ajustee</span><strong>'+(b.adj_proj||0)+'</strong></div>';"
-            "if(b.opp_k_rate!=null)h+='<div class=\"mlb-stat\"><span>K% adverse</span><strong>'+(b.opp_k_rate||0)+'%</strong></div>';"
+            "h+='<div class=\"mlb-stat\"><span>Moy saison</span><strong>'+(b.season_avg||0)+'K</strong></div>';"
+            "h+='<div class=\"mlb-stat\"><span>Proj. ajustée</span><strong>'+(b.adj_proj||0)+'K</strong></div>';"
+            "if(b.opp_k_rate!=null&&isPit)h+='<div class=\"mlb-stat\"><span>K% adverse</span><strong>'+(b.opp_k_rate||0)+'%</strong></div>';"
             "h+='<div class=\"mlb-stat\"><span>Park factor</span><strong style=\"color:'+pfc+'\">'+(b.park_factor||1.0)+'</strong></div>';"
-            "h+='<div class=\"mlb-stat\"><span>Notre prob</span><strong style=\"color:'+ec+'\">'+( b.our_prob||0)+'%</strong></div>';"
-            "h+='<div class=\"mlb-stat\"><span>b365 implied</span><strong>'+(b.dk_implied||52.6)+'%</strong></div>';"
-            "h+='<div class=\"mlb-stat\"><span>Cote est. b365</span><strong>'+(b.est_odds||0)+'</strong></div>';"
-            "h+='<div class=\"mlb-stat\"><span>1/4 Kelly</span><strong>'+(b.kelly||0)+'% BR</strong></div>';"
+            "if(!isPit){h+='<div class=\"mlb-stat\"><span>Notre prob</span><strong style=\"color:'+ec+'\">'+(b.our_prob||0)+'%</strong></div>';}"
+            "if(!isPit){h+='<div class=\"mlb-stat\"><span>1/4 Kelly</span><strong>'+(b.kelly||0)+'% BR</strong></div>';}"
+            "if(isPit){h+='<div class=\"mlb-stat\" style=\"color:var(--m);font-size:11px\">Edge via calculateur ↑</div>';}"
             "h+='</div>';"
             "var kc=b.k_curve||[];if(kc.length&&b.player_type==='pitcher'){"
             "var cid=b.player.replace(/ /g,'_');"
