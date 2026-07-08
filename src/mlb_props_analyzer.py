@@ -363,9 +363,8 @@ def _estimate_line(mean: float, stat_key: str) -> float:
 
 def _std(mean: float, stat_key: str) -> float:
     floor = STD_FLOOR.get(stat_key, 0.35)
-    # Pitchers élites (>8 K/dep): variance plus faible, performances plus stables
-    if stat_key == "strikeouts" and mean > 8.0:
-        floor = floor * 0.70
+    # Pas de réduction pour les élites: la variance K reste élevée même chez les meilleurs
+    # (sortie précoce, mauvais soir, opposition plus forte) → ne pas surestimer les probs
     return max(mean * floor, 0.5)
 
 

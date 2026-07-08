@@ -82,9 +82,6 @@ class ReportGenerator:
             "<div id=\"tab-perf\" style=\"display:none\">",
             perf_html,
             "</div>",
-            "<div id=\"tab-calc\" style=\"display:none\">",
-            calc_html,
-            "</div>",
             "<div id=\"tab-ai\" style=\"display:none\">",
             ai_html,
             "</div>",
@@ -110,7 +107,7 @@ class ReportGenerator:
             "<button class=\"tab\" onclick=\"showTab('tab-nba',this)\">NBA</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-mlb',this)\">MLB</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-perf',this)\">Performance</button>"
-            "<button class=\"tab\" onclick=\"showTab('tab-calc',this)\">Calculateur</button>"
+            ""
             "<button class=\"tab\" onclick=\"showTab('tab-ai',this)\">Expert IA</button>"
             "</div>"
             "<button id=\"refreshBtn\" onclick=\"refreshData()\" title=\"Recharger le signal\" style=\""
@@ -569,24 +566,7 @@ class ReportGenerator:
                 "</div>"
             )
 
-        # Calculateur fixe en haut — sélecteur lanceur + courbe K + input cote
-        html = (
-            "<div class='mlb-calc-box'>"
-            "<div style='font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--m);text-transform:uppercase;margin-bottom:10px'>Calculateur edge K — bet365</div>"
-            "<div class='mlb-calc-row'>"
-            "<select class='mlb-calc-select' id='mlb-sel' onchange='mlbCalcLoad()'>"
-            "<option value=''>Sélectionner un lanceur…</option>"
-            "</select>"
-            "<span style='font-size:12px;color:var(--m)'>→ cliquer K, entrer cote</span>"
-            "</div>"
-            "<div class='mlb-calc-curve' id='mlb-calc-curve'></div>"
-            "<div class='mlb-calc-result'>"
-            "<input class='mlb-calc-odds-in' id='mlb-calc-odds' type='number' step='0.01' min='1.01' placeholder='Cote bet365 (ex: 1.65)' oninput='mlbCalcRun()'>"
-            "<span class='mlb-calc-edge' id='mlb-calc-edge'></span>"
-            "</div>"
-            "</div>"
-        )
-        html += "<div class='mlb-header'>MLB Player Props — Analyse +EV</div>"
+        html = "<div class='mlb-header'>MLB Player Props — Analyse +EV</div>"
         for game_data in mlb_analysis:
             home   = game_data.get("home_team", "")
             away   = game_data.get("away_team", "")
