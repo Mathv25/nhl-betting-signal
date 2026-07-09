@@ -18,9 +18,11 @@ import math
 try:
     from mlb_rolling_stats import get_batter_rolling as _mlb_batter_rolling
     from mlb_rolling_stats import get_pitcher_rolling as _mlb_pitcher_rolling
+    from mlb_rolling_stats import get_team_k_rate as _get_team_k_rate
     HAS_MLB_ROLLING = True
 except ImportError:
     HAS_MLB_ROLLING = False
+    def _get_team_k_rate(team, n=10): return 0.215
 
 # ── MODELES STATISTIQUES ──────────────────────────────────────────────────────
 STD_FLOOR = {
@@ -662,16 +664,16 @@ class MLBPropsAnalyzer:
                     print(f"      → Filtré: {mean_k:.1f} < min {cfg_k['min_avg']}")
                     continue
 
-                opp_k_rate = TEAM_K_RATES.get(opp, LEAGUE_AVG_K)
+                opp_k_rate = _get_team_k_rate(opp, n_games=10)
                 adj_factor = opp_k_rate / LEAGUE_AVG_K
                 adj_mean   = round(mean_k * adj_factor, 2)
                 std        = _std(adj_mean, "strikeouts")
 
                 context = []
                 if opp_k_rate > LEAGUE_AVG_K + 0.015:
-                    context.append(f"Adversaire K%: {opp_k_rate:.1%} (favorable)")
+                    context.append(f"Adversaire K% (10j): {opp_k_rate:.1%} (favorable)")
                 elif opp_k_rate < LEAGUE_AVG_K - 0.015:
-                    context.append(f"Adversaire K%: {opp_k_rate:.1%} (difficile)")
+                    context.append(f"Adversaire K% (10j): {opp_k_rate:.1%} (difficile)")
                 park_lbl = _park_label(park_factor)
                 if park_factor != 1.00:
                     context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
@@ -760,15 +762,15 @@ class MLBPropsAnalyzer:
                             continue
                     except Exception:
                         pass
-                    opp_k_rate = TEAM_K_RATES.get(opp, LEAGUE_AVG_K)
+                    opp_k_rate = _get_team_k_rate(opp, n_games=10)
                     adj_factor = opp_k_rate / LEAGUE_AVG_K
                     adj_mean   = round(mean_k * adj_factor, 2)
                     std        = _std(adj_mean, "strikeouts")
                     context    = []
                     if opp_k_rate > LEAGUE_AVG_K + 0.015:
-                        context.append(f"Adversaire K%: {opp_k_rate:.1%} (favorable)")
+                        context.append(f"Adversaire K% (10j): {opp_k_rate:.1%} (favorable)")
                     elif opp_k_rate < LEAGUE_AVG_K - 0.015:
-                        context.append(f"Adversaire K%: {opp_k_rate:.1%} (difficile)")
+                        context.append(f"Adversaire K% (10j): {opp_k_rate:.1%} (difficile)")
                     park_lbl = _park_label(park_factor)
                     if park_factor != 1.00:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")

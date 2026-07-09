@@ -153,6 +153,84 @@ def get_pitcher_rolling(name: str, n: int = N_PITCHING) -> object:
         return None
 
 
+TEAM_ID_MAP = {
+    "Arizona Diamondbacks": 109, "Athletics": 133, "Atlanta Braves": 144,
+    "Baltimore Orioles": 110, "Boston Red Sox": 111, "Chicago Cubs": 112,
+    "Chicago White Sox": 145, "Cincinnati Reds": 113, "Cleveland Guardians": 114,
+    "Colorado Rockies": 115, "Detroit Tigers": 116, "Houston Astros": 117,
+    "Kansas City Royals": 118, "Los Angeles Angels": 108, "Los Angeles Dodgers": 119,
+    "Miami Marlins": 146, "Milwaukee Brewers": 158, "Minnesota Twins": 142,
+    "New York Mets": 121, "New York Yankees": 147, "Philadelphia Phillies": 143,
+    "Pittsburgh Pirates": 134, "San Diego Padres": 135, "San Francisco Giants": 137,
+    "Seattle Mariners": 136, "St. Louis Cardinals": 138, "Tampa Bay Rays": 139,
+    "Texas Rangers": 140, "Toronto Blue Jays": 141, "Washington Nationals": 120,
+    "Oakland Athletics": 133,
+}
+LEAGUE_AVG_K = 0.215
+
+_team_k_cache: dict = {}   # team_name -> float
+
+
+def get_team_k_rate(team_name: str, n_games: int = 10) -> float:
+    """
+    Retourne le taux de retraits sur balle (K%) de l'équipe adverse
+    sur ses n_games dernières parties via MLB Stats API.
+    Combine 70% récent + 30% saison pour lisser les échantillons courts.
+    Fallback sur LEAGUE_AVG_K si API inaccessible.
+    """
+    key = f"{team_name}_{n_games}"
+    if key in _team_k_cache:
+        return _team_k_cache[key]
+
+    team_id = TEAM_ID_MAP.get(team_name)
+    if team_id is None:
+        # Recherche partielle
+        tl = team_name.lower()
+        for name, tid in TEAM_ID_MAP.items():
+            if name.lower().split()[-1] == tl.split()[-1]:
+                team_id = tid
+                break
+
+    if team_id is None:
+        _team_k_cache[key] = LEAGUE_AVG_K
+        return LEAGUE_AVG_K
+
+    try:
+        r = requests.get(
+            f"{MLB_API}/teams/{team_id}/stats",
+            params={"stats": "gameLog", "group": "hitting", "season": "2026"},
+            headers=HEADERS, timeout=TIMEOUT
+        )
+        if r.status_code != 200:
+            _team_k_cache[key] = LEAGUE_AVG_K
+            return LEAGUE_AVG_K
+
+        splits = r.json().get("stats", [{}])[0].get("splits", [])
+        if not splits:
+            _team_k_cache[key] = LEAGUE_AVG_K
+            return LEAGUE_AVG_K
+
+        # K% récent (n derniers matchs)
+        recent = splits[-n_games:]
+        r_pa = sum(g["stat"].get("plateAppearances", 0) for g in recent)
+        r_k  = sum(g["stat"].get("strikeOuts", 0) for g in recent)
+        k_recent = r_k / r_pa if r_pa > 0 else LEAGUE_AVG_K
+
+        # K% saison complète
+        s_pa = sum(g["stat"].get("plateAppearances", 0) for g in splits)
+        s_k  = sum(g["stat"].get("strikeOuts", 0) for g in splits)
+        k_season = s_k / s_pa if s_pa > 0 else LEAGUE_AVG_K
+
+        # Blend: 70% récent, 30% saison — réduit le bruit des petits échantillons
+        blended = round(0.70 * k_recent + 0.30 * k_season, 4)
+        _team_k_cache[key] = blended
+        return blended
+
+    except Exception:
+        _team_k_cache[key] = LEAGUE_AVG_K
+        return LEAGUE_AVG_K
+
+
 def warm_up(player_names: list, player_type: str = "batter") -> None:
     """Pre-fetche les stats pour une liste de joueurs (en parallele ou sequentiel)."""
     fn = get_batter_rolling if player_type == "batter" else get_pitcher_rolling
