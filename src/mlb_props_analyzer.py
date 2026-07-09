@@ -678,8 +678,28 @@ class MLBPropsAnalyzer:
                 if park_factor != 1.00:
                     context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
 
-                # ── Ligne optimale via courbe bet365 ───────────────────────────
-                # Ligne recommandée basée sur notre projection (pas les cotes DK)
+                # ── Filtre DK: marché déjà au-dessus de notre projection? ───────
+                # Si DK implique prob > notre modèle sur la ligne naturelle → skip
+                # (marché a pricé le lanceur correctement, pas de valeur potentielle)
+                if use_real:
+                    dk_lines = real_lkp.get(pitcher.lower(), {}).get("strikeouts", [])
+                    if not dk_lines:
+                        last = pitcher.lower().split()[-1]
+                        for k, v in real_lkp.items():
+                            if k.split()[-1] == last and "strikeouts" in v:
+                                dk_lines = v["strikeouts"]
+                                break
+                    if dk_lines:
+                        # Vérifier si la ligne DK la plus proche de notre proj est over-pricée
+                        target_line = max(3.5, round(adj_mean - 0.5, 1))
+                        closest = min(dk_lines, key=lambda x: abs(x["line"] - target_line))
+                        dk_over_impl = closest.get("over_implied", 0)
+                        our_prob_at_line = _normal_over(adj_mean, _std(adj_mean, "strikeouts"), closest["line"])
+                        if dk_over_impl > our_prob_at_line + 5:
+                            print(f"    [MLB Skip] {pitcher}: DK impl {dk_over_impl:.1f}% > notre prob {our_prob_at_line:.1f}% sur Over {closest['line']} → marché surprice")
+                            continue
+
+                # ── Ligne recommandée basée sur notre projection ────────────────
                 best = _k_best_line(adj_mean, std)
                 if best is None:
                     print(f"    [MLB Skip] {pitcher}: proj={adj_mean:.1f}K < seuil ou données insuffisantes")
