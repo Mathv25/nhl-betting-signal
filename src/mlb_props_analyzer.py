@@ -638,6 +638,11 @@ class MLBPropsAnalyzer:
                     rolling_p = _mlb_pitcher_rolling(pitcher)
                     if rolling_p and rolling_p.get("games", 0) >= 2:
                         mean_k = rolling_p["strikeouts"]
+                        if rolling_p.get("rolling_avg") and rolling_p.get("season_avg"):
+                            context_rolling = (f"Rolling {rolling_p['games']}dep: "
+                                               f"{rolling_p['rolling_avg']}K · "
+                                               f"Saison: {rolling_p['season_avg']}K · "
+                                               f"Blend: {mean_k}K")
 
                 if mean_k is None:
                     # Pas de rolling stats → utiliser la ligne DK médiane comme proxy
@@ -670,6 +675,9 @@ class MLBPropsAnalyzer:
                 std        = _std(adj_mean, "strikeouts")
 
                 context = []
+                if "context_rolling" in dir():
+                    context.append(context_rolling)
+                    del context_rolling
                 if opp_k_rate > LEAGUE_AVG_K + 0.015:
                     context.append(f"Adversaire K% (10j): {opp_k_rate:.1%} (favorable)")
                 elif opp_k_rate < LEAGUE_AVG_K - 0.015:

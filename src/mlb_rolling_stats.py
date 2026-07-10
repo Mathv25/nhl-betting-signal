@@ -98,7 +98,11 @@ def _innings_to_float(ip: str) -> float:
 
 def get_pitcher_rolling(name: str, n: int = N_PITCHING) -> object:
     """
-    Retourne la moyenne de retraits sur balle par départ (n derniers départs ≥ 3 manches).
+    Retourne la projection pondérée de K par départ.
+    Logique:
+    1. Filtre outliers agressif: K < mean - 1.0*std ET K <= 3
+    2. Moyenne pondérée: départs récents pèsent plus (poids croissants)
+    3. Blend 70% rolling / 30% saison pour stabiliser les petits échantillons
     {'strikeouts': float, 'games': int}
     """
     pid = _search_player_id(name)
@@ -118,33 +122,53 @@ def get_pitcher_rolling(name: str, n: int = N_PITCHING) -> object:
             return None
 
         splits = r.json().get("stats", [{}])[0].get("splits", [])
-        # Filtrer pour les départs seulement (≥ 3 manches lancées)
-        starts = [
+        all_starts = [
             g for g in splits
             if _innings_to_float(g["stat"].get("inningsPitched", "0")) >= 3.0
-        ][-n:]
+        ]
 
-        if len(starts) < 2:
+        if len(all_starts) < 2:
             _pitching_cache[pid] = None
             return None
 
+        # Moyenne saison complète (référence stable)
+        all_k = [g["stat"].get("strikeOuts", 0) for g in all_starts]
+        season_avg = sum(all_k) / len(all_k)
+
+        # Derniers N départs pour le rolling
+        starts = all_starts[-n:]
         k_vals = [g["stat"].get("strikeOuts", 0) for g in starts]
 
-        # Exclure les départs aberrants (sortie prématurée, météo, blessure)
-        # Un départ est un outlier si K < mean - 1.5 * std ET K <= 2
+        # Filtre outliers: K < mean - 1.0*std ET K <= 3
+        # Plus agressif que l'ancien (1.5*std et K<=2)
         if len(k_vals) >= 3:
             mean = sum(k_vals) / len(k_vals)
             std  = (sum((x - mean) ** 2 for x in k_vals) / len(k_vals)) ** 0.5
             if std > 0:
-                k_vals = [k for k in k_vals if not (k < mean - 1.5 * std and k <= 2)]
+                k_vals_filtered = [k for k in k_vals if not (k < mean - 1.0 * std and k <= 3)]
+                if k_vals_filtered:  # ne pas vider la liste
+                    k_vals = k_vals_filtered
 
         if not k_vals:
             _pitching_cache[pid] = None
             return None
 
-        result  = {
-            "strikeouts": round(sum(k_vals) / len(k_vals), 2),
-            "games":      len(k_vals),
+        # Moyenne pondérée: les départs les plus récents pèsent plus
+        # Poids: 1, 1.5, 2, 2.5, 3, 3.5 (du plus ancien au plus récent)
+        n_k = len(k_vals)
+        weights = [1.0 + 0.5 * i for i in range(n_k)]
+        weighted_sum   = sum(k * w for k, w in zip(k_vals, weights))
+        weighted_total = sum(weights)
+        rolling_avg    = weighted_sum / weighted_total
+
+        # Blend 70% rolling pondéré / 30% saison
+        blended = round(0.70 * rolling_avg + 0.30 * season_avg, 2)
+
+        result = {
+            "strikeouts":   blended,
+            "rolling_avg":  round(rolling_avg, 2),
+            "season_avg":   round(season_avg, 2),
+            "games":        len(k_vals),
         }
         _pitching_cache[pid] = result
         return result
