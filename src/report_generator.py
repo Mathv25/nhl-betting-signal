@@ -33,6 +33,7 @@ class ReportGenerator:
         calc_html    = self._calculator()
         perf_html    = self._performance_section()
         mlb_html     = self._mlb_section(data.get("mlb_analysis", []))
+        power_html   = self._power_section(data.get("power_analysis", []))
         ai_html      = self._ai_analysis_section(data.get("ai_analysis", {}))
 
         signal_json = json.dumps(data, ensure_ascii=False, default=str)
@@ -78,6 +79,7 @@ class ReportGenerator:
             "</div>",
             "<div id=\"tab-mlb\" style=\"display:none\">",
             mlb_html,
+            power_html,
             "</div>",
             "<div id=\"tab-perf\" style=\"display:none\">",
             perf_html,
@@ -680,6 +682,80 @@ class ReportGenerator:
             html += "</div>"
         return html
 
+    def _power_section(self, power_analysis: list) -> str:
+        if not power_analysis:
+            return ""
+
+        html = "<div class='mlb-header' style='margin-top:1.5rem'>🔥 Frappeurs — Candidats 4+ Bases</div>"
+        for game_data in power_analysis:
+            batters = game_data.get("power_batters", [])
+            if not batters:
+                continue
+            home = game_data.get("home_team", "")
+            away = game_data.get("away_team", "")
+            html += (
+                "<div class='mlb-game'>"
+                "<div class='mlb-matchup'>" + away + " <span class='mlb-at'>@</span> " + home + "</div>"
+            )
+            for b in batters[:6]:
+                player    = b.get("player", "")
+                team      = b.get("team", "")
+                mean_tb   = b.get("mean_tb", 0)
+                rolling   = b.get("rolling_avg", 0)
+                season    = b.get("season_avg", 0)
+                hr_rate   = b.get("hr_rate", 0)
+                hot       = b.get("hot_streak", 0)
+                p4        = b.get("p4", 0)
+                curve     = b.get("curve", [])
+                cid       = player.replace(" ", "_")
+
+                hot_str = ("↑ En feu" if hot > 0.3 else "↓ En baisse" if hot < -0.3 else "→ Stable")
+                hot_col = "#0F6E56" if hot > 0.3 else "#DC2626" if hot < -0.3 else "#6B7280"
+
+                html += (
+                    "<div class='mlb-card'>"
+                    "<div class='mlb-card-head'>"
+                    "<div>"
+                    "<span class='mlb-player'>🏏 " + player + "</span>"
+                    "<span class='mlb-meta'>" + team.split()[-1] + "</span>"
+                    "</div>"
+                    "<div class='mlb-edge' style='color:#7C3AED;background:#F5F3FF'>"
+                    "P(4+TB) " + str(p4) + "%"
+                    "</div>"
+                    "</div>"
+                    "<div class='mlb-stats'>"
+                    "<div class='mlb-stat'><span>Moy TB (blend)</span><strong>" + str(mean_tb) + "</strong></div>"
+                    "<div class='mlb-stat'><span>Rolling " + str(b.get("games", 0)) + "j</span><strong>" + str(rolling) + "</strong></div>"
+                    "<div class='mlb-stat'><span>Saison</span><strong>" + str(season) + "</strong></div>"
+                    "<div class='mlb-stat'><span>HR/match</span><strong>" + str(hr_rate) + "</strong></div>"
+                    "<div class='mlb-stat'><span>Tendance</span><strong style='color:" + hot_col + "'>" + hot_str + "</strong></div>"
+                    "</div>"
+                    "<div class='mlb-k-curve'>"
+                    "<span class='mlb-k-curve-title'>P(TB ≥ N) — cliquer, entrer cote bet365</span>"
+                )
+                for c in curve:
+                    n    = c.get("n", 0)
+                    prob = c.get("prob", 0)
+                    html += (
+                        "<div class='mlb-k-cell' style='border:1px solid var(--b);cursor:pointer'"
+                        " onclick=\"mlbCalcSel('" + cid + "'," + str(n) + "," + str(prob) + ")\">"
+                        "<div class='mlb-k-num'>TB≥" + str(n) + "</div>"
+                        "<div class='mlb-k-prob'>" + str(prob) + "%</div>"
+                        "</div>"
+                    )
+                html += (
+                    "</div>"
+                    "<div class='mlb-k-calc' id='kc-" + cid + "' style='display:none'>"
+                    "TB≥<b id='kc-k-" + cid + "'></b> · Notre prob: <b id='kc-p-" + cid + "'></b>% · "
+                    "Cote bet365: <input id='kc-i-" + cid + "' class='mlb-k-odds-input' type='number' "
+                    "step='0.01' min='1.01' placeholder='ex: 5.00' oninput=\"mlbCalcEdge('" + cid + "')\"> "
+                    "<b id='kc-e-" + cid + "'></b>"
+                    "</div>"
+                    "</div>"
+                )
+            html += "</div>"
+        return html
+
     def _ai_analysis_section(self, ai_data: dict) -> str:
         if not ai_data:
             return (
@@ -1123,6 +1199,43 @@ class ReportGenerator:
             "h+='Cote bet365: <input id=\"kc-i-'+cid+'\" class=\"mlb-k-odds-input\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"ex: 1.41\" oninput=\"mlbCalcEdge(\\''+cid+'\\')\">';"
             "h+=' <b id=\"kc-e-'+cid+'\"></b></div>';}"
             "(b.context||[]).slice(0,2).forEach(function(n){h+='<div class=\"mlb-note\">'+n+'</div>';});"
+            "h+='</div>';});"
+            "h+='</div>';});}"
+            "var pw=d.power_analysis||[];"
+            "if(pw.length){"
+            "h+='<div class=\"mlb-header\" style=\"margin-top:1.5rem\">🔥 Frappeurs — Candidats 4+ Bases</div>';"
+            "pw.forEach(function(gd){"
+            "var bats=gd.power_batters||[];if(!bats.length)return;"
+            "h+='<div class=\"mlb-game\">';"
+            "h+='<div class=\"mlb-matchup\">'+(gd.away_team||'')+' <span class=\"mlb-at\">@</span> '+(gd.home_team||'')+'</div>';"
+            "bats.slice(0,6).forEach(function(b){"
+            "var cid=b.player.replace(/ /g,'_');"
+            "var hot=b.hot_streak||0;"
+            "var hotStr=hot>0.3?'↑ En feu':hot<-0.3?'↓ En baisse':'→ Stable';"
+            "var hotCol=hot>0.3?'#0F6E56':hot<-0.3?'#DC2626':'#6B7280';"
+            "h+='<div class=\"mlb-card\">';"
+            "h+='<div class=\"mlb-card-head\"><div>';"
+            "h+='<span class=\"mlb-player\">🏏 '+b.player+'</span>';"
+            "h+='<span class=\"mlb-meta\">'+(b.team||'').split(' ').pop()+'</span>';"
+            "h+='</div><div class=\"mlb-edge\" style=\"color:#7C3AED;background:#F5F3FF\">P(4+TB) '+(b.p4||0)+'%</div></div>';"
+            "h+='<div class=\"mlb-stats\">';"
+            "h+='<div class=\"mlb-stat\"><span>Moy TB blend</span><strong>'+(b.mean_tb||0)+'</strong></div>';"
+            "h+='<div class=\"mlb-stat\"><span>Rolling '+(b.games||0)+'j</span><strong>'+(b.rolling_avg||0)+'</strong></div>';"
+            "h+='<div class=\"mlb-stat\"><span>Saison</span><strong>'+(b.season_avg||0)+'</strong></div>';"
+            "h+='<div class=\"mlb-stat\"><span>HR/match</span><strong>'+(b.hr_rate||0)+'</strong></div>';"
+            "h+='<div class=\"mlb-stat\"><span>Tendance</span><strong style=\"color:'+hotCol+'\">'+hotStr+'</strong></div>';"
+            "h+='</div>';"
+            "h+='<div class=\"mlb-k-curve\"><span class=\"mlb-k-curve-title\">P(TB ≥ N) — cliquer, entrer cote bet365</span>';"
+            "(b.curve||[]).forEach(function(c){"
+            "h+='<div class=\"mlb-k-cell\" style=\"border:1px solid var(--b);cursor:pointer\" onclick=\"mlbCalcSel(\\''+cid+'\\','+c.n+','+c.prob+')\">';"
+            "h+='<div class=\"mlb-k-num\">TB≥'+c.n+'</div>';"
+            "h+='<div class=\"mlb-k-prob\">'+c.prob+'%</div>';"
+            "h+='</div>';});"
+            "h+='</div>';"
+            "h+='<div class=\"mlb-k-calc\" id=\"kc-'+cid+'\" style=\"display:none\">';"
+            "h+='TB≥<b id=\"kc-k-'+cid+'\"></b> · Notre prob: <b id=\"kc-p-'+cid+'\"></b>% · ';"
+            "h+='Cote bet365: <input id=\"kc-i-'+cid+'\" class=\"mlb-k-odds-input\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"ex: 5.00\" oninput=\"mlbCalcEdge(\\''+cid+'\\')\">';"
+            "h+=' <b id=\"kc-e-'+cid+'\"></b></div>';"
             "h+='</div>';});"
             "h+='</div>';});}"
             "document.getElementById('tab-mlb').innerHTML=h;}"

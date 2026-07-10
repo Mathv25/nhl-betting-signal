@@ -11,6 +11,7 @@ from nba_props_analyzer import NBAPropsAnalyzer
 from mlb_odds_fetcher import MLBOddsFetcher
 from mlb_props_analyzer import MLBPropsAnalyzer
 from mlb_hr_analyzer import analyze_hr_props as _analyze_hr_props
+from mlb_batter_power import analyze_power_batters as _analyze_power_batters
 from lineup_checker import LineupChecker
 from lineup_fetcher import LineupFetcher
 from edge_calculator import EdgeCalculator
@@ -173,8 +174,9 @@ def main():
     except Exception as _e:
         print(f"  MLB schedule fallback erreur: {_e}")
 
-    mlb_games    = mlb_games_odds + mlb_schedule_games
-    mlb_analysis = []
+    mlb_games      = mlb_games_odds + mlb_schedule_games
+    mlb_analysis   = []
+    power_analysis = []   # frappeurs candidats 4+ TB
     print(f"  {len(mlb_games)} partie(s) MLB total aujourd'hui ({today_et})")
     for mg in mlb_games[:15]:
         props_by_market = {}
@@ -228,6 +230,40 @@ def main():
         if analysis.get("bets"):
             analysis["commence_time"] = mg.get("commence_time", "")
             mlb_analysis.append(analysis)
+
+        # ── Power batters: candidats 4+ TB ──────────────────────────────────
+        try:
+            from mlb_starters import fetch_confirmed_lineups, TEAM_NAME_MAP as _TNMAP2
+            _lineups = fetch_confirmed_lineups(today_et)
+            _home = mg.get("home_team", "")
+            _away = mg.get("away_team", "")
+            _batters = []
+            for _team in [_home, _away]:
+                _norm = _TNMAP2.get(_team, _team)
+                # Chercher les frappeurs du lineup confirmé
+                for _tid, _lineup in _lineups.items():
+                    if isinstance(_lineup, list):
+                        for _p in _lineup[:9]:  # top 9 de l'ordre
+                            _batters.append({"name": _p, "team": _team})
+                    break
+            if not _batters:
+                # Fallback: frappeurs connus via MLB_BATTERS du props_analyzer
+                from mlb_props_analyzer import _TEAM_BATTERS
+                for _team in [_home, _away]:
+                    for _b in _TEAM_BATTERS.get(_team, [])[:6]:
+                        _batters.append({"name": _b, "team": _team})
+            if _batters:
+                _power = _analyze_power_batters(mg, _batters)
+                if _power:
+                    power_analysis.append({
+                        "home_team":      _home,
+                        "away_team":      _away,
+                        "commence_time":  mg.get("commence_time", ""),
+                        "power_batters":  _power,
+                    })
+                    print(f"  [Power] {len(_power)} frappeur(s) 4+ TB: {', '.join(b['player'] for b in _power[:3])}")
+        except Exception as _pe:
+            print(f"  [Power] Erreur: {_pe}")
 
     # Récupérer depuis le signal précédent les matchs:
     #   - pas encore commencés (pas encore dans l'API Odds) → conserve tel quel
@@ -292,6 +328,7 @@ def main():
         "props_analysis":   props_by_game,
         "nba_analysis":     nba_analysis,
         "mlb_analysis":     mlb_analysis,
+        "power_analysis":   power_analysis,
     }
 
     # ── 9. Analyse experte IA ─────────────────────────────────────────────────
