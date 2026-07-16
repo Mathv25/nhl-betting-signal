@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-15T01:49:07.097554+00:00",
-  "date": "2026-07-14",
+  "generated_at": "2026-07-16T05:15:31.707364+00:00",
+  "date": "2026-07-16",
   "bookmaker": "bet365",
   "total_games": 0,
   "total_value_bets": 0,
@@ -8,7 +8,120 @@
   "value_bets": [],
   "props_analysis": [],
   "nba_analysis": [],
-  "mlb_analysis": [],
-  "power_analysis": [],
+  "mlb_analysis": [
+    {
+      "home_team": "Philadelphia Phillies",
+      "away_team": "New York Mets",
+      "bets": [
+        {
+          "player": "Christian Scott",
+          "team": "New York Mets",
+          "opponent": "Philadelphia Phillies",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 5.5",
+          "stat_key": "strikeouts",
+          "line": 5.5,
+          "season_avg": 6.05,
+          "adj_proj": 6.65,
+          "opp_k_rate": 23.6,
+          "park_factor": 1.0,
+          "our_prob": 61.6,
+          "edge_pct": 0,
+          "kelly": 0,
+          "est_odds": 0,
+          "dk_implied": 0,
+          "k_curve": [
+            {
+              "line": 2.5,
+              "k_exact": 3,
+              "prob": 95.2
+            },
+            {
+              "line": 3.5,
+              "k_exact": 4,
+              "prob": 88.6
+            },
+            {
+              "line": 4.5,
+              "k_exact": 5,
+              "prob": 77.4
+            },
+            {
+              "line": 5.5,
+              "k_exact": 6,
+              "prob": 61.6
+            },
+            {
+              "line": 6.5,
+              "k_exact": 7,
+              "prob": 43.7
+            },
+            {
+              "line": 7.5,
+              "k_exact": 8,
+              "prob": 26.9
+            },
+            {
+              "line": 8.5,
+              "k_exact": 9,
+              "prob": 14.2
+            },
+            {
+              "line": 9.5,
+              "k_exact": 10,
+              "prob": 6.3
+            }
+          ],
+          "context": [
+            "Rolling 5dep: 6.15K · Saison: 5.82K · Blend: 6.05K",
+            "Adversaire K% (10j): 23.6% (favorable)"
+          ]
+        }
+      ],
+      "commence_time": "2026-07-16T23:11:00Z"
+    }
+  ],
+  "power_analysis": [
+    {
+      "home_team": "Philadelphia Phillies",
+      "away_team": "New York Mets",
+      "commence_time": "2026-07-16T23:11:00Z",
+      "power_batters": [
+        {
+          "player": "Pete Alonso",
+          "team": "New York Mets",
+          "mean_tb": 1.955,
+          "rolling_avg": 2.04,
+          "season_avg": 1.79,
+          "hr_rate": 0.2,
+          "hot_streak": 1.0,
+          "games": 15,
+          "curve": [
+            {
+              "n": 4,
+              "prob": 20.5
+            },
+            {
+              "n": 5,
+              "prob": 8.8
+            },
+            {
+              "n": 6,
+              "prob": 3.0
+            },
+            {
+              "n": 7,
+              "prob": 0.8
+            },
+            {
+              "n": 8,
+              "prob": 0.5
+            }
+          ],
+          "p4": 20.5
+        }
+      ]
+    }
+  ],
   "ai_analysis": {}
 }
