@@ -45,7 +45,7 @@ STAT_CONFIGS = [
     {"key": "strikeouts",  "label": "Retraits au baton", "min_avg": 5.0,  "player_type": "pitcher"},
 ]
 
-MIN_EDGE   = 12.0  # Relevé de 8% → 12% — filtre les bets faible conviction (WR 30% sous 12%)
+MIN_EDGE   = 15.0  # Relevé de 12% → 15% — on ne garde que la tranche edge>=15 (52% WR, seule profitable au backtest)
 MAX_EDGE   = 35.0
 B365_IMPLIED = 52.63  # ~1.909 cotes b365 standard — référence fixe (algo 70% WR)
 B365_ODDS    = 1.909

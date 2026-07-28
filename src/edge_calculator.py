@@ -3,8 +3,8 @@ Edge Calculator v3 — Modele NHL calibre post-backtest
 Corrections majeures:
 1. Motivation reduite vers 1.0 (0.95-1.03 au lieu de 0.80-1.08)
 2. Application differentielle motivation (pas multiplicative sur les deux equipes)
-3. Caps edges conserves (15% ML, 12% PL, 20% Totals)
-4. MIN_EDGE remonte a 5% (les 3-5% ne sont pas rentables)
+3. Caps edges releves a 25% (ML/PL/Totals) pour laisser passer le filtre >=15%
+4. MIN_EDGE remonte a 15% (seule la tranche edge>=15 est profitable — 52% WR au backtest)
 """
 
 import math
@@ -13,7 +13,7 @@ import requests
 from typing import Optional
 from nhl_stats import TeamStats, PlayerStats, LineupValidator
 
-MIN_EDGE_PCT  = 5.0   # Monte de 3 a 5 — les 3-5% perdent de l'argent
+MIN_EDGE_PCT  = 15.0  # Monte a 15 — on ne garde que la tranche edge>=15 (52% WR, seule profitable)
 MIN_ODDS      = 1.25  # Props/spreads: lignes naturellement basses
 MIN_ODDS_ML   = 1.70  # Moneyline: gros favoris < 1.70 = marché trop efficient
 MAX_ODDS      = 10.0
@@ -35,9 +35,9 @@ GOALIE_COLD_SV = 0.895      # SV% seuil pour "en difficulte"
 KELLY_DIVISOR = 4
 SHRINKAGE     = 0.25
 
-MAX_EDGE_ML    = 15.0
-MAX_EDGE_PL    = 12.0
-MAX_EDGE_TOT   = 20.0
+MAX_EDGE_ML    = 25.0   # Releve de 15 — sinon le filtre MIN_EDGE_PCT=15 est impossible a atteindre
+MAX_EDGE_PL    = 25.0   # Releve de 12 — idem (12 < 15 tuait tous les puck lines)
+MAX_EDGE_TOT   = 25.0   # Releve de 20 — coherence avec le nouveau plancher a 15
 
 MAX_PROB_MINUS_15 = 0.40
 MAX_PROB_PLUS_15  = 0.82

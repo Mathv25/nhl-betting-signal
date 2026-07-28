@@ -15,7 +15,7 @@ NHL_API   = "https://api-web.nhle.com/v1"
 SEASON    = "20252026"
 GAME_TYPE = "2"
 
-MIN_EDGE             = 10.0   # Abaisse de 15 — 10% edge est rentable si calibration correcte
+MIN_EDGE             = 15.0   # Relevé à 15 — on ne garde que la tranche edge>=15 (52% WR, seule profitable au backtest)
 MIN_EDGE_SHOTS       = 15.0   # Abaisse de 20 — 20% etait introuvable en pratique
 MAX_EDGE_DISPLAY     = 25.0
 B365_VIG_IMPL        = 53.49 / 100
