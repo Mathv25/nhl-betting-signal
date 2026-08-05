@@ -252,8 +252,28 @@ def main():
                 for _team in [_home, _away]:
                     for _b in _TEAM_BATTERS.get(_team, [])[:6]:
                         _batters.append({"name": _b, "team": _team})
+            # Lanceur partant adverse par équipe + facteur de terrain
+            _opp_pitchers = {}
+            _park_factor = 1.0
+            try:
+                from mlb_starters import fetch_probable_starters as _fps, get_starter_for_team as _gst2, TEAM_NAME_MAP as _TNMAP3
+                from mlb_batter_power import PARK_TB_FACTOR as _PARK
+                _st = _fps(today_et)
+                _home_n = _TNMAP3.get(_home, _home)
+                _away_n = _TNMAP3.get(_away, _away)
+                # Un frappeur affronte le partant de l'équipe ADVERSE
+                _opp_pitchers = {
+                    _home: _gst2(_away_n, _home_n, _st),   # frappeurs domicile vs partant visiteur
+                    _away: _gst2(_home_n, _away_n, _st),   # frappeurs visiteurs vs partant domicile
+                }
+                _park_factor = _PARK.get(_home_n, 1.0)
+            except Exception:
+                pass
+
             if _batters:
-                _power = _analyze_power_batters(mg, _batters)
+                _power = _analyze_power_batters(mg, _batters,
+                                                opp_pitchers=_opp_pitchers,
+                                                park_factor=_park_factor)
                 if _power:
                     power_analysis.append({
                         "home_team":      _home,

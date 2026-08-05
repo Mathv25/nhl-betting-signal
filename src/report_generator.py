@@ -712,6 +712,24 @@ class ReportGenerator:
                 hot_str = ("↑ En feu" if hot > 0.3 else "↓ En baisse" if hot < -0.3 else "→ Stable")
                 hot_col = "#0F6E56" if hot > 0.3 else "#DC2626" if hot < -0.3 else "#6B7280"
 
+                opp = b.get("opponent", "")
+                ctx = b.get("context", [])
+                if opp or ctx:
+                    _items = "".join(
+                        "<span style='display:inline-block;margin:2px 4px 0 0;padding:2px 6px;"
+                        "background:#EDE9FE;border-radius:4px'>" + str(x) + "</span>"
+                        for x in ctx
+                    )
+                    matchup_html = (
+                        "<div style='margin:6px 0;padding:8px 10px;background:#F5F3FF;"
+                        "border-radius:8px;font-size:12px;color:#4C1D95'>"
+                        + ("<b>vs " + opp + "</b><br>" if opp else "")
+                        + _items +
+                        "</div>"
+                    )
+                else:
+                    matchup_html = ""
+
                 html += (
                     "<div class='mlb-card'>"
                     "<div class='mlb-card-head'>"
@@ -730,6 +748,7 @@ class ReportGenerator:
                     "<div class='mlb-stat'><span>HR/match</span><strong>" + str(hr_rate) + "</strong></div>"
                     "<div class='mlb-stat'><span>Tendance</span><strong style='color:" + hot_col + "'>" + hot_str + "</strong></div>"
                     "</div>"
+                    + matchup_html +
                     "<div class='mlb-k-curve'>"
                     "<span class='mlb-k-curve-title'>P(TB ≥ N) — cliquer, entrer cote bet365</span>"
                 )
@@ -1225,6 +1244,11 @@ class ReportGenerator:
             "h+='<div class=\"mlb-stat\"><span>HR/match</span><strong>'+(b.hr_rate||0)+'</strong></div>';"
             "h+='<div class=\"mlb-stat\"><span>Tendance</span><strong style=\"color:'+hotCol+'\">'+hotStr+'</strong></div>';"
             "h+='</div>';"
+            "if(b.opponent||(b.context&&b.context.length)){"
+            "h+='<div style=\"margin:6px 0;padding:8px 10px;background:#F5F3FF;border-radius:8px;font-size:12px;color:#4C1D95\">';"
+            "if(b.opponent)h+='<b>vs '+b.opponent+'</b><br>';"
+            "(b.context||[]).forEach(function(x){h+='<span style=\"display:inline-block;margin:2px 4px 0 0;padding:2px 6px;background:#EDE9FE;border-radius:4px\">'+x+'</span>';});"
+            "h+='</div>';}"
             "h+='<div class=\"mlb-k-curve\"><span class=\"mlb-k-curve-title\">P(TB ≥ N) — cliquer, entrer cote bet365</span>';"
             "(b.curve||[]).forEach(function(c){"
             "h+='<div class=\"mlb-k-cell\" style=\"border:1px solid var(--b);cursor:pointer\" onclick=\"mlbCalcSel(\\''+cid+'\\','+c.n+','+c.prob+')\">';"
