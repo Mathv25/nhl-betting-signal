@@ -406,6 +406,19 @@ def _kelly(prob: float, dk_implied: float = B365_IMPLIED, dk_odds: float = B365_
     return round(max(k, 0.0), 1)
 
 
+# ── Calibration empirique (Platt linéaire) ────────────────────────────────────
+# Le modèle brut est surconfiant de ~9 pts (dit 60.8% en moyenne, réalité 51.9%).
+# Ajusté sur 626 bets strikeouts résolus: réel ≈ 1.8 + 0.824 * prédit.
+# À réviser quand plus de données calibrées seront disponibles.
+CAL_A = 1.8
+CAL_B = 0.824
+
+
+def _calibrate(prob: float) -> float:
+    """Corrige la surconfiance du modèle vers la fréquence réellement observée."""
+    return round(max(min(CAL_A + CAL_B * prob, 99.0), 1.0), 1)
+
+
 def _k_curve(adj_mean: float, std: float) -> list:
     """
     Génère la courbe de probabilité pour K >= N (N=3 à 10).
@@ -414,7 +427,7 @@ def _k_curve(adj_mean: float, std: float) -> list:
     """
     curve = []
     for k in range(3, 11):
-        prob = _normal_over(adj_mean, std, k - 0.5)  # P(K >= k) = P(K > k-0.5)
+        prob = _calibrate(_normal_over(adj_mean, std, k - 0.5))  # P(K >= k), calibré
         curve.append({
             "line":    k - 0.5,   # format Over X.5 pour cohérence backtester
             "k_exact": k,
@@ -471,7 +484,7 @@ def _best_dk_edge(adj_mean: float, std: float, dk_lines: list) -> dict | None:
         dk_odds = c.get("over_odds", 0)
         if line is None or dk_impl <= 0 or dk_odds <= 0:
             continue
-        prob = _normal_over(adj_mean, std, line)
+        prob = _calibrate(_normal_over(adj_mean, std, line))
         edge = _edge(prob, dk_impl)
         if best is None or edge > best["edge_pct"]:
             best = {
