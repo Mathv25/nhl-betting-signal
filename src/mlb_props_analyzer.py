@@ -11,7 +11,11 @@ Meilleures pratiques integrees:
   3. Park factors (Coors +runs, Oracle Park -runs)
   4. Distribution normale calibree MLB
   5. Critere de Kelly fractionne (1/4) pour gestion du risque
+  6. Edge reel vs cotes DraftKings — on ne recommande QUE les Overs a valeur
+     (notre prob > prob implicite du marche) et on enregistre la vraie cote
+     pour un suivi de profit fiable
 """
+from __future__ import annotations
 
 import math
 
@@ -453,6 +457,34 @@ def _k_best_line(adj_mean: float, std: float) -> dict | None:
     }
 
 
+def _best_dk_edge(adj_mean: float, std: float, dk_lines: list) -> dict | None:
+    """
+    Parmi les lignes K offertes par DraftKings, retourne celle ou NOTRE edge est
+    maximal (notre prob vs prob implicite DK). Permet de ne recommander que la
+    vraie valeur et d'enregistrer la cote reelle (profit tracable dans le backtester).
+    Retourne {line, our_prob, dk_implied, est_odds, edge_pct, kelly} ou None.
+    """
+    best = None
+    for c in dk_lines or []:
+        line    = c.get("line")
+        dk_impl = c.get("over_implied", 0)
+        dk_odds = c.get("over_odds", 0)
+        if line is None or dk_impl <= 0 or dk_odds <= 0:
+            continue
+        prob = _normal_over(adj_mean, std, line)
+        edge = _edge(prob, dk_impl)
+        if best is None or edge > best["edge_pct"]:
+            best = {
+                "line":       line,
+                "our_prob":   prob,
+                "dk_implied": round(dk_impl, 1),
+                "est_odds":   round(dk_odds, 3),
+                "edge_pct":   edge,
+                "kelly":      _kelly(prob, dk_impl, dk_odds),
+            }
+    return best
+
+
 def _park_label(pf: float) -> str:
     if pf >= 1.08:
         return "Tres favorable frappeurs"
@@ -708,33 +740,47 @@ class MLBPropsAnalyzer:
                             print(f"    [MLB Skip] {pitcher}: DK impl {dk_over_impl:.1f}% > notre prob {our_prob_at_line:.1f}% sur Over {closest['line']} → marché surprice")
                             continue
 
-                # ── Ligne recommandée basée sur notre projection ────────────────
-                best = _k_best_line(adj_mean, std)
-                if best is None:
-                    print(f"    [MLB Skip] {pitcher}: proj={adj_mean:.1f}K < seuil ou données insuffisantes")
-                    continue
+                # ── Ligne recommandée + edge réel vs cotes DK ───────────────────
                 curve = _k_curve(adj_mean, std)
                 curve_str = " | ".join(f"K≥{c['k_exact']}:{c['prob']:.0f}%" for c in curve if 3 <= c["k_exact"] <= 9)
                 print(f"    [MLB Courbe] {pitcher}: {curve_str}")
-                print(f"    [MLB BET]   {pitcher}: Over {best['k_exact']-1}.5 K — prob {best['prob']:.0f}% (proj {adj_mean:.1f}K)")
+
+                dk_best = _best_dk_edge(adj_mean, std, dk_lines) if use_real else None
+                if dk_best is not None:
+                    if not (MIN_EDGE <= dk_best["edge_pct"] <= MAX_EDGE):
+                        print(f"    [MLB Skip] {pitcher}: edge réel {dk_best['edge_pct']:.1f}% hors [{MIN_EDGE},{MAX_EDGE}] (pas de valeur fiable)")
+                        continue
+                    rec_line, our_prob = dk_best["line"], dk_best["our_prob"]
+                    edge_pct, kelly_v  = dk_best["edge_pct"], dk_best["kelly"]
+                    est_odds_v, dk_impl_v = dk_best["est_odds"], dk_best["dk_implied"]
+                    print(f"    [MLB BET]   {pitcher}: Over {rec_line} — prob {our_prob:.0f}% vs DK {dk_impl_v:.0f}% → edge {edge_pct:.1f}%")
+                else:
+                    # Pas de cote DK → projection seule (calculateur manuel), pas comptée comme valeur
+                    best = _k_best_line(adj_mean, std)
+                    if best is None:
+                        print(f"    [MLB Skip] {pitcher}: proj={adj_mean:.1f}K < seuil et pas de cote DK")
+                        continue
+                    rec_line, our_prob = best["line"], best["prob"]
+                    edge_pct, kelly_v, est_odds_v, dk_impl_v = 0, 0, 0, 0
+                    print(f"    [MLB PROJ]  {pitcher}: Over {rec_line} proj {adj_mean:.1f}K (pas de cote DK)")
 
                 ev_bets.append({
                     "player":        pitcher,
                     "team":          team,
                     "opponent":      opp,
                     "player_type":   "pitcher",
-                    "market":        f"{cfg_k['label']} Over {best['k_exact'] - 1}.5",
+                    "market":        f"{cfg_k['label']} Over {rec_line}",
                     "stat_key":      "strikeouts",
-                    "line":          best["line"],
+                    "line":          rec_line,
                     "season_avg":    mean_k,
                     "adj_proj":      adj_mean,
                     "opp_k_rate":    round(opp_k_rate * 100, 1),
                     "park_factor":   park_factor,
-                    "our_prob":      best["prob"],
-                    "edge_pct":      best["edge"],
-                    "kelly":         best["kelly"],
-                    "est_odds":      best["est_odds"],
-                    "dk_implied":    best["dk_implied"],
+                    "our_prob":      our_prob,
+                    "edge_pct":      edge_pct,
+                    "kelly":         kelly_v,
+                    "est_odds":      est_odds_v,
+                    "dk_implied":    dk_impl_v,
                     "k_curve":       curve,   # courbe complète pour affichage frontend
                     "context":       context,
                 })
@@ -803,23 +849,35 @@ class MLBPropsAnalyzer:
                     park_lbl = _park_label(park_factor)
                     if park_factor != 1.00:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
-                    # Ligne recommandée via notre projection
-                    best = _k_best_line(adj_mean, std)
-                    if best is None:
-                        continue
+                    # Ligne recommandée + edge réel vs cotes DK
                     curve = _k_curve(adj_mean, std)
-                    print(f"    [MLB Hors Dict] {display} Over {best['k_exact']-1}.5 K proj {adj_mean:.1f} — prob {best['prob']:.0f}%")
+                    dk_best = _best_dk_edge(adj_mean, std, dk_lines)
+                    if dk_best is not None:
+                        if not (MIN_EDGE <= dk_best["edge_pct"] <= MAX_EDGE):
+                            print(f"    [MLB Hors Dict Skip] {display}: edge réel {dk_best['edge_pct']:.1f}% hors [{MIN_EDGE},{MAX_EDGE}]")
+                            continue
+                        rec_line, our_prob = dk_best["line"], dk_best["our_prob"]
+                        edge_pct, kelly_v  = dk_best["edge_pct"], dk_best["kelly"]
+                        est_odds_v, dk_impl_v = dk_best["est_odds"], dk_best["dk_implied"]
+                        print(f"    [MLB Hors Dict BET] {display}: Over {rec_line} — prob {our_prob:.0f}% vs DK {dk_impl_v:.0f}% → edge {edge_pct:.1f}%")
+                    else:
+                        best = _k_best_line(adj_mean, std)
+                        if best is None:
+                            continue
+                        rec_line, our_prob = best["line"], best["prob"]
+                        edge_pct, kelly_v, est_odds_v, dk_impl_v = 0, 0, 0, 0
+                        print(f"    [MLB Hors Dict PROJ] {display}: Over {rec_line} proj {adj_mean:.1f} (pas de cote DK)")
                     ev_bets.append({
                         "player": display, "team": team, "opponent": opp,
                         "player_type": "pitcher",
-                        "market": f"{cfg_k['label']} Over {best['k_exact'] - 1}.5",
-                        "stat_key": "strikeouts", "line": best["line"],
+                        "market": f"{cfg_k['label']} Over {rec_line}",
+                        "stat_key": "strikeouts", "line": rec_line,
                         "season_avg": mean_k, "adj_proj": adj_mean,
                         "opp_k_rate": round(opp_k_rate * 100, 1),
-                        "park_factor": park_factor, "our_prob": best["prob"],
-                        "edge_pct": best["edge"],
-                        "kelly": best["kelly"],
-                        "est_odds": best["est_odds"], "dk_implied": best["dk_implied"],
+                        "park_factor": park_factor, "our_prob": our_prob,
+                        "edge_pct": edge_pct,
+                        "kelly": kelly_v,
+                        "est_odds": est_odds_v, "dk_implied": dk_impl_v,
                         "k_curve": curve,
                         "context": context,
                     })
