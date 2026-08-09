@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T13:43:55.906039+00:00",
+  "generated_at": "2026-08-09T14:28:53.718402+00:00",
   "date": "2026-08-09",
   "bookmaker": "bet365",
   "total_games": 0,
@@ -26,10 +26,10 @@
           "opp_k_rate": 19.7,
           "park_factor": 1.04,
           "our_prob": 54.5,
-          "edge_pct": 25.9,
-          "kelly": 4.9,
-          "est_odds": 2.31,
-          "dk_implied": 43.3,
+          "edge_pct": 26.5,
+          "kelly": 5.0,
+          "est_odds": 2.32,
+          "dk_implied": 43.1,
           "k_curve": [
             {
               "line": 2.5,
@@ -79,6 +79,76 @@
         }
       ],
       "commence_time": "2026-08-09T20:10:00Z"
+    },
+    {
+      "home_team": "Seattle Mariners",
+      "away_team": "Tampa Bay Rays",
+      "bets": [
+        {
+          "player": "Ian Seymour",
+          "team": "Tampa Bay Rays",
+          "opponent": "Seattle Mariners",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 5.5",
+          "stat_key": "strikeouts",
+          "line": 5.5,
+          "season_avg": 6.63,
+          "adj_proj": 6.81,
+          "opp_k_rate": 22.1,
+          "park_factor": 0.95,
+          "our_prob": 54.6,
+          "edge_pct": 0,
+          "kelly": 0,
+          "est_odds": 0,
+          "dk_implied": 0,
+          "k_curve": [
+            {
+              "line": 2.5,
+              "k_exact": 3,
+              "prob": 80.5
+            },
+            {
+              "line": 3.5,
+              "k_exact": 4,
+              "prob": 75.5
+            },
+            {
+              "line": 4.5,
+              "k_exact": 5,
+              "prob": 66.9
+            },
+            {
+              "line": 5.5,
+              "k_exact": 6,
+              "prob": 54.6
+            },
+            {
+              "line": 6.5,
+              "k_exact": 7,
+              "prob": 40.2
+            },
+            {
+              "line": 7.5,
+              "k_exact": 8,
+              "prob": 26.4
+            },
+            {
+              "line": 8.5,
+              "k_exact": 9,
+              "prob": 15.4
+            },
+            {
+              "line": 9.5,
+              "k_exact": 10,
+              "prob": 8.2
+            }
+          ],
+          "context": [
+            "Terrain: Favorable lanceurs (PF 0.95)"
+          ]
+        }
+      ],
+      "commence_time": "2026-08-09T20:11:00Z"
     },
     {
       "home_team": "Texas Rangers",
@@ -593,6 +663,54 @@
             "vs LHP: SLG 0.593 (140 AB, x1.2)",
             "parc x1.02",
             "H2H 17 TB/26 AB (.308 AVG, poids 52%)"
+          ]
+        }
+      ]
+    },
+    {
+      "home_team": "Seattle Mariners",
+      "away_team": "Tampa Bay Rays",
+      "commence_time": "2026-08-09T20:11:00Z",
+      "power_batters": [
+        {
+          "player": "Julio Rodriguez",
+          "team": "Seattle Mariners",
+          "opponent": "Ian Seymour",
+          "mean_tb": 2.072,
+          "base_mean_tb": 1.862,
+          "rolling_avg": 1.96,
+          "season_avg": 1.69,
+          "hr_rate": 0.2,
+          "hot_streak": 1.4,
+          "games": 15,
+          "curve": [
+            {
+              "n": 4,
+              "prob": 20.7
+            },
+            {
+              "n": 5,
+              "prob": 8.3
+            },
+            {
+              "n": 6,
+              "prob": 2.5
+            },
+            {
+              "n": 7,
+              "prob": 0.6
+            },
+            {
+              "n": 8,
+              "prob": 0.5
+            }
+          ],
+          "p4": 20.7,
+          "base_p4": 17.4,
+          "context": [
+            "lanceur SLG-contre 0.413 (x1.007)",
+            "vs LHP: SLG 0.487 (113 AB, x1.188)",
+            "parc x0.93"
           ]
         }
       ]
