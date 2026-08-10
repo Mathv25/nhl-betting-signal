@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-10T01:12:42.280843+00:00",
-  "date": "2026-08-09",
+  "generated_at": "2026-08-10T05:20:36.228531+00:00",
+  "date": "2026-08-10",
   "bookmaker": "bet365",
   "total_games": 0,
   "total_value_bets": 0,
@@ -8,94 +8,522 @@
   "value_bets": [],
   "props_analysis": [],
   "nba_analysis": [],
-  "mlb_analysis": [],
+  "mlb_analysis": [
+    {
+      "home_team": "Los Angeles Dodgers",
+      "away_team": "Kansas City Royals",
+      "bets": [
+        {
+          "player": "Noah Cameron",
+          "team": "Kansas City Royals",
+          "opponent": "Los Angeles Dodgers",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 7.25,
+          "adj_proj": 6.97,
+          "opp_k_rate": 20.7,
+          "park_factor": 0.95,
+          "our_prob": 68.0,
+          "edge_pct": 18.3,
+          "kelly": 6.2,
+          "est_odds": 1.74,
+          "dk_implied": 57.5,
+          "k_curve": [
+            {
+              "line": 2.5,
+              "k_exact": 3,
+              "prob": 80.7
+            },
+            {
+              "line": 3.5,
+              "k_exact": 4,
+              "prob": 76.1
+            },
+            {
+              "line": 4.5,
+              "k_exact": 5,
+              "prob": 68.0
+            },
+            {
+              "line": 5.5,
+              "k_exact": 6,
+              "prob": 56.4
+            },
+            {
+              "line": 6.5,
+              "k_exact": 7,
+              "prob": 42.6
+            },
+            {
+              "line": 7.5,
+              "k_exact": 8,
+              "prob": 28.7
+            },
+            {
+              "line": 8.5,
+              "k_exact": 9,
+              "prob": 17.4
+            },
+            {
+              "line": 9.5,
+              "k_exact": 10,
+              "prob": 9.5
+            }
+          ],
+          "context": [
+            "Terrain: Favorable lanceurs (PF 0.95)"
+          ]
+        }
+      ],
+      "commence_time": "2026-08-11T02:10:00Z"
+    }
+  ],
   "power_analysis": [
     {
-      "home_team": "San Diego Padres",
-      "away_team": "Houston Astros",
-      "commence_time": "2026-08-10T00:21:23Z",
+      "home_team": "Toronto Blue Jays",
+      "away_team": "Boston Red Sox",
+      "commence_time": "2026-08-10T23:07:00Z",
       "power_batters": [
         {
-          "player": "Yordan Alvarez",
-          "team": "Houston Astros",
-          "opponent": "Randy Vásquez",
-          "mean_tb": 2.221,
-          "base_mean_tb": 1.726,
-          "rolling_avg": 1.41,
-          "season_avg": 2.3,
-          "hr_rate": 0.067,
-          "hot_streak": -1.3,
+          "player": "Rafael Devers",
+          "team": "Boston Red Sox",
+          "opponent": "Jameson Taillon",
+          "mean_tb": 2.658,
+          "base_mean_tb": 1.65,
+          "rolling_avg": 1.57,
+          "season_avg": 1.8,
+          "hr_rate": 0.2,
+          "hot_streak": -0.1,
           "games": 15,
           "curve": [
             {
               "n": 4,
-              "prob": 25.5
+              "prob": 33.9
             },
             {
               "n": 5,
-              "prob": 12.1
+              "prob": 18.1
             },
             {
               "n": 6,
-              "prob": 4.6
+              "prob": 8.0
             },
             {
               "n": 7,
-              "prob": 1.4
+              "prob": 2.9
             },
             {
               "n": 8,
-              "prob": 0.5
+              "prob": 0.8
             }
           ],
-          "p4": 25.5,
-          "base_p4": 18.1,
+          "p4": 33.9,
+          "base_p4": 18.0,
           "context": [
-            "lanceur SLG-contre 0.468 (x1.141)",
-            "vs RHP: SLG 0.675 (305 AB, x1.2)",
-            "parc x0.94"
+            "lanceur SLG-contre 0.556 (x1.25)",
+            "vs RHP: SLG 0.564 (298 AB, x1.2)",
+            "parc x1.01",
+            "H2H 10 TB/13 AB (.308 AVG, poids 38%)"
           ]
         },
         {
-          "player": "Kyle Tucker",
-          "team": "Houston Astros",
-          "opponent": "Randy Vásquez",
-          "mean_tb": 2.075,
-          "base_mean_tb": 1.82,
+          "player": "Alex Bregman",
+          "team": "Boston Red Sox",
+          "opponent": "Jameson Taillon",
+          "mean_tb": 2.163,
+          "base_mean_tb": 1.85,
           "rolling_avg": 2.02,
-          "season_avg": 1.44,
-          "hr_rate": 0.267,
-          "hot_streak": 1.4,
+          "season_avg": 1.53,
+          "hr_rate": 0.133,
+          "hot_streak": -0.5,
           "games": 15,
           "curve": [
             {
               "n": 4,
-              "prob": 21.2
+              "prob": 28.7
             },
             {
               "n": 5,
-              "prob": 8.7
+              "prob": 16.3
             },
             {
               "n": 6,
-              "prob": 2.7
+              "prob": 8.0
             },
             {
               "n": 7,
-              "prob": 0.7
+              "prob": 3.4
+            },
+            {
+              "n": 8,
+              "prob": 1.2
+            }
+          ],
+          "p4": 28.7,
+          "base_p4": 24.4,
+          "context": [
+            "lanceur SLG-contre 0.556 (x1.25)",
+            "vs RHP: SLG 0.376 (351 AB, x0.917)",
+            "parc x1.01",
+            "H2H 7 TB/12 AB (.333 AVG, poids 29%)"
+          ]
+        }
+      ]
+    },
+    {
+      "home_team": "Atlanta Braves",
+      "away_team": "New York Mets",
+      "commence_time": "2026-08-10T23:15:00Z",
+      "power_batters": [
+        {
+          "player": "Francisco Lindor",
+          "team": "New York Mets",
+          "opponent": "Bryce Elder",
+          "mean_tb": 2.527,
+          "base_mean_tb": 1.739,
+          "rolling_avg": 1.79,
+          "season_avg": 1.64,
+          "hr_rate": 0.267,
+          "hot_streak": -0.6,
+          "games": 15,
+          "curve": [
+            {
+              "n": 4,
+              "prob": 36.8
+            },
+            {
+              "n": 5,
+              "prob": 24.7
+            },
+            {
+              "n": 6,
+              "prob": 15.2
+            },
+            {
+              "n": 7,
+              "prob": 8.4
+            },
+            {
+              "n": 8,
+              "prob": 4.2
+            }
+          ],
+          "p4": 36.8,
+          "base_p4": 27.1,
+          "context": [
+            "lanceur SLG-contre 0.386 (x0.941)",
+            "vs RHP: SLG 0.424 (172 AB, x1.034)",
+            "H2H 14 TB/13 AB (.462 AVG, poids 35%)"
+          ]
+        },
+        {
+          "player": "Pete Alonso",
+          "team": "New York Mets",
+          "opponent": "Bryce Elder",
+          "mean_tb": 2.118,
+          "base_mean_tb": 2.05,
+          "rolling_avg": 2.19,
+          "season_avg": 1.78,
+          "hr_rate": 0.267,
+          "hot_streak": 0.5,
+          "games": 15,
+          "curve": [
+            {
+              "n": 4,
+              "prob": 28.9
+            },
+            {
+              "n": 5,
+              "prob": 16.9
+            },
+            {
+              "n": 6,
+              "prob": 8.7
+            },
+            {
+              "n": 7,
+              "prob": 3.9
+            },
+            {
+              "n": 8,
+              "prob": 1.5
+            }
+          ],
+          "p4": 28.9,
+          "base_p4": 28.0,
+          "context": [
+            "lanceur SLG-contre 0.386 (x0.941)",
+            "vs RHP: SLG 0.497 (308 AB, x1.2)",
+            "H2H 8 TB/17 AB (.235 AVG, poids 38%)"
+          ]
+        },
+        {
+          "player": "Matt Olson",
+          "team": "Atlanta Braves",
+          "opponent": "Christian Scott",
+          "mean_tb": 2.261,
+          "base_mean_tb": 2.662,
+          "rolling_avg": 2.94,
+          "season_avg": 2.14,
+          "hr_rate": 0.467,
+          "hot_streak": 0.3,
+          "games": 15,
+          "curve": [
+            {
+              "n": 4,
+              "prob": 28.8
+            },
+            {
+              "n": 5,
+              "prob": 15.6
+            },
+            {
+              "n": 6,
+              "prob": 7.2
+            },
+            {
+              "n": 7,
+              "prob": 2.8
+            },
+            {
+              "n": 8,
+              "prob": 0.9
+            }
+          ],
+          "p4": 28.8,
+          "base_p4": 35.3,
+          "context": [
+            "lanceur SLG-contre 0.349 (x0.851)",
+            "vs RHP: SLG 0.573 (260 AB, x1.2)",
+            "H2H 1 TB/7 AB (.143 AVG, poids 21%)"
+          ]
+        },
+        {
+          "player": "Michael Harris II",
+          "team": "Atlanta Braves",
+          "opponent": "Christian Scott",
+          "mean_tb": 2.089,
+          "base_mean_tb": 1.723,
+          "rolling_avg": 1.61,
+          "season_avg": 1.92,
+          "hr_rate": 0.067,
+          "hot_streak": 1.1,
+          "games": 15,
+          "curve": [
+            {
+              "n": 4,
+              "prob": 22.1
+            },
+            {
+              "n": 5,
+              "prob": 9.5
+            },
+            {
+              "n": 6,
+              "prob": 3.2
+            },
+            {
+              "n": 7,
+              "prob": 0.8
             },
             {
               "n": 8,
               "prob": 0.5
             }
           ],
-          "p4": 21.2,
-          "base_p4": 17.3,
+          "p4": 22.1,
+          "base_p4": 16.7,
           "context": [
-            "lanceur SLG-contre 0.468 (x1.141)",
-            "vs RHP: SLG 0.373 (276 AB, x0.91)",
-            "parc x0.94",
-            "H2H 8 TB/11 AB (.455 AVG, poids 30%)"
+            "lanceur SLG-contre 0.349 (x0.851)",
+            "vs RHP: SLG 0.498 (271 AB, x1.2)",
+            "H2H 7 TB/8 AB (.500 AVG, poids 21%)"
+          ]
+        }
+      ]
+    },
+    {
+      "home_team": "St. Louis Cardinals",
+      "away_team": "Philadelphia Phillies",
+      "commence_time": "2026-08-10T23:46:00Z",
+      "power_batters": [
+        {
+          "player": "Trea Turner",
+          "team": "Philadelphia Phillies",
+          "opponent": "Hunter Dobbins",
+          "mean_tb": 2.033,
+          "base_mean_tb": 1.889,
+          "rolling_avg": 2.0,
+          "season_avg": 1.68,
+          "hr_rate": 0.2,
+          "hot_streak": -0.8,
+          "games": 15,
+          "curve": [
+            {
+              "n": 4,
+              "prob": 24.0
+            },
+            {
+              "n": 5,
+              "prob": 11.7
+            },
+            {
+              "n": 6,
+              "prob": 4.7
+            },
+            {
+              "n": 7,
+              "prob": 1.6
+            },
+            {
+              "n": 8,
+              "prob": 0.5
+            }
+          ],
+          "p4": 24.0,
+          "base_p4": 21.9,
+          "context": [
+            "lanceur SLG-contre 0.416 (x1.015)",
+            "vs RHP: SLG 0.439 (330 AB, x1.071)",
+            "parc x0.99"
+          ]
+        },
+        {
+          "player": "Bryce Harper",
+          "team": "Philadelphia Phillies",
+          "opponent": "Hunter Dobbins",
+          "mean_tb": 2.384,
+          "base_mean_tb": 1.977,
+          "rolling_avg": 2.07,
+          "season_avg": 1.81,
+          "hr_rate": 0.267,
+          "hot_streak": -0.4,
+          "games": 15,
+          "curve": [
+            {
+              "n": 4,
+              "prob": 23.9
+            },
+            {
+              "n": 5,
+              "prob": 8.9
+            },
+            {
+              "n": 6,
+              "prob": 2.4
+            },
+            {
+              "n": 7,
+              "prob": 0.5
+            },
+            {
+              "n": 8,
+              "prob": 0.5
+            }
+          ],
+          "p4": 23.9,
+          "base_p4": 16.6,
+          "context": [
+            "lanceur SLG-contre 0.416 (x1.015)",
+            "vs RHP: SLG 0.610 (264 AB, x1.2)",
+            "parc x0.99"
+          ]
+        }
+      ]
+    },
+    {
+      "home_team": "Los Angeles Angels",
+      "away_team": "Texas Rangers",
+      "commence_time": "2026-08-11T01:38:00Z",
+      "power_batters": [
+        {
+          "player": "Marcus Semien",
+          "team": "Texas Rangers",
+          "opponent": "Reid Detmers",
+          "mean_tb": 1.886,
+          "base_mean_tb": 1.467,
+          "rolling_avg": 1.58,
+          "season_avg": 1.26,
+          "hr_rate": 0.2,
+          "hot_streak": 1.5,
+          "games": 15,
+          "curve": [
+            {
+              "n": 4,
+              "prob": 23.6
+            },
+            {
+              "n": 5,
+              "prob": 12.2
+            },
+            {
+              "n": 6,
+              "prob": 5.4
+            },
+            {
+              "n": 7,
+              "prob": 2.0
+            },
+            {
+              "n": 8,
+              "prob": 0.6
+            }
+          ],
+          "p4": 23.6,
+          "base_p4": 18.3,
+          "context": [
+            "lanceur SLG-contre 0.374 (x0.912)",
+            "vs LHP: SLG 0.407 (86 AB, x0.993)",
+            "parc x0.99",
+            "H2H 21 TB/34 AB (.412 AVG, poids 55%)"
+          ]
+        }
+      ]
+    },
+    {
+      "home_team": "Los Angeles Dodgers",
+      "away_team": "Kansas City Royals",
+      "commence_time": "2026-08-11T02:10:00Z",
+      "power_batters": [
+        {
+          "player": "Shohei Ohtani",
+          "team": "Los Angeles Dodgers",
+          "opponent": "Noah Cameron",
+          "mean_tb": 2.658,
+          "base_mean_tb": 2.253,
+          "rolling_avg": 2.33,
+          "season_avg": 2.1,
+          "hr_rate": 0.267,
+          "hot_streak": -0.3,
+          "games": 15,
+          "curve": [
+            {
+              "n": 4,
+              "prob": 37.8
+            },
+            {
+              "n": 5,
+              "prob": 24.8
+            },
+            {
+              "n": 6,
+              "prob": 14.7
+            },
+            {
+              "n": 7,
+              "prob": 7.8
+            },
+            {
+              "n": 8,
+              "prob": 3.7
+            }
+          ],
+          "p4": 37.8,
+          "base_p4": 32.3,
+          "context": [
+            "lanceur SLG-contre 0.403 (x0.983)",
+            "vs LHP: SLG 0.576 (144 AB, x1.2)"
           ]
         }
       ]
