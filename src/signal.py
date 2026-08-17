@@ -233,25 +233,25 @@ def main():
 
         # ── Power batters: candidats 4+ TB ──────────────────────────────────
         try:
-            from mlb_starters import fetch_confirmed_lineups, TEAM_NAME_MAP as _TNMAP2
+            from mlb_starters import (fetch_confirmed_lineups,
+                                      is_on_active_roster as _ioar, is_in_lineup as _iil)
+            from mlb_props_analyzer import _TEAM_BATTERS
             _lineups = fetch_confirmed_lineups(today_et)
             _home = mg.get("home_team", "")
             _away = mg.get("away_team", "")
+            # Candidats = frappeurs connus (noms complets requis pour l'API MLB), mais on ne
+            # garde QUE ceux qui jouent réellement: présents sur le roster ACTIF (exclut les
+            # blessés/IL et les joueurs échangés, ex: Bregman, Devers) et, si le lineup du jour
+            # est déjà posté, effectivement dans ce lineup. is_on_active_roster/is_in_lineup
+            # restent permissifs (True) si la donnée n'est pas dispo → aucun faux négatif.
             _batters = []
             for _team in [_home, _away]:
-                _norm = _TNMAP2.get(_team, _team)
-                # Chercher les frappeurs du lineup confirmé
-                for _tid, _lineup in _lineups.items():
-                    if isinstance(_lineup, list):
-                        for _p in _lineup[:9]:  # top 9 de l'ordre
-                            _batters.append({"name": _p, "team": _team})
-                    break
-            if not _batters:
-                # Fallback: frappeurs connus via MLB_BATTERS du props_analyzer
-                from mlb_props_analyzer import _TEAM_BATTERS
-                for _team in [_home, _away]:
-                    for _b in _TEAM_BATTERS.get(_team, [])[:6]:
-                        _batters.append({"name": _b, "team": _team})
+                for _b in _TEAM_BATTERS.get(_team, []):
+                    if not _ioar(_b, _team):
+                        continue  # blessé/IL/échangé → n'apparaît plus dans le signal
+                    if not _iil(_b, _team, _lineups):
+                        continue  # lineup posté mais joueur pas dedans → exclu
+                    _batters.append({"name": _b, "team": _team})
             # Lanceur partant adverse par équipe + facteur de terrain
             _opp_pitchers = {}
             _park_factor = 1.0
