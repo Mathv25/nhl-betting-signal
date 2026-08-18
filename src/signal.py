@@ -231,58 +231,12 @@ def main():
             analysis["commence_time"] = mg.get("commence_time", "")
             mlb_analysis.append(analysis)
 
-        # ── Power batters: candidats 4+ TB ──────────────────────────────────
-        try:
-            from mlb_starters import (fetch_confirmed_lineup_names, get_active_position_players,
-                                      is_on_active_roster as _ioar, TEAM_NAME_MAP as _TNMAP2)
-            _lu_names = fetch_confirmed_lineup_names(today_et)
-            _home = mg.get("home_team", "")
-            _away = mg.get("away_team", "")
-            # Source des candidats = données MLB du jour (toujours à jour, plus de liste
-            # statique périmée): d'abord le lineup confirmé (noms complets = vrais partants),
-            # sinon les joueurs de position du roster ACTIF (exclut IL/échangés).
-            _batters = []
-            for _team in [_home, _away]:
-                _norm = _TNMAP2.get(_team, _team)
-                _cands = _lu_names.get(_team) or _lu_names.get(_norm) or []
-                if not _cands:
-                    _cands = get_active_position_players(_team) or get_active_position_players(_norm)
-                for _b in _cands:
-                    if not _ioar(_b, _team):
-                        continue  # filet de sécurité: exclut tout blessé/IL/échangé
-                    _batters.append({"name": _b, "team": _team})
-            # Lanceur partant adverse par équipe + facteur de terrain
-            _opp_pitchers = {}
-            _park_factor = 1.0
-            try:
-                from mlb_starters import fetch_probable_starters as _fps, get_starter_for_team as _gst2, TEAM_NAME_MAP as _TNMAP3
-                from mlb_batter_power import PARK_TB_FACTOR as _PARK
-                _st = _fps(today_et)
-                _home_n = _TNMAP3.get(_home, _home)
-                _away_n = _TNMAP3.get(_away, _away)
-                # Un frappeur affronte le partant de l'équipe ADVERSE
-                _opp_pitchers = {
-                    _home: _gst2(_away_n, _home_n, _st),   # frappeurs domicile vs partant visiteur
-                    _away: _gst2(_home_n, _away_n, _st),   # frappeurs visiteurs vs partant domicile
-                }
-                _park_factor = _PARK.get(_home_n, 1.0)
-            except Exception:
-                pass
-
-            if _batters:
-                _power = _analyze_power_batters(mg, _batters,
-                                                opp_pitchers=_opp_pitchers,
-                                                park_factor=_park_factor)
-                if _power:
-                    power_analysis.append({
-                        "home_team":      _home,
-                        "away_team":      _away,
-                        "commence_time":  mg.get("commence_time", ""),
-                        "power_batters":  _power,
-                    })
-                    print(f"  [Power] {len(_power)} frappeur(s) 4+ TB: {', '.join(b['player'] for b in _power[:3])}")
-        except Exception as _pe:
-            print(f"  [Power] Erreur: {_pe}")
+        # ── Power batters: candidats 4+ TB — DÉSACTIVÉ ──────────────────────
+        # Marché retiré: les paris sur les bases perdent structurellement
+        # (total_bases: 84 bets, 37% WR, ROI -24.4% vs K: +9.9%). power_analysis
+        # reste vide → le rapport masque automatiquement la section. Le code
+        # (_analyze_power_batters, mlb_batter_power) est conservé dans git si
+        # on veut le ressusciter un jour.
 
     # Récupérer depuis le signal précédent les matchs:
     #   - pas encore commencés (pas encore dans l'API Odds) → conserve tel quel
