@@ -228,6 +228,80 @@ def fetch_inactive_players(date_str: str = None) -> set:
     return set()
 
 
+_lineup_names_cache = {}   # date_str -> {team_name: [full names]}
+
+
+def fetch_confirmed_lineup_names(date_str: str = None) -> dict:
+    """
+    {team_name: [noms complets]} des frappeurs du lineup confirmé du jour.
+    Même source que fetch_confirmed_lineups (hydrate=lineups) mais conserve les
+    noms COMPLETS (nécessaires pour l'API stats). Vide pour une équipe si le
+    lineup n'est pas encore posté.
+    """
+    if date_str is None:
+        tz = pytz.timezone("America/Toronto")
+        date_str = datetime.now(tz).strftime("%Y-%m-%d")
+    if date_str in _lineup_names_cache:
+        return _lineup_names_cache[date_str]
+
+    result = {}
+    try:
+        r = requests.get(MLB_API, params={
+            "sportId": 1, "date": date_str, "hydrate": "lineups",
+        }, timeout=10)
+        r.raise_for_status()
+        data = r.json()
+    except Exception as e:
+        print(f"  [MLB Lineups noms] Erreur API: {e}")
+        _lineup_names_cache[date_str] = result
+        return result
+
+    for date_entry in data.get("dates", []):
+        for game in date_entry.get("games", []):
+            teams = game.get("teams", {})
+            home = TEAM_NAME_MAP.get(teams.get("home", {}).get("team", {}).get("name", ""))
+            away = TEAM_NAME_MAP.get(teams.get("away", {}).get("team", {}).get("name", ""))
+            lu = game.get("lineups", {})
+            if home and lu.get("homePlayers"):
+                result[home] = [p.get("fullName", "") for p in lu["homePlayers"] if p.get("fullName")]
+            if away and lu.get("awayPlayers"):
+                result[away] = [p.get("fullName", "") for p in lu["awayPlayers"] if p.get("fullName")]
+
+    _lineup_names_cache[date_str] = result
+    return result
+
+
+def get_active_position_players(team_name: str) -> list:
+    """
+    Noms complets des joueurs de position (non-lanceurs) sur le roster ACTIF.
+    Sert de fallback quand le lineup du jour n'est pas encore posté. Toujours à
+    jour (exclut IL/échangés). Retourne [] si équipe inconnue / API en échec.
+    """
+    key = f"pos_{team_name}"
+    if key in _active_roster_cache:
+        return _active_roster_cache[key]
+    team_id = TEAM_ID_MAP.get(team_name)
+    if not team_id:
+        return []
+    try:
+        r = requests.get(
+            f"https://statsapi.mlb.com/api/v1/teams/{team_id}/roster/active", timeout=10,
+        )
+        r.raise_for_status()
+        out = []
+        for p in r.json().get("roster", []):
+            if p.get("position", {}).get("type") != "Pitcher":
+                nm = p.get("person", {}).get("fullName", "")
+                if nm:
+                    out.append(nm)
+        _active_roster_cache[key] = out
+        return out
+    except Exception as e:
+        print(f"  [MLB Position players] Erreur {team_name}: {e}")
+        _active_roster_cache[key] = []
+        return []
+
+
 def fetch_confirmed_lineups(date_str: str = None, force_refresh: bool = False) -> dict:
     """
     Retourne {team_name: set(last_names)} pour tous les matchs MLB du jour.
