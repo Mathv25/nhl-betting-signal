@@ -1574,6 +1574,13 @@ class ReportGenerator:
             "return '<div class=\"hi\"><span>Cote '+h.od+' · Prob '+h.pr+'%</span>"
             "<span class=\"he\" style=\"color:'+ec2+'\">'+(h.ep>=0?'+':'')+h.ep.toFixed(1)+'%</span></div>';"
             "}).join('');}"
+            # Auto-bascule sur l'onglet MLB si la NHL est vide (hors-saison) mais que MLB a des bets
+            "(function(){function go(){try{var s=window._SIGNAL||{};"
+            "var mlb=(s.mlb_analysis||[]).reduce(function(n,g){return n+((g.bets||[]).length);},0);"
+            "var nhl=s.total_value_bets||0;"
+            "if(nhl===0&&mlb>0){var b=null;document.querySelectorAll('.tab').forEach(function(x){if(x.textContent.trim()==='MLB')b=x;});if(b)showTab('tab-mlb',b);}"
+            "}catch(e){}}"
+            "if(document.readyState!=='loading')go();else document.addEventListener('DOMContentLoaded',go);})();"
             "</script>"
         )
 
