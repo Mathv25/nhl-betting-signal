@@ -61,9 +61,11 @@ class ReportGenerator:
             # ── NBA ──
             "<div class=\"sec\" style=\"margin-top:1.5rem\">NBA</div>",
             nba_html if nba_html else "<p class=\"no-bets\">Aucun bet NBA identifie.</p>",
-            # ── MLB ──
+            # ── MLB: PAS ici — la section vit dans l'onglet MLB dédié. La dupliquer
+            #    créait des id='kc-<joueur>' en double → getElementById renvoyait le
+            #    div caché (onglet Signal) et le calculateur ne s'ouvrait pas sous les K.
             "<div class=\"sec\" style=\"margin-top:1.5rem\">MLB</div>",
-            mlb_html if mlb_html else "<p class=\"no-bets\">Aucun bet MLB identifie.</p>",
+            "<p class=\"no-bets\">Props MLB dans l'onglet <b>MLB</b> ↑ (calculateur d'edge sur chaque carte).</p>",
             # ── Table matchs NHL ──
             "<div class=\"sec\" style=\"margin-top:1.5rem\">Tous les matchs NHL</div>",
             self._table(rows),
