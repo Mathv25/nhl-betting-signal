@@ -39,6 +39,10 @@ W_MODEL = 0.35
 # Élasticité OPS → runs. Les runs varient à peu près comme OPS^1.8.
 OPS_ELASTICITY = 1.8
 
+# Marge du bookmaker supposée quand on ne peut pas déviger à deux voies
+# (cas du run line: le +1.5 n'est pas toujours coté par le même book).
+ASSUMED_VIG = 0.045
+
 # Les runs alloués dépassent les runs mérités (erreurs, runs non mérités).
 UNEARNED_FACTOR = 1.075
 
@@ -460,11 +464,15 @@ def classify_ml(prob: float, odds: float, value: float, aligned_net: int,
                 "raison": f"valeur {value:+.1f}% mais facteurs peu alignés ({aligned_net})"}
 
     if value >= V_SOLID:
-        if prob >= 0.55:
-            return {"tier": "🟢", "label": "solide",
-                    "raison": f"{prob:.0%} de probabilité, valeur modeste {value:+.1f}%"}
-        return {"tier": "🟡", "label": "jouable",
-                "raison": f"valeur {value:+.1f}%, probabilité seulement {prob:.0%}"}
+        # Pas de seuil de probabilité ici. L'ancienne version exigeait aussi
+        # prob >= 55%, ce qui était incompatible avec le rétrécissement: comme
+        # la probabilité finale est tirée vers un marché à ~50%, une valeur
+        # positive n'arrive presque jamais avec 55%+. Résultat observé en
+        # direct le 2026-08-25: tout le tableau s'écrasait en 🟡, aucun 🟢.
+        # La barre d'EV (V_SOLID) est inchangée — seule l'étiquette change.
+        return {"tier": "🟢", "label": "solide",
+                "raison": (f"valeur {value:+.1f}% à {prob:.0%} de probabilité "
+                           f"(cote {odds:.2f})")}
 
     return {"tier": "🟡", "label": "jouable",
             "raison": f"avantage marginal {value:+.1f}%"}
@@ -716,17 +724,26 @@ def analyze_game(game: dict, odds_entry: dict = None, date_str: str = None) -> d
     )
     rl_odds = (spreads.get(fav_team) or {}).get(-1.5)
     if rl_odds:
-        # Le -1.5 se juge sur la probabilité brute du modèle: le marché du
-        # -1.5 n'est pas un deux-voies aussi propre que le ML (le +1.5 n'est
-        # pas toujours coté par le même book), donc pas de dévigage fiable.
-        # La prudence passe ici par les seuils RL_* plutôt que par un mélange.
-        p_rl = fav_p_rl
+        # Le -1.5 doit être rétréci vers le marché EXACTEMENT comme le ML.
+        # Sinon le même désaccord modèle/marché produit une valeur damée sur le
+        # ML et une valeur brute sur le -1.5: observé en direct le 2026-08-25,
+        # Giants ML +4.0% contre Giants -1.5 +27.4% sur un seul et même écart.
+        # Les deux marchés devenaient incomparables et le -1.5 systématiquement
+        # gonflé.
+        #
+        # Le +1.5 n'est pas toujours coté par le même book, donc pas de
+        # dévigage à deux voies propre: on estime la probabilité du marché
+        # depuis le seul prix offert, en retirant une marge typique.
+        p_mkt_rl = 1.0 / (rl_odds * (1.0 + ASSUMED_VIG))
+        p_rl = blend_with_market(fav_p_rl, p_mkt_rl)
         v_rl = value_pct(p_rl, rl_odds)
         cls = classify_run_line(p_rl, rl_odds, v_rl, abs(run_diff), fav_al)
         out["bets"].append({
             "marche":         "run_line_-1.5",
             "equipe":         fav_team,
             "probabilite":    round(p_rl * 100, 1),
+            "prob_modele":    round(fav_p_rl * 100, 1),
+            "prob_marche":    round(p_mkt_rl * 100, 1),
             "cote":           rl_odds,
             "valeur_pct":     v_rl,
             "cote_equitable": round(1 / p_rl, 2) if p_rl > 0 else None,
