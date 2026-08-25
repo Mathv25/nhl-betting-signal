@@ -628,6 +628,64 @@ def _is_game_final(game_pk: int) -> bool:
     return False
 
 
+def get_mlb_final_score(game_pk: int) -> Optional[dict]:
+    """Score final d'un match MLB. Retourne {'home': int, 'away': int}."""
+    sched = _get(f"{MLB_API}/schedule", {"sportId": 1, "gamePk": game_pk})
+    for d in (sched or {}).get("dates", []):
+        for g in d.get("games", []):
+            if g.get("status", {}).get("abstractGameState") != "Final":
+                return None
+            t = g.get("teams", {})
+            h = t.get("home", {}).get("score")
+            a = t.get("away", {}).get("score")
+            if h is None or a is None:
+                return None
+            return {"home": int(h), "away": int(a)}
+    return None
+
+
+def resolve_mlb_team_bet(bet: dict, target_date: str) -> Optional[str]:
+    """
+    Résout un moneyline ou un run line -1.5 MLB à partir du score final.
+
+    `bet['game']` est au format "Away @ Home" et `bet['name']` est l'équipe
+    pariée — il faut donc déterminer de quel côté elle est avant de comparer.
+    """
+    game_str = bet.get("game", "")
+    team     = bet.get("name", "")
+    market   = bet.get("market_type", "")
+    if " @ " not in game_str or not team:
+        return None
+    away, home = game_str.split(" @ ", 1)
+
+    game_pk = get_mlb_game_pk(home, away, target_date)
+    if not game_pk:
+        return None
+    score = get_mlb_final_score(game_pk)
+    if not score:
+        return None
+
+    if _team_name_match(home, team):
+        marge = score["home"] - score["away"]
+    elif _team_name_match(away, team):
+        marge = score["away"] - score["home"]
+    else:
+        print(f"    {team}: introuvable dans '{game_str}' -> non resolu")
+        return None
+
+    if market == "moneyline":
+        result = "W" if marge > 0 else "L"
+    elif market.startswith("run_line"):
+        # -1.5 : il faut gagner par 2 runs ou plus.
+        result = "W" if marge >= 2 else "L"
+    else:
+        return None
+
+    label = "ML" if market == "moneyline" else "-1.5"
+    print(f"    {team} {label}: marge {marge:+d} -> {result}")
+    return result
+
+
 def resolve_mlb_prop(prop: dict, target_date: str) -> Optional[str]:
     """Resout un prop MLB via le boxscore MLB Stats API."""
     player    = prop.get("player", "")
@@ -928,6 +986,9 @@ def retry_unresolved(results_data: dict, max_days: int = 30) -> int:
                         "line":     line,
                     }
                     result = resolve_nba_prop(prop, target_date)
+
+                elif sport == "mlb" and bet_type == "team":
+                    result = resolve_mlb_team_bet(bet, target_date)
 
                 elif sport == "mlb":
                     home, away = _parse_game_str(bet.get("game", ""))
@@ -1238,6 +1299,7 @@ def save_pending_from_signal():
     props_by_game = signal.get("props_analysis", [])
     nba_by_game   = signal.get("nba_analysis", [])
     mlb_by_game   = signal.get("mlb_analysis", [])
+    mlb_ml_games  = signal.get("mlb_ml_analysis", [])
 
     results_data = load_results()
     existing_ids = {b.get("id") for b in results_data["bets"]}
@@ -1326,6 +1388,36 @@ def save_pending_from_signal():
                 "b365_implied": prop.get("dk_implied", prop.get("b365_implied",0)),
                 "kelly_fraction": prop.get("kelly", prop.get("kelly_fraction",0)),
                 "result": result_init,
+            })
+
+    # ── Moneyline / run line MLB ─────────────────────────────────────────────
+    # On enregistre TOUS les paris non-🔴, y compris les 🟡, pour pouvoir
+    # calibrer le modèle plus tard: sans les paris marginaux on ne saurait
+    # jamais si les seuils sont au bon endroit.
+    for game_analysis in mlb_ml_games:
+        home = game_analysis.get("home_team", "")
+        away = game_analysis.get("away_team", "")
+        for bet in game_analysis.get("bets", []):
+            if bet.get("tier") == "🔴":
+                continue
+            market = bet.get("marche", "")
+            team   = bet.get("equipe", "")
+            bid = f"{signal_date}|mlb_{market}|{team}"
+            _add(bid, {
+                "id": bid, "date": signal_date, "sport": "mlb",
+                "bet_type": "team", "market_type": market,
+                "game": f"{away} @ {home}", "name": team, "team": team,
+                "bet": f"{team} — {'ML' if market == 'moneyline' else '-1.5'}",
+                "line": 0 if market == "moneyline" else -1.5,
+                "edge_pct": bet.get("valeur_pct", 0),
+                "our_prob": bet.get("probabilite", 0),
+                "b365_odds": bet.get("cote", 0),
+                "b365_implied": (round(100 / bet["cote"], 1)
+                                 if bet.get("cote") else 0),
+                "kelly_fraction": 0,
+                "tier": bet.get("tier", ""),
+                "facteurs_nets": bet.get("facteurs_nets", 0),
+                "result": "?",
             })
 
     # Mettre a jour les bets MLB '?' deja enregistres si lineup maintenant confirme

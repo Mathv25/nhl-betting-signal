@@ -51,6 +51,15 @@ STAT_CONFIGS = [
 
 MIN_EDGE   = 15.0  # Relevé de 12% → 15% — on ne garde que la tranche edge>=15 (52% WR, seule profitable au backtest)
 MAX_EDGE   = 35.0
+# Plancher de cote. Mesuré sur 397 bets avec cote réelle enregistrée:
+#   cote 1.50-1.64 → ROI -19.0%   |   1.65-1.84 → ROI  -7.8%
+#   cote 1.85-2.09 → ROI  +9.6%   |   2.10+     → ROI +76.5% (n=10)
+# Confirmé par la marge de projection (415 picks appariés aux archives): même
+# quand la projection dépasse la ligne de 1.5-2.0 K, la WR réelle est 53.6% —
+# rendre la ligne plus facile n'augmente PAS la WR, l'erreur est dans la
+# projection elle-même. À 53% de WR le breakeven est 1.89.
+# Donc: rien sous 1.90. À 1.75 le ROI attendu reste négatif (-7%).
+MIN_ODDS   = 1.90
 B365_IMPLIED = 52.63  # ~1.909 cotes b365 standard — référence fixe (algo 70% WR)
 B365_ODDS    = 1.909
 MAX_BETS   = 5
@@ -407,11 +416,15 @@ def _kelly(prob: float, dk_implied: float = B365_IMPLIED, dk_odds: float = B365_
 
 
 # ── Calibration empirique (Platt linéaire) ────────────────────────────────────
-# Le modèle brut est surconfiant de ~9 pts (dit 60.8% en moyenne, réalité 51.9%).
-# Ajusté sur 626 bets strikeouts résolus: réel ≈ 1.8 + 0.824 * prédit.
-# À réviser quand plus de données calibrées seront disponibles.
-CAL_A = 1.8
-CAL_B = 0.824
+# Refit 2026-08-19 sur 760 bets strikeouts résolus. L'ancienne calibration
+# (1.8 + 0.824*p) restait surconfiante de 4 à 14 pts à TOUS les niveaux:
+#   prob annoncée 50-55% → WR réelle 46.7%   (n=152)
+#   prob annoncée 60-65% → WR réelle 48.1%   (n=135)
+#   prob annoncée 65-70% → WR réelle 56.8%   (n=74)
+# Résidu mesuré sur la prob déjà calibrée: réel ≈ 13.7 + 0.654 * calibré_ancien.
+# Composé avec l'ancienne transformation → réel ≈ 14.9 + 0.539 * brut.
+CAL_A = 14.9
+CAL_B = 0.539
 
 
 def _calibrate(prob: float) -> float:
@@ -438,27 +451,29 @@ def _k_curve(adj_mean: float, std: float) -> list:
 
 def _k_best_line(adj_mean: float, std: float) -> dict | None:
     """
-    Retourne la ligne recommandée: floor(projection).
-    PAS d'edge calculé — on ne connaît pas les vraies cotes bet365.
-    L'edge est calculé par l'utilisateur via le calculateur interactif.
-    Filtre: proj >= 4.0 K minimum pour avoir un marché intéressant.
+    Retourne la ligne recommandée quand on n'a PAS les cotes bet365.
+
+    L'ancienne version prenait floor(projection), puis descendait d'une ligne si
+    la prob était < 50%. Résultat: elle visait systématiquement la ligne la plus
+    facile (prob 60-70%), c.-à-d. exactement celle que le book price 1.30-1.50 —
+    injouable, vu que la WR réelle à ce niveau de confiance est ~57%
+    (breakeven 1.76). 539 picks générés ainsi depuis le 2026-07-07: WR 51.2%.
+
+    Nouvelle règle: on garde la ligne dont la prob calibrée donne une cote
+    équitable >= MIN_ODDS, en préférant la plus proche du plancher (donc la
+    prob la plus haute encore jouable). On retourne aussi `min_odds` = la cote
+    minimum à exiger chez le book, pour que rien ne soit misé en dessous.
     """
     if adj_mean < 4.0:
         return None
-    target_k = max(3, int(adj_mean))
     curve = _k_curve(adj_mean, std)
-    best = None
-    for c in curve:
-        if c["k_exact"] == target_k:
-            best = c
-            break
-    if best is None or best["prob"] < 50:
-        for c in curve:
-            if c["k_exact"] == max(3, target_k - 1):
-                best = c
-                break
-    if best is None:
+    max_prob = 100.0 / MIN_ODDS          # prob au-delà de laquelle la cote est trop courte
+    playable = [c for c in curve if 0 < c["prob"] <= max_prob]
+    if not playable:
         return None
+    # La plus haute prob encore sous le plafond = la ligne la plus facile jouable.
+    best = max(playable, key=lambda c: c["prob"])
+    fair = 100.0 / best["prob"]
     return {
         "line":      best["line"],
         "k_exact":   best["k_exact"],
@@ -467,6 +482,9 @@ def _k_best_line(adj_mean: float, std: float) -> dict | None:
         "dk_implied": 0,
         "kelly":     0,
         "edge":      0,    # calculé par l'utilisateur via le calculateur
+        # Cote équitable (aucun profit) et cote minimum à exiger pour du +EV.
+        "fair_odds": round(fair, 2),
+        "min_odds":  round(max(fair, MIN_ODDS), 2),
     }
 
 
@@ -763,19 +781,24 @@ class MLBPropsAnalyzer:
                     if not (MIN_EDGE <= dk_best["edge_pct"] <= MAX_EDGE):
                         print(f"    [MLB Skip] {pitcher}: edge réel {dk_best['edge_pct']:.1f}% hors [{MIN_EDGE},{MAX_EDGE}] (pas de valeur fiable)")
                         continue
+                    if dk_best["est_odds"] < MIN_ODDS:
+                        print(f"    [MLB Skip] {pitcher}: cote {dk_best['est_odds']:.2f} < plancher {MIN_ODDS} (ROI négatif mesuré sous 1.85)")
+                        continue
                     rec_line, our_prob = dk_best["line"], dk_best["our_prob"]
                     edge_pct, kelly_v  = dk_best["edge_pct"], dk_best["kelly"]
                     est_odds_v, dk_impl_v = dk_best["est_odds"], dk_best["dk_implied"]
-                    print(f"    [MLB BET]   {pitcher}: Over {rec_line} — prob {our_prob:.0f}% vs DK {dk_impl_v:.0f}% → edge {edge_pct:.1f}%")
+                    min_odds_v = max(round(100.0 / our_prob, 2), MIN_ODDS) if our_prob else MIN_ODDS
+                    print(f"    [MLB BET]   {pitcher}: Over {rec_line} @ {est_odds_v:.2f} — prob {our_prob:.0f}% vs DK {dk_impl_v:.0f}% → edge {edge_pct:.1f}%")
                 else:
                     # Pas de cote DK → projection seule (calculateur manuel), pas comptée comme valeur
                     best = _k_best_line(adj_mean, std)
                     if best is None:
-                        print(f"    [MLB Skip] {pitcher}: proj={adj_mean:.1f}K < seuil et pas de cote DK")
+                        print(f"    [MLB Skip] {pitcher}: proj={adj_mean:.1f}K — aucune ligne jouable au-dessus de {MIN_ODDS}")
                         continue
                     rec_line, our_prob = best["line"], best["prob"]
                     edge_pct, kelly_v, est_odds_v, dk_impl_v = 0, 0, 0, 0
-                    print(f"    [MLB PROJ]  {pitcher}: Over {rec_line} proj {adj_mean:.1f}K (pas de cote DK)")
+                    min_odds_v = best["min_odds"]
+                    print(f"    [MLB PROJ]  {pitcher}: Over {rec_line} proj {adj_mean:.1f}K — exiger >= {min_odds_v:.2f} (pas de cote DK)")
 
                 ev_bets.append({
                     "player":        pitcher,
@@ -792,6 +815,7 @@ class MLBPropsAnalyzer:
                     "our_prob":      our_prob,
                     "edge_pct":      edge_pct,
                     "kelly":         kelly_v,
+                    "min_odds":      min_odds_v,   # ne jamais miser sous cette cote
                     "est_odds":      est_odds_v,
                     "dk_implied":    dk_impl_v,
                     "k_curve":       curve,   # courbe complète pour affichage frontend
@@ -869,17 +893,22 @@ class MLBPropsAnalyzer:
                         if not (MIN_EDGE <= dk_best["edge_pct"] <= MAX_EDGE):
                             print(f"    [MLB Hors Dict Skip] {display}: edge réel {dk_best['edge_pct']:.1f}% hors [{MIN_EDGE},{MAX_EDGE}]")
                             continue
+                        if dk_best["est_odds"] < MIN_ODDS:
+                            print(f"    [MLB Hors Dict Skip] {display}: cote {dk_best['est_odds']:.2f} < plancher {MIN_ODDS}")
+                            continue
                         rec_line, our_prob = dk_best["line"], dk_best["our_prob"]
                         edge_pct, kelly_v  = dk_best["edge_pct"], dk_best["kelly"]
                         est_odds_v, dk_impl_v = dk_best["est_odds"], dk_best["dk_implied"]
-                        print(f"    [MLB Hors Dict BET] {display}: Over {rec_line} — prob {our_prob:.0f}% vs DK {dk_impl_v:.0f}% → edge {edge_pct:.1f}%")
+                        min_odds_v = max(round(100.0 / our_prob, 2), MIN_ODDS) if our_prob else MIN_ODDS
+                        print(f"    [MLB Hors Dict BET] {display}: Over {rec_line} @ {est_odds_v:.2f} — prob {our_prob:.0f}% vs DK {dk_impl_v:.0f}% → edge {edge_pct:.1f}%")
                     else:
                         best = _k_best_line(adj_mean, std)
                         if best is None:
                             continue
                         rec_line, our_prob = best["line"], best["prob"]
                         edge_pct, kelly_v, est_odds_v, dk_impl_v = 0, 0, 0, 0
-                        print(f"    [MLB Hors Dict PROJ] {display}: Over {rec_line} proj {adj_mean:.1f} (pas de cote DK)")
+                        min_odds_v = best["min_odds"]
+                        print(f"    [MLB Hors Dict PROJ] {display}: Over {rec_line} proj {adj_mean:.1f} — exiger >= {min_odds_v:.2f}")
                     ev_bets.append({
                         "player": display, "team": team, "opponent": opp,
                         "player_type": "pitcher",
@@ -890,6 +919,7 @@ class MLBPropsAnalyzer:
                         "park_factor": park_factor, "our_prob": our_prob,
                         "edge_pct": edge_pct,
                         "kelly": kelly_v,
+                        "min_odds": min_odds_v,
                         "est_odds": est_odds_v, "dk_implied": dk_impl_v,
                         "k_curve": curve,
                         "context": context,
@@ -1006,6 +1036,8 @@ class MLBPropsAnalyzer:
                         if not (MIN_EDGE <= edge <= MAX_EDGE):
                             continue
                         if ratio > MAX_DISAGREEMENT_RATIO:
+                            continue
+                        if dk_odds < MIN_ODDS:
                             continue
                         ev_bets.append({
                             "player":        batter,

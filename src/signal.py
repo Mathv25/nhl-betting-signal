@@ -289,6 +289,26 @@ def main():
     )[:10]
     print(f"\n{len(value_bets)} bet(s) NHL avec edge >= 5% (top 10)")
 
+    # ── 7b. Moneyline / run line MLB ──────────────────────────────────────────
+    # Un seul appel h2h+spreads pour tout le calendrier (économe en quota),
+    # puis le modèle de runs. Sans cotes, on publie les probabilités mais
+    # aucun pari — la valeur n'existe pas sans prix.
+    mlb_ml_analysis = []
+    try:
+        import mlb_ml_analyzer as _mlml
+        print("\nMLB Moneyline / -1.5...")
+        game_odds = mlb_fetcher.get_game_odds()
+        mlb_ml_analysis = _mlml.analyze_slate(today_et, game_odds)
+        n_bets = sum(1 for r in mlb_ml_analysis for b in r["bets"] if b["tier"] != "🔴")
+        n_fire = sum(1 for r in mlb_ml_analysis for b in r["bets"] if b["tier"] == "🔥")
+        print(f"  {len(mlb_ml_analysis)} match(s) modelise(s), {n_bets} pari(s) retenu(s) "
+              f"dont {n_fire} en 🔥")
+        if mlb_ml_analysis:
+            print()
+            print(_mlml.format_table(mlb_ml_analysis))
+    except Exception as e:
+        print(f"  [MLB ML] erreur: {e}")
+
     # ── 8. Output ─────────────────────────────────────────────────────────────
     output = {
         "generated_at":     datetime.now(timezone.utc).isoformat(),
@@ -301,6 +321,7 @@ def main():
         "props_analysis":   props_by_game,
         "nba_analysis":     nba_analysis,
         "mlb_analysis":     mlb_analysis,
+        "mlb_ml_analysis":  mlb_ml_analysis,
         "power_analysis":   power_analysis,
     }
 

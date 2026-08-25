@@ -76,6 +76,78 @@ class MLBOddsFetcher:
         print(f"  {len(games)} match(s) MLB ce soir (filtre date ET)")
         return games
 
+    def get_game_odds(self, bookmakers: str = None) -> dict:
+        """
+        Moneyline (h2h) et run line (spreads) pour tous les matchs du jour,
+        en UN SEUL appel — beaucoup moins cher en quota que le per-event.
+
+        Retourne {event_id: {home_team, away_team, commence_time,
+                             ml: {equipe: cote},
+                             spreads: {equipe: {point: cote}}}}
+
+        Pour le -1.5 on cherche `spreads[favori][-1.5]`.
+        """
+        params = {
+            "regions":    REGIONS,
+            "markets":    "h2h,spreads",
+            "oddsFormat": "decimal",
+        }
+        if bookmakers:
+            params["bookmakers"] = bookmakers
+        data = self._get(f"sports/{SPORT}/odds", params)
+        if not data:
+            print("  Aucune cote de match (h2h/spreads) recuperee.")
+            return {}
+
+        tz       = pytz.timezone("America/Toronto")
+        today_et = datetime.now(tz).date()
+
+        out = {}
+        for event in data:
+            commence = event.get("commence_time", "")
+            if commence:
+                game_dt = datetime.fromisoformat(
+                    commence.replace("Z", "+00:00")
+                ).astimezone(tz)
+                if game_dt.date() != today_et:
+                    continue
+
+            ml, spreads = {}, {}
+            for bm in event.get("bookmakers", []):
+                for mkt in bm.get("markets", []):
+                    kind = mkt.get("key")
+                    for oc in mkt.get("outcomes", []):
+                        team  = oc.get("name", "")
+                        price = oc.get("price")
+                        if not team or not price:
+                            continue
+                        if kind == "h2h":
+                            # On garde la MEILLEURE cote disponible: la valeur
+                            # se trouve chez le book le plus généreux.
+                            if price > ml.get(team, 0):
+                                ml[team] = price
+                        elif kind == "spreads":
+                            point = oc.get("point")
+                            if point is None:
+                                continue
+                            cur = spreads.setdefault(team, {})
+                            if price > cur.get(point, 0):
+                                cur[point] = price
+
+            if not ml:
+                continue
+            out[event.get("id", "")] = {
+                "home_team":     event.get("home_team", ""),
+                "away_team":     event.get("away_team", ""),
+                "commence_time": commence,
+                "ml":            ml,
+                "spreads":       spreads,
+            }
+
+        print(f"  Cotes de match recuperees pour {len(out)} match(s) "
+              f"(quota restant: {self.remaining})")
+        return out
+
     def get_player_props(self, event_id: str, market: str) -> list:
         """Retourne les props joueurs pour un match et un marche donnes."""
         time.sleep(0.5)
