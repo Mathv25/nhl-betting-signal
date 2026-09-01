@@ -8,12 +8,14 @@ import requests, time
 MLB_API   = "https://statsapi.mlb.com/api/v1"
 HEADERS   = {"User-Agent": "Mozilla/5.0", "Accept": "application/json"}
 TIMEOUT   = 10
+SEASON    = "2026"
 N_BATTING = 15   # Derniers matchs frappeurs
 N_PITCHING = 6  # Derniers départs lanceurs
 
 _player_id_cache: dict = {}   # name_lower -> int | None
 _batting_cache:   dict = {}   # player_id  -> dict | None
 _pitching_cache:  dict = {}   # player_id  -> dict | None
+_hand_cache:      dict = {}   # player_id  -> "R" | "L" | None
 
 
 def _search_player_id(name: str) -> object:
@@ -35,6 +37,32 @@ def _search_player_id(name: str) -> object:
     except Exception:
         pass
     _player_id_cache[key] = None
+    return None
+
+
+def get_pitcher_hand(name: str) -> object:
+    """
+    Main du lanceur ("R" ou "L") via people/{id}.pitchHand.
+    Sert à choisir le split d'offense adverse (vs RHP / vs LHP).
+    Retourne None si introuvable.
+    """
+    pid = _search_player_id(name)
+    if pid is None:
+        return None
+    if pid in _hand_cache:
+        return _hand_cache[pid]
+    try:
+        r = requests.get(f"{MLB_API}/people/{pid}", headers=HEADERS, timeout=TIMEOUT)
+        if r.status_code == 200:
+            people = r.json().get("people", [])
+            if people:
+                code = (people[0].get("pitchHand") or {}).get("code", "")
+                hand = code.upper() if code.upper() in ("R", "L") else None
+                _hand_cache[pid] = hand
+                return hand
+    except Exception:
+        pass
+    _hand_cache[pid] = None
     return None
 
 
@@ -190,9 +218,140 @@ TEAM_ID_MAP = {
     "Texas Rangers": 140, "Toronto Blue Jays": 141, "Washington Nationals": 120,
     "Oakland Athletics": 133,
 }
-LEAGUE_AVG_K = 0.215
+LEAGUE_AVG_K      = 0.215
+LEAGUE_K_FALLBACK = 0.22   # K% MLB de référence si l'API ne répond pas
 
-_team_k_cache: dict = {}   # team_name -> float
+_team_k_cache:      dict = {}   # team_name -> float
+_team_k_season_cache: dict = {} # (team, hand) -> dict
+_league_k_cache:    dict = {}   # "rate" -> float
+
+
+def _f(v, default=0.0) -> float:
+    """L'API renvoie parfois les compteurs en string ('1234')."""
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return default
+
+
+def _resolve_team_id(team_name: str):
+    """ID MLB d'une équipe, avec repli sur le dernier mot du nom."""
+    team_id = TEAM_ID_MAP.get(team_name)
+    if team_id is not None:
+        return team_id
+    tl = (team_name or "").lower()
+    if not tl:
+        return None
+    for name, tid in TEAM_ID_MAP.items():
+        if name.lower().split()[-1] == tl.split()[-1]:
+            return tid
+    return None
+
+
+def get_league_k_rate() -> float:
+    """
+    K% moyen de la MLB pour la saison en cours (K / PA, agrégé sur les 30
+    équipes). C'est le dénominateur de l'ajustement adverse: sans lui, on
+    normalise par une constante qui date d'une autre saison.
+    Repli: LEAGUE_K_FALLBACK (0.22).
+    """
+    if "rate" in _league_k_cache:
+        return _league_k_cache["rate"]
+
+    rate = LEAGUE_K_FALLBACK
+    try:
+        r = requests.get(
+            f"{MLB_API}/teams/stats",
+            params={"stats": "season", "group": "hitting",
+                    "season": SEASON, "sportIds": 1},
+            headers=HEADERS, timeout=TIMEOUT
+        )
+        if r.status_code == 200:
+            splits = r.json().get("stats", [{}])[0].get("splits", [])
+            pa = sum(_f(s.get("stat", {}).get("plateAppearances")) for s in splits)
+            k  = sum(_f(s.get("stat", {}).get("strikeOuts")) for s in splits)
+            # Garde-fou: en début de saison l'échantillon est trop mince.
+            if pa >= 20000 and k > 0:
+                rate = round(k / pa, 4)
+    except Exception:
+        pass
+
+    _league_k_cache["rate"] = rate
+    return rate
+
+
+def get_team_k_rate_season(team_name: str, vs_hand: str = None) -> dict:
+    """
+    K% de l'équipe sur la SAISON, contre la main du lanceur qu'elle affronte
+    quand le split est disponible (sitCodes vr / vl).
+
+    Retourne {"k_pct": float, "source": str, "pa": int}.
+
+    Volontairement: jamais de fenêtre 10 jours seule. Un K% sur 10 matchs
+    (~350 PA) bouge de plusieurs points par pur bruit, et c'est ce bruit qui
+    faisait exploser les projections. Ordre de repli:
+      1. saison vs RHP / vs LHP  (PA >= 200)
+      2. saison complète         (PA >= 500)
+      3. K% de ligue
+    """
+    hand = (vs_hand or "").upper()
+    if hand not in ("R", "L"):
+        hand = ""
+    cache_key = (team_name, hand)
+    if cache_key in _team_k_season_cache:
+        return _team_k_season_cache[cache_key]
+
+    lg = get_league_k_rate()
+    out = {"k_pct": lg, "source": "ligue", "pa": 0}
+    team_id = _resolve_team_id(team_name)
+    if team_id is None:
+        _team_k_season_cache[cache_key] = out
+        return out
+
+    # 1. Split contre la main du lanceur
+    if hand:
+        try:
+            r = requests.get(
+                f"{MLB_API}/teams/{team_id}/stats",
+                params={"stats": "statSplits", "sitCodes": "vr" if hand == "R" else "vl",
+                        "group": "hitting", "season": SEASON},
+                headers=HEADERS, timeout=TIMEOUT
+            )
+            if r.status_code == 200:
+                splits = r.json().get("stats", [{}])[0].get("splits", [])
+                st = splits[0].get("stat", {}) if splits else {}
+                pa = _f(st.get("plateAppearances"))
+                k  = _f(st.get("strikeOuts"))
+                if pa >= 200 and k > 0:
+                    out = {
+                        "k_pct":  round(k / pa, 4),
+                        "source": "saison vs " + ("RHP" if hand == "R" else "LHP"),
+                        "pa":     int(pa),
+                    }
+                    _team_k_season_cache[cache_key] = out
+                    return out
+        except Exception:
+            pass
+
+    # 2. Saison complète (main inconnue ou split trop mince)
+    try:
+        r = requests.get(
+            f"{MLB_API}/teams/{team_id}/stats",
+            params={"stats": "season", "group": "hitting", "season": SEASON},
+            headers=HEADERS, timeout=TIMEOUT
+        )
+        if r.status_code == 200:
+            splits = r.json().get("stats", [{}])[0].get("splits", [])
+            st = splits[0].get("stat", {}) if splits else {}
+            pa = _f(st.get("plateAppearances"))
+            k  = _f(st.get("strikeOuts"))
+            if pa >= 500 and k > 0:
+                out = {"k_pct": round(k / pa, 4), "source": "saison", "pa": int(pa)}
+    except Exception:
+        pass
+
+    _team_k_season_cache[cache_key] = out
+    return out
 
 
 def get_team_k_rate(team_name: str, n_games: int = 10) -> float:

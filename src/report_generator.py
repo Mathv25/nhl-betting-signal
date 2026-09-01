@@ -600,7 +600,11 @@ class ReportGenerator:
                 odds        = b.get("est_odds", 0)
                 season_avg  = b.get("season_avg", 0)
                 adj_proj    = b.get("adj_proj", 0)
+                adj_raw     = b.get("adj_proj_raw")
+                adj_mult    = b.get("adj_mult")
+                adj_mult_rw = b.get("adj_mult_raw")
                 opp_k_rate  = b.get("opp_k_rate")
+                opp_k_src   = b.get("opp_k_source", "")
                 park_factor = b.get("park_factor", 1.0)
                 dk_implied  = b.get("dk_implied", 52.6)
                 team        = b.get("team", "")
@@ -635,10 +639,26 @@ class ReportGenerator:
                     "<div class='mlb-bet-label'>" + market + "</div>"
                     "<div class='mlb-stats'>"
                     "<div class='mlb-stat'><span>Moy saison</span><strong>" + str(season_avg) + "K</strong></div>"
-                    "<div class='mlb-stat'><span>Proj. ajustée</span><strong>" + str(adj_proj) + "K</strong></div>"
+                    "<div class='mlb-stat'><span>Proj. régressée</span><strong>" + str(adj_proj) + "K</strong>"
+                    + ("<span style='text-transform:none;font-weight:500'>x" + f"{adj_mult:.3f}" + "</span>" if adj_mult else "")
+                    + "</div>"
                 )
+                # Comparaison brute vs régressée — à suivre une semaine avant de
+                # trancher sur l'exposant K_REGRESSION_EXP.
+                if adj_raw is not None and player_type == "pitcher":
+                    delta = adj_raw - adj_proj
+                    html += ("<div class='mlb-stat'><span>Proj. brute (ancienne)</span>"
+                             "<strong style='color:var(--m)'>" + str(adj_raw) + "K</strong>"
+                             + ("<span style='text-transform:none;font-weight:500'>x" + f"{adj_mult_rw:.3f}"
+                                + " · écart " + f"{delta:+.2f}" + "K</span>" if adj_mult_rw else ""))
+                    html += "</div>"
                 if opp_k_rate is not None and player_type == "pitcher":
-                    html += "<div class='mlb-stat'><span>K% adverse</span><strong>" + str(opp_k_rate) + "%</strong></div>"
+                    k_lbl = "K% adverse" + (" — " + opp_k_src if opp_k_src else "")
+                    html += "<div class='mlb-stat'><span>" + k_lbl + "</span><strong>" + str(opp_k_rate) + "%</strong>"
+                    lg_k = b.get("league_k_rate")
+                    if lg_k:
+                        html += "<span style='text-transform:none;font-weight:500'>ligue " + str(lg_k) + "%</span>"
+                    html += "</div>"
                 pf_color = "#B45309" if park_factor >= 1.08 else ("#0F6E56" if park_factor <= 0.92 else "#6B7280")
                 html += "<div class='mlb-stat'><span>Park factor</span><strong style='color:" + pf_color + "'>" + str(park_factor) + "</strong></div>"
                 if player_type != "pitcher":
@@ -1243,8 +1263,17 @@ class ReportGenerator:
             "h+='<div class=\"mlb-bet-label\">'+(b.market||'')+'</div>';"
             "h+='<div class=\"mlb-stats\">';"
             "h+='<div class=\"mlb-stat\"><span>Moy saison</span><strong>'+(b.season_avg||0)+'K</strong></div>';"
-            "h+='<div class=\"mlb-stat\"><span>Proj. ajustée</span><strong>'+(b.adj_proj||0)+'K</strong></div>';"
-            "if(b.opp_k_rate!=null&&isPit)h+='<div class=\"mlb-stat\"><span>K% adverse</span><strong>'+(b.opp_k_rate||0)+'%</strong></div>';"
+            "var mreg=b.adj_mult,mraw=b.adj_mult_raw,praw=b.adj_proj_raw;"
+            "h+='<div class=\"mlb-stat\"><span>Proj. '+(praw!=null?'régressée':'ajustée')+'</span><strong>'+(b.adj_proj||0)+'K</strong>';"
+            "if(mreg)h+='<span style=\"text-transform:none;font-weight:500\">x'+mreg.toFixed(3)+'</span>';"
+            "h+='</div>';"
+            "if(praw!=null&&isPit){var dlt=(praw-(b.adj_proj||0));"
+            "h+='<div class=\"mlb-stat\"><span>Proj. brute (ancienne)</span><strong style=\"color:var(--m)\">'+praw+'K</strong>';"
+            "if(mraw)h+='<span style=\"text-transform:none;font-weight:500\">x'+mraw.toFixed(3)+' · écart '+(dlt>=0?'+':'')+dlt.toFixed(2)+'K</span>';"
+            "h+='</div>';}"
+            "if(b.opp_k_rate!=null&&isPit){h+='<div class=\"mlb-stat\"><span>K% adverse'+(b.opp_k_source?' — '+b.opp_k_source:'')+'</span><strong>'+(b.opp_k_rate||0)+'%</strong>';"
+            "if(b.league_k_rate)h+='<span style=\"text-transform:none;font-weight:500\">ligue '+b.league_k_rate+'%</span>';"
+            "h+='</div>';}"
             "h+='<div class=\"mlb-stat\"><span>Park factor</span><strong style=\"color:'+pfc+'\">'+(b.park_factor||1.0)+'</strong></div>';"
             "if(!isPit){h+='<div class=\"mlb-stat\"><span>Notre prob</span><strong style=\"color:'+ec+'\">'+(b.our_prob||0)+'%</strong></div>';}"
             "if(!isPit){h+='<div class=\"mlb-stat\"><span>1/4 Kelly</span><strong>'+(b.kelly||0)+'% BR</strong></div>';}"

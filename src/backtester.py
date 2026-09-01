@@ -1387,6 +1387,11 @@ def save_pending_from_signal():
                 "b365_odds": prop.get("est_odds", prop.get("b365_odds",0)),
                 "b365_implied": prop.get("dk_implied", prop.get("b365_implied",0)),
                 "kelly_fraction": prop.get("kelly", prop.get("kelly_fraction",0)),
+                # Les deux projections K sont enregistrees pour pouvoir mesurer,
+                # apres une semaine, laquelle colle le mieux au resultat reel
+                # (regressee = celle utilisee, brute = ancienne formule).
+                "adj_proj": prop.get("adj_proj"),
+                "adj_proj_raw": prop.get("adj_proj_raw"),
                 "result": result_init,
             })
 

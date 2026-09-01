@@ -22,11 +22,16 @@ import math
 try:
     from mlb_rolling_stats import get_batter_rolling as _mlb_batter_rolling
     from mlb_rolling_stats import get_pitcher_rolling as _mlb_pitcher_rolling
-    from mlb_rolling_stats import get_team_k_rate as _get_team_k_rate
+    from mlb_rolling_stats import get_team_k_rate_season as _get_team_k_rate_season
+    from mlb_rolling_stats import get_league_k_rate as _get_league_k_rate
+    from mlb_rolling_stats import get_pitcher_hand as _get_pitcher_hand
     HAS_MLB_ROLLING = True
 except ImportError:
     HAS_MLB_ROLLING = False
-    def _get_team_k_rate(team, n=10): return 0.215
+    def _get_team_k_rate_season(team, vs_hand=None):
+        return {"k_pct": 0.22, "source": "defaut", "pa": 0}
+    def _get_league_k_rate(): return 0.22
+    def _get_pitcher_hand(name): return None
 
 # ── MODELES STATISTIQUES ──────────────────────────────────────────────────────
 STD_FLOOR = {
@@ -140,8 +145,25 @@ TEAM_K_RATES = {
     "New York Yankees":       0.200,
     "Houston Astros":         0.185,
 }
-LEAGUE_AVG_K     = 0.215
+LEAGUE_AVG_K     = 0.215  # obsolete: le K% de ligue est maintenant calcule en
+                          # direct (get_league_k_rate) — garde pour reference
 LEAGUE_AVG_K_SP  = 7.5   # K/depart moyen lanceur partant MLB
+
+# ── AJUSTEMENT K% ADVERSE (regresse) ─────────────────────────────────────────
+# Ancienne formule: proj = blend * (K%_adverse_10j / 0.215)
+#   → un blend de 5.82K devenait 7.8K (+34%). Deux defauts cumules:
+#     1. le ratio etait applique en entier (elasticite implicite = 1.0), alors
+#        qu'un lanceur ne recupere qu'une fraction du K% de l'equipe adverse;
+#     2. le numerateur venait d'une fenetre 10 jours (~350 PA), donc surtout
+#        du bruit, et le denominateur d'une constante figee.
+# Nouvelle formule:
+#   lambda_ajuste = blend * (K%_adverse_saison / K%_ligue) ** K_REGRESSION_EXP
+#                         * park_factor
+# A 0.5 (racine carree) le meme ecart de K% adverse ne deplace la projection
+# que de la moitie (en log), ce qui ramene l'ajustement dans une plage
+# defendable (~ +/- 8% au lieu de +/- 20%).
+K_REGRESSION_EXP  = 0.5
+LEAGUE_K_FALLBACK = 0.22   # si l'API ne donne pas la moyenne de la saison
 
 
 # ── LANCEURS PARTANTS ─────────────────────────────────────────────────────────
@@ -516,6 +538,46 @@ def _best_dk_edge(adj_mean: float, std: float, dk_lines: list) -> dict | None:
     return best
 
 
+def _opp_k_season(opp_team: str, pitcher_hand: str) -> tuple:
+    """
+    K% saison de l'equipe adverse contre la main du lanceur.
+    Retourne (k_pct, source_label). Jamais de fenetre 10 jours seule — voir
+    get_team_k_rate_season().
+    """
+    try:
+        d = _get_team_k_rate_season(opp_team, pitcher_hand or None)
+    except Exception:
+        d = None
+    if not d or not d.get("k_pct"):
+        return LEAGUE_K_FALLBACK, "defaut"
+    return d["k_pct"], d.get("source", "saison")
+
+
+def _k_projection(mean_k: float, opp_k_rate: float, league_k: float,
+                  park_factor: float) -> dict:
+    """
+    Projection K ajustee.
+
+    Regressee (celle qu'on utilise):
+        blend * (K%_adverse / K%_ligue) ** K_REGRESSION_EXP * park_factor
+    Brute (l'ancienne, conservee uniquement pour comparaison au dashboard):
+        blend * (K%_adverse / K%_ligue)
+    """
+    lg = league_k if league_k and league_k > 0 else LEAGUE_K_FALLBACK
+    ratio = (opp_k_rate / lg) if opp_k_rate and opp_k_rate > 0 else 1.0
+    pf    = park_factor if park_factor and park_factor > 0 else 1.0
+
+    mult_raw = ratio
+    mult_reg = (ratio ** K_REGRESSION_EXP) * pf
+    return {
+        "adj":       round(mean_k * mult_reg, 2),
+        "adj_raw":   round(mean_k * mult_raw, 2),
+        "mult":      round(mult_reg, 4),
+        "mult_raw":  round(mult_raw, 4),
+        "league_k":  round(lg, 4),
+    }
+
+
 def _park_label(pf: float) -> str:
     if pf >= 1.08:
         return "Tres favorable frappeurs"
@@ -536,6 +598,11 @@ class MLBPropsAnalyzer:
         print(f"  MLB props: {away} @ {home}")
 
         park_factor = PARK_FACTORS.get(home, 1.00)
+        # Moyenne de ligue de la saison en cours (mise en cache par le module)
+        try:
+            league_k = _get_league_k_rate()
+        except Exception:
+            league_k = LEAGUE_K_FALLBACK
 
         # Lookup cotes reelles — plusieurs lignes par joueur/marché
         real_lkp = {}
@@ -733,19 +800,26 @@ class MLBPropsAnalyzer:
                     print(f"      → Filtré: {mean_k:.1f} < min {cfg_k['min_avg']}")
                     continue
 
-                opp_k_rate = _get_team_k_rate(opp, n_games=10)
-                adj_factor = opp_k_rate / LEAGUE_AVG_K
-                adj_mean   = round(mean_k * adj_factor, 2)
+                p_hand = MLB_PITCHERS.get(pitcher, {}).get("hand", "")
+                opp_k_rate, opp_k_src = _opp_k_season(opp, p_hand)
+                proj       = _k_projection(mean_k, opp_k_rate, league_k, park_factor)
+                adj_mean   = proj["adj"]
+                adj_raw    = proj["adj_raw"]
                 std        = _std(adj_mean, "strikeouts")
+                print(f"    [MLB Ajust] {pitcher}: K% adv {opp_k_rate:.1%} ({opp_k_src}) "
+                      f"/ ligue {proj['league_k']:.1%} → régressé x{proj['mult']:.3f} "
+                      f"= {adj_mean:.2f}K (brut x{proj['mult_raw']:.3f} = {adj_raw:.2f}K)")
 
                 context = []
                 if "context_rolling" in dir():
                     context.append(context_rolling)
                     del context_rolling
-                if opp_k_rate > LEAGUE_AVG_K + 0.015:
-                    context.append(f"Adversaire K% (10j): {opp_k_rate:.1%} (favorable)")
-                elif opp_k_rate < LEAGUE_AVG_K - 0.015:
-                    context.append(f"Adversaire K% (10j): {opp_k_rate:.1%} (difficile)")
+                if opp_k_rate > proj["league_k"] + 0.015:
+                    context.append(f"Adversaire K% ({opp_k_src}): {opp_k_rate:.1%} (favorable)")
+                elif opp_k_rate < proj["league_k"] - 0.015:
+                    context.append(f"Adversaire K% ({opp_k_src}): {opp_k_rate:.1%} (difficile)")
+                context.append(f"Ajustement régressé x{proj['mult']:.3f} → {adj_mean}K "
+                               f"(brut x{proj['mult_raw']:.3f} → {adj_raw}K)")
                 park_lbl = _park_label(park_factor)
                 if park_factor != 1.00:
                     context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
@@ -810,7 +884,12 @@ class MLBPropsAnalyzer:
                     "line":          rec_line,
                     "season_avg":    mean_k,
                     "adj_proj":      adj_mean,
+                    "adj_proj_raw":  adj_raw,
+                    "adj_mult":      proj["mult"],
+                    "adj_mult_raw":  proj["mult_raw"],
                     "opp_k_rate":    round(opp_k_rate * 100, 1),
+                    "opp_k_source":  opp_k_src,
+                    "league_k_rate": round(proj["league_k"] * 100, 1),
                     "park_factor":   park_factor,
                     "our_prob":      our_prob,
                     "edge_pct":      edge_pct,
@@ -874,15 +953,26 @@ class MLBPropsAnalyzer:
                             continue
                     except Exception:
                         pass
-                    opp_k_rate = _get_team_k_rate(opp, n_games=10)
-                    adj_factor = opp_k_rate / LEAGUE_AVG_K
-                    adj_mean   = round(mean_k * adj_factor, 2)
+                    # Main du lanceur inconnue du dict → MLB API (people/{id})
+                    try:
+                        p_hand = _get_pitcher_hand(display) or ""
+                    except Exception:
+                        p_hand = ""
+                    opp_k_rate, opp_k_src = _opp_k_season(opp, p_hand)
+                    proj       = _k_projection(mean_k, opp_k_rate, league_k, park_factor)
+                    adj_mean   = proj["adj"]
+                    adj_raw    = proj["adj_raw"]
                     std        = _std(adj_mean, "strikeouts")
+                    print(f"    [MLB Ajust] {display}: K% adv {opp_k_rate:.1%} ({opp_k_src}) "
+                          f"/ ligue {proj['league_k']:.1%} → régressé x{proj['mult']:.3f} "
+                          f"= {adj_mean:.2f}K (brut x{proj['mult_raw']:.3f} = {adj_raw:.2f}K)")
                     context    = []
-                    if opp_k_rate > LEAGUE_AVG_K + 0.015:
-                        context.append(f"Adversaire K% (10j): {opp_k_rate:.1%} (favorable)")
-                    elif opp_k_rate < LEAGUE_AVG_K - 0.015:
-                        context.append(f"Adversaire K% (10j): {opp_k_rate:.1%} (difficile)")
+                    if opp_k_rate > proj["league_k"] + 0.015:
+                        context.append(f"Adversaire K% ({opp_k_src}): {opp_k_rate:.1%} (favorable)")
+                    elif opp_k_rate < proj["league_k"] - 0.015:
+                        context.append(f"Adversaire K% ({opp_k_src}): {opp_k_rate:.1%} (difficile)")
+                    context.append(f"Ajustement régressé x{proj['mult']:.3f} → {adj_mean}K "
+                                   f"(brut x{proj['mult_raw']:.3f} → {adj_raw}K)")
                     park_lbl = _park_label(park_factor)
                     if park_factor != 1.00:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
@@ -915,7 +1005,11 @@ class MLBPropsAnalyzer:
                         "market": f"{cfg_k['label']} Over {rec_line}",
                         "stat_key": "strikeouts", "line": rec_line,
                         "season_avg": mean_k, "adj_proj": adj_mean,
+                        "adj_proj_raw": adj_raw,
+                        "adj_mult": proj["mult"], "adj_mult_raw": proj["mult_raw"],
                         "opp_k_rate": round(opp_k_rate * 100, 1),
+                        "opp_k_source": opp_k_src,
+                        "league_k_rate": round(proj["league_k"] * 100, 1),
                         "park_factor": park_factor, "our_prob": our_prob,
                         "edge_pct": edge_pct,
                         "kelly": kelly_v,
