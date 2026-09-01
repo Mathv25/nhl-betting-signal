@@ -226,9 +226,11 @@ def compute_clv_summary(bets: list) -> dict:
 
 
 if __name__ == "__main__":
+    from env_file import load_env
+    load_env()
     key = os.environ.get("ODDS_API_KEY")
     if not key:
-        print("ERREUR: ODDS_API_KEY manquante")
+        print("ERREUR: ODDS_API_KEY manquante (.env a la racine ou export)")
         sys.exit(1)
     date_arg = sys.argv[1] if len(sys.argv) > 1 else None
     capture_clv(key, date_arg)

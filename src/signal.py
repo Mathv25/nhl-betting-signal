@@ -5,6 +5,7 @@ Bookmaker: bet365
 import json, os, sys, time
 from datetime import datetime, timezone
 import pytz
+from env_file import load_env
 from odds_fetcher import OddsFetcher
 from nba_odds_fetcher import NBAOddsFetcher
 from nba_props_analyzer import NBAPropsAnalyzer
@@ -28,9 +29,13 @@ def main():
     print(now_et.strftime("%A %d %B %Y, %H:%M ET"))
     print("=" * 65)
 
+    load_env()   # .env de la racine; l'environnement (secrets CI) a priorite
     api_key = os.environ.get("ODDS_API_KEY")
     if not api_key:
         print("ERREUR: Variable ODDS_API_KEY manquante.")
+        print("  Local : ajouter ODDS_API_KEY=... dans le .env a la racine")
+        print("          (ou export ODDS_API_KEY=... avant de lancer)")
+        print("  CI    : Settings > Secrets and variables > Actions > ODDS_API_KEY")
         sys.exit(1)
 
     today_et = now_et.strftime("%Y-%m-%d")
