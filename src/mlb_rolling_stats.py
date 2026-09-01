@@ -205,6 +205,68 @@ def get_pitcher_rolling(name: str, n: int = N_PITCHING) -> object:
         return None
 
 
+N_IP_STARTS = 15   # Fenetre pour la distribution des manches lancees
+
+_ip_cache: dict = {}   # player_id -> dict | None
+
+
+def get_pitcher_ip_starts(name: str, n: int = N_IP_STARTS) -> object:
+    """
+    Manches lancees lors des n derniers DEPARTS (gamesStarted > 0).
+
+    {'ip_values': [7.0, 4.33, ...], 'mean_ip': float, 'games': int}
+    None si le lanceur est introuvable ou n'a aucun depart cette saison.
+
+    Deux precautions:
+      - on filtre sur gamesStarted > 0: les sorties en relief ont une duree qui
+        n'a rien a voir et fausseraient la distribution;
+      - on ne filtre PAS les departs courts (IP < 3). Une sortie en 3e manche
+        est precisement la queue de distribution qu'on veut modeliser.
+    """
+    pid = _search_player_id(name)
+    if pid is None:
+        return None
+    if pid in _ip_cache:
+        return _ip_cache[pid]
+
+    try:
+        r = requests.get(
+            f"{MLB_API}/people/{pid}/stats",
+            params={"stats": "gameLog", "group": "pitching", "season": SEASON},
+            headers=HEADERS, timeout=TIMEOUT
+        )
+        if r.status_code != 200:
+            _ip_cache[pid] = None
+            return None
+
+        splits = r.json().get("stats", [{}])[0].get("splits", [])
+        ip_values = []
+        for g in splits:
+            st = g.get("stat", {})
+            if _f(st.get("gamesStarted")) <= 0:
+                continue
+            outs = _f(st.get("outs"), -1.0)
+            ip = (outs / 3.0) if outs >= 0 else _innings_to_float(st.get("inningsPitched", "0"))
+            if ip > 0:
+                ip_values.append(round(ip, 3))
+
+        if not ip_values:
+            _ip_cache[pid] = None
+            return None
+
+        recent = ip_values[-n:]
+        result = {
+            "ip_values": recent,
+            "mean_ip":   round(sum(recent) / len(recent), 3),
+            "games":     len(recent),
+        }
+        _ip_cache[pid] = result
+        return result
+    except Exception:
+        _ip_cache[pid] = None
+        return None
+
+
 TEAM_ID_MAP = {
     "Arizona Diamondbacks": 109, "Athletics": 133, "Atlanta Braves": 144,
     "Baltimore Orioles": 110, "Boston Red Sox": 111, "Chicago Cubs": 112,

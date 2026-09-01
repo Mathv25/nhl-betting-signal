@@ -699,7 +699,10 @@ class ReportGenerator:
                         "<b id='kc-e-" + cid + "'></b>"
                         "</div>"
                     )
-                for note in context[:2]:
+                # 4 notes: rolling, K% adverse, ajustement régressé vs brut,
+                # distribution des manches. Sous 4 la comparaison du chantier
+                # en cours est tronquée.
+                for note in context[:4]:
                     html += "<div class='mlb-note'>" + note + "</div>"
                 html += "</div>"
             html += "</div>"
@@ -1300,7 +1303,7 @@ class ReportGenerator:
             "h+='K≥<b id=\"kc-k-'+cid+'\"></b> · Notre prob: <b id=\"kc-p-'+cid+'\"></b>% · ';"
             "h+='Cote bet365: <input id=\"kc-i-'+cid+'\" class=\"mlb-k-odds-input\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"ex: 1.95\" oninput=\"mlbCalcEdge(\\''+cid+'\\')\">';"
             "h+=' <b id=\"kc-e-'+cid+'\"></b></div>';}"
-            "(b.context||[]).slice(0,2).forEach(function(n){h+='<div class=\"mlb-note\">'+n+'</div>';});"
+            "(b.context||[]).slice(0,4).forEach(function(n){h+='<div class=\"mlb-note\">'+n+'</div>';});"
             "h+='</div>';});"
             "h+='</div>';});}"
             "var pw=d.power_analysis||[];"

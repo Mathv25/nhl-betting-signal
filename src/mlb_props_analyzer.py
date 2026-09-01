@@ -19,7 +19,13 @@ from __future__ import annotations
 
 import math
 
+# Modele K en deux etapes (manches puis retraits). Dependance dure: sans lui on
+# n'a plus de ladder, et un repli silencieux sur l'ancienne normale publierait
+# des probabilites differentes sans le dire.
+import mlb_k_distribution as KD
+
 try:
+    from mlb_rolling_stats import get_pitcher_ip_starts as _get_pitcher_ip_starts
     from mlb_rolling_stats import get_batter_rolling as _mlb_batter_rolling
     from mlb_rolling_stats import get_pitcher_rolling as _mlb_pitcher_rolling
     from mlb_rolling_stats import get_team_k_rate_season as _get_team_k_rate_season
@@ -28,6 +34,7 @@ try:
     HAS_MLB_ROLLING = True
 except ImportError:
     HAS_MLB_ROLLING = False
+    def _get_pitcher_ip_starts(name, n=15): return None
     def _get_team_k_rate_season(team, vs_hand=None):
         return {"k_pct": 0.22, "source": "defaut", "pa": 0}
     def _get_league_k_rate(): return 0.22
@@ -454,24 +461,54 @@ def _calibrate(prob: float) -> float:
     return round(max(min(CAL_A + CAL_B * prob, 99.0), 1.0), 1)
 
 
-def _k_curve(adj_mean: float, std: float) -> list:
+def build_k_model(adj_mean: float, pitcher_name: str = "") -> dict:
+    """
+    Construit LE modele K du lanceur autour de `adj_mean` (lambda_ajuste
+    regressee). Tout ce qui affiche ou compare une probabilite K passe ensuite
+    par ce modele: badge, ladder, filtre de surprice, edge vs cotes reelles.
+
+    Avant, chaque consommateur rappelait _normal_over(adj_mean, std, line) avec
+    ses propres arguments — et _normal_over ajoutait +0.5 a la ligne, donc le
+    ladder calculait en realite P(K > k) au lieu de P(K >= k): un decalage d'un
+    demi-retrait qui sous-estimait chaque barreau de ~5 points.
+    """
+    ip_info = None
+    if pitcher_name:
+        try:
+            ip_info = _get_pitcher_ip_starts(pitcher_name)
+        except Exception:
+            ip_info = None
+    ip_info = ip_info or {}
+    return KD.build_k_model(adj_mean, ip_info.get("ip_values"), ip_info.get("mean_ip"))
+
+
+def _k_prob_at_least(model: dict, k: int) -> float:
+    """P(K >= k) calibrée, en %."""
+    return _calibrate(KD.p_at_least(model, k))
+
+
+def _k_prob_over(model: dict, line: float) -> float:
+    """P(K > line) calibrée, en % — pour une ligne de book (Over 4.5 = K >= 5)."""
+    return _calibrate(KD.p_over(model, line))
+
+
+def _k_curve(model: dict) -> list:
     """
     Génère la courbe de probabilité pour K >= N (N=3 à 10).
     On n'invente PAS les cotes bet365 — elles varient par lanceur.
     L'utilisateur compare nos prob% contre ce qu'il voit sur bet365.
     """
-    curve = []
-    for k in range(3, 11):
-        prob = _calibrate(_normal_over(adj_mean, std, k - 0.5))  # P(K >= k), calibré
-        curve.append({
-            "line":    k - 0.5,   # format Over X.5 pour cohérence backtester
-            "k_exact": k,
-            "prob":    prob,
-        })
-    return curve
+    return [
+        {
+            "line":    c["line"],      # format Over X.5 pour cohérence backtester
+            "k_exact": c["k_exact"],
+            "prob":    _calibrate(c["prob"]),
+        }
+        for c in KD.ladder(model, 3, 10)
+    ]
 
 
-def _k_best_line(adj_mean: float, std: float) -> dict | None:
+def _k_best_line(model: dict) -> dict | None:
     """
     Retourne la ligne recommandée quand on n'a PAS les cotes bet365.
 
@@ -486,9 +523,9 @@ def _k_best_line(adj_mean: float, std: float) -> dict | None:
     prob la plus haute encore jouable). On retourne aussi `min_odds` = la cote
     minimum à exiger chez le book, pour que rien ne soit misé en dessous.
     """
-    if adj_mean < 4.0:
+    if model.get("lambda", 0) < 4.0:
         return None
-    curve = _k_curve(adj_mean, std)
+    curve = _k_curve(model)
     max_prob = 100.0 / MIN_ODDS          # prob au-delà de laquelle la cote est trop courte
     playable = [c for c in curve if 0 < c["prob"] <= max_prob]
     if not playable:
@@ -510,7 +547,7 @@ def _k_best_line(adj_mean: float, std: float) -> dict | None:
     }
 
 
-def _best_dk_edge(adj_mean: float, std: float, dk_lines: list) -> dict | None:
+def _best_dk_edge(model: dict, dk_lines: list) -> dict | None:
     """
     Parmi les lignes K offertes par DraftKings, retourne celle ou NOTRE edge est
     maximal (notre prob vs prob implicite DK). Permet de ne recommander que la
@@ -524,7 +561,7 @@ def _best_dk_edge(adj_mean: float, std: float, dk_lines: list) -> dict | None:
         dk_odds = c.get("over_odds", 0)
         if line is None or dk_impl <= 0 or dk_odds <= 0:
             continue
-        prob = _calibrate(_normal_over(adj_mean, std, line))
+        prob = _k_prob_over(model, line)
         edge = _edge(prob, dk_impl)
         if best is None or edge > best["edge_pct"]:
             best = {
@@ -805,7 +842,9 @@ class MLBPropsAnalyzer:
                 proj       = _k_projection(mean_k, opp_k_rate, league_k, park_factor)
                 adj_mean   = proj["adj"]
                 adj_raw    = proj["adj_raw"]
-                std        = _std(adj_mean, "strikeouts")
+                # Modele unique: manches puis K | manches, centre sur adj_mean
+                kmodel     = build_k_model(adj_mean, pitcher)
+                kmom       = KD.moments(kmodel)
                 print(f"    [MLB Ajust] {pitcher}: K% adv {opp_k_rate:.1%} ({opp_k_src}) "
                       f"/ ligue {proj['league_k']:.1%} → régressé x{proj['mult']:.3f} "
                       f"= {adj_mean:.2f}K (brut x{proj['mult_raw']:.3f} = {adj_raw:.2f}K)")
@@ -820,6 +859,9 @@ class MLBPropsAnalyzer:
                     context.append(f"Adversaire K% ({opp_k_src}): {opp_k_rate:.1%} (difficile)")
                 context.append(f"Ajustement régressé x{proj['mult']:.3f} → {adj_mean}K "
                                f"(brut x{proj['mult_raw']:.3f} → {adj_raw}K)")
+                context.append(f"Manches: {kmodel['mean_ip']} IP moy ({kmodel['source']}) · "
+                               f"{kmodel['rate']:.2f} K/manche · σK {kmom['std']:.2f} "
+                               f"(Poisson simple: {kmom['poisson_var'] ** 0.5:.2f})")
                 park_lbl = _park_label(park_factor)
                 if park_factor != 1.00:
                     context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
@@ -840,17 +882,20 @@ class MLBPropsAnalyzer:
                         target_line = max(3.5, round(adj_mean - 0.5, 1))
                         closest = min(dk_lines, key=lambda x: abs(x["line"] - target_line))
                         dk_over_impl = closest.get("over_implied", 0)
-                        our_prob_at_line = _normal_over(adj_mean, _std(adj_mean, "strikeouts"), closest["line"])
+                        # Même modèle que le ladder et que l'edge (avant, cet
+                        # appel-ci sautait la calibration: on comparait une prob
+                        # brute à une prob implicite calibrée)
+                        our_prob_at_line = _k_prob_over(kmodel, closest["line"])
                         if dk_over_impl > our_prob_at_line + 5:
                             print(f"    [MLB Skip] {pitcher}: DK impl {dk_over_impl:.1f}% > notre prob {our_prob_at_line:.1f}% sur Over {closest['line']} → marché surprice")
                             continue
 
                 # ── Ligne recommandée + edge réel vs cotes DK ───────────────────
-                curve = _k_curve(adj_mean, std)
+                curve = _k_curve(kmodel)
                 curve_str = " | ".join(f"K≥{c['k_exact']}:{c['prob']:.0f}%" for c in curve if 3 <= c["k_exact"] <= 9)
                 print(f"    [MLB Courbe] {pitcher}: {curve_str}")
 
-                dk_best = _best_dk_edge(adj_mean, std, dk_lines) if use_real else None
+                dk_best = _best_dk_edge(kmodel, dk_lines) if use_real else None
                 if dk_best is not None:
                     if not (MIN_EDGE <= dk_best["edge_pct"] <= MAX_EDGE):
                         print(f"    [MLB Skip] {pitcher}: edge réel {dk_best['edge_pct']:.1f}% hors [{MIN_EDGE},{MAX_EDGE}] (pas de valeur fiable)")
@@ -865,7 +910,7 @@ class MLBPropsAnalyzer:
                     print(f"    [MLB BET]   {pitcher}: Over {rec_line} @ {est_odds_v:.2f} — prob {our_prob:.0f}% vs DK {dk_impl_v:.0f}% → edge {edge_pct:.1f}%")
                 else:
                     # Pas de cote DK → projection seule (calculateur manuel), pas comptée comme valeur
-                    best = _k_best_line(adj_mean, std)
+                    best = _k_best_line(kmodel)
                     if best is None:
                         print(f"    [MLB Skip] {pitcher}: proj={adj_mean:.1f}K — aucune ligne jouable au-dessus de {MIN_ODDS}")
                         continue
@@ -890,6 +935,10 @@ class MLBPropsAnalyzer:
                     "opp_k_rate":    round(opp_k_rate * 100, 1),
                     "opp_k_source":  opp_k_src,
                     "league_k_rate": round(proj["league_k"] * 100, 1),
+                    "ip_mean":       kmodel["mean_ip"],
+                    "k_rate_per_ip": kmodel["rate"],
+                    "k_std":         kmom["std"],
+                    "k_model":       kmodel["source"],
                     "park_factor":   park_factor,
                     "our_prob":      our_prob,
                     "edge_pct":      edge_pct,
@@ -962,7 +1011,8 @@ class MLBPropsAnalyzer:
                     proj       = _k_projection(mean_k, opp_k_rate, league_k, park_factor)
                     adj_mean   = proj["adj"]
                     adj_raw    = proj["adj_raw"]
-                    std        = _std(adj_mean, "strikeouts")
+                    kmodel     = build_k_model(adj_mean, display)
+                    kmom       = KD.moments(kmodel)
                     print(f"    [MLB Ajust] {display}: K% adv {opp_k_rate:.1%} ({opp_k_src}) "
                           f"/ ligue {proj['league_k']:.1%} → régressé x{proj['mult']:.3f} "
                           f"= {adj_mean:.2f}K (brut x{proj['mult_raw']:.3f} = {adj_raw:.2f}K)")
@@ -973,12 +1023,15 @@ class MLBPropsAnalyzer:
                         context.append(f"Adversaire K% ({opp_k_src}): {opp_k_rate:.1%} (difficile)")
                     context.append(f"Ajustement régressé x{proj['mult']:.3f} → {adj_mean}K "
                                    f"(brut x{proj['mult_raw']:.3f} → {adj_raw}K)")
+                    context.append(f"Manches: {kmodel['mean_ip']} IP moy ({kmodel['source']}) · "
+                                   f"{kmodel['rate']:.2f} K/manche · σK {kmom['std']:.2f} "
+                                   f"(Poisson simple: {kmom['poisson_var'] ** 0.5:.2f})")
                     park_lbl = _park_label(park_factor)
                     if park_factor != 1.00:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
                     # Ligne recommandée + edge réel vs cotes DK
-                    curve = _k_curve(adj_mean, std)
-                    dk_best = _best_dk_edge(adj_mean, std, dk_lines)
+                    curve = _k_curve(kmodel)
+                    dk_best = _best_dk_edge(kmodel, dk_lines)
                     if dk_best is not None:
                         if not (MIN_EDGE <= dk_best["edge_pct"] <= MAX_EDGE):
                             print(f"    [MLB Hors Dict Skip] {display}: edge réel {dk_best['edge_pct']:.1f}% hors [{MIN_EDGE},{MAX_EDGE}]")
@@ -992,7 +1045,7 @@ class MLBPropsAnalyzer:
                         min_odds_v = max(round(100.0 / our_prob, 2), MIN_ODDS) if our_prob else MIN_ODDS
                         print(f"    [MLB Hors Dict BET] {display}: Over {rec_line} @ {est_odds_v:.2f} — prob {our_prob:.0f}% vs DK {dk_impl_v:.0f}% → edge {edge_pct:.1f}%")
                     else:
-                        best = _k_best_line(adj_mean, std)
+                        best = _k_best_line(kmodel)
                         if best is None:
                             continue
                         rec_line, our_prob = best["line"], best["prob"]
@@ -1010,6 +1063,8 @@ class MLBPropsAnalyzer:
                         "opp_k_rate": round(opp_k_rate * 100, 1),
                         "opp_k_source": opp_k_src,
                         "league_k_rate": round(proj["league_k"] * 100, 1),
+                        "ip_mean": kmodel["mean_ip"], "k_rate_per_ip": kmodel["rate"],
+                        "k_std": kmom["std"], "k_model": kmodel["source"],
                         "park_factor": park_factor, "our_prob": our_prob,
                         "edge_pct": edge_pct,
                         "kelly": kelly_v,

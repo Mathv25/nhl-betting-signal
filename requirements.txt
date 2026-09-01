@@ -1,2 +1,6 @@
 requests==2.31.0
 pytz==2024.1
+# Modele K en deux etapes (mlb_k_distribution): binomiale tronquee + Poisson.
+# Non epingle: la roue doit exister pour le Python du runner (3.11 en CI) comme
+# pour celui de la machine de dev.
+scipy>=1.11
