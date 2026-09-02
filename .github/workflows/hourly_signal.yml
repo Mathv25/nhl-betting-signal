@@ -55,7 +55,7 @@ jobs:
         run: |
           git config --global user.name "NHL Bot"
           git config --global user.email "bot@nhl.local"
-          git add docs/signal.json docs/index.html docs/results.json docs/archive/
+          git add docs/signal.json docs/index.html docs/results.json docs/archive/ docs/odds_usage.json
           git diff --staged --quiet || git commit -m "Signal refresh $(date +'%Y-%m-%d %H:%M')"
           # Rebase sur remote avec strategy "theirs" pour les conflits sur fichiers bot
           git pull --rebase -X theirs origin main || (git rebase --abort && git pull --ff-only origin main)

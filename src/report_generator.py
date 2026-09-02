@@ -89,7 +89,7 @@ class ReportGenerator:
             "<div id=\"tab-ai\" style=\"display:none\">",
             ai_html,
             "</div>",
-            self._disclaimer(gen_display),
+            self._disclaimer(gen_display, data.get("odds_api")),
             "</div>",
             self._script(),
             "</body></html>",
@@ -674,7 +674,19 @@ class ReportGenerator:
                 k_curve = b.get("k_curve", [])
                 if k_curve and player_type == "pitcher":
                     cid = player.replace(" ","_")
-                    html += "<div class='mlb-k-curve'><span class='mlb-k-curve-title'>Prob K — cliquer un niveau puis entrer la cote bet365</span>"
+                    # Cotes API disponibles → EV affichée sur chaque palier.
+                    # Sinon → calculateur manuel (fallback quota/API en panne).
+                    coted = b.get("odds_rungs", 0) or 0
+                    src   = next((kc.get("baseline_source", "") for kc in k_curve
+                                  if kc.get("best_odds")), "")
+                    nbk   = next((kc.get("n_books", 0) for kc in k_curve
+                                  if kc.get("best_odds")), 0)
+                    if coted:
+                        title = ("EV par palier — meilleure cote du marché · baseline "
+                                 + (src or "?") + " · " + str(nbk) + " book(s)")
+                    else:
+                        title = "Prob K — cliquer un niveau puis entrer la cote bet365 (cotes API indisponibles)"
+                    html += "<div class='mlb-k-curve'><span class='mlb-k-curve-title'>" + title + "</span>"
                     for kc in k_curve:
                         k = kc.get("k_exact", 0)
                         if k < 3 or k > 10:
@@ -683,22 +695,33 @@ class ReportGenerator:
                         kc_bg  = "rgba(15,110,86,0.12)" if is_best else "transparent"
                         kc_bdr = "2px solid #0F6E56" if is_best else "1px solid #E5E7EB"
                         prob   = kc.get("prob", 0)
+                        odds   = kc.get("best_odds")
                         html += (
                             "<div class='mlb-k-cell' style='border:" + kc_bdr + ";background:" + kc_bg
                             + ";cursor:pointer' onclick=\"mlbCalcSel('" + cid + "'," + str(k) + "," + str(prob) + ")\">"
                             "<div class='mlb-k-num'>K≥" + str(k) + "</div>"
                             "<div class='mlb-k-prob'>" + str(prob) + "%</div>"
+                        )
+                        if odds:
+                            ev  = kc.get("ev_pct", 0)
+                            evc = "#0F6E56" if ev > 0 else "#B45309"
+                            html += (
+                                "<div class='mlb-k-ev' style='color:" + evc + "'>"
+                                + ("+" if ev > 0 else "") + str(ev) + "% EV</div>"
+                                "<div class='mlb-k-book'>" + f"{odds:.2f}" + " "
+                                + str(kc.get("best_book", ""))[:9] + "</div>"
+                            )
+                        html += "</div>"
+                    html += "</div>"
+                    if not coted:
+                        html += (
+                            "<div class='mlb-k-calc' id='kc-" + cid + "' style='display:none'>"
+                            "K≥<b id='kc-k-" + cid + "'></b> · Notre prob: <b id='kc-p-" + cid + "'></b>% · "
+                            "Cote bet365: <input id='kc-i-" + cid + "' class='mlb-k-odds-input' type='number' "
+                            "step='0.01' min='1.01' placeholder='ex: 1.41' oninput=\"mlbCalcEdge('" + cid + "')\"> "
+                            "<b id='kc-e-" + cid + "'></b>"
                             "</div>"
                         )
-                    html += (
-                        "</div>"
-                        "<div class='mlb-k-calc' id='kc-" + cid + "' style='display:none'>"
-                        "K≥<b id='kc-k-" + cid + "'></b> · Notre prob: <b id='kc-p-" + cid + "'></b>% · "
-                        "Cote bet365: <input id='kc-i-" + cid + "' class='mlb-k-odds-input' type='number' "
-                        "step='0.01' min='1.01' placeholder='ex: 1.41' oninput=\"mlbCalcEdge('" + cid + "')\"> "
-                        "<b id='kc-e-" + cid + "'></b>"
-                        "</div>"
-                    )
                 # 4 notes: rolling, K% adverse, ajustement régressé vs brut,
                 # distribution des manches. Sous 4 la comparaison du chantier
                 # en cours est tronquée.
@@ -931,7 +954,31 @@ class ReportGenerator:
             "</div>"
         )
 
-    def _disclaimer(self, gen_display):
+    def _disclaimer(self, gen_display, odds_state=None):
+        """
+        Le bandeau de quota n'est pas cosmetique: quand la cle Odds API est
+        epuisee ou refusee, le rapport s'affiche normalement mais SANS cotes,
+        et un ladder sans cotes ressemble a un marche muet. La ligne ci-dessous
+        dit laquelle des deux situations on regarde.
+        """
+        state  = odds_state or {}
+        quota  = ""
+        if state:
+            rem = state.get("remaining")
+            if not state.get("healthy", True):
+                errs = "; ".join(state.get("errors", [])[:2]) or "cle indisponible"
+                quota = ("<p class=\"upd\" style=\"color:#B45309\">Cotes API indisponibles — "
+                         + errs + " · les cotes affichees viennent du calculateur manuel</p>")
+            elif rem is not None:
+                low = " style=\"color:#B45309\"" if rem < 100 else ""
+                budget = state.get("day_budget")
+                pace = ("" if budget is None else
+                        " · jour " + str(state.get("spent_today", 0))
+                        + "/" + str(budget) + " credits")
+                quota = ("<p class=\"upd\"" + low + ">Quota Odds API: " + str(rem)
+                         + " credit(s) restant(s) · " + str(state.get("credits_spent", 0))
+                         + " depense(s) cette execution · " + str(state.get("cache_hits", 0))
+                         + " reponse(s) du cache" + pace + "</p>")
         return (
             "<p class=\"disc\">"
             "Signal informatif et educatif uniquement. Aucun resultat garanti. "
@@ -939,6 +986,7 @@ class ReportGenerator:
             "Jouez de facon responsable. 18+"
             "</p>"
             "<p class=\"upd\" id=\"stat-gentime\">Genere le " + gen_display + "</p>"
+            + quota
         )
 
     def _js_render(self):
@@ -1887,6 +1935,9 @@ class ReportGenerator:
             ".mlb-k-cell:hover{opacity:.8}"
             ".mlb-k-num{font-size:10px;font-weight:700;color:var(--m);letter-spacing:.05em}"
             ".mlb-k-prob{font-size:13px;font-weight:700;color:var(--t);margin:2px 0}"
+            ".mlb-k-ev{font-size:11px;font-weight:700;line-height:1.2}"
+            ".mlb-k-book{font-size:9px;color:var(--m);letter-spacing:.02em;"
+            "text-transform:uppercase;line-height:1.3}"
             ".mlb-k-calc{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;"
             "color:var(--m);flex-wrap:wrap}"
             ".mlb-k-odds-input{width:110px;padding:4px 8px;border:1px solid var(--b);"

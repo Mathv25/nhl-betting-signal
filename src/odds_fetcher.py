@@ -3,11 +3,12 @@ Odds Fetcher - The Odds API -> DraftKings
 Marches: h2h (moneyline), spreads (puck line), totals + player props NHL
 """
 
-import requests
 import time
 from typing import Optional
 
-BASE_URL  = "https://api.the-odds-api.com/v4"
+import odds_api
+
+# BASE_URL vit dans odds_api (client partage).
 SPORT     = "icehockey_nhl"
 BOOKMAKER = "draftkings"
 FMT_ODDS  = "decimal"
@@ -37,42 +38,48 @@ class OddsFetcher:
         self.api_key   = api_key
         self.remaining = "?"
         self.used      = "?"
+        self.client    = odds_api.get_client(api_key)
+        self.prop_events_done = 0
 
-    def _get(self, endpoint: str, params: dict) -> Optional[dict]:
-        params["apiKey"] = self.api_key
-        try:
-            r = requests.get(f"{BASE_URL}/{endpoint}", params=params, timeout=15)
-            self.remaining = r.headers.get("x-requests-remaining", "?")
-            self.used      = r.headers.get("x-requests-used", "?")
-            r.raise_for_status()
-            return r.json()
-        except requests.exceptions.HTTPError as e:
-            print(f"  HTTP {e.response.status_code}: {endpoint}")
-            return None
-        except Exception as e:
-            print(f"  Erreur reseau: {e}")
-            return None
+    def _get(self, endpoint: str, params: dict, cost: int = 1) -> Optional[dict]:
+        """Passe par le client partage: cache + comptage et garde-fou de quota."""
+        data = self.client.get(endpoint, params, cost=cost)
+        if self.client.remaining is not None:
+            self.remaining = self.client.remaining
+        if self.client.used is not None:
+            self.used = self.client.used
+        return data
+
+    @staticmethod
+    def _n_regions() -> int:
+        return max(len([r for r in odds_api.regions().split(",") if r.strip()]), 1)
 
     def get_nhl_games_b365(self) -> list:
-        """Fetch les cotes NHL.
-        Essaie bet365 (UK) en priorite, puis DK/FD en fallback si pas encore disponible."""
+        """
+        Fetch les cotes NHL, puis parse en respectant l'ordre de priorite des
+        books (bet365 d'abord la ou il est offert, sinon DK/FD).
+
+        Un SEUL appel reseau pour tous les books. L'ancienne version relancait
+        une requete par book de la cascade: 3 marches x 1 region = 3 credits par
+        tentative, jusqu'a 12 credits pour un slate, et ce a chaque execution
+        horaire. Le meme appel sans filtre `bookmakers` coute le meme prix pour
+        un seul book et ramene les quatre.
+        """
+        cost = len(MAIN_MARKETS.split(",")) * self._n_regions()
+        raw = self._get(f"sports/{SPORT}/odds", {
+            "regions":    odds_api.regions(),
+            "markets":    MAIN_MARKETS,
+            "oddsFormat": FMT_ODDS,
+            "dateFormat": FMT_DATE,
+        }, cost=cost)
+        print(f"  -> Requetes API restantes: {self.remaining} | utilisees: {self.used}")
+        if not raw:
+            print("  Aucun match NHL disponible.")
+            return []
+
         for entry in BOOKMAKER_PRIORITY:
             book   = entry["key"]
             region = entry["region"]
-            print(f"  -> Tentative {book} ({region}): Moneyline + Puck Line + Totals...")
-            raw = self._get(f"sports/{SPORT}/odds", {
-                "regions":    region,
-                "markets":    MAIN_MARKETS,
-                "bookmakers": book,
-                "oddsFormat": FMT_ODDS,
-                "dateFormat": FMT_DATE,
-            })
-            print(f"  -> Requetes API restantes: {self.remaining} | utilisees: {self.used}")
-
-            if not raw:
-                print(f"  {book}: aucun match disponible.")
-                continue
-
             games = []
             for event in raw:
                 game = self._parse_event_for_book(event, book)
@@ -90,31 +97,51 @@ class OddsFetcher:
         return []
 
     def get_nhl_player_props(self, event_id: str, bookmaker: str = "draftkings") -> dict:
-        """Fetche les props joueurs NHL pour un match (tous les marches en un seul appel).
-        Essaie le bookmaker principal, puis les autres en cascade si aucun prop trouve.
+        """Fetche les props joueurs NHL pour un match (tous les marches et tous
+        les books en un seul appel), puis retient le premier book de la
+        priorite qui cote reellement le match.
         Retourne dict {market_key: [{player, line, over_odds, over_implied, under_odds, under_implied}]}
         """
-        time.sleep(0.5)
-        # Ordre de priorité: bookmaker demandé en premier, puis les autres
-        books_to_try = [bookmaker] + [e["key"] for e in BOOKMAKER_PRIORITY if e["key"] != bookmaker]
+        if not odds_api.props_enabled() or not odds_api.props_window_open() or not self.client.healthy:
+            return {}
 
-        data = None
-        used_bookmaker = bookmaker
-        for book in books_to_try:
-            region = next((e["region"] for e in BOOKMAKER_PRIORITY if e["key"] == book), "us")
-            data = self._get(f"sports/{SPORT}/events/{event_id}/odds", {
-                "regions":    region,
-                "markets":    ",".join(NHL_PROP_MARKETS),
-                "oddsFormat": FMT_ODDS,
-                "bookmakers": book,
-            })
-            if data and any(bm.get("key") == book and bm.get("markets") for bm in data.get("bookmakers", [])):
-                used_bookmaker = book
-                if book != bookmaker:
-                    print(f"    [Props NHL] {bookmaker} sans props — utilise {book}")
-                break
+        # 10 credits par (marche x region) sur l'endpoint event: 3 marches en
+        # us+eu = 60 credits POUR UN MATCH, sur un quota mensuel de 500. La
+        # cascade par book multipliait encore ce montant par le nombre de books
+        # essayes. Un seul appel, tous les books, et un plafond d'evenements.
+        params = {
+            "regions":    odds_api.regions(),
+            "markets":    ",".join(NHL_PROP_MARKETS),
+            "oddsFormat": FMT_ODDS,
+        }
+        cost = (odds_api.COST_PER_MARKET_REGION_PROP
+                * len(NHL_PROP_MARKETS) * self._n_regions())
+        endpoint  = f"sports/{SPORT}/events/{event_id}/odds"
+        cache_hit = self.client._cache_read(self.client._key(endpoint, params)) is not None
+        if not cache_hit:
+            if self.prop_events_done >= odds_api.max_prop_events():
+                print(f"    [Props NHL] plafond ODDS_MAX_PROP_EVENTS="
+                      f"{odds_api.max_prop_events()} atteint — {event_id[:8]} ignore")
+                return {}
+            if not self.client.can_spend_props(cost):
+                print(f"    [Props NHL] budget du jour atteint "
+                      f"({self.client.spent_today() + self.client.prop_credits}/"
+                      f"{self.client.day_budget()} credits) — {event_id[:8]} ignore")
+                return {}
+            self.client.note_props(cost)
+            self.prop_events_done += 1
+            time.sleep(0.5)
+
+        data = self._get(endpoint, params, cost=cost)
         if not data:
             return {}
+
+        # Le book retenu est le premier de la priorite qui cote reellement.
+        offered = {bm.get("key") for bm in data.get("bookmakers", []) if bm.get("markets")}
+        books_to_try = [bookmaker] + [e["key"] for e in BOOKMAKER_PRIORITY if e["key"] != bookmaker]
+        used_bookmaker = next((b for b in books_to_try if b in offered), bookmaker)
+        if used_bookmaker != bookmaker and used_bookmaker in offered:
+            print(f"    [Props NHL] {bookmaker} sans props — utilise {used_bookmaker}")
 
         result = {}
         for bm in data.get("bookmakers", []):

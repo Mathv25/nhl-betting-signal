@@ -29,6 +29,7 @@ from datetime import datetime
 import requests
 
 import mlb_team_model as tm
+import odds_api
 
 # ── Paramètres du modèle ────────────────────────────────────────────────────
 
@@ -380,6 +381,35 @@ def devig_two_way(odds_a: float, odds_b: float) -> tuple:
     return ia / tot, ib / tot
 
 
+def market_probs(odds_entry: dict, home: str, away: str) -> tuple:
+    """
+    Probabilité no-vig du marché sur le moneyline: (p_home, p_away, source).
+
+    Pourquoi pas simplement devig_two_way sur les meilleures cotes: la
+    meilleure cote home et la meilleure cote away viennent souvent de deux
+    books différents. Leur somme implicite peut descendre sous 100%, et
+    normaliser ce mélange penche vers le book qui a l'écart le plus généreux —
+    on s'attribue une partie de l'écart entre books comme s'il venait du
+    marché. On devigge donc DANS un book: Pinnacle en priorité (marge la plus
+    faible), sinon la médiane des books qui cotent les deux côtés.
+
+    Repli sur devig_two_way (meilleures cotes) quand le détail par book manque,
+    pour rester compatible avec les entrées de cotes plus anciennes.
+    """
+    books = [
+        {"book": bk, "over_odds": prices.get(home), "under_odds": prices.get(away)}
+        for bk, prices in ((odds_entry or {}).get("ml_books") or {}).items()
+    ]
+    agg = odds_api.summarize_two_way([b for b in books if b["over_odds"] and b["under_odds"]])
+    if agg["n_novig"]:
+        p_home = agg["baseline_prob"] / 100.0
+        return p_home, 1.0 - p_home, agg["baseline_source"]
+
+    ml = (odds_entry or {}).get("ml", {})
+    p_home, p_away = devig_two_way(ml.get(home), ml.get(away))
+    return p_home, p_away, "meilleures cotes (multi-books)"
+
+
 def blend_with_market(p_model: float, p_market: float) -> float:
     """
     Rétrécissement vers le marché. Le marché MLB moneyline est très efficace;
@@ -628,6 +658,9 @@ def analyze_game(game: dict, odds_entry: dict = None, date_str: str = None) -> d
 
     out = {
         "game_pk":    game["game_pk"],
+        # event_id The Odds API (vient de l'entree de cotes): la capture CLV en
+        # a besoin pour retrouver ce match plus tard.
+        "event_id":   (odds_entry or {}).get("event_id", ""),
         "home_team":  game["home_team"],
         "away_team":  game["away_team"],
         "venue":      game.get("venue", ""),
@@ -678,7 +711,8 @@ def analyze_game(game: dict, odds_entry: dict = None, date_str: str = None) -> d
     o_away = ml_odds.get(game["away_team"])
 
     # Probabilités du marché sans la marge, puis rétrécissement.
-    mkt_home, mkt_away = devig_two_way(o_home, o_away)
+    mkt_home, mkt_away, mkt_src = market_probs(odds_entry, game["home_team"],
+                                               game["away_team"])
     p_home = blend_with_market(probs["p_a_ml"], mkt_home)
     p_away = blend_with_market(probs["p_b_ml"], mkt_away)
     # Renormaliser: les deux mélanges doivent sommer à 1.
@@ -689,6 +723,7 @@ def analyze_game(game: dict, odds_entry: dict = None, date_str: str = None) -> d
     out["prob_marche"] = {
         "home_ml": round(mkt_home, 4) if mkt_home else None,
         "away_ml": round(mkt_away, 4) if mkt_away else None,
+        "source":  mkt_src,
     }
     out["prob_finale"] = {"home_ml": round(p_home, 4), "away_ml": round(p_away, 4)}
 

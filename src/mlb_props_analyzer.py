@@ -23,6 +23,7 @@ import math
 # n'a plus de ladder, et un repli silencieux sur l'ancienne normale publierait
 # des probabilites differentes sans le dire.
 import mlb_k_distribution as KD
+import odds_api
 
 try:
     from mlb_rolling_stats import get_pitcher_ip_starts as _get_pitcher_ip_starts
@@ -508,6 +509,56 @@ def _k_curve(model: dict) -> list:
     ]
 
 
+def _attach_odds_to_curve(curve: list, dk_lines: list) -> int:
+    """
+    Colle sur chaque barreau du ladder la meilleure cote du marche, le book qui
+    l'offre, la probabilite no-vig de reference et l'EV.
+
+    Deux grandeurs differentes, volontairement toutes les deux presentes:
+      ev_pct   = (notre_prob x meilleure_cote) - 1   → esperance de la mise,
+                 c'est ce qu'on affiche sur le barreau;
+      edge_pct = (notre_prob - prob_marche) / prob_marche → ecart relatif de
+                 probabilites, la grandeur historique sur laquelle MIN_EDGE et
+                 les backtests sont calibres. Ne pas confondre les seuils.
+
+    Retourne le nombre de barreaux effectivement cotes (0 → le dashboard
+    retombe sur le calculateur manuel).
+    """
+    by_line = {}
+    for c in dk_lines or []:
+        line = c.get("line")
+        if line is None:
+            continue
+        try:
+            by_line[round(float(line), 1)] = c
+        except (TypeError, ValueError):
+            continue
+
+    n = 0
+    for rung in curve:
+        m = by_line.get(round(float(rung["line"]), 1))
+        if not m:
+            continue
+        try:
+            odds = float(m.get("over_odds") or 0)
+        except (TypeError, ValueError):
+            continue
+        if odds <= 1.0:
+            continue
+        market_prob = m.get("over_implied") or 0
+        rung.update({
+            "best_odds":       round(odds, 3),
+            "best_book":       m.get("over_book", ""),
+            "market_prob":     round(market_prob, 2),
+            "baseline_source": m.get("baseline_source", ""),
+            "n_books":         m.get("n_books", 0),
+            "ev_pct":          odds_api.ev_pct(rung["prob"], odds),
+            "edge_pct":        _edge(rung["prob"], market_prob) if market_prob else 0,
+        })
+        n += 1
+    return n
+
+
 def _k_best_line(model: dict) -> dict | None:
     """
     Retourne la ligne recommandée quand on n'a PAS les cotes bet365.
@@ -552,7 +603,14 @@ def _best_dk_edge(model: dict, dk_lines: list) -> dict | None:
     Parmi les lignes K offertes par DraftKings, retourne celle ou NOTRE edge est
     maximal (notre prob vs prob implicite DK). Permet de ne recommander que la
     vraie valeur et d'enregistrer la cote reelle (profit tracable dans le backtester).
-    Retourne {line, our_prob, dk_implied, est_odds, edge_pct, kelly} ou None.
+    Retourne {line, our_prob, dk_implied, est_odds, edge_pct, kelly, basis,
+    book} ou None.
+
+    `basis` dit si `dk_implied` est une probabilite NO-VIG (les deux faces du
+    marche etaient disponibles) ou BRUTE (1/cote, vig incluse). Les deux ne sont
+    pas comparables: la brute est plus haute de 2 a 5 points. Sans ce champ, le
+    CLV compare une ouverture no-vig a une fermeture brute et sort
+    systematiquement negatif.
     """
     best = None
     for c in dk_lines or []:
@@ -564,6 +622,7 @@ def _best_dk_edge(model: dict, dk_lines: list) -> dict | None:
         prob = _k_prob_over(model, line)
         edge = _edge(prob, dk_impl)
         if best is None or edge > best["edge_pct"]:
+            src  = c.get("baseline_source", "")
             best = {
                 "line":       line,
                 "our_prob":   prob,
@@ -571,6 +630,8 @@ def _best_dk_edge(model: dict, dk_lines: list) -> dict | None:
                 "est_odds":   round(dk_odds, 3),
                 "edge_pct":   edge,
                 "kelly":      _kelly(prob, dk_impl, dk_odds),
+                "basis":      "brute" if (not src or src.startswith("brute")) else "novig",
+                "book":       c.get("over_book", ""),
             }
     return best
 
@@ -869,6 +930,7 @@ class MLBPropsAnalyzer:
                 # ── Filtre DK: marché déjà au-dessus de notre projection? ───────
                 # Si DK implique prob > notre modèle sur la ligne naturelle → skip
                 # (marché a pricé le lanceur correctement, pas de valeur potentielle)
+                dk_lines = []
                 if use_real:
                     dk_lines = real_lkp.get(pitcher.lower(), {}).get("strikeouts", [])
                     if not dk_lines:
@@ -892,8 +954,14 @@ class MLBPropsAnalyzer:
 
                 # ── Ligne recommandée + edge réel vs cotes DK ───────────────────
                 curve = _k_curve(kmodel)
+                n_coted = _attach_odds_to_curve(curve, dk_lines)
                 curve_str = " | ".join(f"K≥{c['k_exact']}:{c['prob']:.0f}%" for c in curve if 3 <= c["k_exact"] <= 9)
                 print(f"    [MLB Courbe] {pitcher}: {curve_str}")
+                if n_coted:
+                    ev_str = " | ".join(
+                        f"K≥{c['k_exact']}:{c['ev_pct']:+.1f}%EV@{c['best_odds']:.2f}({c['best_book'][:4]})"
+                        for c in curve if c.get("best_odds"))
+                    print(f"    [MLB EV]    {pitcher}: {ev_str}")
 
                 dk_best = _best_dk_edge(kmodel, dk_lines) if use_real else None
                 if dk_best is not None:
@@ -906,8 +974,10 @@ class MLBPropsAnalyzer:
                     rec_line, our_prob = dk_best["line"], dk_best["our_prob"]
                     edge_pct, kelly_v  = dk_best["edge_pct"], dk_best["kelly"]
                     est_odds_v, dk_impl_v = dk_best["est_odds"], dk_best["dk_implied"]
+                    basis_v, book_v = dk_best["basis"], dk_best["book"]
                     min_odds_v = max(round(100.0 / our_prob, 2), MIN_ODDS) if our_prob else MIN_ODDS
-                    print(f"    [MLB BET]   {pitcher}: Over {rec_line} @ {est_odds_v:.2f} — prob {our_prob:.0f}% vs DK {dk_impl_v:.0f}% → edge {edge_pct:.1f}%")
+                    print(f"    [MLB BET]   {pitcher}: Over {rec_line} @ {est_odds_v:.2f} ({book_v}) — "
+                          f"prob {our_prob:.0f}% vs marche {dk_impl_v:.0f}% [{basis_v}] → edge {edge_pct:.1f}%")
                 else:
                     # Pas de cote DK → projection seule (calculateur manuel), pas comptée comme valeur
                     best = _k_best_line(kmodel)
@@ -916,6 +986,7 @@ class MLBPropsAnalyzer:
                         continue
                     rec_line, our_prob = best["line"], best["prob"]
                     edge_pct, kelly_v, est_odds_v, dk_impl_v = 0, 0, 0, 0
+                    basis_v, book_v = "", ""
                     min_odds_v = best["min_odds"]
                     print(f"    [MLB PROJ]  {pitcher}: Over {rec_line} proj {adj_mean:.1f}K — exiger >= {min_odds_v:.2f} (pas de cote DK)")
 
@@ -946,7 +1017,13 @@ class MLBPropsAnalyzer:
                     "min_odds":      min_odds_v,   # ne jamais miser sous cette cote
                     "est_odds":      est_odds_v,
                     "dk_implied":    dk_impl_v,
+                    # "novig" ou "brute": voir _best_dk_edge. Le CLV doit
+                    # comparer deux probabilites de la meme base.
+                    "dk_implied_basis": basis_v,
+                    "dk_book":       book_v,
                     "k_curve":       curve,   # courbe complète pour affichage frontend
+                    # 0 barreau coté → le dashboard affiche le calculateur manuel
+                    "odds_rungs":    n_coted,
                     "context":       context,
                 })
 
@@ -1031,6 +1108,7 @@ class MLBPropsAnalyzer:
                         context.append(f"Terrain: {park_lbl} (PF {park_factor:.2f})")
                     # Ligne recommandée + edge réel vs cotes DK
                     curve = _k_curve(kmodel)
+                    n_coted = _attach_odds_to_curve(curve, dk_lines)
                     dk_best = _best_dk_edge(kmodel, dk_lines)
                     if dk_best is not None:
                         if not (MIN_EDGE <= dk_best["edge_pct"] <= MAX_EDGE):
@@ -1042,6 +1120,7 @@ class MLBPropsAnalyzer:
                         rec_line, our_prob = dk_best["line"], dk_best["our_prob"]
                         edge_pct, kelly_v  = dk_best["edge_pct"], dk_best["kelly"]
                         est_odds_v, dk_impl_v = dk_best["est_odds"], dk_best["dk_implied"]
+                        basis_v, book_v = dk_best["basis"], dk_best["book"]
                         min_odds_v = max(round(100.0 / our_prob, 2), MIN_ODDS) if our_prob else MIN_ODDS
                         print(f"    [MLB Hors Dict BET] {display}: Over {rec_line} @ {est_odds_v:.2f} — prob {our_prob:.0f}% vs DK {dk_impl_v:.0f}% → edge {edge_pct:.1f}%")
                     else:
@@ -1050,6 +1129,7 @@ class MLBPropsAnalyzer:
                             continue
                         rec_line, our_prob = best["line"], best["prob"]
                         edge_pct, kelly_v, est_odds_v, dk_impl_v = 0, 0, 0, 0
+                        basis_v, book_v = "", ""
                         min_odds_v = best["min_odds"]
                         print(f"    [MLB Hors Dict PROJ] {display}: Over {rec_line} proj {adj_mean:.1f} — exiger >= {min_odds_v:.2f}")
                     ev_bets.append({
@@ -1070,7 +1150,8 @@ class MLBPropsAnalyzer:
                         "kelly": kelly_v,
                         "min_odds": min_odds_v,
                         "est_odds": est_odds_v, "dk_implied": dk_impl_v,
-                        "k_curve": curve,
+                        "dk_implied_basis": basis_v, "dk_book": book_v,
+                        "k_curve": curve, "odds_rungs": n_coted,
                         "context": context,
                     })
             except Exception as e:
@@ -1215,4 +1296,7 @@ class MLBPropsAnalyzer:
         ev_bets = ev_bets[:MAX_BETS]
 
         print(f"    -> {len(ev_bets)} bets MLB +EV")
-        return {"home_team": home, "away_team": away, "bets": ev_bets}
+        # event_id: sans lui la capture CLV ne peut pas retrouver le match
+        # dans The Odds API (c'etait la cause de 0 CLV capte sur 1267 bets).
+        return {"event_id": game.get("event_id", ""),
+                "home_team": home, "away_team": away, "bets": ev_bets}

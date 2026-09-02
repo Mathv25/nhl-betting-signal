@@ -6,6 +6,7 @@ import json, os, sys, time
 from datetime import datetime, timezone
 import pytz
 from env_file import load_env
+import odds_api
 from odds_fetcher import OddsFetcher
 from nba_odds_fetcher import NBAOddsFetcher
 from nba_props_analyzer import NBAPropsAnalyzer
@@ -328,6 +329,10 @@ def main():
         "mlb_analysis":     mlb_analysis,
         "mlb_ml_analysis":  mlb_ml_analysis,
         "power_analysis":   power_analysis,
+        # Etat du quota The Odds API. Sans ca, une cle epuisee se traduit par un
+        # rapport sans cotes qui a l'air normal: on croit que le marche est
+        # muet alors que c'est l'API qui ne repond plus.
+        "odds_api":         odds_api.get_client(api_key).status(),
     }
 
     # ── 9. Analyse experte IA ─────────────────────────────────────────────────
@@ -340,6 +345,11 @@ def main():
         json.dump(output, f, ensure_ascii=False, indent=2, default=str)
 
     reporter.generate_html(output)
+    _oc = odds_api.get_client(api_key)
+    _oc.log_status("bilan — ")
+    # Fige la depense du jour pour les executions suivantes (le workflow
+    # commite docs/odds_usage.json: en CI, c'est le seul etat qui survit).
+    _oc.persist_usage()
     print("\nTermine -> docs/index.html + docs/signal.json")
     print("=" * 65)
 
