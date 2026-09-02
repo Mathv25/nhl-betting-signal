@@ -68,10 +68,16 @@ nhl-betting-signal/
 │   ├── odds_fetcher.py           ← Récupère les cotes bet365 (The Odds API)
 │   ├── lineup_checker.py         ← Valide les alignements (NHL.com officiel)
 │   ├── edge_calculator.py        ← Modèle Poisson + calcul d'edge + Kelly
-│   └── report_generator.py       ← Génère le HTML pour GitHub Pages
+│   ├── report_generator.py       ← Génère le HTML pour GitHub Pages
+│   ├── odds_api.py               ← Client The Odds API (devig, cache, quota)
+│   └── bet_tracker.py            ← Suivi des paris pris (yield, CLV, calibration)
+├── track.py                      ← CLI de suivi des paris (add / close / stats)
 ├── docs/
 │   ├── index.html                ← Dashboard GitHub Pages (auto-généré)
-│   └── signal.json               ← Signal brut en JSON (auto-généré)
+│   ├── signal.json               ← Signal brut en JSON (auto-généré)
+│   ├── results.json              ← Ce que le modèle a PROPOSÉ (backtester)
+│   ├── bets.json                 ← Ce qui a été MISÉ (track.py)
+│   └── odds_usage.json           ← Dépense quotidienne de crédits Odds API
 ├── requirements.txt
 └── README.md
 ```
@@ -145,3 +151,50 @@ python signal.py
 ```
 
 Le dashboard sera généré dans `docs/index.html`.
+
+---
+
+## 📒 Suivi des paris pris (`track.py`)
+
+`results.json` suit ce que le **modèle a proposé**. `bets.json` suit ce qui a
+été **misé** : la cote réellement obtenue, chez quel book, pour combien, et la
+cote de fermeture. Sans ça, aucun yield réel ni CLV n'est mesurable.
+
+```bash
+# Enregistrer un pari (mode guidé, questions une à une)
+python track.py add
+
+# Ou tout en une ligne
+python track.py add --date 2026-09-02 --sport mlb --market props_k \
+  --selection "Tarik Skubal Over 6.5 K" --prob 58 --odds 1.95 \
+  --book betano --stake 1
+
+# Renseigner les cotes de fermeture et les résultats (mode guidé)
+python track.py close
+
+# Ou un pari précis
+python track.py close --id "2026-09-02|mlb|props_k|Tarik Skubal Over 6.5 K" \
+  --closing-odds 1.83 --result win
+
+python track.py list --pending      # ce qui reste à régler
+python track.py stats               # les mêmes chiffres que le dashboard
+```
+
+Les statistiques sont recalculées à **chaque écriture** et stockées dans
+`docs/bets.json`, que l'onglet Performance lit tel quel — le CLI et le
+dashboard ne peuvent donc pas afficher des chiffres différents. Il faut
+committer et pousser `docs/bets.json` pour que le dashboard en ligne les voie.
+
+Ce qui est calculé :
+
+| Mesure | Définition | Pourquoi |
+|---|---|---|
+| **Yield** | profit total / mise totale | Le rendement réel, pas l'edge théorique |
+| **IC 95%** | estimateur de ratio, `Y ± 1.96·SE` | Dit quand l'échantillon est trop petit pour conclure. Sous 30 paris → marqué non fiable ; si l'intervalle contient 0, le résultat n'est pas distinguable du hasard |
+| **WR + cote moyenne** | toujours affichés ensemble | 53% est excellent à 2.10 et ruineux à 1.60. Le seuil de rentabilité de la cote moyenne est donné à côté |
+| **CLV** | moyenne de `cote_prise / cote_fermeture − 1` | Se mesure sans attendre les résultats, et bien moins bruité que le yield |
+| **Calibration** | tranches de 5% : annoncé contre observé, avec le n | Un modèle qui dit 60% et gagne 52% n'a pas un problème de chance mais d'échelle. Une tranche sous 20 paris est marquée *mince* |
+| **ROI par marché** | par marché, avec WR et cote moyenne | Repérer quel marché porte le résultat |
+
+Les `push` sont remboursés : profit 0, et leur mise sort du dénominateur du
+yield (rien n'a été risqué au règlement). Leur nombre reste affiché.
