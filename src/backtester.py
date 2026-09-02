@@ -1197,6 +1197,9 @@ def run_for_date(target_date: str):
                 "our_prob":       prop.get("our_prob", 0),
                 "b365_odds":      prop.get("est_odds", prop.get("b365_odds", 0)),
                 "b365_implied":   prop.get("dk_implied", prop.get("b365_implied", 0)),
+                # "novig" ou "brute": la capture CLV doit soustraire une
+                # fermeture de la meme base, sinon l'ecart mesure est la vig.
+                "opening_basis":  prop.get("dk_implied_basis", "brute"),
                 "kelly_fraction": prop.get("kelly", prop.get("kelly_fraction", 0)),
                 "result":         result or "?",
             })
@@ -1228,6 +1231,9 @@ def run_for_date(target_date: str):
                 "our_prob":       prop.get("our_prob", 0),
                 "b365_odds":      prop.get("est_odds", prop.get("b365_odds", 0)),
                 "b365_implied":   prop.get("dk_implied", prop.get("b365_implied", 0)),
+                # "novig" ou "brute": la capture CLV doit soustraire une
+                # fermeture de la meme base, sinon l'ecart mesure est la vig.
+                "opening_basis":  prop.get("dk_implied_basis", "brute"),
                 "kelly_fraction": prop.get("kelly", prop.get("kelly_fraction", 0)),
                 "result":         result or "?",
             })
@@ -1353,6 +1359,7 @@ def save_pending_from_signal():
                 "edge_pct": prop.get("edge_pct",0), "our_prob": prop.get("our_prob",0),
                 "b365_odds": prop.get("est_odds", prop.get("b365_odds",0)),
                 "b365_implied": prop.get("dk_implied", prop.get("b365_implied",0)),
+                "opening_basis": prop.get("dk_implied_basis", "brute"),
                 "kelly_fraction": prop.get("kelly", prop.get("kelly_fraction",0)),
                 "result": "?",
             })
@@ -1386,6 +1393,7 @@ def save_pending_from_signal():
                 "edge_pct": prop.get("edge_pct",0), "our_prob": prop.get("our_prob",0),
                 "b365_odds": prop.get("est_odds", prop.get("b365_odds",0)),
                 "b365_implied": prop.get("dk_implied", prop.get("b365_implied",0)),
+                "opening_basis": prop.get("dk_implied_basis", "brute"),
                 "kelly_fraction": prop.get("kelly", prop.get("kelly_fraction",0)),
                 # Les deux projections K sont enregistrees pour pouvoir mesurer,
                 # apres une semaine, laquelle colle le mieux au resultat reel
@@ -1419,6 +1427,8 @@ def save_pending_from_signal():
                 "b365_odds": bet.get("cote", 0),
                 "b365_implied": (round(100 / bet["cote"], 1)
                                  if bet.get("cote") else 0),
+                # 100/cote inclut la vig: base brute.
+                "opening_basis": "brute",
                 "kelly_fraction": 0,
                 "tier": bet.get("tier", ""),
                 "facteurs_nets": bet.get("facteurs_nets", 0),
