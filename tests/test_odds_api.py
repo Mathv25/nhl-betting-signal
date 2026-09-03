@@ -204,12 +204,19 @@ class TestSpendingPace(unittest.TestCase):
         self.assertEqual(c.day_budget(), first)
 
     def test_small_plan_spends_nothing_on_props(self):
-        # 15 credits/jour: aucun appel props ne rentre. Refuser est le bon
-        # comportement — l'ancienne exception "premier appel" laissait passer
-        # 20 credits par execution horaire, soit ~14 000 par mois.
+        # Sur un petit palier le budget du jour vaut moins qu'un seul appel
+        # props (10 a 20 credits): refuser est le bon comportement. L'ancienne
+        # exception "premier appel" laissait passer 20 credits par execution
+        # horaire, soit ~14 000 par mois.
+        #
+        # On teste la propriete, pas un nombre fige: le budget depend du nombre
+        # de jours restants dans le mois, donc une valeur en dur casse le
+        # lendemain (460/29 = 15 le 2 du mois, 460/28 = 16 le 3).
         c = O.get_client("cle")
         c.remaining = 500
-        self.assertEqual(c.day_budget(), 15)
+        budget = c.day_budget()
+        self.assertEqual(budget, O.daily_budget(500))
+        self.assertLess(budget, 20)
         self.assertFalse(c.can_spend_props(20))
 
     def test_spending_of_earlier_runs_counts_against_today(self):
