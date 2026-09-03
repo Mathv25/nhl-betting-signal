@@ -1441,6 +1441,12 @@ def save_pending_from_signal():
         for bet in results_data["bets"]:
             if (bet.get("result") != "?" or
                     bet.get("sport") != "mlb" or
+                    # Paris d'equipe: `name` est un nom d'EQUIPE, jamais present
+                    # dans un alignement. Sans cette exclusion, chaque moneyline
+                    # et chaque run line etait annule faute de trouver un joueur
+                    # appele "Boston Red Sox" — 175 paris sur 181 depuis la
+                    # creation du modele, qui n'a donc jamais recu de resultat.
+                    bet.get("bet_type") == "team" or
                     bet.get("market_type") == "strikeouts" or  # lanceurs exclus
                     bet.get("date") != signal_date):
                 continue
