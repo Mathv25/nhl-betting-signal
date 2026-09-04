@@ -686,6 +686,34 @@ def resolve_mlb_team_bet(bet: dict, target_date: str) -> Optional[str]:
     return result
 
 
+def resolve_mlb_bet(bet: dict, target_date: str = None) -> Optional[str]:
+    """
+    Resout un pari MLB en choisissant le bon resolveur selon son type.
+
+    A utiliser PARTOUT plutot que d'appeler resolve_mlb_prop directement: un
+    pari d'equipe passe dans le resolveur de props cherche un joueur nomme
+    "Boston Red Sox" dans le boxscore, ne le trouve pas, et renvoie VOID. C'est
+    ce qui avait annule 176 paris d'equipe sur 181, puis — le filtre
+    d'alignement une fois corrige — ce qui les re-annulait a chaque passage de
+    la boucle de re-verification.
+    """
+    date = target_date or bet.get("date", "")
+    if bet.get("bet_type") == "team":
+        return resolve_mlb_team_bet(bet, date)
+
+    home, away = _parse_game_str(bet.get("game", ""))
+    bet_str    = bet.get("bet", "")
+    market     = bet_str.split(" — ", 1)[1].strip() if " — " in bet_str else ""
+    return resolve_mlb_prop({
+        "player":     bet.get("name", ""),
+        "stat_key":   bet.get("market_type", ""),
+        "line":       bet.get("line", 0) or _parse_line_from_str(market),
+        "market":     market,
+        "_game_home": home,
+        "_game_away": away,
+    }, date)
+
+
 def resolve_mlb_prop(prop: dict, target_date: str) -> Optional[str]:
     """Resout un prop MLB via le boxscore MLB Stats API."""
     player    = prop.get("player", "")
@@ -987,24 +1015,8 @@ def retry_unresolved(results_data: dict, max_days: int = 30) -> int:
                     }
                     result = resolve_nba_prop(prop, target_date)
 
-                elif sport == "mlb" and bet_type == "team":
-                    result = resolve_mlb_team_bet(bet, target_date)
-
                 elif sport == "mlb":
-                    home, away = _parse_game_str(bet.get("game", ""))
-                    bet_str  = bet.get("bet", "")
-                    market   = bet_str.split(" — ", 1)[1].strip() if " — " in bet_str else ""
-                    line     = bet.get("line", 0) or _parse_line_from_str(market)
-                    stat_key = bet.get("market_type", "")
-                    prop = {
-                        "player":     bet.get("name", ""),
-                        "stat_key":   stat_key,
-                        "line":       line,
-                        "market":     market,
-                        "_game_home": home,
-                        "_game_away": away,
-                    }
-                    result = resolve_mlb_prop(prop, target_date)
+                    result = resolve_mlb_bet(bet, target_date)
 
             except Exception as e:
                 print(f"    ⚠ Erreur retry {bet.get('id','?')}: {e}")
@@ -1510,19 +1522,8 @@ def save_pending_from_signal():
                 or _bet.get("sport") != "mlb"
                 or _bet.get("date", "") < _recent_cut):
             continue
-        _home, _away = _parse_game_str(_bet.get("game", ""))
-        _bet_str     = _bet.get("bet", "")
-        _market      = _bet_str.split(" — ", 1)[1].strip() if " — " in _bet_str else ""
-        _prop = {
-            "player":     _bet.get("name", ""),
-            "stat_key":   _bet.get("market_type", ""),
-            "line":       _bet.get("line", 0),
-            "market":     _market,
-            "_game_home": _home,
-            "_game_away": _away,
-        }
         try:
-            _new = resolve_mlb_prop(_prop, _bet.get("date", ""))
+            _new = resolve_mlb_bet(_bet)
         except Exception:
             _new = None
         if _new in ("W", "L", "VOID") and _new != _bet["result"]:
