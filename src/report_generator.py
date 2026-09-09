@@ -960,13 +960,18 @@ class ReportGenerator:
 
     def _nfl_section(self, state) -> str:
         """
-        Onglet NFL. Le module ne paie des cotes que trois fois par semaine, donc
-        la section affiche presque toujours un etat date: on l'ecrit clairement
-        plutot que de laisser croire a des prix du moment.
+        Onglet NFL.
 
-        Zero signal est un resultat, pas un echec: sans modele maison on ne
-        cherche que des ecarts entre books, et il y a des semaines ou le marche
-        est aligne. On le dit au lieu de forcer des picks.
+        TOUS les matchs de la semaine sont affiches, pas seulement ceux qui
+        produisent un signal: on veut pouvoir regarder la lecture du module sur
+        le match de ce soir meme quand il n'y a pas d'ecart a exploiter. Une
+        premiere version ne montrait que les signaux, et le match du soir
+        n'apparaissait donc nulle part — la lecture "pas d'edge ici" est une
+        information, l'absence de ligne n'en est pas une.
+
+        Le detail complet (tous les marches) est deplie pour les matchs qui ont
+        un signal et pour ceux qui commencent dans moins de 24h; les autres se
+        resument a leur moneyline, sinon 16 matchs x 10 issues noient la page.
         """
         st = state or {}
         games = st.get("games") or []
@@ -974,65 +979,98 @@ class ReportGenerator:
 
         head = ("<div class=\"sec\"><div class=\"sec-h\">"
                 "<h2>🏈 NFL — ecarts entre books</h2>"
-                "<span class=\"sec-sub\">Sans modele maison: on signale un pari "
-                "quand la meilleure cote du marche bat la probabilite no-vig de "
-                "reference d'au moins " + str(st.get("min_edge", 3)) + "%. "
-                "Les signaux sont suivis en papier, jamais mises automatiquement."
-                "</span></div>")
+                "<span class=\"sec-sub\">Sans modele maison: un signal est emis "
+                "quand la meilleure cote jouable bat la probabilite no-vig de "
+                "reference d'au moins " + str(st.get("min_edge", 3)) + "%, sur au "
+                "moins " + str(st.get("min_books", 4)) + " books. Les signaux sont "
+                "suivis en papier, jamais mises automatiquement.</span></div>")
 
-        if not st:
+        if not st or not games:
             return (head + "<div class=\"perf-empty\">"
                     "<div class=\"perf-empty-icon\">🏈</div>"
-                    "<div class=\"perf-empty-title\">Module NFL en attente</div>"
+                    "<div class=\"perf-empty-title\">Aucun match cette semaine</div>"
                     "<div class=\"perf-empty-sub\">Les cotes sont relevees le mardi, "
                     "le vendredi et le dimanche matin.</div></div></div>")
 
-        bandeau = ""
+        rows = [head]
         if st.get("stale"):
-            bandeau = ("<div class=\"nfl-stale\">Etat date — " + str(st.get("reason", ""))
-                       + ". Prochaine releve: mardi, vendredi ou dimanche matin.</div>")
+            rows.append("<div class=\"nfl-stale\">Cotes relevees plus tot — "
+                        + str(st.get("reason", "")) + ". Les prix ont pu bouger "
+                        "depuis.</div>")
 
-        if not n_sig:
-            return (head + bandeau + "<div class=\"perf-empty\">"
-                    "<div class=\"perf-empty-icon\">✓</div>"
-                    "<div class=\"perf-empty-title\">Aucun signal cette semaine</div>"
-                    "<div class=\"perf-empty-sub\">"
-                    + str(st.get("n_games", 0)) + " match(s) analyse(s), aucun ecart "
-                    "au-dessus du seuil. Un marche aligne ne produit pas de pari — "
-                    "c'est un resultat valide, pas une panne.</div></div></div>")
+        if n_sig:
+            rows.append("<div class=\"nfl-sum\"><b>" + str(n_sig) + "</b> signal(aux) sur "
+                        + str(len(games)) + " match(s) &middot; semaine du "
+                        + str(st.get("week", "")) + "</div>")
+        else:
+            rows.append("<div class=\"nfl-sum\"><b>Aucun signal cette semaine</b> — "
+                        + str(len(games)) + " match(s) analyse(s), aucun ecart au-dessus "
+                        "du seuil. Un marche aligne ne produit pas de pari: c'est un "
+                        "resultat, pas une panne.</div>")
 
-        rows = [head, bandeau,
-                "<div class=\"nfl-sum\">" + str(n_sig) + " signal(aux) sur "
-                + str(st.get("n_games", 0)) + " match(s) &middot; semaine du "
-                + str(st.get("week", "")) + "</div>"]
+        # Les matchs les plus proches d'abord: c'est sur eux qu'on peut agir.
+        for g in sorted(games, key=lambda x: x.get("commence") or ""):
+            sigs   = g.get("signals") or []
+            prices = g.get("prices") or {}
+            labels = {s["selection"] for s in sigs}
+            detail = bool(sigs) or self._nfl_imminent(g.get("commence"))
 
-        for g in games:
-            if not g.get("signals"):
-                continue
-            rows.append("<div class=\"nfl-game\">")
+            rows.append("<div class=\"nfl-game" + ("" if sigs else " nfl-quiet") + "\">")
             rows.append("<div class=\"nfl-game-h\">"
                         "<span class=\"nfl-teams\">" + str(g.get("away_team", ""))
                         + " @ " + str(g.get("home_team", "")) + "</span>"
                         "<span class=\"nfl-kick\" data-kick=\""
                         + str(g.get("commence", "")) + "\">—</span></div>")
-            for sig in g["signals"]:
-                edge = sig.get("edge_pct", 0)
-                col  = "#0F6E56" if edge >= 5 else "#BA7517"
+
+            if not prices:
+                rows.append("<div class=\"nfl-none\">aucune cote exploitable</div>")
+                rows.append("</div>")
+                continue
+
+            shown = ([(lab, px) for lab, px in prices.items()] if detail
+                     else [(lab, px) for lab, px in prices.items()
+                           if px.get("market") == "nfl_ml"])
+            shown.sort(key=lambda kv: -kv[1].get("edge_pct", 0))
+
+            for lab, px in shown:
+                is_sig = lab in labels
+                edge   = px.get("edge_pct", 0)
+                col    = "#0F6E56" if is_sig else "var(--m)"
                 rows.append(
-                    "<div class=\"nfl-sig\">"
-                    "<span class=\"nfl-sel\">" + str(sig.get("selection", "")) + "</span>"
-                    "<span class=\"nfl-mk\">" + str(sig.get("market", "")).replace("nfl_", "") + "</span>"
-                    "<span class=\"nfl-odds\">" + f"{sig.get('odds', 0):.2f}"
-                    + " <b>" + str(sig.get("book", ""))[:12] + "</b></span>"
-                    "<span class=\"nfl-fair\">juste " + f"{sig.get('fair_odds', 0):.2f}"
-                    + " &middot; " + f"{sig.get('prob', 0):.1f}%</span>"
-                    "<span class=\"nfl-edge\" style=\"color:" + col + "\">+"
-                    + f"{edge:.1f}" + "%</span>"
+                    "<div class=\"nfl-sig" + ("" if is_sig else " nfl-noedge") + "\">"
+                    "<span class=\"nfl-sel\">" + ("★ " if is_sig else "") + str(lab) + "</span>"
+                    "<span class=\"nfl-mk\">" + str(px.get("market", "")).replace("nfl_", "") + "</span>"
+                    "<span class=\"nfl-odds\">" + f"{px.get('odds', 0):.2f}"
+                    + " <b>" + str(px.get("book", ""))[:12] + "</b></span>"
+                    "<span class=\"nfl-fair\">juste "
+                    + (f"{100 / px['prob']:.2f}" if px.get("prob") else "—")
+                    + " &middot; " + f"{px.get('prob', 0):.1f}%</span>"
+                    "<span class=\"nfl-edge\" style=\"color:" + col + "\">"
+                    + ("+" if edge >= 0 else "") + f"{edge:.1f}" + "%</span>"
                     "</div>")
+
+            if not sigs:
+                best = max((p.get("edge_pct", 0) for p in prices.values()), default=0)
+                rows.append("<div class=\"nfl-none\">aucun ecart au-dessus du seuil "
+                            "(meilleur: " + ("+" if best >= 0 else "") + f"{best:.1f}"
+                            + "%)" + ("" if detail else " &middot; moneyline seulement")
+                            + "</div>")
             rows.append("</div>")
 
         rows.append("</div>")
         return "".join(rows)
+
+    @staticmethod
+    def _nfl_imminent(commence: str, hours: int = 24) -> bool:
+        """Le match commence-t-il bientot ? Ceux-la sont deplies en entier."""
+        if not commence:
+            return False
+        try:
+            k = datetime.fromisoformat(commence.replace("Z", "+00:00"))
+        except ValueError:
+            return False
+        delta = (k - datetime.now(pytz.utc)).total_seconds()
+        return -3 * 3600 <= delta <= hours * 3600
 
     def _disclaimer(self, gen_display, odds_state=None):
         """
@@ -2166,6 +2204,10 @@ class ReportGenerator:
             ".nfl-fair{font-size:10px;color:var(--m);font-variant-numeric:tabular-nums}"
             ".nfl-edge{font-weight:700;font-variant-numeric:tabular-nums;min-width:52px;"
             "text-align:right}"
+            ".nfl-quiet{opacity:.72}"
+            ".nfl-noedge .nfl-sel{font-weight:500;color:var(--m)}"
+            ".nfl-none{font-size:10px;color:var(--m);padding-top:5px;"
+            "border-top:1px solid var(--b);margin-top:3px}"
             "@media(max-width:560px){.nfl-fair{display:none}}"
             # Paris suivis (bets.json)
             ".trk{margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--b)}"
