@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-09T20:57:58.466832+00:00",
+  "generated_at": "2026-09-09T21:30:49.776065+00:00",
   "date": "2026-09-09",
   "bookmaker": "bet365",
   "total_games": 0,
@@ -24,9 +24,9 @@
           "line": 5.5,
           "season_avg": 7.24,
           "adj_proj": 7.15,
-          "adj_proj_raw": 7.06,
-          "adj_mult": 0.9875,
-          "adj_mult_raw": 0.9751,
+          "adj_proj_raw": 7.07,
+          "adj_mult": 0.9879,
+          "adj_mult_raw": 0.976,
           "opp_k_rate": 21.6,
           "opp_k_source": "saison vs RHP",
           "league_k_rate": 22.1,
@@ -88,7 +88,7 @@
           "odds_rungs": 0,
           "context": [
             "Rolling 6dep: 6.74K · Saison: 8.41K · Blend: 7.24K",
-            "Ajustement régressé x0.988 → 7.15K (brut x0.975 → 7.06K)",
+            "Ajustement régressé x0.988 → 7.15K (brut x0.976 → 7.07K)",
             "Manches: 6.222 IP moy (empirique 15 departs) · 1.15 K/manche · σK 2.98 (Poisson simple: 2.67)"
           ]
         }
@@ -144,12 +144,12 @@
               "line": 4.5,
               "k_exact": 5,
               "prob": 54.2,
-              "best_odds": 1.76,
+              "best_odds": 1.77,
               "best_book": "fanduel",
               "market_prob": 56.32,
               "baseline_source": "pinnacle",
               "n_books": 8,
-              "ev_pct": -4.61,
+              "ev_pct": -4.07,
               "edge_pct": -3.8
             },
             {
@@ -547,43 +547,43 @@
         "home": {
           "nom": "Kade Anderson",
           "main": "L",
-          "fip": 4.657,
-          "fip_eff": 4.985,
-          "k_bb_pct": 0.1151,
-          "whip": 1.5,
-          "ip_par_depart": 4.85,
+          "fip": 4.605,
+          "fip_eff": 4.869,
+          "k_bb_pct": 0.112,
+          "whip": 1.4,
+          "ip_par_depart": 5.1,
           "forme": {
             "games": 4,
-            "fip": 5.751,
-            "k_bb_pct": 0.0779,
-            "ip_per_gs": 4.5
+            "fip": 5.485,
+            "k_bb_pct": 0.0723,
+            "ip_per_gs": 5.0
           }
         },
         "away": {
           "nom": "Cody Bradford",
           "main": "L",
-          "fip": 4.293,
-          "fip_eff": 4.573,
-          "k_bb_pct": 0.1005,
-          "whip": 1.52,
-          "ip_par_depart": 4.89,
+          "fip": 4.318,
+          "fip_eff": 4.574,
+          "k_bb_pct": 0.0953,
+          "whip": 1.57,
+          "ip_par_depart": 5.01,
           "forme": {
             "games": 5,
-            "fip": 5.227,
-            "k_bb_pct": 0.0612,
-            "ip_per_gs": 4.33
+            "fip": 5.172,
+            "k_bb_pct": 0.0472,
+            "ip_per_gs": 4.6
           }
         }
       },
       "runs_attendus": {
-        "home": 4.124,
-        "away": 5.677
+        "home": 4.148,
+        "away": 5.631
       },
-      "run_diff": -1.553,
+      "run_diff": -1.483,
       "bullpens": {
         "home": {
-          "fip": 4.073,
-          "fip_fatigue": 4.073,
+          "fip": 4.074,
+          "fip_fatigue": 4.074,
           "usage": {
             "days": 3,
             "games": 2,
@@ -620,8 +620,8 @@
           }
         },
         "away": {
-          "fip": 4.363,
-          "fip_fatigue": 4.613,
+          "fip": 4.364,
+          "fip_fatigue": 4.614,
           "usage": {
             "days": 3,
             "games": 2,
@@ -670,7 +670,7 @@
           "bb_pct": 0.0896,
           "hr": 46,
           "pa": 1753,
-          "ops_index": 0.8823
+          "ops_index": 0.8824
         },
         "away": {
           "vs_hand": "L",
@@ -683,14 +683,14 @@
           "bb_pct": 0.0877,
           "hr": 53,
           "pa": 1574,
-          "ops_index": 1.079
+          "ops_index": 1.0791
         }
       },
       "prob_modele": {
-        "home_ml": 0.3619,
-        "away_ml": 0.6381,
-        "home_rl": 0.2358,
-        "away_rl": 0.4954
+        "home_ml": 0.3678,
+        "away_ml": 0.6322,
+        "home_rl": 0.2405,
+        "away_rl": 0.489
       },
       "facteurs": {
         "home": {
@@ -698,8 +698,8 @@
             {
               "nom": "Lanceur partant",
               "pour": false,
-              "ampleur": 0.41,
-              "detail": "FIP 4.99 vs 4.57"
+              "ampleur": 0.29,
+              "detail": "FIP 4.87 vs 4.57"
             },
             {
               "nom": "Offense vs la main",
@@ -729,8 +729,8 @@
             {
               "nom": "Lanceur partant",
               "pour": true,
-              "ampleur": 0.41,
-              "detail": "FIP 4.57 vs 4.99"
+              "ampleur": 0.29,
+              "detail": "FIP 4.57 vs 4.87"
             },
             {
               "nom": "Offense vs la main",
@@ -760,40 +760,40 @@
         {
           "marche": "moneyline",
           "equipe": "Texas Rangers",
-          "probabilite": 49.6,
-          "prob_modele": 63.8,
-          "cote": 2.3,
-          "valeur_pct": 14.2,
-          "cote_equitable": 2.01,
+          "probabilite": 33.8,
+          "prob_modele": 63.2,
+          "cote": 5.6,
+          "valeur_pct": 89.1,
+          "cote_equitable": 2.96,
           "facteurs_nets": 2,
           "no_brainer": false,
           "tier": "🔥",
           "label": "meilleur bet",
-          "raison": "valeur +14.2% et 2 facteurs alignés"
+          "raison": "valeur +89.1% et 2 facteurs alignés"
         },
         {
           "marche": "moneyline",
           "equipe": "Seattle Mariners",
-          "probabilite": 50.4,
-          "prob_modele": 36.2,
-          "cote": 1.68,
-          "valeur_pct": -15.4,
-          "cote_equitable": 1.99,
+          "probabilite": 66.2,
+          "prob_modele": 36.8,
+          "cote": 1.15,
+          "valeur_pct": -23.8,
+          "cote_equitable": 1.51,
           "facteurs_nets": -2,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 50% à 1.68 = -15.4%"
+          "raison": "prix trop court: 66% à 1.15 = -23.8%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.5798,
-        "away_ml": 0.4202,
+        "home_ml": 0.8209,
+        "away_ml": 0.1791,
         "source": "mediane no-vig (8 books)"
       },
       "prob_finale": {
-        "home_ml": 0.5035,
-        "away_ml": 0.4965
+        "home_ml": 0.6623,
+        "away_ml": 0.3377
       }
     },
     {
@@ -808,14 +808,14 @@
         "home": {
           "nom": "Keider Montero",
           "main": "R",
-          "fip": 4.277,
-          "fip_eff": 4.532,
+          "fip": 4.278,
+          "fip_eff": 4.533,
           "k_bb_pct": 0.1052,
           "whip": 1.03,
           "ip_par_depart": 5.48,
           "forme": {
             "games": 5,
-            "fip": 5.126,
+            "fip": 5.127,
             "k_bb_pct": 0.0594,
             "ip_per_gs": 4.93
           }
@@ -823,28 +823,28 @@
         "away": {
           "nom": "Zebby Matthews",
           "main": "R",
-          "fip": 4.765,
-          "fip_eff": 4.743,
+          "fip": 4.766,
+          "fip_eff": 4.744,
           "k_bb_pct": 0.126,
           "whip": 1.27,
           "ip_par_depart": 5.61,
           "forme": {
             "games": 5,
-            "fip": 4.691,
+            "fip": 4.692,
             "k_bb_pct": 0.1327,
             "ip_per_gs": 5.67
           }
         }
       },
       "runs_attendus": {
-        "home": 5.228,
-        "away": 5.292
+        "home": 5.261,
+        "away": 5.296
       },
-      "run_diff": -0.064,
+      "run_diff": -0.035,
       "bullpens": {
         "home": {
-          "fip": 4.281,
-          "fip_fatigue": 4.381,
+          "fip": 4.282,
+          "fip_fatigue": 4.382,
           "usage": {
             "days": 3,
             "games": 3,
@@ -890,8 +890,8 @@
           }
         },
         "away": {
-          "fip": 4.284,
-          "fip_fatigue": 4.384,
+          "fip": 4.285,
+          "fip_fatigue": 4.385,
           "usage": {
             "days": 3,
             "games": 3,
@@ -947,7 +947,7 @@
           "bb_pct": 0.0869,
           "hr": 128,
           "pa": 3889,
-          "ops_index": 0.9951
+          "ops_index": 0.9953
         },
         "away": {
           "vs_hand": "R",
@@ -960,14 +960,14 @@
           "bb_pct": 0.0839,
           "hr": 135,
           "pa": 3851,
-          "ops_index": 1.0298
+          "ops_index": 1.0299
         }
       },
       "prob_modele": {
-        "home_ml": 0.4944,
-        "away_ml": 0.5056,
-        "home_rl": 0.3582,
-        "away_rl": 0.3687
+        "home_ml": 0.497,
+        "away_ml": 0.503,
+        "home_rl": 0.3608,
+        "away_rl": 0.3666
       },
       "facteurs": {
         "home": {
@@ -1001,40 +1001,40 @@
         {
           "marche": "moneyline",
           "equipe": "Minnesota Twins",
-          "probabilite": 23.3,
-          "prob_modele": 50.6,
-          "cote": 12.0,
-          "valeur_pct": 179.7,
-          "cote_equitable": 4.29,
+          "probabilite": 19.5,
+          "prob_modele": 50.3,
+          "cote": 34.0,
+          "valeur_pct": 562.3,
+          "cote_equitable": 5.13,
           "facteurs_nets": 1,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +179.7% mais facteurs peu alignés (1)"
+          "raison": "valeur +562.3% mais facteurs peu alignés (1)"
         },
         {
           "marche": "moneyline",
           "equipe": "Detroit Tigers",
-          "probabilite": 76.7,
-          "prob_modele": 49.4,
-          "cote": 1.08,
-          "valeur_pct": -17.2,
-          "cote_equitable": 1.3,
+          "probabilite": 80.5,
+          "prob_modele": 49.7,
+          "cote": 1.01,
+          "valeur_pct": -18.7,
+          "cote_equitable": 1.24,
           "facteurs_nets": -1,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 77% à 1.08 = -17.2%"
+          "raison": "prix trop court: 81% à 1.01 = -18.7%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.9136,
-        "away_ml": 0.0864,
-        "source": "mediane no-vig (6 books)"
+        "home_ml": 0.9712,
+        "away_ml": 0.0288,
+        "source": "mediane no-vig (1 books)"
       },
       "prob_finale": {
-        "home_ml": 0.7669,
-        "away_ml": 0.2331
+        "home_ml": 0.8052,
+        "away_ml": 0.1948
       }
     },
     {
@@ -1049,43 +1049,43 @@
         "home": {
           "nom": "Blade Tidwell",
           "main": "R",
-          "fip": 4.564,
-          "fip_eff": 5.095,
-          "k_bb_pct": 0.1086,
-          "whip": 1.24,
+          "fip": 4.647,
+          "fip_eff": 5.228,
+          "k_bb_pct": 0.1047,
+          "whip": 1.29,
           "ip_par_depart": 5.04,
           "forme": {
             "games": 5,
-            "fip": 6.334,
-            "k_bb_pct": 0.0485,
+            "fip": 6.585,
+            "k_bb_pct": 0.0377,
             "ip_per_gs": 4.8
           }
         },
         "away": {
           "nom": "Andre Pallante",
           "main": "R",
-          "fip": 3.76,
-          "fip_eff": 3.593,
-          "k_bb_pct": 0.1023,
-          "whip": 1.24,
-          "ip_par_depart": 5.49,
+          "fip": 3.742,
+          "fip_eff": 3.556,
+          "k_bb_pct": 0.1027,
+          "whip": 1.23,
+          "ip_par_depart": 5.56,
           "forme": {
             "games": 5,
-            "fip": 3.204,
-            "k_bb_pct": 0.0404,
-            "ip_per_gs": 5.07
+            "fip": 3.122,
+            "k_bb_pct": 0.0472,
+            "ip_per_gs": 5.47
           }
         }
       },
       "runs_attendus": {
-        "home": 4.643,
-        "away": 5.131
+        "home": 4.614,
+        "away": 5.27
       },
-      "run_diff": -0.488,
+      "run_diff": -0.656,
       "bullpens": {
         "home": {
-          "fip": 4.238,
-          "fip_fatigue": 4.438,
+          "fip": 4.239,
+          "fip_fatigue": 4.439,
           "usage": {
             "days": 3,
             "games": 3,
@@ -1122,8 +1122,8 @@
           }
         },
         "away": {
-          "fip": 4.285,
-          "fip_fatigue": 4.385,
+          "fip": 4.286,
+          "fip_fatigue": 4.386,
           "usage": {
             "days": 3,
             "games": 3,
@@ -1177,27 +1177,27 @@
           "bb_pct": 0.077,
           "hr": 124,
           "pa": 3896,
-          "ops_index": 1.0146
+          "ops_index": 1.0147
         },
         "away": {
           "vs_hand": "R",
-          "ops": 0.696,
-          "slg": 0.381,
+          "ops": 0.698,
+          "slg": 0.382,
           "avg": 0.244,
-          "obp": 0.315,
-          "iso": 0.137,
-          "k_pct": 0.2151,
-          "bb_pct": 0.0802,
-          "hr": 102,
-          "pa": 3863,
-          "ops_index": 0.9647
+          "obp": 0.316,
+          "iso": 0.138,
+          "k_pct": 0.2144,
+          "bb_pct": 0.0804,
+          "hr": 103,
+          "pa": 3881,
+          "ops_index": 0.9676
         }
       },
       "prob_modele": {
-        "home_ml": 0.4559,
-        "away_ml": 0.5441,
-        "home_rl": 0.3169,
-        "away_rl": 0.3998
+        "home_ml": 0.4411,
+        "away_ml": 0.5589,
+        "home_rl": 0.3046,
+        "away_rl": 0.4152
       },
       "facteurs": {
         "home": {
@@ -1205,20 +1205,20 @@
             {
               "nom": "Lanceur partant",
               "pour": false,
-              "ampleur": 1.5,
-              "detail": "FIP 5.09 vs 3.59"
+              "ampleur": 1.67,
+              "detail": "FIP 5.23 vs 3.56"
             },
             {
               "nom": "Offense vs la main",
               "pour": true,
-              "ampleur": 5.0,
-              "detail": "OPS idx 1.015 vs 0.965"
+              "ampleur": 4.7,
+              "detail": "OPS idx 1.015 vs 0.968"
             },
             {
               "nom": "Puissance (ISO)",
               "pour": true,
-              "ampleur": 0.028,
-              "detail": "ISO 0.165 vs 0.137"
+              "ampleur": 0.027,
+              "detail": "ISO 0.165 vs 0.138"
             }
           ],
           "pour": 2,
@@ -1230,20 +1230,20 @@
             {
               "nom": "Lanceur partant",
               "pour": true,
-              "ampleur": 1.5,
-              "detail": "FIP 3.59 vs 5.09"
+              "ampleur": 1.67,
+              "detail": "FIP 3.56 vs 5.23"
             },
             {
               "nom": "Offense vs la main",
               "pour": false,
-              "ampleur": 5.0,
-              "detail": "OPS idx 0.965 vs 1.015"
+              "ampleur": 4.7,
+              "detail": "OPS idx 0.968 vs 1.015"
             },
             {
               "nom": "Puissance (ISO)",
               "pour": false,
-              "ampleur": 0.028,
-              "detail": "ISO 0.137 vs 0.165"
+              "ampleur": 0.027,
+              "detail": "ISO 0.138 vs 0.165"
             }
           ],
           "pour": 1,
@@ -1255,40 +1255,40 @@
         {
           "marche": "moneyline",
           "equipe": "San Francisco Giants",
-          "probabilite": 25.1,
-          "prob_modele": 45.6,
-          "cote": 7.5,
-          "valeur_pct": 87.9,
-          "cote_equitable": 3.99,
+          "probabilite": 18.7,
+          "prob_modele": 44.1,
+          "cote": 23.0,
+          "valeur_pct": 331.2,
+          "cote_equitable": 5.33,
           "facteurs_nets": 1,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +87.9% mais facteurs peu alignés (1)"
+          "raison": "valeur +331.2% mais facteurs peu alignés (1)"
         },
         {
           "marche": "moneyline",
           "equipe": "St. Louis Cardinals",
-          "probabilite": 74.9,
-          "prob_modele": 54.4,
-          "cote": 1.11,
-          "valeur_pct": -16.8,
-          "cote_equitable": 1.33,
+          "probabilite": 81.3,
+          "prob_modele": 55.9,
+          "cote": 1.02,
+          "valeur_pct": -17.1,
+          "cote_equitable": 1.23,
           "facteurs_nets": -1,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 75% à 1.11 = -16.8%"
+          "raison": "prix trop court: 81% à 1.02 = -17.1%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.14,
-        "away_ml": 0.86,
-        "source": "mediane no-vig (8 books)"
+        "home_ml": 0.0509,
+        "away_ml": 0.9491,
+        "source": "mediane no-vig (5 books)"
       },
       "prob_finale": {
-        "home_ml": 0.2506,
-        "away_ml": 0.7494
+        "home_ml": 0.1875,
+        "away_ml": 0.8125
       }
     },
     {
@@ -1310,7 +1310,7 @@
           "ip_par_depart": 3.64,
           "forme": {
             "games": 5,
-            "fip": 3.251,
+            "fip": 3.252,
             "k_bb_pct": 0.1296,
             "ip_per_gs": 2.4
           }
@@ -1319,27 +1319,27 @@
           "nom": "Braydon Fisher",
           "main": "R",
           "fip": 4.029,
-          "fip_eff": 4.465,
+          "fip_eff": 4.466,
           "k_bb_pct": 0.1155,
           "whip": 1.22,
           "ip_par_depart": 2.37,
           "forme": {
             "games": 5,
-            "fip": 5.484,
+            "fip": 5.485,
             "k_bb_pct": -0.1364,
             "ip_per_gs": 1.13
           }
         }
       },
       "runs_attendus": {
-        "home": 5.125,
-        "away": 4.306
+        "home": 5.111,
+        "away": 4.295
       },
-      "run_diff": 0.819,
+      "run_diff": 0.816,
       "bullpens": {
         "home": {
-          "fip": 4.455,
-          "fip_fatigue": 4.555,
+          "fip": 4.433,
+          "fip_fatigue": 4.533,
           "usage": {
             "days": 3,
             "games": 3,
@@ -1376,8 +1376,8 @@
           }
         },
         "away": {
-          "fip": 3.935,
-          "fip_fatigue": 3.935,
+          "fip": 3.944,
+          "fip_fatigue": 3.944,
           "usage": {
             "days": 3,
             "games": 3,
@@ -1423,36 +1423,36 @@
       "offense": {
         "home": {
           "vs_hand": "R",
-          "ops": 0.721,
-          "slg": 0.399,
-          "avg": 0.244,
-          "obp": 0.322,
+          "ops": 0.719,
+          "slg": 0.398,
+          "avg": 0.243,
+          "obp": 0.321,
           "iso": 0.155,
-          "k_pct": 0.2155,
-          "bb_pct": 0.0923,
+          "k_pct": 0.2157,
+          "bb_pct": 0.0924,
           "hr": 113,
-          "pa": 3749,
-          "ops_index": 0.9993
+          "pa": 3756,
+          "ops_index": 0.9967
         },
         "away": {
           "vs_hand": "L",
           "ops": 0.656,
           "slg": 0.357,
-          "avg": 0.23,
+          "avg": 0.229,
           "obp": 0.299,
-          "iso": 0.127,
-          "k_pct": 0.2002,
-          "bb_pct": 0.0805,
+          "iso": 0.128,
+          "k_pct": 0.1999,
+          "bb_pct": 0.0803,
           "hr": 36,
-          "pa": 1628,
-          "ops_index": 0.9216
+          "pa": 1631,
+          "ops_index": 0.9217
         }
       },
       "prob_modele": {
-        "home_ml": 0.5752,
-        "away_ml": 0.4248,
-        "home_rl": 0.4273,
-        "away_rl": 0.2866
+        "home_ml": 0.5751,
+        "away_ml": 0.4249,
+        "home_rl": 0.4269,
+        "away_rl": 0.2865
       },
       "facteurs": {
         "home": {
@@ -1461,25 +1461,25 @@
               "nom": "Lanceur partant",
               "pour": true,
               "ampleur": 0.72,
-              "detail": "FIP 3.74 vs 4.46"
+              "detail": "FIP 3.74 vs 4.47"
             },
             {
               "nom": "Offense vs la main",
               "pour": true,
-              "ampleur": 7.8,
-              "detail": "OPS idx 0.999 vs 0.922"
+              "ampleur": 7.5,
+              "detail": "OPS idx 0.997 vs 0.922"
             },
             {
               "nom": "Puissance (ISO)",
               "pour": true,
-              "ampleur": 0.028,
-              "detail": "ISO 0.155 vs 0.127"
+              "ampleur": 0.027,
+              "detail": "ISO 0.155 vs 0.128"
             },
             {
               "nom": "Bullpen",
               "pour": false,
-              "ampleur": 0.62,
-              "detail": "FIP 4.55 vs 3.94"
+              "ampleur": 0.59,
+              "detail": "FIP 4.53 vs 3.94"
             }
           ],
           "pour": 3,
@@ -1492,25 +1492,25 @@
               "nom": "Lanceur partant",
               "pour": false,
               "ampleur": 0.72,
-              "detail": "FIP 4.46 vs 3.74"
+              "detail": "FIP 4.47 vs 3.74"
             },
             {
               "nom": "Offense vs la main",
               "pour": false,
-              "ampleur": 7.8,
-              "detail": "OPS idx 0.922 vs 0.999"
+              "ampleur": 7.5,
+              "detail": "OPS idx 0.922 vs 0.997"
             },
             {
               "nom": "Puissance (ISO)",
               "pour": false,
-              "ampleur": 0.028,
-              "detail": "ISO 0.127 vs 0.155"
+              "ampleur": 0.027,
+              "detail": "ISO 0.128 vs 0.155"
             },
             {
               "nom": "Bullpen",
               "pour": true,
-              "ampleur": 0.62,
-              "detail": "FIP 3.94 vs 4.55"
+              "ampleur": 0.59,
+              "detail": "FIP 3.94 vs 4.53"
             }
           ],
           "pour": 1,
@@ -1522,55 +1522,55 @@
         {
           "marche": "moneyline",
           "equipe": "Toronto Blue Jays",
-          "probabilite": 25.5,
+          "probabilite": 19.0,
           "prob_modele": 42.5,
-          "cote": 6.5,
-          "valeur_pct": 66.1,
-          "cote_equitable": 3.91,
+          "cote": 15.0,
+          "valeur_pct": 184.6,
+          "cote_equitable": 5.27,
           "facteurs_nets": -2,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +66.1% mais facteurs peu alignés (-2)"
+          "raison": "valeur +184.6% mais facteurs peu alignés (-2)"
         },
         {
           "marche": "moneyline",
           "equipe": "Athletics",
-          "probabilite": 74.5,
+          "probabilite": 81.0,
           "prob_modele": 57.5,
-          "cote": 1.15,
-          "valeur_pct": -14.4,
-          "cote_equitable": 1.34,
+          "cote": 1.02,
+          "valeur_pct": -17.4,
+          "cote_equitable": 1.23,
           "facteurs_nets": 2,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 74% à 1.15 = -14.4%"
+          "raison": "prix trop court: 81% à 1.02 = -17.4%"
         },
         {
           "marche": "run_line_-1.5",
           "equipe": "Athletics",
-          "probabilite": 55.9,
+          "probabilite": 70.5,
           "prob_modele": 42.7,
-          "prob_marche": 63.0,
-          "cote": 1.52,
-          "valeur_pct": -15.1,
-          "cote_equitable": 1.79,
+          "prob_marche": 85.4,
+          "cote": 1.12,
+          "valeur_pct": -21.1,
+          "cote_equitable": 1.42,
           "facteurs_nets": 2,
-          "run_diff": 0.819,
+          "run_diff": 0.816,
           "tier": "🔴",
           "label": "passe",
-          "raison": "valeur -15.1% sous le seuil 5.0% du -1.5"
+          "raison": "valeur -21.1% sous le seuil 5.0% du -1.5"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.8357,
-        "away_ml": 0.1643,
-        "source": "mediane no-vig (8 books)"
+        "home_ml": 0.9369,
+        "away_ml": 0.0631,
+        "source": "mediane no-vig (3 books)"
       },
       "prob_finale": {
-        "home_ml": 0.7445,
-        "away_ml": 0.2555
+        "home_ml": 0.8103,
+        "away_ml": 0.1897
       }
     },
     {
@@ -1585,43 +1585,43 @@
         "home": {
           "nom": "Walker Buehler",
           "main": "R",
-          "fip": 4.315,
-          "fip_eff": 4.421,
-          "k_bb_pct": 0.1211,
-          "whip": 1.35,
-          "ip_par_depart": 4.82,
+          "fip": 4.333,
+          "fip_eff": 4.471,
+          "k_bb_pct": 0.1193,
+          "whip": 1.36,
+          "ip_par_depart": 4.83,
           "forme": {
             "games": 5,
-            "fip": 4.667,
-            "k_bb_pct": 0.1818,
-            "ip_per_gs": 4.8
+            "fip": 4.793,
+            "k_bb_pct": 0.1648,
+            "ip_per_gs": 4.87
           }
         },
         "away": {
           "nom": "Jackson Kent",
           "main": "L",
           "fip": 4.133,
-          "fip_eff": 4.132,
-          "k_bb_pct": 0.0895,
-          "whip": 1.67,
-          "ip_par_depart": 4.71,
+          "fip_eff": 4.131,
+          "k_bb_pct": 0.0879,
+          "whip": 1.76,
+          "ip_par_depart": 4.81,
           "forme": {
             "games": 5,
-            "fip": 4.129,
-            "k_bb_pct": 0.0198,
-            "ip_per_gs": 4.47
+            "fip": 4.128,
+            "k_bb_pct": 0.0185,
+            "ip_per_gs": 4.67
           }
         }
       },
       "runs_attendus": {
-        "home": 4.822,
-        "away": 4.452
+        "home": 4.855,
+        "away": 4.498
       },
-      "run_diff": 0.37,
+      "run_diff": 0.357,
       "bullpens": {
         "home": {
-          "fip": 3.579,
-          "fip_fatigue": 3.579,
+          "fip": 3.58,
+          "fip_fatigue": 3.58,
           "usage": {
             "days": 3,
             "games": 3,
@@ -1662,8 +1662,8 @@
           }
         },
         "away": {
-          "fip": 4.936,
-          "fip_fatigue": 5.036,
+          "fip": 4.937,
+          "fip_fatigue": 5.037,
           "usage": {
             "days": 3,
             "games": 3,
@@ -1716,7 +1716,7 @@
           "bb_pct": 0.085,
           "hr": 34,
           "pa": 1400,
-          "ops_index": 0.9623
+          "ops_index": 0.9625
         },
         "away": {
           "vs_hand": "R",
@@ -1729,14 +1729,14 @@
           "bb_pct": 0.0896,
           "hr": 142,
           "pa": 4007,
-          "ops_index": 1.0229
+          "ops_index": 1.023
         }
       },
       "prob_modele": {
-        "home_ml": 0.5344,
-        "away_ml": 0.4656,
-        "home_rl": 0.3858,
-        "away_rl": 0.3215
+        "home_ml": 0.5331,
+        "away_ml": 0.4669,
+        "home_rl": 0.3853,
+        "away_rl": 0.3235
       },
       "facteurs": {
         "home": {
@@ -1744,20 +1744,20 @@
             {
               "nom": "Lanceur partant",
               "pour": false,
-              "ampleur": 0.29,
-              "detail": "FIP 4.42 vs 4.13"
+              "ampleur": 0.34,
+              "detail": "FIP 4.47 vs 4.13"
             },
             {
               "nom": "K-BB% partant",
               "pour": true,
-              "ampleur": 3.2,
-              "detail": "12.1% vs 8.9%"
+              "ampleur": 3.1,
+              "detail": "11.9% vs 8.8%"
             },
             {
               "nom": "Offense vs la main",
               "pour": false,
-              "ampleur": 6.1,
-              "detail": "OPS idx 0.962 vs 1.023"
+              "ampleur": 6.0,
+              "detail": "OPS idx 0.963 vs 1.023"
             },
             {
               "nom": "Puissance (ISO)",
@@ -1781,20 +1781,20 @@
             {
               "nom": "Lanceur partant",
               "pour": true,
-              "ampleur": 0.29,
-              "detail": "FIP 4.13 vs 4.42"
+              "ampleur": 0.34,
+              "detail": "FIP 4.13 vs 4.47"
             },
             {
               "nom": "K-BB% partant",
               "pour": false,
-              "ampleur": 3.2,
-              "detail": "8.9% vs 12.1%"
+              "ampleur": 3.1,
+              "detail": "8.8% vs 11.9%"
             },
             {
               "nom": "Offense vs la main",
               "pour": true,
-              "ampleur": 6.1,
-              "detail": "OPS idx 1.023 vs 0.962"
+              "ampleur": 6.0,
+              "detail": "OPS idx 1.023 vs 0.963"
             },
             {
               "nom": "Puissance (ISO)",
@@ -1817,41 +1817,56 @@
       "bets": [
         {
           "marche": "moneyline",
-          "equipe": "San Diego Padres",
-          "probabilite": 41.0,
-          "prob_modele": 53.4,
-          "cote": 3.3,
-          "valeur_pct": 35.4,
-          "cote_equitable": 2.44,
-          "facteurs_nets": -1,
+          "equipe": "Washington Nationals",
+          "probabilite": 32.0,
+          "prob_modele": 46.7,
+          "cote": 4.5,
+          "valeur_pct": 43.9,
+          "cote_equitable": 3.13,
+          "facteurs_nets": 1,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +35.4% mais facteurs peu alignés (-1)"
+          "raison": "valeur +43.9% mais facteurs peu alignés (1)"
+        },
+        {
+          "marche": "run_line_-1.5",
+          "equipe": "San Diego Padres",
+          "probabilite": 47.5,
+          "prob_modele": 38.5,
+          "prob_marche": 52.3,
+          "cote": 1.83,
+          "valeur_pct": -13.1,
+          "cote_equitable": 2.11,
+          "facteurs_nets": -1,
+          "run_diff": 0.357,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "valeur -13.1% sous le seuil 5.0% du -1.5"
         },
         {
           "marche": "moneyline",
-          "equipe": "Washington Nationals",
-          "probabilite": 59.0,
-          "prob_modele": 46.6,
-          "cote": 1.44,
-          "valeur_pct": -15.1,
-          "cote_equitable": 1.7,
-          "facteurs_nets": 1,
+          "equipe": "San Diego Padres",
+          "probabilite": 68.0,
+          "prob_modele": 53.3,
+          "cote": 1.27,
+          "valeur_pct": -13.6,
+          "cote_equitable": 1.47,
+          "facteurs_nets": -1,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 59% à 1.44 = -15.1%"
+          "raison": "prix trop court: 68% à 1.27 = -13.6%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.3434,
-        "away_ml": 0.6566,
+        "home_ml": 0.7595,
+        "away_ml": 0.2405,
         "source": "mediane no-vig (8 books)"
       },
       "prob_finale": {
-        "home_ml": 0.4103,
-        "away_ml": 0.5897
+        "home_ml": 0.6802,
+        "away_ml": 0.3198
       }
     },
     {
@@ -1866,14 +1881,14 @@
         "home": {
           "nom": "Will Warren",
           "main": "R",
-          "fip": 4.16,
-          "fip_eff": 4.437,
+          "fip": 4.161,
+          "fip_eff": 4.438,
           "k_bb_pct": 0.1454,
           "whip": 1.38,
           "ip_par_depart": 5.14,
           "forme": {
             "games": 5,
-            "fip": 5.084,
+            "fip": 5.085,
             "k_bb_pct": 0.1239,
             "ip_per_gs": 5.07
           }
@@ -1882,27 +1897,27 @@
           "nom": "Tomoyuki Sugano",
           "main": "R",
           "fip": 5.046,
-          "fip_eff": 5.007,
+          "fip_eff": 5.008,
           "k_bb_pct": 0.0971,
           "whip": 1.35,
           "ip_par_depart": 5.26,
           "forme": {
             "games": 5,
-            "fip": 4.917,
+            "fip": 4.918,
             "k_bb_pct": 0.1217,
             "ip_per_gs": 4.8
           }
         }
       },
       "runs_attendus": {
-        "home": 5.918,
-        "away": 5.458
+        "home": 5.922,
+        "away": 5.463
       },
-      "run_diff": 0.46,
+      "run_diff": 0.459,
       "bullpens": {
         "home": {
-          "fip": 3.79,
-          "fip_fatigue": 3.79,
+          "fip": 3.791,
+          "fip_fatigue": 3.791,
           "usage": {
             "days": 3,
             "games": 2,
@@ -1930,8 +1945,8 @@
           }
         },
         "away": {
-          "fip": 4.346,
-          "fip_fatigue": 4.446,
+          "fip": 4.347,
+          "fip_fatigue": 4.447,
           "usage": {
             "days": 3,
             "games": 2,
@@ -1982,7 +1997,7 @@
           "bb_pct": 0.1005,
           "hr": 134,
           "pa": 3541,
-          "ops_index": 0.9827
+          "ops_index": 0.9828
         },
         "away": {
           "vs_hand": "R",
@@ -1995,14 +2010,14 @@
           "bb_pct": 0.0871,
           "hr": 123,
           "pa": 3767,
-          "ops_index": 1.0478
+          "ops_index": 1.048
         }
       },
       "prob_modele": {
-        "home_ml": 0.5384,
-        "away_ml": 0.4616,
+        "home_ml": 0.5383,
+        "away_ml": 0.4617,
         "home_rl": 0.4063,
-        "away_rl": 0.3334
+        "away_rl": 0.3336
       },
       "facteurs": {
         "home": {
@@ -2076,7 +2091,7 @@
           "prob_modele": 46.2,
           "cote": 3.12,
           "valeur_pct": 14.5,
-          "cote_equitable": 2.73,
+          "cote_equitable": 2.72,
           "facteurs_nets": -2,
           "no_brainer": false,
           "tier": "🟢",
@@ -2100,17 +2115,17 @@
         {
           "marche": "run_line_-1.5",
           "equipe": "New York Yankees",
-          "probabilite": 46.6,
+          "probabilite": 47.3,
           "prob_modele": 40.6,
-          "prob_marche": 49.8,
-          "cote": 1.92,
-          "valeur_pct": -10.5,
-          "cote_equitable": 2.15,
+          "prob_marche": 50.9,
+          "cote": 1.88,
+          "valeur_pct": -11.1,
+          "cote_equitable": 2.11,
           "facteurs_nets": 2,
-          "run_diff": 0.46,
+          "run_diff": 0.459,
           "tier": "🔴",
           "label": "passe",
-          "raison": "valeur -10.5% sous le seuil 5.0% du -1.5"
+          "raison": "valeur -11.1% sous le seuil 5.0% du -1.5"
         }
       ],
       "prob_marche": {
@@ -2135,14 +2150,14 @@
         "home": {
           "nom": "Davis Martin",
           "main": "R",
-          "fip": 3.779,
-          "fip_eff": 4.834,
+          "fip": 3.78,
+          "fip_eff": 4.835,
           "k_bb_pct": 0.1334,
           "whip": 1.32,
           "ip_par_depart": 5.22,
           "forme": {
             "games": 5,
-            "fip": 7.295,
+            "fip": 7.296,
             "k_bb_pct": 0.0778,
             "ip_per_gs": 3.93
           }
@@ -2157,21 +2172,21 @@
           "ip_par_depart": 3.29,
           "forme": {
             "games": 5,
-            "fip": 4.72,
+            "fip": 4.721,
             "k_bb_pct": 0.0652,
             "ip_per_gs": 2.2
           }
         }
       },
       "runs_attendus": {
-        "home": 5.012,
-        "away": 5.774
+        "home": 5.016,
+        "away": 5.779
       },
-      "run_diff": -0.762,
+      "run_diff": -0.763,
       "bullpens": {
         "home": {
-          "fip": 4.066,
-          "fip_fatigue": 4.516,
+          "fip": 4.067,
+          "fip_fatigue": 4.517,
           "usage": {
             "days": 3,
             "games": 2,
@@ -2206,8 +2221,8 @@
           }
         },
         "away": {
-          "fip": 3.924,
-          "fip_fatigue": 3.924,
+          "fip": 3.925,
+          "fip_fatigue": 3.925,
           "usage": {
             "days": 3,
             "games": 2,
@@ -2253,7 +2268,7 @@
           "bb_pct": 0.0938,
           "hr": 132,
           "pa": 3935,
-          "ops_index": 0.9979
+          "ops_index": 0.9981
         },
         "away": {
           "vs_hand": "R",
@@ -2266,14 +2281,14 @@
           "bb_pct": 0.0952,
           "hr": 120,
           "pa": 3875,
-          "ops_index": 1.0492
+          "ops_index": 1.0493
         }
       },
       "prob_modele": {
-        "home_ml": 0.4347,
-        "away_ml": 0.5653,
+        "home_ml": 0.4346,
+        "away_ml": 0.5654,
         "home_rl": 0.3053,
-        "away_rl": 0.4287
+        "away_rl": 0.4288
       },
       "facteurs": {
         "home": {
@@ -2331,40 +2346,40 @@
         {
           "marche": "moneyline",
           "equipe": "Pittsburgh Pirates",
-          "probabilite": 49.2,
+          "probabilite": 49.1,
           "prob_modele": 56.5,
           "cote": 2.18,
-          "valeur_pct": 7.2,
-          "cote_equitable": 2.03,
+          "valeur_pct": 7.0,
+          "cote_equitable": 2.04,
           "facteurs_nets": 3,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +7.2% à 49% de probabilité (cote 2.18)"
+          "raison": "valeur +7.0% à 49% de probabilité (cote 2.18)"
         },
         {
           "marche": "moneyline",
           "equipe": "Chicago White Sox",
-          "probabilite": 50.8,
+          "probabilite": 50.9,
           "prob_modele": 43.5,
           "cote": 1.79,
-          "valeur_pct": -9.0,
-          "cote_equitable": 1.97,
+          "valeur_pct": -8.9,
+          "cote_equitable": 1.96,
           "facteurs_nets": -3,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 51% à 1.79 = -9.0%"
+          "raison": "prix trop court: 51% à 1.79 = -8.9%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.5478,
-        "away_ml": 0.4522,
+        "home_ml": 0.5492,
+        "away_ml": 0.4508,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.5082,
-        "away_ml": 0.4918
+        "home_ml": 0.5091,
+        "away_ml": 0.4909
       }
     },
     {
@@ -2379,14 +2394,14 @@
         "home": {
           "nom": "Shane Baz",
           "main": "R",
-          "fip": 3.538,
-          "fip_eff": 3.535,
+          "fip": 3.539,
+          "fip_eff": 3.536,
           "k_bb_pct": 0.1277,
           "whip": 1.33,
           "ip_par_depart": 5.75,
           "forme": {
             "games": 5,
-            "fip": 3.528,
+            "fip": 3.529,
             "k_bb_pct": 0.1207,
             "ip_per_gs": 5.4
           }
@@ -2394,28 +2409,28 @@
         "away": {
           "nom": "Foster Griffin",
           "main": "L",
-          "fip": 4.11,
+          "fip": 4.111,
           "fip_eff": 3.947,
           "k_bb_pct": 0.1494,
           "whip": 1.14,
           "ip_par_depart": 5.66,
           "forme": {
             "games": 5,
-            "fip": 3.565,
+            "fip": 3.566,
             "k_bb_pct": 0.0982,
             "ip_per_gs": 5.4
           }
         }
       },
       "runs_attendus": {
-        "home": 4.884,
-        "away": 4.06
+        "home": 4.887,
+        "away": 4.064
       },
-      "run_diff": 0.824,
+      "run_diff": 0.823,
       "bullpens": {
         "home": {
-          "fip": 3.814,
-          "fip_fatigue": 3.914,
+          "fip": 3.815,
+          "fip_fatigue": 3.915,
           "usage": {
             "days": 3,
             "games": 3,
@@ -2459,8 +2474,8 @@
           }
         },
         "away": {
-          "fip": 3.698,
-          "fip_fatigue": 4.148,
+          "fip": 3.699,
+          "fip_fatigue": 4.149,
           "usage": {
             "days": 3,
             "games": 3,
@@ -2515,7 +2530,7 @@
           "bb_pct": 0.0927,
           "hr": 63,
           "pa": 1736,
-          "ops_index": 1.0045
+          "ops_index": 1.0046
         },
         "away": {
           "vs_hand": "R",
@@ -2528,14 +2543,14 @@
           "bb_pct": 0.0892,
           "hr": 102,
           "pa": 3823,
-          "ops_index": 0.966
+          "ops_index": 0.9662
         }
       },
       "prob_modele": {
-        "home_ml": 0.5778,
-        "away_ml": 0.4222,
+        "home_ml": 0.5777,
+        "away_ml": 0.4223,
         "home_rl": 0.4251,
-        "away_rl": 0.2802
+        "away_rl": 0.2804
       },
       "facteurs": {
         "home": {
@@ -2550,7 +2565,7 @@
               "nom": "Offense vs la main",
               "pour": true,
               "ampleur": 3.8,
-              "detail": "OPS idx 1.004 vs 0.966"
+              "detail": "OPS idx 1.005 vs 0.966"
             },
             {
               "nom": "Puissance (ISO)",
@@ -2575,7 +2590,7 @@
               "nom": "Offense vs la main",
               "pour": false,
               "ampleur": 3.8,
-              "detail": "OPS idx 0.966 vs 1.004"
+              "detail": "OPS idx 0.966 vs 1.005"
             },
             {
               "nom": "Puissance (ISO)",
@@ -2593,40 +2608,40 @@
         {
           "marche": "moneyline",
           "equipe": "Baltimore Orioles",
-          "probabilite": 51.8,
+          "probabilite": 51.5,
           "prob_modele": 57.8,
-          "cote": 2.02,
-          "valeur_pct": 4.6,
-          "cote_equitable": 1.93,
+          "cote": 2.03,
+          "valeur_pct": 4.5,
+          "cote_equitable": 1.94,
           "facteurs_nets": 3,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +4.6% à 52% de probabilité (cote 2.02)"
+          "raison": "valeur +4.5% à 51% de probabilité (cote 2.03)"
         },
         {
           "marche": "moneyline",
           "equipe": "Cleveland Guardians",
-          "probabilite": 48.2,
+          "probabilite": 48.5,
           "prob_modele": 42.2,
-          "cote": 1.9,
-          "valeur_pct": -8.4,
-          "cote_equitable": 2.07,
+          "cote": 1.88,
+          "valeur_pct": -8.8,
+          "cote_equitable": 2.06,
           "facteurs_nets": -3,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 48% à 1.90 = -8.4%"
+          "raison": "prix trop court: 49% à 1.88 = -8.8%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.4857,
-        "away_ml": 0.5143,
+        "home_ml": 0.4808,
+        "away_ml": 0.5192,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.5179,
-        "away_ml": 0.4821
+        "home_ml": 0.5147,
+        "away_ml": 0.4853
       }
     },
     {
@@ -2641,14 +2656,14 @@
         "home": {
           "nom": "Cristopher Sánchez",
           "main": "L",
-          "fip": 2.867,
+          "fip": 2.868,
           "fip_eff": 2.623,
           "k_bb_pct": 0.2036,
           "whip": 1.2,
           "ip_par_depart": 6.13,
           "forme": {
             "games": 5,
-            "fip": 2.052,
+            "fip": 2.053,
             "k_bb_pct": 0.2063,
             "ip_per_gs": 6.33
           }
@@ -2656,28 +2671,28 @@
         "away": {
           "nom": "Hunter Brown",
           "main": "R",
-          "fip": 4.164,
-          "fip_eff": 4.065,
+          "fip": 4.165,
+          "fip_eff": 4.066,
           "k_bb_pct": 0.1298,
           "whip": 1.3,
           "ip_par_depart": 5.39,
           "forme": {
             "games": 5,
-            "fip": 3.834,
+            "fip": 3.835,
             "k_bb_pct": 0.1345,
             "ip_per_gs": 5.67
           }
         }
       },
       "runs_attendus": {
-        "home": 4.926,
-        "away": 3.409
+        "home": 4.931,
+        "away": 3.411
       },
-      "run_diff": 1.517,
+      "run_diff": 1.52,
       "bullpens": {
         "home": {
-          "fip": 3.874,
-          "fip_fatigue": 3.874,
+          "fip": 3.875,
+          "fip_fatigue": 3.875,
           "usage": {
             "days": 3,
             "games": 3,
@@ -2712,8 +2727,8 @@
           }
         },
         "away": {
-          "fip": 4.171,
-          "fip_fatigue": 4.171,
+          "fip": 4.172,
+          "fip_fatigue": 4.172,
           "usage": {
             "days": 3,
             "games": 2,
@@ -2757,7 +2772,7 @@
           "bb_pct": 0.0817,
           "hr": 121,
           "pa": 3756,
-          "ops_index": 0.9868
+          "ops_index": 0.987
         },
         "away": {
           "vs_hand": "L",
@@ -2770,14 +2785,14 @@
           "bb_pct": 0.0806,
           "hr": 43,
           "pa": 1352,
-          "ops_index": 0.9876
+          "ops_index": 0.9878
         }
       },
       "prob_modele": {
-        "home_ml": 0.6467,
-        "away_ml": 0.3533,
-        "home_rl": 0.4892,
-        "away_rl": 0.2174
+        "home_ml": 0.6469,
+        "away_ml": 0.3531,
+        "home_rl": 0.4895,
+        "away_rl": 0.2173
       },
       "facteurs": {
         "home": {
@@ -2798,7 +2813,7 @@
               "nom": "Bullpen",
               "pour": true,
               "ampleur": 0.3,
-              "detail": "FIP 3.87 vs 4.17"
+              "detail": "FIP 3.88 vs 4.17"
             }
           ],
           "pour": 3,
@@ -2823,7 +2838,7 @@
               "nom": "Bullpen",
               "pour": false,
               "ampleur": 0.3,
-              "detail": "FIP 4.17 vs 3.87"
+              "detail": "FIP 4.17 vs 3.88"
             }
           ],
           "pour": 0,
@@ -2835,28 +2850,28 @@
         {
           "marche": "moneyline",
           "equipe": "Philadelphia Phillies",
-          "probabilite": 60.3,
+          "probabilite": 60.4,
           "prob_modele": 64.7,
           "cote": 1.69,
-          "valeur_pct": 2.0,
-          "cote_equitable": 1.66,
+          "valeur_pct": 2.1,
+          "cote_equitable": 1.65,
           "facteurs_nets": 3,
           "no_brainer": false,
           "tier": "🟡",
           "label": "jouable",
-          "raison": "avantage marginal +2.0%"
+          "raison": "avantage marginal +2.1%"
         },
         {
           "marche": "run_line_-1.5",
           "equipe": "Philadelphia Phillies",
           "probabilite": 42.4,
-          "prob_modele": 48.9,
+          "prob_modele": 49.0,
           "prob_marche": 38.9,
           "cote": 2.46,
           "valeur_pct": 4.3,
           "cote_equitable": 2.36,
           "facteurs_nets": 3,
-          "run_diff": 1.517,
+          "run_diff": 1.52,
           "tier": "🔴",
           "label": "passe",
           "raison": "valeur +4.3% sous le seuil 5.0% du -1.5"
@@ -2864,26 +2879,26 @@
         {
           "marche": "moneyline",
           "equipe": "Houston Astros",
-          "probabilite": 39.7,
+          "probabilite": 39.6,
           "prob_modele": 35.3,
           "cote": 2.33,
-          "valeur_pct": -7.6,
-          "cote_equitable": 2.52,
+          "valeur_pct": -7.8,
+          "cote_equitable": 2.53,
           "facteurs_nets": -3,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 40% à 2.33 = -7.6%"
+          "raison": "prix trop court: 40% à 2.33 = -7.8%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.58,
-        "away_ml": 0.42,
+        "home_ml": 0.5815,
+        "away_ml": 0.4185,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.6033,
-        "away_ml": 0.3967
+        "home_ml": 0.6044,
+        "away_ml": 0.3956
       }
     },
     {
@@ -2905,7 +2920,7 @@
           "ip_par_depart": 4.7,
           "forme": {
             "games": 5,
-            "fip": 4.044,
+            "fip": 4.045,
             "k_bb_pct": 0.1714,
             "ip_per_gs": 5.0
           }
@@ -2913,28 +2928,28 @@
         "away": {
           "nom": "Griffin Jax",
           "main": "R",
-          "fip": 3.765,
-          "fip_eff": 3.436,
+          "fip": 3.766,
+          "fip_eff": 3.437,
           "k_bb_pct": 0.1698,
           "whip": 1.27,
           "ip_par_depart": 4.61,
           "forme": {
             "games": 5,
-            "fip": 2.667,
+            "fip": 2.668,
             "k_bb_pct": 0.211,
             "ip_per_gs": 4.87
           }
         }
       },
       "runs_attendus": {
-        "home": 4.905,
-        "away": 5.16
+        "home": 4.909,
+        "away": 5.163
       },
-      "run_diff": -0.255,
+      "run_diff": -0.254,
       "bullpens": {
         "home": {
-          "fip": 3.851,
-          "fip_fatigue": 3.851,
+          "fip": 3.852,
+          "fip_fatigue": 3.852,
           "usage": {
             "days": 3,
             "games": 3,
@@ -2968,8 +2983,8 @@
           }
         },
         "away": {
-          "fip": 4.389,
-          "fip_fatigue": 4.489,
+          "fip": 4.39,
+          "fip_fatigue": 4.49,
           "usage": {
             "days": 3,
             "games": 2,
@@ -3017,7 +3032,7 @@
           "bb_pct": 0.08,
           "hr": 125,
           "pa": 3551,
-          "ops_index": 1.0132
+          "ops_index": 1.0133
         },
         "away": {
           "vs_hand": "R",
@@ -3030,13 +3045,13 @@
           "bb_pct": 0.0879,
           "hr": 119,
           "pa": 3745,
-          "ops_index": 1.0437
+          "ops_index": 1.0438
         }
       },
       "prob_modele": {
-        "home_ml": 0.4773,
-        "away_ml": 0.5227,
-        "home_rl": 0.3388,
+        "home_ml": 0.4774,
+        "away_ml": 0.5226,
+        "home_rl": 0.3389,
         "away_rl": 0.3815
       },
       "facteurs": {
@@ -3122,13 +3137,13 @@
           "marche": "run_line_-1.5",
           "equipe": "Tampa Bay Rays",
           "probabilite": 36.8,
-          "prob_modele": 38.2,
+          "prob_modele": 38.1,
           "prob_marche": 36.1,
           "cote": 2.65,
           "valeur_pct": -2.4,
           "cote_equitable": 2.72,
           "facteurs_nets": 2,
-          "run_diff": 0.255,
+          "run_diff": 0.254,
           "tier": "🔴",
           "label": "passe",
           "raison": "valeur -2.4% sous le seuil 5.0% du -1.5"
@@ -3170,14 +3185,14 @@
         "home": {
           "nom": "Yoshinobu Yamamoto",
           "main": "R",
-          "fip": 3.51,
-          "fip_eff": 3.334,
+          "fip": 3.511,
+          "fip_eff": 3.335,
           "k_bb_pct": 0.1819,
           "whip": 0.9,
           "ip_par_depart": 6.41,
           "forme": {
             "games": 5,
-            "fip": 2.923,
+            "fip": 2.924,
             "k_bb_pct": 0.248,
             "ip_per_gs": 6.27
           }
@@ -3192,21 +3207,21 @@
           "ip_par_depart": 4.99,
           "forme": {
             "games": 5,
-            "fip": 5.121,
+            "fip": 5.122,
             "k_bb_pct": 0.0738,
             "ip_per_gs": 5.4
           }
         }
       },
       "runs_attendus": {
-        "home": 6.288,
-        "away": 3.904
+        "home": 6.292,
+        "away": 3.907
       },
-      "run_diff": 2.384,
+      "run_diff": 2.385,
       "bullpens": {
         "home": {
-          "fip": 3.855,
-          "fip_fatigue": 3.955,
+          "fip": 3.856,
+          "fip_fatigue": 3.956,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3250,8 +3265,8 @@
           }
         },
         "away": {
-          "fip": 4.769,
-          "fip_fatigue": 4.869,
+          "fip": 4.77,
+          "fip_fatigue": 4.87,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3305,7 +3320,7 @@
           "bb_pct": 0.1022,
           "hr": 120,
           "pa": 3796,
-          "ops_index": 1.052
+          "ops_index": 1.0521
         },
         "away": {
           "vs_hand": "R",
@@ -3318,13 +3333,13 @@
           "bb_pct": 0.0904,
           "hr": 145,
           "pa": 4103,
-          "ops_index": 0.9605
+          "ops_index": 0.9606
         }
       },
       "prob_modele": {
         "home_ml": 0.7031,
         "away_ml": 0.2969,
-        "home_rl": 0.5698,
+        "home_rl": 0.5699,
         "away_rl": 0.1858
       },
       "facteurs": {
@@ -3422,7 +3437,7 @@
           "valeur_pct": -2.1,
           "cote_equitable": 1.83,
           "facteurs_nets": 4,
-          "run_diff": 2.384,
+          "run_diff": 2.385,
           "tier": "🔴",
           "label": "passe",
           "raison": "valeur -2.1% sous le seuil 5.0% du -1.5"
@@ -3465,13 +3480,13 @@
           "nom": "Janson Junk",
           "main": "R",
           "fip": 4.086,
-          "fip_eff": 3.785,
+          "fip_eff": 3.786,
           "k_bb_pct": 0.1087,
           "whip": 1.28,
           "ip_par_depart": 5.11,
           "forme": {
             "games": 5,
-            "fip": 3.084,
+            "fip": 3.085,
             "k_bb_pct": 0.06,
             "ip_per_gs": 5.07
           }
@@ -3479,28 +3494,28 @@
         "away": {
           "nom": "Robert Stock",
           "main": "R",
-          "fip": 4.117,
-          "fip_eff": 4.079,
+          "fip": 4.118,
+          "fip_eff": 4.08,
           "k_bb_pct": 0.1178,
           "whip": 1.75,
           "ip_par_depart": 4.68,
           "forme": {
             "games": 5,
-            "fip": 3.989,
+            "fip": 3.99,
             "k_bb_pct": 0.0748,
             "ip_per_gs": 4.2
           }
         }
       },
       "runs_attendus": {
-        "home": 5.287,
-        "away": 4.454
+        "home": 5.291,
+        "away": 4.459
       },
-      "run_diff": 0.833,
+      "run_diff": 0.832,
       "bullpens": {
         "home": {
-          "fip": 3.948,
-          "fip_fatigue": 4.198,
+          "fip": 3.949,
+          "fip_fatigue": 4.199,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3540,8 +3555,8 @@
           }
         },
         "away": {
-          "fip": 3.909,
-          "fip_fatigue": 4.209,
+          "fip": 3.91,
+          "fip_fatigue": 4.21,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3597,7 +3612,7 @@
           "bb_pct": 0.0918,
           "hr": 114,
           "pa": 3976,
-          "ops_index": 1.0229
+          "ops_index": 1.023
         },
         "away": {
           "vs_hand": "R",
@@ -3610,14 +3625,14 @@
           "bb_pct": 0.0856,
           "hr": 127,
           "pa": 3880,
-          "ops_index": 0.9757
+          "ops_index": 0.9759
         }
       },
       "prob_modele": {
-        "home_ml": 0.5752,
-        "away_ml": 0.4248,
-        "home_rl": 0.4302,
-        "away_rl": 0.289
+        "home_ml": 0.5751,
+        "away_ml": 0.4249,
+        "home_rl": 0.4301,
+        "away_rl": 0.2892
       },
       "facteurs": {
         "home": {
@@ -3684,7 +3699,7 @@
           "valeur_pct": 2.2,
           "cote_equitable": 2.6,
           "facteurs_nets": 2,
-          "run_diff": 0.833,
+          "run_diff": 0.832,
           "tier": "🔴",
           "label": "passe",
           "raison": "valeur +2.2% sous le seuil 5.0% du -1.5"
@@ -3710,8 +3725,8 @@
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.5475,
-        "away_ml": 0.4525
+        "home_ml": 0.5474,
+        "away_ml": 0.4526
       }
     },
     {
@@ -3726,14 +3741,14 @@
         "home": {
           "nom": "Logan Henderson",
           "main": "R",
-          "fip": 3.557,
-          "fip_eff": 3.552,
+          "fip": 3.558,
+          "fip_eff": 3.553,
           "k_bb_pct": 0.215,
           "whip": 0.79,
           "ip_par_depart": 5.48,
           "forme": {
             "games": 5,
-            "fip": 3.539,
+            "fip": 3.54,
             "k_bb_pct": 0.2288,
             "ip_per_gs": 6.67
           }
@@ -3748,21 +3763,21 @@
           "ip_par_depart": 5.55,
           "forme": {
             "games": 5,
-            "fip": 3.727,
+            "fip": 3.728,
             "k_bb_pct": 0.2308,
             "ip_per_gs": 5.6
           }
         }
       },
       "runs_attendus": {
-        "home": 5.531,
-        "away": 4.879
+        "home": 5.535,
+        "away": 4.884
       },
-      "run_diff": 0.652,
+      "run_diff": 0.651,
       "bullpens": {
         "home": {
-          "fip": 3.719,
-          "fip_fatigue": 4.019,
+          "fip": 3.72,
+          "fip_fatigue": 4.02,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3807,8 +3822,8 @@
           }
         },
         "away": {
-          "fip": 4.655,
-          "fip_fatigue": 4.855,
+          "fip": 4.656,
+          "fip_fatigue": 4.856,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3861,7 +3876,7 @@
           "bb_pct": 0.1081,
           "hr": 100,
           "pa": 3931,
-          "ops_index": 1.0464
+          "ops_index": 1.0466
         },
         "away": {
           "vs_hand": "R",
@@ -3874,14 +3889,14 @@
           "bb_pct": 0.1069,
           "hr": 143,
           "pa": 4210,
-          "ops_index": 1.0464
+          "ops_index": 1.0466
         }
       },
       "prob_modele": {
-        "home_ml": 0.557,
-        "away_ml": 0.443,
-        "home_rl": 0.4176,
-        "away_rl": 0.3102
+        "home_ml": 0.5569,
+        "away_ml": 0.4431,
+        "home_rl": 0.4175,
+        "away_rl": 0.3103
       },
       "facteurs": {
         "home": {
@@ -3946,7 +3961,7 @@
           "valeur_pct": 2.0,
           "cote_equitable": 2.67,
           "facteurs_nets": 1,
-          "run_diff": 0.652,
+          "run_diff": 0.651,
           "tier": "🔴",
           "label": "passe",
           "raison": "valeur +2.0% sous le seuil 5.0% du -1.5"
@@ -4002,14 +4017,14 @@
         "home": {
           "nom": "Daniel Lynch IV",
           "main": "L",
-          "fip": 4.546,
-          "fip_eff": 4.771,
+          "fip": 4.547,
+          "fip_eff": 4.772,
           "k_bb_pct": 0.0982,
           "whip": 1.1,
           "ip_par_depart": 4.15,
           "forme": {
             "games": 5,
-            "fip": 5.295,
+            "fip": 5.296,
             "k_bb_pct": 0.037,
             "ip_per_gs": 3.8
           }
@@ -4018,27 +4033,27 @@
           "nom": "Zac Gallen",
           "main": "R",
           "fip": 4.97,
-          "fip_eff": 5.443,
+          "fip_eff": 5.444,
           "k_bb_pct": 0.0867,
           "whip": 1.56,
           "ip_par_depart": 5.17,
           "forme": {
             "games": 5,
-            "fip": 6.548,
+            "fip": 6.549,
             "k_bb_pct": 0.0391,
             "ip_per_gs": 5.67
           }
         }
       },
       "runs_attendus": {
-        "home": 5.945,
-        "away": 6.201
+        "home": 5.949,
+        "away": 6.205
       },
       "run_diff": -0.256,
       "bullpens": {
         "home": {
-          "fip": 5.1,
-          "fip_fatigue": 5.2,
+          "fip": 5.101,
+          "fip_fatigue": 5.201,
           "usage": {
             "days": 3,
             "games": 3,
@@ -4083,8 +4098,8 @@
           }
         },
         "away": {
-          "fip": 3.982,
-          "fip_fatigue": 4.432,
+          "fip": 3.983,
+          "fip_fatigue": 4.433,
           "usage": {
             "days": 3,
             "games": 3,
@@ -4150,7 +4165,7 @@
           "bb_pct": 0.0874,
           "hr": 112,
           "pa": 3766,
-          "ops_index": 1.0035
+          "ops_index": 1.0036
         },
         "away": {
           "vs_hand": "L",
@@ -4163,7 +4178,7 @@
           "bb_pct": 0.0874,
           "hr": 38,
           "pa": 1522,
-          "ops_index": 1.0888
+          "ops_index": 1.0889
         }
       },
       "prob_modele": {
@@ -4228,30 +4243,30 @@
         {
           "marche": "moneyline",
           "equipe": "Kansas City Royals",
-          "probabilite": 47.8,
+          "probabilite": 47.7,
           "prob_modele": 47.9,
-          "cote": 2.06,
-          "valeur_pct": -1.5,
-          "cote_equitable": 2.09,
+          "cote": 2.07,
+          "valeur_pct": -1.3,
+          "cote_equitable": 2.1,
           "facteurs_nets": -1,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 48% à 2.06 = -1.5%"
+          "raison": "prix trop court: 48% à 2.07 = -1.3%"
         },
         {
           "marche": "moneyline",
           "equipe": "Arizona Diamondbacks",
-          "probabilite": 52.2,
+          "probabilite": 52.3,
           "prob_modele": 52.1,
-          "cote": 1.87,
-          "valeur_pct": -2.4,
-          "cote_equitable": 1.92,
+          "cote": 1.86,
+          "valeur_pct": -2.7,
+          "cote_equitable": 1.91,
           "facteurs_nets": 1,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 52% à 1.87 = -2.4%"
+          "raison": "prix trop court: 52% à 1.86 = -2.7%"
         },
         {
           "marche": "run_line_-1.5",
@@ -4270,13 +4285,13 @@
         }
       ],
       "prob_marche": {
-        "home_ml": 0.4778,
-        "away_ml": 0.5222,
+        "home_ml": 0.4757,
+        "away_ml": 0.5243,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.4783,
-        "away_ml": 0.5217
+        "home_ml": 0.477,
+        "away_ml": 0.523
       }
     },
     {
@@ -4291,14 +4306,14 @@
         "home": {
           "nom": "Jake Bennett",
           "main": "L",
-          "fip": 3.523,
-          "fip_eff": 3.477,
+          "fip": 3.524,
+          "fip_eff": 3.478,
           "k_bb_pct": 0.1516,
           "whip": 1.02,
           "ip_par_depart": 5.74,
           "forme": {
             "games": 5,
-            "fip": 3.37,
+            "fip": 3.371,
             "k_bb_pct": 0.2261,
             "ip_per_gs": 5.67
           }
@@ -4313,21 +4328,21 @@
           "ip_par_depart": 4.95,
           "forme": {
             "games": 5,
-            "fip": 4.603,
+            "fip": 4.604,
             "k_bb_pct": 0.0648,
             "ip_per_gs": 5.53
           }
         }
       },
       "runs_attendus": {
-        "home": 5.708,
-        "away": 3.847
+        "home": 5.712,
+        "away": 3.85
       },
-      "run_diff": 1.861,
+      "run_diff": 1.862,
       "bullpens": {
         "home": {
-          "fip": 3.579,
-          "fip_fatigue": 3.579,
+          "fip": 3.58,
+          "fip_fatigue": 3.58,
           "usage": {
             "days": 3,
             "games": 3,
@@ -4367,8 +4382,8 @@
           }
         },
         "away": {
-          "fip": 4.041,
-          "fip_fatigue": 4.041,
+          "fip": 4.042,
+          "fip_fatigue": 4.042,
           "usage": {
             "days": 3,
             "games": 3,
@@ -4417,7 +4432,7 @@
           "bb_pct": 0.0836,
           "hr": 110,
           "pa": 4115,
-          "ops_index": 0.9924
+          "ops_index": 0.9925
         },
         "away": {
           "vs_hand": "L",
@@ -4430,14 +4445,14 @@
           "bb_pct": 0.0838,
           "hr": 43,
           "pa": 1564,
-          "ops_index": 0.9638
+          "ops_index": 0.9639
         }
       },
       "prob_modele": {
         "home_ml": 0.6664,
         "away_ml": 0.3336,
-        "home_rl": 0.5234,
-        "away_rl": 0.211
+        "home_rl": 0.5235,
+        "away_rl": 0.2111
       },
       "facteurs": {
         "home": {
@@ -4458,7 +4473,7 @@
               "nom": "Offense vs la main",
               "pour": true,
               "ampleur": 2.9,
-              "detail": "OPS idx 0.992 vs 0.964"
+              "detail": "OPS idx 0.993 vs 0.964"
             },
             {
               "nom": "Bullpen",
@@ -4489,7 +4504,7 @@
               "nom": "Offense vs la main",
               "pour": false,
               "ampleur": 2.9,
-              "detail": "OPS idx 0.964 vs 0.992"
+              "detail": "OPS idx 0.964 vs 0.993"
             },
             {
               "nom": "Bullpen",
@@ -4504,6 +4519,20 @@
         }
       },
       "bets": [
+        {
+          "marche": "moneyline",
+          "equipe": "Los Angeles Angels",
+          "probabilite": 33.9,
+          "prob_modele": 33.4,
+          "cote": 2.9,
+          "valeur_pct": -1.8,
+          "cote_equitable": 2.95,
+          "facteurs_nets": -4,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 34% à 2.90 = -1.8%"
+        },
         {
           "marche": "moneyline",
           "equipe": "Boston Red Sox",
@@ -4522,30 +4551,16 @@
           "marche": "run_line_-1.5",
           "equipe": "Boston Red Sox",
           "probabilite": 50.2,
-          "prob_modele": 52.3,
+          "prob_modele": 52.4,
           "prob_marche": 49.1,
           "cote": 1.95,
           "valeur_pct": -2.1,
           "cote_equitable": 1.99,
           "facteurs_nets": 4,
-          "run_diff": 1.861,
+          "run_diff": 1.862,
           "tier": "🔴",
           "label": "passe",
           "raison": "valeur -2.1% sous le seuil 5.0% du -1.5"
-        },
-        {
-          "marche": "moneyline",
-          "equipe": "Los Angeles Angels",
-          "probabilite": 33.9,
-          "prob_modele": 33.4,
-          "cote": 2.89,
-          "valeur_pct": -2.2,
-          "cote_equitable": 2.95,
-          "facteurs_nets": -4,
-          "no_brainer": false,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "prix trop court: 34% à 2.89 = -2.2%"
         }
       ],
       "prob_marche": {
@@ -4554,8 +4569,8 @@
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.6614,
-        "away_ml": 0.3386
+        "home_ml": 0.6615,
+        "away_ml": 0.3385
       }
     }
   ],
@@ -4564,7 +4579,7 @@
     "week": "2026-09-08",
     "window_id": "force-2026-09-09T16",
     "generated_at": "2026-09-09T20:34:29.126589+00:00",
-    "reason": "hors fenetre NFL (Wednesday 16h ET)",
+    "reason": "hors fenetre NFL (Wednesday 17h ET)",
     "stale": true,
     "min_edge": 3.0,
     "min_books": 4,
@@ -6977,17 +6992,17 @@
     "paper_logged": 2
   },
   "odds_api": {
-    "remaining": 17221,
-    "used": 2779,
-    "calls": 34,
+    "remaining": 17173,
+    "used": 2827,
+    "calls": 27,
     "cache_hits": 0,
-    "credits_spent": 64,
+    "credits_spent": 48,
     "refused": 0,
-    "day_budget": 783,
-    "spent_today": 666,
-    "est_spent": 608,
-    "cost_factor": 0.105,
-    "prop_credits": 85.3972714259771,
+    "day_budget": 780,
+    "spent_today": 714,
+    "est_spent": 468,
+    "cost_factor": 0.103,
+    "prop_credits": 67.90961146639253,
     "regions": "us,eu",
     "cache_ttl_s": 1800,
     "healthy": true,
