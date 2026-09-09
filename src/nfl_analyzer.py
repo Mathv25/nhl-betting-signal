@@ -41,6 +41,23 @@ def signals_path() -> str:
         _HERE, "..", "docs", "nfl_signals.json")
 
 
+def min_books() -> int:
+    """
+    Nombre minimal de books pour qu'un signal soit emis.
+
+    Une "mediane" calculee sur deux books n'est pas un consensus, c'est une
+    moyenne de deux avis. Le premier run l'a montre: sur 18 signaux, 10
+    reposaient sur 2 ou 3 books, et les matchs de decembre affichaient des
+    50.0%/50.0% — un seul book cotant les deux faces au meme prix, ce qui n'est
+    pas un marche mais un remplissage. Ces lignes lointaines produisent des
+    ecarts enormes qui n'existent pas.
+    """
+    try:
+        return int(os.environ.get("NFL_MIN_BOOKS", "") or 4)
+    except ValueError:
+        return 4
+
+
 def min_edge() -> float:
     """Seuil d'esperance en %, au-dela duquel un ecart entre books est signale."""
     try:
@@ -103,6 +120,37 @@ def is_closing_window(when: datetime = None) -> bool:
     """Le run du dimanche matin sert aussi a figer les cotes de fermeture."""
     d = when or now_et()
     return d.weekday() == 6 and 9 <= d.hour < 12
+
+
+def week_end(when: datetime = None) -> datetime:
+    """
+    Fin de la semaine NFL courante: le mardi suivant a 6h ET, ce qui englobe le
+    jeudi, le dimanche et le lundi soir sans deborder sur la semaine d'apres.
+    """
+    d = when or now_et()
+    days = (1 - d.weekday()) % 7 or 7
+    nxt  = (d + timedelta(days=days)).replace(hour=6, minute=0, second=0, microsecond=0)
+    return nxt
+
+
+def in_current_week(commence: str, when: datetime = None) -> bool:
+    """
+    Le match tombe-t-il dans la semaine en cours ?
+
+    L'API renvoie TOUS les matchs a venir: le premier run en a ramene 270, de
+    septembre a janvier. Analyser la saison entiere n'a pas de sens ici — les
+    lignes lointaines ne sont cotees que par un ou deux books, et on
+    enregistrait des paris papier sur des matchs de decembre.
+    """
+    if not commence:
+        return False
+    try:
+        k = datetime.fromisoformat(commence.replace("Z", "+00:00")) - timedelta(hours=4)
+        k = k.replace(tzinfo=None)
+    except ValueError:
+        return False
+    d = when or now_et()
+    return d.replace(tzinfo=None) - timedelta(hours=6) <= k <= week_end(d).replace(tzinfo=None)
 
 
 def week_label(when: datetime = None) -> str:
@@ -242,7 +290,7 @@ def analyze_event(event: dict, threshold: float = None) -> dict:
                 "market": MARKET_KEYS[market_key], "odds": round(odds, 3),
                 "book": book, "prob": round(pair[side] * 100, 2), "edge_pct": ev,
             }
-            if ev >= thr:
+            if ev >= thr and pair["n_books"] >= min_books():
                 out["signals"].append({
                     "market":      MARKET_KEYS[market_key],
                     "selection":   label,
@@ -425,8 +473,12 @@ def run(api_key: str = None, force: bool = False) -> dict:
         state["reason"] = "aucune reponse de l'API"
         return state
 
-    games = [analyze_event(ev) for ev in data]
+    horizon = [ev for ev in data if in_current_week(ev.get("commence_time", ""), when)]
+    games = [analyze_event(ev) for ev in horizon]
     games = [g for g in games if g.get("markets")]
+    if len(data) != len(horizon):
+        print(f"  [NFL] {len(data)} match(s) renvoyes par l'API, "
+              f"{len(horizon)} dans la semaine en cours")
     games.sort(key=lambda g: (-(g["signals"][0]["edge_pct"] if g["signals"] else -99),
                               g.get("commence", "")))
     n_sig = sum(len(g["signals"]) for g in games)
@@ -438,6 +490,7 @@ def run(api_key: str = None, force: bool = False) -> dict:
         "reason":       motif,
         "stale":        False,
         "min_edge":     min_edge(),
+        "min_books":    min_books(),
         "n_games":      len(games),
         "n_signals":    n_sig,
         "games":        games,

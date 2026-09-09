@@ -105,8 +105,12 @@ class TestThreshold(unittest.TestCase):
 
     def _game(self, best_price):
         # Pinnacle fixe la reference a ~50%; un autre book offre `best_price`.
+        # Quatre books au minimum, sinon le marche est juge trop mince et le
+        # signal est refuse quel que soit l'ecart (voir TestThinMarkets).
         return event(h2h={"pinnacle": ml(1.95, 1.95),
-                          "fanduel": ml(best_price, 1.80)})
+                          "fanduel": ml(best_price, 1.80),
+                          "draftkings": ml(1.94, 1.96),
+                          "betmgm": ml(1.93, 1.97)})
 
     def test_a_price_matching_the_fair_line_is_not_a_signal(self):
         out = NFL.analyze_event(self._game(2.00), threshold=3.0)
@@ -139,7 +143,8 @@ class TestThreshold(unittest.TestCase):
     def test_absurd_prices_do_not_become_signals(self):
         # Un carnet d'echange mince a 51.0 produirait un edge de +2450%.
         ev = event(h2h={"pinnacle": ml(1.95, 1.95), "dk": ml(1.98, 1.92),
-                        "betmgm": ml(1.96, 1.94), "echange": ml(51.0, 1.01)})
+                        "betmgm": ml(1.96, 1.94), "fd": ml(1.97, 1.93),
+                        "echange": ml(51.0, 1.01)})
         for s in NFL.analyze_event(ev)["signals"]:
             self.assertLess(s["odds"], 5.0, "un prix injouable est devenu un signal")
 
@@ -181,6 +186,72 @@ class TestCadence(unittest.TestCase):
             self.assertEqual(NFL.week_label(d), "2026-09-08")
 
 
+class TestWeekHorizon(unittest.TestCase):
+    """
+    L'API renvoie tous les matchs a venir. Le premier run reel en a ramene 270,
+    de septembre a janvier, et a enregistre des paris papier sur des matchs de
+    decembre. On ne garde que la semaine en cours.
+    """
+
+    MERCREDI = datetime(2026, 9, 9, 16)     # avant l'ouvreur du soir
+
+    def test_this_weeks_games_are_kept(self):
+        for iso in ("2026-09-10T00:20:00Z",   # ce soir 20h20 ET
+                    "2026-09-11T00:35:00Z",   # jeudi soir
+                    "2026-09-13T17:00:00Z",   # dimanche 13h ET
+                    "2026-09-15T00:15:00Z"):  # lundi soir
+            self.assertTrue(NFL.in_current_week(iso, self.MERCREDI), iso)
+
+    def test_later_games_are_dropped(self):
+        for iso in ("2026-09-20T17:00:00Z",   # semaine suivante
+                    "2026-12-25T18:00:00Z",   # decembre
+                    "2027-01-10T18:00:00Z"):
+            self.assertFalse(NFL.in_current_week(iso, self.MERCREDI), iso)
+
+    def test_the_window_closes_on_tuesday_morning(self):
+        end = NFL.week_end(self.MERCREDI)
+        self.assertEqual(end.weekday(), 1)
+        self.assertEqual(end.hour, 6)
+
+    def test_garbage_dates_are_dropped(self):
+        self.assertFalse(NFL.in_current_week("", self.MERCREDI))
+        self.assertFalse(NFL.in_current_week("pas une date", self.MERCREDI))
+
+
+class TestThinMarkets(unittest.TestCase):
+    """
+    Une mediane sur deux books n'est pas un consensus. Le premier run reel: 10
+    signaux sur 18 reposaient sur 2 ou 3 books, et les matchs lointains
+    affichaient 50.0%/50.0% — un seul book cotant les deux faces au meme prix.
+    """
+
+    def _ev(self, n_books):
+        books = {"pinnacle": ml(1.95, 1.95)}
+        for i in range(n_books - 1):
+            books[f"book{i}"] = ml(2.15 if i == 0 else 1.94, 1.80)
+        return event(h2h=books)
+
+    def test_a_thin_market_produces_no_signal(self):
+        # Deux books, un ecart enorme: refuse malgre l'edge apparent.
+        out = NFL.analyze_event(self._ev(2), threshold=3.0)
+        self.assertEqual(out["signals"], [])
+        self.assertTrue(out["markets"], "le match reste analyse")
+
+    def test_enough_books_lets_the_signal_through(self):
+        out = NFL.analyze_event(self._ev(5), threshold=3.0)
+        self.assertTrue(out["signals"])
+        self.assertGreaterEqual(out["signals"][0]["n_books"], NFL.min_books())
+
+    def test_threshold_is_configurable(self):
+        os.environ["NFL_MIN_BOOKS"] = "2"
+        try:
+            self.assertEqual(NFL.min_books(), 2)
+            self.assertTrue(NFL.analyze_event(self._ev(2), threshold=3.0)["signals"])
+        finally:
+            os.environ.pop("NFL_MIN_BOOKS", None)
+        self.assertEqual(NFL.min_books(), 4)
+
+
 class TestNoSignalIsAResult(unittest.TestCase):
 
     def test_an_aligned_market_yields_nothing(self):
@@ -203,7 +274,8 @@ class TestPaperLogging(unittest.TestCase):
         os.environ.pop("NFL_SIGNALS_PATH", None)
 
     def _games(self, odds=2.10):
-        ev = event(h2h={"pinnacle": ml(1.95, 1.95), "fanduel": ml(odds, 1.80)})
+        ev = event(h2h={"pinnacle": ml(1.95, 1.95), "fanduel": ml(odds, 1.80),
+                        "draftkings": ml(1.94, 1.96), "betmgm": ml(1.93, 1.97)})
         return [NFL.analyze_event(ev, threshold=3.0)]
 
     def test_signals_are_logged_as_paper(self):
