@@ -167,9 +167,46 @@ class TestCaptureCLV(unittest.TestCase):
     def _reload(self):
         return json.load(open(self.results_path))["bets"]
 
+    def test_sign_says_who_got_the_better_price(self):
+        """
+        Le signe du CLV doit suivre le rapport des COTES, pas l'inverse.
+
+        Verifie sur les donnees reelles: l'ancienne formule (ouverture -
+        fermeture) donnait un signe contraire au rapport des cotes dans 68 cas
+        sur 68. Une probabilite de fermeture plus haute que celle de la prise
+        signifie que le prix s'est raccourci: on a pris plus cher que la
+        fermeture, donc CLV positif.
+        """
+        self._write_bets([{
+            "date": "2026-09-01", "result": "?", "sport": "mlb", "bet_type": "prop",
+            "market_type": "strikeouts", "game": "New York Yankees @ Los Angeles Angels",
+            "name": "Walbert Urena", "line": 5.5,
+            # Prise a 45% implicite (cote longue), fermeture no-vig a 50%
+            # (cote raccourcie) -> on a pris le meilleur prix -> CLV positif.
+            "b365_implied": 45.0, "opening_basis": "novig",
+        }])
+        CLV.capture_clv("cle", "2026-09-01")
+        b = self._reload()[0]
+        self.assertGreater(b["clv"], 0)
+        self.assertGreater(b["closing_odds"], 0)
+        # Le prix pris (1/0.45 = 2.22) est plus genereux que la fermeture (2.00).
+        self.assertGreater(1 / 0.45, b["closing_odds"])
+
+    def test_being_faded_gives_a_negative_clv(self):
+        self._write_bets([{
+            "date": "2026-09-01", "result": "?", "sport": "mlb", "bet_type": "prop",
+            "market_type": "strikeouts", "game": "New York Yankees @ Los Angeles Angels",
+            "name": "Walbert Urena", "line": 5.5,
+            # Prise a 60% implicite (cote courte) alors que la fermeture est a
+            # 50%: le marche s'est eloigne de nous.
+            "b365_implied": 60.0, "opening_basis": "novig",
+        }])
+        CLV.capture_clv("cle", "2026-09-01")
+        self.assertLess(self._reload()[0]["clv"], 0)
+
     def test_novig_opening_is_compared_to_novig_closing(self):
-        # Ouverture no-vig 55% vs fermeture no-vig 50% -> CLV +5, pas +4.4
-        # (ce que donnerait la fermeture brute).
+        # Ouverture no-vig 55% vs fermeture no-vig 50% -> ecart de 5 points,
+        # dans le sens "on a pris moins cher que la fermeture" -> CLV negatif.
         self._write_bets([{
             "date": "2026-09-01", "result": "?", "sport": "mlb", "bet_type": "prop",
             "market_type": "strikeouts", "game": "New York Yankees @ Los Angeles Angels",
@@ -179,7 +216,7 @@ class TestCaptureCLV(unittest.TestCase):
         CLV.capture_clv("cle", "2026-09-01")
         b = self._reload()[0]
         self.assertEqual(b["clv_basis"], "novig")
-        self.assertAlmostEqual(b["clv"], 5.0, places=1)
+        self.assertAlmostEqual(b["clv"], -5.0, places=1)
         self.assertEqual(b["closing_book"], "draftkings")
         self.assertEqual(b["closing_odds"], 2.00)
 
@@ -193,8 +230,9 @@ class TestCaptureCLV(unittest.TestCase):
         CLV.capture_clv("cle", "2026-09-01")
         b = self._reload()[0]
         self.assertEqual(b["clv_basis"], "brute")
-        # brute = 1/1.70 = 58.8% (meilleure cote Boston) -> CLV = 61.0 - 58.8
-        self.assertAlmostEqual(b["clv"], 2.2, places=1)
+        # brute = 1/1.70 = 58.8%; on a pris a 61.0% implicite, soit un prix plus
+        # court que la fermeture -> CLV negatif de 2.2 points.
+        self.assertAlmostEqual(b["clv"], -2.2, places=1)
 
     def test_moneyline_slate_is_fetched_once_for_many_bets(self):
         self._write_bets([

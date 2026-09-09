@@ -143,6 +143,121 @@ class TestQuotaGuard(unittest.TestCase):
         self.assertFalse(c.healthy)
 
 
+class TestOutlierPrices(unittest.TestCase):
+    """
+    Prendre la meilleure cote de tous les books revient a suivre le book le
+    plus aberrant. Mesure sur l'historique du projet: 37 paris sur 273 pris a
+    plus de 4.50 sur du moneyline MLB, jusqu'a 51.0 — soit 2% implicite. Ces
+    prix n'existaient pas, et ils decidaient pourtant des tiers 🔥/🟢.
+    """
+
+    def test_a_lone_absurd_price_is_dropped(self):
+        # Cas reel: quatre books autour de 2.30, un echange a 51.0.
+        odds, book, drop = O.best_playable([
+            ("draftkings", 2.30), ("fanduel", 2.35),
+            ("betmgm", 2.25), ("betfair_ex_us", 51.0)])
+        self.assertEqual(odds, 2.35)
+        self.assertEqual(book, "fanduel")
+        self.assertEqual([b for b, _ in drop], ["betfair_ex_us"])
+
+    def test_a_genuinely_better_price_survives(self):
+        # 2.60 contre une mediane de 2.30, soit +13%: c'est du vrai shopping,
+        # pas une aberration. Le seuil est a +25%.
+        odds, book, drop = O.best_playable([
+            ("draftkings", 2.30), ("fanduel", 2.60), ("betmgm", 2.25)])
+        self.assertEqual(odds, 2.60)
+        self.assertEqual(drop, [])
+
+    def test_threshold_is_configurable(self):
+        os.environ["ODDS_MAX_PRICE_RATIO"] = "1.05"
+        try:
+            odds, _b, drop = O.best_playable([
+                ("a", 2.00), ("b", 2.02), ("c", 2.40)])
+            self.assertEqual(odds, 2.02)
+            self.assertEqual(len(drop), 1)
+        finally:
+            os.environ.pop("ODDS_MAX_PRICE_RATIO", None)
+
+    def test_two_books_are_not_enough_to_call_an_outlier(self):
+        # Sans consensus, on ne peut pas dire lequel des deux ment.
+        odds, _b, drop = O.best_playable([("a", 2.00), ("b", 9.00)])
+        self.assertEqual(odds, 9.00)
+        self.assertEqual(drop, [])
+
+    def test_everything_is_never_thrown_away(self):
+        keep, drop = O.playable_prices([("a", 2.0), ("b", 2.0), ("c", 2.0)])
+        self.assertEqual(len(keep), 3)
+        self.assertEqual(drop, [])
+        self.assertEqual(O.best_playable([])[0], 0.0)
+
+    def test_props_aggregation_uses_the_filter_too(self):
+        agg = O.summarize_two_way([
+            {"book": "draftkings", "over_odds": 1.95, "under_odds": 1.85},
+            {"book": "fanduel", "over_odds": 2.00, "under_odds": 1.80},
+            {"book": "pinnacle", "over_odds": 1.98, "under_odds": 1.92},
+            {"book": "un_echange", "over_odds": 12.0, "under_odds": 1.02},
+        ])
+        self.assertEqual(agg["best_over_odds"], 2.00)
+        self.assertEqual([r["book"] for r in agg["rejected"]], ["un_echange"])
+        # La baseline ne doit pas non plus etre calculee sur le prix rejete.
+        self.assertEqual(agg["baseline_source"], O.PINNACLE)
+        self.assertEqual(agg["n_books"], 3)
+
+
+class TestMeasuredCost(unittest.TestCase):
+    """
+    Le cout doit venir de l'en-tete x-requests-remaining, pas du tarif publie.
+    Mesure sur le compte du projet: une execution estimee a 568 credits en avait
+    coute environ 52. Un garde-fou dix fois trop prudent coupe les props alors
+    qu'il reste du quota.
+    """
+
+    def setUp(self):
+        O.reset_client()
+        os.environ["ODDS_USAGE_PATH"] = os.path.join(
+            tempfile.mkdtemp(prefix="odds-usage"), "u.json")
+
+    def tearDown(self):
+        O.reset_client()
+        os.environ.pop("ODDS_USAGE_PATH", None)
+
+    def test_factor_is_neutral_before_any_measurement(self):
+        c = O.get_client("cle")
+        self.assertEqual(c.cost_factor(), 1.0)
+        self.assertEqual(c.expected_cost(20), 20)
+
+    def test_factor_learns_that_calls_are_cheaper_than_advertised(self):
+        c = O.get_client("cle")
+        c.est_spent, c.real_spent = 200, 20      # dix fois moins cher
+        self.assertAlmostEqual(c.cost_factor(), 0.1)
+        self.assertAlmostEqual(c.expected_cost(20), 2.0)
+
+    def test_factor_never_makes_calls_look_more_expensive(self):
+        # S'il coute plus cher que prevu, on garde l'estimation prudente
+        # plutot que d'inventer un depassement.
+        c = O.get_client("cle")
+        c.est_spent, c.real_spent = 10, 90
+        self.assertEqual(c.cost_factor(), 1.0)
+
+    def test_factor_is_floored(self):
+        c = O.get_client("cle")
+        c.est_spent, c.real_spent = 10000, 1
+        self.assertGreaterEqual(c.cost_factor(), 0.02)
+
+    def test_pace_uses_the_corrected_cost(self):
+        # Budget 100. A 20 credits estimes par appel, 5 appels. Une fois mesure
+        # que l'appel coute en fait un dixieme, il en rentre bien davantage.
+        c = O.get_client("cle")
+        c.remaining = 100000
+        c._budget = 100
+        self.assertTrue(c.can_spend_props(20))
+        c.est_spent, c.real_spent = 100, 10
+        for _ in range(20):
+            self.assertTrue(c.can_spend_props(20))
+            c.note_props(20)
+        self.assertAlmostEqual(c.prop_credits, 40.0)   # 20 appels x 2 credits
+
+
 class TestSpendingPace(unittest.TestCase):
     """
     Le rythme est ce qui empeche un cron horaire d'epuiser un quota MENSUEL.
@@ -203,21 +318,25 @@ class TestSpendingPace(unittest.TestCase):
         c.remaining = 12000
         self.assertEqual(c.day_budget(), first)
 
-    def test_small_plan_spends_nothing_on_props(self):
-        # Sur un petit palier le budget du jour vaut moins qu'un seul appel
-        # props (10 a 20 credits): refuser est le bon comportement. L'ancienne
-        # exception "premier appel" laissait passer 20 credits par execution
-        # horaire, soit ~14 000 par mois.
-        #
-        # On teste la propriete, pas un nombre fige: le budget depend du nombre
-        # de jours restants dans le mois, donc une valeur en dur casse le
-        # lendemain (460/29 = 15 le 2 du mois, 460/28 = 16 le 3).
+    def test_small_plan_budget_is_computed_from_the_calendar(self):
+        # Le budget du jour depend des jours restants dans le mois: 460
+        # utilisables donnent 15 credits le 2 janvier (30 jours restants) et
+        # 460 le 31 (un seul jour restant, on depense ce qui reste). On fournit
+        # donc une date, sinon le test change de resultat chaque jour — c'est
+        # ce qui l'a fait casser deux fois.
+        from datetime import date
+        self.assertEqual(O.daily_budget(500, date(2026, 1, 2)), 15)
+        self.assertEqual(O.daily_budget(500, date(2026, 1, 31)), 460)
+
+    def test_a_budget_smaller_than_one_call_refuses_everything(self):
+        # Refuser est le bon comportement: l'ancienne exception "premier appel"
+        # laissait passer 20 credits par execution horaire, soit ~14 000 par
+        # mois sur un quota de 500.
         c = O.get_client("cle")
         c.remaining = 500
-        budget = c.day_budget()
-        self.assertEqual(budget, O.daily_budget(500))
-        self.assertLess(budget, 20)
+        c._budget = 15          # budget du jour fige, independant du calendrier
         self.assertFalse(c.can_spend_props(20))
+        self.assertTrue(c.can_spend_props(10))
 
     def test_spending_of_earlier_runs_counts_against_today(self):
         # Une execution precedente a deja depense 600 credits aujourd'hui:

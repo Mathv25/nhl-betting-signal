@@ -30,6 +30,8 @@ Reglages par variables d'environnement:
   ODDS_MAX_PROP_EVENTS    plafond dur d'evenements props par execution (defaut 15)
   ODDS_USAGE_PATH         fichier de suivi quotidien (defaut docs/odds_usage.json)
   ODDS_PROPS_ENABLED      "0" pour couper les appels props (defaut actif)
+  ODDS_MAX_PRICE_RATIO    ecart maximal a la mediane des books (defaut 1.25):
+                          au-dela, le prix est juge injouable et ignore
   ODDS_PROPS_HOURS_ET     fenetre horaire ET ou les props sont payees
                           (defaut "10-23": pas de depense la nuit)
 """
@@ -80,6 +82,17 @@ def quota_reserve() -> int:
 def max_prop_events() -> int:
     """Plafond DUR, indepedant du quota. 15 = tous les matchs d'un slate MLB."""
     return _env_int("ODDS_MAX_PROP_EVENTS", 15)
+
+
+def max_price_ratio() -> float:
+    """
+    Ecart maximal tolere entre une cote et la MEDIANE des books, en ratio.
+    1.25 = on ignore un prix superieur de plus de 25% a la mediane.
+    """
+    try:
+        return float(os.environ.get("ODDS_MAX_PRICE_RATIO", "") or 1.25)
+    except ValueError:
+        return 1.25
 
 
 def props_enabled() -> bool:
@@ -243,6 +256,38 @@ def ev_pct(our_prob_pct: float, odds: float) -> float:
     return round((p * o - 1.0) * 100, 2)
 
 
+def playable_prices(prices: list) -> tuple:
+    """
+    Separe une liste de cotes en (jouables, rejetees) selon leur ecart a la
+    mediane. `prices` = [(book, cote), ...].
+
+    Le meme raisonnement que dans summarize_two_way, extrait pour servir aussi
+    aux marches de match: prendre le maximum brut revient a suivre le book le
+    plus aberrant. Sous trois books il n'y a pas de consensus a opposer a
+    l'outlier, on ne filtre pas.
+    """
+    vals = [(b, float(o)) for b, o in prices if o and float(o) > 1.0]
+    if len(vals) < 3:
+        return vals, []
+    ordered = sorted(o for _, o in vals)
+    mid     = len(ordered) // 2
+    median  = (ordered[mid] if len(ordered) % 2
+               else (ordered[mid - 1] + ordered[mid]) / 2)
+    cap     = median * max_price_ratio()
+    keep    = [(b, o) for b, o in vals if o <= cap]
+    drop    = [(b, o) for b, o in vals if o > cap]
+    return (keep or vals), (drop if keep else [])
+
+
+def best_playable(prices: list) -> tuple:
+    """Meilleure cote jouable et son book: (cote, book, rejetees)."""
+    keep, drop = playable_prices(prices)
+    if not keep:
+        return 0.0, "", drop
+    book, odds = max(keep, key=lambda x: x[1])
+    return odds, book, drop
+
+
 # ── Client ───────────────────────────────────────────────────────────────────
 
 class OddsAPIClient:
@@ -265,6 +310,8 @@ class OddsAPIClient:
         self.quota_out    = False
         self._memo: dict  = {}
         self.prop_credits = 0      # credits depenses en props cette execution
+        self.est_spent    = 0      # somme des couts ESTIMES, pour comparaison
+        self.real_spent   = 0      # somme des couts REELS lus dans les en-tetes
         self._budget      = "?"    # "?" = pas encore calcule (voir day_budget)
         self._usage       = None   # etat du jour lu dans docs/odds_usage.json
 
@@ -331,6 +378,7 @@ class OddsAPIClient:
 
         p = dict(params or {})
         p["apiKey"] = self.api_key
+        before = self.remaining
         try:
             r = requests.get(f"{BASE_URL}/{endpoint}", params=p, timeout=15)
         except Exception as e:
@@ -338,7 +386,6 @@ class OddsAPIClient:
             return None
 
         self.calls += 1
-        self.credits_spent += cost
         rem = r.headers.get("x-requests-remaining")
         use = r.headers.get("x-requests-used")
         if rem is not None:
@@ -351,6 +398,21 @@ class OddsAPIClient:
                 self.used = int(float(use))
             except ValueError:
                 pass
+
+        # Cout REEL, lu dans l'en-tete, plutot qu'estime d'apres le tarif
+        # documente. Mesure sur le compte du projet: un slate estime a 568
+        # credits en avait coute ~52. Le tarif publie (10 credits par marche et
+        # par region sur l'endpoint evenement) ne correspond pas a ce que le
+        # compte est facture, et un garde-fou dix fois trop prudent coupe les
+        # props pour rien.
+        real = None
+        if before is not None and self.remaining is not None:
+            delta = before - self.remaining
+            if 0 <= delta <= 1000:
+                real = delta
+        self.est_spent     += cost
+        self.real_spent    += real if real is not None else cost
+        self.credits_spent += real if real is not None else cost
 
         if r.status_code == 200:
             try:
@@ -410,6 +472,21 @@ class OddsAPIClient:
             self._budget = daily_budget(self.remaining)
         return self._budget
 
+    def cost_factor(self) -> float:
+        """
+        Rapport entre le cout reel observe et le cout estime, appris pendant
+        l'execution. 1.0 tant qu'on n'a rien mesure. Sert a corriger les
+        estimations en vol: le tarif documente s'est revele dix fois trop
+        eleve, ce qui rendait le garde-fou inutilement severe.
+        """
+        if self.est_spent <= 0 or self.real_spent <= 0:
+            return 1.0
+        return max(min(self.real_spent / self.est_spent, 1.0), 0.02)
+
+    def expected_cost(self, cost: int) -> float:
+        """Cout estime, corrige par ce qu'on a reellement observe."""
+        return cost * self.cost_factor()
+
     def can_spend_props(self, cost: int) -> bool:
         """
         Autorise un appel props si la JOURNEE a encore du budget. Toutes les
@@ -424,10 +501,11 @@ class OddsAPIClient:
         budget = self.day_budget()
         if budget is None:
             return True
-        return (self.spent_today() + self.prop_credits + cost) <= budget
+        return (self.spent_today() + self.prop_credits
+                + self.expected_cost(cost)) <= budget
 
     def note_props(self, cost: int) -> None:
-        self.prop_credits += cost
+        self.prop_credits += self.expected_cost(cost)
 
     def persist_usage(self) -> None:
         """A appeler en fin d'execution: fige la journee pour les crons suivants."""
@@ -459,6 +537,8 @@ class OddsAPIClient:
             "refused":       self.refused,
             "day_budget":    self.day_budget(),
             "spent_today":   self.spent_today(),
+            "est_spent":     self.est_spent,
+            "cost_factor":   round(self.cost_factor(), 3),
             "prop_credits":  self.prop_credits,
             "regions":       regions(),
             "cache_ttl_s":   cache_ttl(),
@@ -473,7 +553,8 @@ class OddsAPIClient:
               f"{s['calls']} appel(s) ~{s['credits_spent']} credits | "
               f"{s['cache_hits']} depuis le cache | {s['refused']} refuse(s) | "
               f"regions {s['regions']} | jour: {s['spent_today']}/"
-              f"{'illimite' if budget is None else budget} credits")
+              f"{'illimite' if budget is None else budget} credits | "
+              f"cout reel/estime {s['cost_factor']}")
 
 
 _client: OddsAPIClient = None
@@ -531,19 +612,45 @@ def summarize_two_way(books: list) -> dict:
 
     if not entries:
         return {
-            "books": [], "best_over_odds": 0, "best_over_book": "",
+            "books": [], "rejected": [], "best_over_odds": 0, "best_over_book": "",
             "best_under_odds": 0, "baseline_prob": 0, "baseline_source": "aucune",
             "n_books": 0, "n_novig": 0,
         }
 
-    best = max(entries, key=lambda e: e["over_odds"])
-    best_under = max((e["under_odds"] for e in entries if e["under_odds"]), default=0)
+    # ── Ecarter les prix injouables ─────────────────────────────────────────
+    # Prendre le maximum brut revient a suivre le book le plus aberrant: un
+    # carnet d'echange mince ou une cote perimee sort des moneylines MLB a 51.0
+    # (2% implicite). Mesure sur l'historique: 37 paris sur 273 pris a plus de
+    # 4.50, jusqu'a 51.0 — des prix ou personne n'aurait pu miser, qui
+    # decidaient pourtant des tiers et faussaient le ROI mesure.
+    #
+    # On compare a la MEDIANE des books plutot qu'a la moyenne: un seul prix
+    # delirant deplace la moyenne, pas la mediane. En dessous de trois books il
+    # n'y a pas de consensus a opposer a l'outlier, on garde tout.
+    playable, rejected = entries, []
+    if len(entries) >= 3:
+        prices = sorted(e["over_odds"] for e in entries)
+        mid    = len(prices) // 2
+        median = (prices[mid] if len(prices) % 2
+                  else (prices[mid - 1] + prices[mid]) / 2)
+        cap    = median * max_price_ratio()
+        playable = [e for e in entries if e["over_odds"] <= cap]
+        rejected = [e for e in entries if e["over_odds"] > cap]
+        if rejected and playable:
+            print(f"  [Odds API] prix ignore(s) au-dela de {cap:.2f} "
+                  f"(mediane {median:.2f} x {max_price_ratio()}): "
+                  + ", ".join(f"{e['book']} {e['over_odds']:.2f}" for e in rejected[:3]))
+        if not playable:      # jamais tout jeter
+            playable = entries
 
-    pin = next((e for e in entries if e["book"] == PINNACLE and e["over_novig"] is not None), None)
+    best = max(playable, key=lambda e: e["over_odds"])
+    best_under = max((e["under_odds"] for e in playable if e["under_odds"]), default=0)
+
+    pin = next((e for e in playable if e["book"] == PINNACLE and e["over_novig"] is not None), None)
     if pin is not None:
         baseline, source = pin["over_novig"], PINNACLE
     else:
-        novigs = sorted(e["over_novig"] for e in entries if e["over_novig"] is not None)
+        novigs = sorted(e["over_novig"] for e in playable if e["over_novig"] is not None)
         if novigs:
             mid = len(novigs) // 2
             baseline = (novigs[mid] if len(novigs) % 2
@@ -555,12 +662,13 @@ def summarize_two_way(books: list) -> dict:
             baseline, source = best["over_implied"], "brute (vig incluse)"
 
     return {
-        "books":            sorted(entries, key=lambda e: -e["over_odds"]),
+        "books":            sorted(playable, key=lambda e: -e["over_odds"]),
+        "rejected":         [{"book": e["book"], "odds": e["over_odds"]} for e in rejected],
         "best_over_odds":   round(best["over_odds"], 3),
         "best_over_book":   best["book"],
         "best_under_odds":  round(best_under, 3) if best_under else 0,
         "baseline_prob":    round(baseline, 2),
         "baseline_source":  source,
-        "n_books":          len(entries),
-        "n_novig":          sum(1 for e in entries if e["over_novig"] is not None),
+        "n_books":          len(playable),
+        "n_novig":          sum(1 for e in playable if e["over_novig"] is not None),
     }

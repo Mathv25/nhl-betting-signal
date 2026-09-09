@@ -120,6 +120,7 @@ class MLBOddsFetcher:
                     continue
 
             ml, spreads = {}, {}
+            by_team, by_spread = {}, {}   # cotes par book, avant filtrage
             ml_books = {}   # {book: {equipe: cote}} — necessaire pour devigger
                             # DANS un book: le no-vig calcule sur la meilleure
                             # cote de chaque cote melange deux marges et tord la
@@ -134,19 +135,30 @@ class MLBOddsFetcher:
                         if not team or not price:
                             continue
                         if kind == "h2h":
-                            # On garde la MEILLEURE cote disponible: la valeur
-                            # se trouve chez le book le plus généreux.
-                            if price > ml.get(team, 0):
-                                ml[team] = price
                             if book:
                                 ml_books.setdefault(book, {})[team] = price
+                            by_team.setdefault(team, []).append((book, price))
                         elif kind == "spreads":
                             point = oc.get("point")
                             if point is None:
                                 continue
-                            cur = spreads.setdefault(team, {})
-                            if price > cur.get(point, 0):
-                                cur[point] = price
+                            by_spread.setdefault((team, point), []).append((book, price))
+
+            # La MEILLEURE cote, mais parmi les prix jouables seulement. Prendre
+            # le maximum brut revient a suivre le book le plus aberrant: un
+            # carnet d'echange mince sort des moneylines MLB a 51.0, soit 2%
+            # implicite. Ces prix n'existaient pas, et ils decidaient des tiers.
+            for team, prices in by_team.items():
+                odds, _book, drop = odds_api.best_playable(prices)
+                if odds:
+                    ml[team] = odds
+                if drop:
+                    print(f"  [Odds API] {team}: prix ignore(s) "
+                          + ", ".join(f"{b} {o:.2f}" for b, o in drop[:3]))
+            for (team, point), prices in by_spread.items():
+                odds, _book, _drop = odds_api.best_playable(prices)
+                if odds:
+                    spreads.setdefault(team, {})[point] = odds
 
             if not ml:
                 continue

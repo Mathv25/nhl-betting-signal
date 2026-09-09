@@ -3,9 +3,17 @@ CLV Capture — Closing Line Value
 Capte les cotes "de fermeture" (juste avant les matchs) pour chaque bet en attente.
 Stocke closing_implied dans results.json pour permettre le calcul du CLV.
 
-CLV = opening_implied - closing_implied
-  > 0 : le marché a bougé dans notre sens (sharps d'accord avec nous) — vrai edge
-  < 0 : le marché nous a fadés — notre modèle était wrong
+CLV = closing_implied - opening_implied
+  > 0 : on a pris un MEILLEUR prix que la fermeture — le marché est venu vers
+        nous, les sharps ont confirmé. C'est le vrai edge.
+  < 0 : le marché nous a fadés.
+
+Attention au sens de la soustraction. La formule etait ecrite a l'envers
+(opening - closing) avec un commentaire qui annoncait la bonne intention: une
+probabilite implicite de fermeture PLUS HAUTE que celle de la prise veut dire
+que le prix s'est raccourci, donc qu'on a pris plus cher que la fermeture —
+c'est bon, et l'ancienne formule le comptait comme negatif. Verifie sur 68
+paris: le signe stocke etait contraire au rapport des cotes dans 68 cas sur 68.
 
 Se lance via GitHub Actions à 23h00 UTC (7pm ET) avant les matchs.
 """
@@ -343,7 +351,9 @@ def capture_clv(api_key: str, target_date: str = None):
 
         # Soustraire une fermeture de la meme base que l'ouverture.
         matched = closing["novig"] if (basis == "novig" and closing["novig"]) else closing["brute"]
-        clv = round(opening - matched, 2)
+        # fermeture - ouverture: positif = le prix s'est raccourci depuis notre
+        # prise, donc on a pris plus cher que la fermeture.
+        clv = round(matched - opening, 2)
         bet["closing_implied"] = closing["brute"]
         bet["closing_novig"]   = closing["novig"]
         bet["closing_odds"]    = closing["cote"]
@@ -352,7 +362,7 @@ def capture_clv(api_key: str, target_date: str = None):
         bet["clv_basis"]       = "novig" if matched == closing["novig"] else "brute"
         captured += 1
         direction = "✅" if clv >= 0 else "❌"
-        print(f"  {direction} {player}: ouverture={opening:.1f}% → fermeture={matched:.1f}% "
+        print(f"  {direction} {player}: prise={opening:.1f}% → fermeture={matched:.1f}% "
               f"({bet['clv_basis']}, {closing['book']} @ {closing['cote']:.2f}) | CLV={clv:+.1f}%")
 
     print(f"\n{captured}/{len(pending)} bets avec CLV capte "

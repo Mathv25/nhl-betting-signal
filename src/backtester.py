@@ -799,6 +799,38 @@ def save_results(data: dict):
 
 # ── Sommaire ───────────────────────────────────────────────────────────────────
 
+# Au-dela de cette cote, un moneyline ou un run line MLB n'a pas existe: le
+# prix vient d'un carnet d'echange mince ou d'une cotation perimee. L'historique
+# en contient jusqu'a 51.0, soit 2% implicite, la ou le pire ecart reel d'un
+# match MLB tourne autour de 6.00. Ces paris restent dans le fichier, marques,
+# mais avec une mise nulle: les compter reviendrait a mesurer un profit sur des
+# prix ou personne n'aurait pu miser.
+MAX_PLAUSIBLE_TEAM_ODDS = 8.0
+
+
+def _stake_of(bet: dict) -> float:
+    """
+    Mise d'un pari, en unites.
+
+    `stake` explicite s'il existe (les paris d'equipe sont a plat: le modele
+    moneyline n'a pas d'historique de calibration, donc pas de Kelly credible).
+    Sinon la fraction de Kelly, plafonnee a 3 unites.
+
+    Les paris d'equipe portaient `kelly_fraction: 0`, donc une mise nulle: 273
+    paris notes ne pesaient rien dans le profit affiche, et la re-notation de
+    l'historique n'avait pas bouge le chiffre d'un centieme.
+    """
+    if bet.get("price_suspect"):
+        return 0.0
+    stake = bet.get("stake")
+    if stake is not None:
+        try:
+            return min(float(stake), 3.0)
+        except (TypeError, ValueError):
+            return 0.0
+    return min(bet.get("kelly_fraction", 1.0) or 0.0, 3.0)
+
+
 def compute_summary(bets: list) -> dict:
     resolved = [b for b in bets if b.get("result") in ("W", "L")]
     if not resolved:
@@ -813,7 +845,7 @@ def compute_summary(bets: list) -> dict:
     staked = 0.0
 
     for b in resolved:
-        stake = min(b.get("kelly_fraction", 1.0), 3.0)
+        stake = _stake_of(b)
         odds  = b.get("b365_odds", 2.0)
         staked += stake
         profit += stake * (odds - 1) if b["result"] == "W" else -stake
@@ -828,8 +860,8 @@ def compute_summary(bets: list) -> dict:
             continue
         sw = sum(1 for b in subset if b["result"] == "W")
         sp = sum(
-            (min(b.get("kelly_fraction", 1), 3) * (b.get("b365_odds", 2) - 1)
-             if b["result"] == "W" else -min(b.get("kelly_fraction", 1), 3))
+            (_stake_of(b) * (b.get("b365_odds", 2) - 1)
+             if b["result"] == "W" else -_stake_of(b))
             for b in subset
         )
         by_edge[label] = {"n": len(subset), "wins": sw, "profit": round(sp, 2)}
@@ -1442,6 +1474,12 @@ def save_pending_from_signal():
                 # 100/cote inclut la vig: base brute.
                 "opening_basis": "brute",
                 "kelly_fraction": 0,
+                # Mise a plat: le modele moneyline n'a pas d'historique de
+                # calibration, un Kelly calcule sur ses probabilites serait une
+                # confiance empruntee. Sans ce champ la mise valait 0 et le
+                # pari n'apparaissait nulle part dans le profit.
+                "stake": (0.0 if (bet.get("cote") or 0) > MAX_PLAUSIBLE_TEAM_ODDS else 1.0),
+                "price_suspect": (bet.get("cote") or 0) > MAX_PLAUSIBLE_TEAM_ODDS,
                 "tier": bet.get("tier", ""),
                 "facteurs_nets": bet.get("facteurs_nets", 0),
                 "result": "?",
