@@ -958,107 +958,224 @@ class ReportGenerator:
             "</div>"
         )
 
+    # Echelle des barres d'ecart: on coupe a +/-10%. Au-dela, la barre serait
+    # illisible et la valeur exacte est de toute facon ecrite a cote.
+    NFL_EDGE_SCALE = 10.0
+    # Au-dela, les variantes de spread d'un meme match se repetent sans rien
+    # apprendre et repoussent les matchs suivants hors de l'ecran.
+    NFL_MAX_ROWS = 8
+
+    def _nfl_bar(self, edge: float, is_signal: bool, threshold: float) -> str:
+        """
+        Barre divergente centree sur zero: la DIRECTION porte le signe, la
+        couleur ne fait que confirmer. Un lecteur daltonien lit le sens sans
+        la couleur, ce qui est la raison d'etre de cette forme.
+
+        Un trait marque le seuil: sans lui, "+2.1%" ne dit pas au lecteur s'il
+        est proche ou loin de declencher un signal.
+        """
+        e   = max(min(edge, self.NFL_EDGE_SCALE), -self.NFL_EDGE_SCALE)
+        half = 50.0 / self.NFL_EDGE_SCALE
+        if e >= 0:
+            left, width, radius = 50.0, e * half, "0 3px 3px 0"
+        else:
+            left, width, radius = 50.0 + e * half, -e * half, "3px 0 0 3px"
+        colour = "var(--nfl-good)" if is_signal else "var(--nfl-quiet-bar)"
+        thr = 50.0 + min(threshold, self.NFL_EDGE_SCALE) * half
+        return (
+            "<span class=\"nfl-track\">"
+            "<span class=\"nfl-zero\"></span>"
+            "<span class=\"nfl-thr\" style=\"left:" + f"{thr:.1f}" + "%\"></span>"
+            "<span class=\"nfl-fill\" style=\"left:" + f"{left:.1f}" + "%;width:"
+            + f"{max(width, 0.6):.1f}" + "%;background:" + colour
+            + ";border-radius:" + radius + "\"></span>"
+            "</span>")
+
+    def _nfl_prob_bar(self, g: dict) -> str:
+        """
+        Repartition de la probabilite no-vig entre les deux equipes: une barre
+        100% a deux segments, etiquetes directement. La forme dit d'un coup
+        d'oeil qui est favori et de combien — ce qu'une colonne de pourcentages
+        oblige a reconstituer mentalement.
+        """
+        ml = next((m for m in (g.get("markets") or []) if m.get("market") == "nfl_ml"), None)
+        if not ml:
+            return ""
+        home, away = g.get("home_team", ""), g.get("away_team", "")
+        p_home, p_away = ml.get("prob_a", 0), ml.get("prob_b", 0)
+        hn = home.split()[-1] if home else "?"
+        an = away.split()[-1] if away else "?"
+        titre = (f"{an} {p_away:.1f}% / {hn} {p_home:.1f}% — probabilites sans la "
+                 f"marge, reference {ml.get('source', '?')} sur {ml.get('n_books', 0)} books")
+        return (
+            "<div class=\"nfl-prob\" title=\"" + titre + "\">"
+            "<div class=\"nfl-prob-bar\">"
+            "<span style=\"width:" + f"{p_away:.1f}" + "%;background:var(--nfl-away)\"></span>"
+            "<span style=\"width:" + f"{p_home:.1f}" + "%;background:var(--nfl-home)\"></span>"
+            "</div>"
+            "<div class=\"nfl-prob-lab\">"
+            "<span><i style=\"background:var(--nfl-away)\"></i>" + an + " <b>"
+            + f"{p_away:.0f}" + "%</b></span>"
+            "<span class=\"nfl-prob-src\">" + str(ml.get("source", ""))[:22]
+            + " &middot; " + str(ml.get("n_books", 0)) + " books</span>"
+            "<span><b>" + f"{p_home:.0f}" + "%</b> " + hn
+            + "<i style=\"background:var(--nfl-home)\"></i></span>"
+            "</div></div>")
+
     def _nfl_section(self, state) -> str:
         """
         Onglet NFL.
 
         TOUS les matchs de la semaine sont affiches, pas seulement ceux qui
-        produisent un signal: on veut pouvoir regarder la lecture du module sur
-        le match de ce soir meme quand il n'y a pas d'ecart a exploiter. Une
-        premiere version ne montrait que les signaux, et le match du soir
-        n'apparaissait donc nulle part — la lecture "pas d'edge ici" est une
-        information, l'absence de ligne n'en est pas une.
+        produisent un signal: la lecture "pas d'ecart ici" est une information,
+        une ligne absente n'en est pas une.
 
-        Le detail complet (tous les marches) est deplie pour les matchs qui ont
-        un signal et pour ceux qui commencent dans moins de 24h; les autres se
-        resument a leur moneyline, sinon 16 matchs x 10 issues noient la page.
+        Deux formes portent l'essentiel. Une barre 100% a deux segments donne
+        la probabilite de chaque equipe sans la marge. Une barre divergente
+        centree sur zero, avec un trait au seuil, situe chaque prix par rapport
+        au prix juste — le signe se lit a la direction, pas a la couleur.
         """
         st = state or {}
         games = st.get("games") or []
         n_sig = st.get("n_signals", 0)
+        thr   = float(st.get("min_edge", 3) or 3)
 
-        head = ("<div class=\"sec\"><div class=\"sec-h\">"
-                "<h2>🏈 NFL — ecarts entre books</h2>"
-                "<span class=\"sec-sub\">Sans modele maison: un signal est emis "
+        # `.sec` est un LIBELLE d'une ligne dans ce dashboard (flex, majuscules,
+        # trait de separation), pas un conteneur: l'englober autour de la
+        # section mettait tout le contenu en colonnes cote a cote.
+        head = ("<div class=\"sec\">🏈 NFL — ecarts entre books</div>"
+                "<div class=\"nfl-wrap\">"
+                "<p class=\"nfl-intro\">Sans modele maison: un signal est emis "
                 "quand la meilleure cote jouable bat la probabilite no-vig de "
-                "reference d'au moins " + str(st.get("min_edge", 3)) + "%, sur au "
-                "moins " + str(st.get("min_books", 4)) + " books. Les signaux sont "
-                "suivis en papier, jamais mises automatiquement.</span></div>")
+                "reference d'au moins <b>" + f"{thr:g}" + "%</b>, sur au moins "
+                + str(st.get("min_books", 4)) + " books. Suivis en papier, jamais "
+                "mises automatiquement.</p>")
 
         if not st or not games:
             return (head + "<div class=\"perf-empty\">"
                     "<div class=\"perf-empty-icon\">🏈</div>"
                     "<div class=\"perf-empty-title\">Aucun match cette semaine</div>"
-                    "<div class=\"perf-empty-sub\">Les cotes sont relevees le mardi, "
-                    "le vendredi et le dimanche matin.</div></div></div>")
+                    "<div class=\"perf-empty-sub\">Cotes relevees le mardi, le vendredi "
+                    "et le dimanche matin.</div></div></div>")
 
         rows = [head]
         if st.get("stale"):
             rows.append("<div class=\"nfl-stale\">Cotes relevees plus tot — "
-                        + str(st.get("reason", "")) + ". Les prix ont pu bouger "
-                        "depuis.</div>")
+                        + str(st.get("reason", "")) + ". Les prix ont pu bouger.</div>")
 
-        if n_sig:
-            rows.append("<div class=\"nfl-sum\"><b>" + str(n_sig) + "</b> signal(aux) sur "
-                        + str(len(games)) + " match(s) &middot; semaine du "
-                        + str(st.get("week", "")) + "</div>")
-        else:
-            rows.append("<div class=\"nfl-sum\"><b>Aucun signal cette semaine</b> — "
-                        + str(len(games)) + " match(s) analyse(s), aucun ecart au-dessus "
-                        "du seuil. Un marche aligne ne produit pas de pari: c'est un "
-                        "resultat, pas une panne.</div>")
+        rows.append(
+            "<div class=\"nfl-hero\">"
+            "<div class=\"nfl-hero-n\" style=\"color:"
+            + ("var(--nfl-good)" if n_sig else "var(--m)") + "\">" + str(n_sig) + "</div>"
+            "<div class=\"nfl-hero-t\"><b>" + ("signaux" if n_sig > 1 else "signal")
+            + "</b> sur " + str(len(games)) + (" matchs analyses" if len(games) > 1
+                                               else " match analyse")
+            + ("" if n_sig else " — le marche est aligne, c'est un resultat et non "
+               "une panne") + "<br><span class=\"nfl-hero-s\">semaine du "
+            + str(st.get("week", "")) + " &middot; seuil " + f"{thr:g}" + "%</span></div>"
+            "</div>")
 
-        # Les matchs les plus proches d'abord: c'est sur eux qu'on peut agir.
+        # Legende: la couleur ne doit jamais porter seule une information.
+        rows.append(
+            "<div class=\"nfl-legend\">"
+            "<span><i class=\"nfl-key\" style=\"background:var(--nfl-good)\"></i>"
+            "★ signal (au-dessus du seuil)</span>"
+            "<span><i class=\"nfl-key\" style=\"background:var(--nfl-quiet-bar)\"></i>"
+            "sous le seuil</span>"
+            "<span class=\"nfl-legend-ax\">barre centree sur 0 &middot; trait = seuil "
+            + f"{thr:g}" + "% &middot; echelle &plusmn;"
+            + f"{self.NFL_EDGE_SCALE:g}" + "%</span>"
+            "</div>")
+
+        jour_vu = None
         for g in sorted(games, key=lambda x: x.get("commence") or ""):
             sigs   = g.get("signals") or []
             prices = g.get("prices") or {}
             labels = {s["selection"] for s in sigs}
             detail = bool(sigs) or self._nfl_imminent(g.get("commence"))
 
+            jour = self._nfl_day(g.get("commence"))
+            if jour != jour_vu:
+                rows.append("<div class=\"nfl-day\">" + jour + "</div>")
+                jour_vu = jour
+
             rows.append("<div class=\"nfl-game" + ("" if sigs else " nfl-quiet") + "\">")
             rows.append("<div class=\"nfl-game-h\">"
                         "<span class=\"nfl-teams\">" + str(g.get("away_team", ""))
-                        + " @ " + str(g.get("home_team", "")) + "</span>"
+                        + " <span class=\"nfl-at\">@</span> " + str(g.get("home_team", ""))
+                        + "</span>"
                         "<span class=\"nfl-kick\" data-kick=\""
                         + str(g.get("commence", "")) + "\">—</span></div>")
+            rows.append(self._nfl_prob_bar(g))
 
             if not prices:
-                rows.append("<div class=\"nfl-none\">aucune cote exploitable</div>")
-                rows.append("</div>")
+                rows.append("<div class=\"nfl-none\">aucune cote exploitable</div></div>")
                 continue
 
             shown = ([(lab, px) for lab, px in prices.items()] if detail
                      else [(lab, px) for lab, px in prices.items()
                            if px.get("market") == "nfl_ml"])
             shown.sort(key=lambda kv: -kv[1].get("edge_pct", 0))
+            # Un match cote sur cinq lignes de spread produit quinze lignes
+            # presque identiques, qui noient les deux qui comptent. On garde
+            # les meilleures et on annonce le reste plutot que de le cacher.
+            reste = 0
+            if len(shown) > self.NFL_MAX_ROWS:
+                garde = [kv for kv in shown if kv[0] in labels]
+                autres = [kv for kv in shown if kv[0] not in labels]
+                reste = max(len(shown) - self.NFL_MAX_ROWS, 0)
+                shown = (garde + autres)[:self.NFL_MAX_ROWS]
+                shown.sort(key=lambda kv: -kv[1].get("edge_pct", 0))
 
             for lab, px in shown:
                 is_sig = lab in labels
                 edge   = px.get("edge_pct", 0)
-                col    = "#0F6E56" if is_sig else "var(--m)"
+                fair   = (100 / px["prob"]) if px.get("prob") else 0
+                titre  = (f"{lab} — meilleur prix {px.get('odds', 0):.2f} chez "
+                          f"{px.get('book', '')}; prix juste {fair:.2f} "
+                          f"({px.get('prob', 0):.1f}%); ecart {edge:+.1f}%")
                 rows.append(
-                    "<div class=\"nfl-sig" + ("" if is_sig else " nfl-noedge") + "\">"
-                    "<span class=\"nfl-sel\">" + ("★ " if is_sig else "") + str(lab) + "</span>"
-                    "<span class=\"nfl-mk\">" + str(px.get("market", "")).replace("nfl_", "") + "</span>"
-                    "<span class=\"nfl-odds\">" + f"{px.get('odds', 0):.2f}"
-                    + " <b>" + str(px.get("book", ""))[:12] + "</b></span>"
-                    "<span class=\"nfl-fair\">juste "
-                    + (f"{100 / px['prob']:.2f}" if px.get("prob") else "—")
-                    + " &middot; " + f"{px.get('prob', 0):.1f}%</span>"
-                    "<span class=\"nfl-edge\" style=\"color:" + col + "\">"
-                    + ("+" if edge >= 0 else "") + f"{edge:.1f}" + "%</span>"
-                    "</div>")
+                    "<div class=\"nfl-row" + (" nfl-is-sig" if is_sig else "")
+                    + "\" title=\"" + titre + "\">"
+                    "<span class=\"nfl-sel\">" + ("<b>★</b> " if is_sig else "")
+                    + str(lab) + "</span>"
+                    "<span class=\"nfl-mk\">" + str(px.get("market", "")).replace("nfl_", "")
+                    + "</span>"
+                    "<span class=\"nfl-px\">" + f"{px.get('odds', 0):.2f}"
+                    + " <b>" + str(px.get("book", ""))[:11] + "</b></span>"
+                    "<span class=\"nfl-fair\">juste " + f"{fair:.2f}" + "</span>"
+                    + self._nfl_bar(edge, is_sig, thr)
+                    + "<span class=\"nfl-val\">" + ("+" if edge >= 0 else "")
+                    + f"{edge:.1f}" + "%</span></div>")
 
+            pied = []
             if not sigs:
                 best = max((p.get("edge_pct", 0) for p in prices.values()), default=0)
-                rows.append("<div class=\"nfl-none\">aucun ecart au-dessus du seuil "
-                            "(meilleur: " + ("+" if best >= 0 else "") + f"{best:.1f}"
-                            + "%)" + ("" if detail else " &middot; moneyline seulement")
-                            + "</div>")
+                pied.append("aucun ecart au-dessus du seuil (meilleur "
+                            + ("+" if best >= 0 else "") + f"{best:.1f}" + "%)")
+            if reste:
+                pied.append(str(reste) + " autre(s) ligne(s) moins favorable(s)")
+            if not detail:
+                pied.append("moneyline seulement")
+            if pied:
+                rows.append("<div class=\"nfl-none\">" + " &middot; ".join(pied) + "</div>")
             rows.append("</div>")
 
         rows.append("</div>")
         return "".join(rows)
+
+    @staticmethod
+    def _nfl_day(commence: str) -> str:
+        """Libelle du jour, pour grouper: 16 matchs a la file ne se lisent pas."""
+        jours = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+        mois  = ["janv.", "fevr.", "mars", "avril", "mai", "juin", "juil.",
+                 "aout", "sept.", "oct.", "nov.", "dec."]
+        try:
+            d = datetime.fromisoformat(commence.replace("Z", "+00:00")).astimezone(
+                pytz.timezone("America/Toronto"))
+        except (ValueError, AttributeError):
+            return "date inconnue"
+        return f"{jours[d.weekday()]} {d.day} {mois[d.month - 1]}"
 
     @staticmethod
     def _nfl_imminent(commence: str, hours: int = 24) -> bool:
@@ -2183,32 +2300,92 @@ class ReportGenerator:
             # ── General ───────────────────────────────────────────────────
             ".disc{font-size:11px;color:var(--m);margin-top:2rem;padding-top:1rem;border-top:1px solid var(--b);line-height:1.8}"
             ".upd{font-size:11px;color:var(--m);text-align:right;margin-top:.5rem}"
-            # NFL
+            # ── NFL ──────────────────────────────────────────────────────
+            # Palette validee par scripts/validate_palette.js contre les deux
+            # surfaces reelles du dashboard (#FFFFFF et #1A1D24): bleu, magenta
+            # et le vert de statut passent les cinq controles dans les deux
+            # modes. Le mode sombre a ses propres valeurs, ce n'est pas un
+            # basculement automatique — vert et orange y tombaient a un ecart
+            # de 1.4 en deuteranopie, donc indistinguables.
+            ":root{--nfl-home:#2a78d6;--nfl-away:#d55181;--nfl-good:#0ca30c;"
+            "--nfl-quiet-bar:#9aa0a6;--nfl-track:#f0efec}"
+            "@media(prefers-color-scheme:dark){:root{"
+            "--nfl-home:#3987e5;--nfl-away:#d55181;--nfl-good:#0ca30c;"
+            "--nfl-quiet-bar:#7c8085;--nfl-track:#383835}}"
+
+            ".nfl-wrap{font-size:13px;font-weight:400;color:var(--t);text-transform:none;"
+            "letter-spacing:normal}"
+            ".nfl-intro{font-size:12px;color:var(--m);line-height:1.5;margin:0 0 1rem}"
+            ".nfl-intro b{color:var(--t)}"
             ".nfl-stale{font-size:11px;color:#BA7517;background:#FEF6E7;border-radius:6px;"
             "padding:6px 10px;margin-bottom:.75rem}"
-            ".nfl-sum{font-size:12px;color:var(--m);margin-bottom:.75rem}"
-            ".nfl-game{border:1px solid var(--b);border-radius:10px;padding:10px 12px;"
-            "margin-bottom:.6rem}"
+            "@media(prefers-color-scheme:dark){.nfl-stale{background:rgba(186,117,23,.12)}}"
+
+            # Chiffre d'appel: le nombre de signaux est LA chose a retenir.
+            ".nfl-hero{display:flex;align-items:center;gap:14px;margin-bottom:.9rem}"
+            ".nfl-hero-n{font-size:44px;font-weight:800;line-height:1;"
+            "font-variant-numeric:tabular-nums}"
+            ".nfl-hero-t{font-size:13px;color:var(--m);line-height:1.45}"
+            ".nfl-hero-t b{color:var(--t)}"
+            ".nfl-hero-s{font-size:11px}"
+
+            ".nfl-legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;"
+            "font-size:10px;color:var(--m);margin-bottom:.85rem;padding-bottom:.6rem;"
+            "border-bottom:1px solid var(--b)}"
+            ".nfl-key{display:inline-block;width:12px;height:6px;border-radius:3px;"
+            "margin-right:5px;vertical-align:middle}"
+            ".nfl-legend-ax{margin-left:auto}"
+
+            ".nfl-day{font-size:10px;font-weight:700;text-transform:uppercase;"
+            "letter-spacing:.07em;color:var(--m);margin:1rem 0 .4rem}"
+            ".nfl-game{border:1px solid var(--b);border-radius:10px;padding:11px 13px;"
+            "margin-bottom:.55rem;background:var(--s)}"
+            ".nfl-quiet{opacity:.78}"
             ".nfl-game-h{display:flex;justify-content:space-between;align-items:baseline;"
-            "gap:8px;margin-bottom:6px}"
+            "gap:10px;margin-bottom:9px}"
             ".nfl-teams{font-size:13px;font-weight:700;color:var(--t)}"
+            ".nfl-at{color:var(--m);font-weight:400}"
             ".nfl-kick{font-size:11px;color:var(--m);white-space:nowrap}"
-            ".nfl-sig{display:flex;align-items:center;gap:10px;font-size:12px;"
-            "padding:5px 0;border-top:1px solid var(--b);flex-wrap:wrap}"
-            ".nfl-sel{flex:1;min-width:130px;font-weight:600;color:var(--t)}"
+
+            # Barre 100% a deux segments: 2px de fond entre les remplissages.
+            ".nfl-prob{margin-bottom:9px}"
+            ".nfl-prob-bar{display:flex;gap:2px;height:9px}"
+            ".nfl-prob-bar span:first-child{border-radius:4px 0 0 4px}"
+            ".nfl-prob-bar span:last-child{border-radius:0 4px 4px 0}"
+            ".nfl-prob-lab{display:flex;justify-content:space-between;align-items:center;"
+            "gap:8px;font-size:10px;color:var(--m);margin-top:4px}"
+            ".nfl-prob-lab b{color:var(--t);font-variant-numeric:tabular-nums}"
+            ".nfl-prob-lab i{display:inline-block;width:8px;height:8px;border-radius:2px;"
+            "margin:0 4px;vertical-align:-1px}"
+            ".nfl-prob-src{font-size:9px;text-transform:uppercase;letter-spacing:.04em}"
+
+            ".nfl-row{display:flex;align-items:center;gap:9px;font-size:11.5px;"
+            "padding:4px 0;border-top:1px solid var(--b)}"
+            ".nfl-row:hover{background:rgba(127,127,127,.05)}"
+            ".nfl-is-sig .nfl-sel{font-weight:700;color:var(--t)}"
+            ".nfl-is-sig .nfl-sel b{color:var(--nfl-good)}"
+            ".nfl-sel{flex:1;min-width:120px;color:var(--m)}"
             ".nfl-mk{font-size:9px;text-transform:uppercase;letter-spacing:.05em;"
             "color:var(--m);border:1px solid var(--b);border-radius:4px;padding:1px 5px}"
-            ".nfl-odds{font-variant-numeric:tabular-nums;color:var(--t)}"
-            ".nfl-odds b{font-weight:600;font-size:10px;color:var(--m);"
-            "text-transform:uppercase}"
-            ".nfl-fair{font-size:10px;color:var(--m);font-variant-numeric:tabular-nums}"
-            ".nfl-edge{font-weight:700;font-variant-numeric:tabular-nums;min-width:52px;"
-            "text-align:right}"
-            ".nfl-quiet{opacity:.72}"
-            ".nfl-noedge .nfl-sel{font-weight:500;color:var(--m)}"
-            ".nfl-none{font-size:10px;color:var(--m);padding-top:5px;"
-            "border-top:1px solid var(--b);margin-top:3px}"
-            "@media(max-width:560px){.nfl-fair{display:none}}"
+            ".nfl-px{font-variant-numeric:tabular-nums;color:var(--t);min-width:96px}"
+            ".nfl-px b{font-weight:600;font-size:9px;color:var(--m);text-transform:uppercase}"
+            ".nfl-fair{font-size:10px;color:var(--m);font-variant-numeric:tabular-nums;"
+            "min-width:62px}"
+
+            # Barre divergente: la direction porte le signe, la couleur confirme.
+            ".nfl-track{position:relative;width:120px;height:8px;flex:none;"
+            "background:var(--nfl-track);border-radius:4px;overflow:hidden}"
+            ".nfl-zero{position:absolute;left:50%;top:0;bottom:0;width:1px;"
+            "background:var(--m);opacity:.55}"
+            ".nfl-thr{position:absolute;top:0;bottom:0;width:1px;background:var(--m);"
+            "opacity:.85}"
+            ".nfl-fill{position:absolute;top:1px;bottom:1px}"
+            ".nfl-val{font-weight:700;font-variant-numeric:tabular-nums;min-width:48px;"
+            "text-align:right;color:var(--t)}"
+            ".nfl-none{font-size:10px;color:var(--m);padding-top:6px;"
+            "border-top:1px solid var(--b);margin-top:4px}"
+            "@media(max-width:640px){.nfl-fair{display:none}.nfl-track{width:76px}"
+            ".nfl-legend-ax{margin-left:0;width:100%}}"
             # Paris suivis (bets.json)
             ".trk{margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--b)}"
             ".trk-sub{font-size:12px;color:var(--m);margin:-.35rem 0 .75rem}"
