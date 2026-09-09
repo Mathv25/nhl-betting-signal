@@ -105,7 +105,7 @@ def _num(value, name: str, minimum=None):
 def add_bet(date: str, sport: str, market: str, selection: str,
             model_prob: float, odds_taken: float, book: str,
             stake: float = 1.0, closing_odds=None, result: str = "pending",
-            note: str = "", path: str = None) -> dict:
+            note: str = "", paper: bool = False, path: str = None) -> dict:
     """
     Enregistre un pari pris. Valide a l'entree plutot qu'a l'affichage: une
     cote a 0 ou une probabilite en fraction (0.55 au lieu de 55) fausse
@@ -142,6 +142,10 @@ def add_bet(date: str, sport: str, market: str, selection: str,
         "closing_odds": round(close, 3) if close else None,
         "result":       result,
         "note":         note.strip(),
+        # Pari PAPIER: signal enregistre automatiquement, jamais mise. Il compte
+        # dans le CLV et la calibration — c'est justement a ca qu'il sert — mais
+        # pas dans le yield, qui doit rester le rendement de l'argent reel.
+        "paper":        bool(paper),
         "created_at":   datetime.now(timezone.utc).isoformat(),
     }
     bet["id"] = make_id(bet, data["bets"])
@@ -397,20 +401,46 @@ def by_sport(bets: list) -> list:
 
 
 def compute_stats(bets: list) -> dict:
-    """Tout ce que l'onglet Performance affiche, calcule une seule fois ici."""
-    counted = [b for b in bets if b.get("result") in COUNTING]
+    """
+    Tout ce que l'onglet Performance affiche, calcule une seule fois ici.
+
+    Les paris PAPIER (signaux enregistres automatiquement, jamais mises) sont
+    tenus hors du yield et du bilan: melanger de l'argent reel et des paris
+    simules donnerait un rendement qui ne correspond a rien. Ils comptent en
+    revanche dans le CLV et dans la courbe de calibration, qui mesurent la
+    qualite du signal et non celle du portefeuille — c'est meme leur raison
+    d'etre. Leur propre bilan est calcule a part, sous `paper`.
+    """
+    real    = [b for b in bets if not b.get("paper")]
+    papier  = [b for b in bets if b.get("paper")]
+    counted = [b for b in real if b.get("result") in COUNTING]
     y = yield_with_ci(counted)
-    return {
-        "n_bets":      len(bets),
-        "n_settled":   sum(1 for b in bets if b.get("result") in SETTLED),
+
+    stats = {
+        "n_bets":      len(real),
+        "n_settled":   sum(1 for b in real if b.get("result") in SETTLED),
         "n_counted":   len(counted),
-        "n_push":      sum(1 for b in bets if b.get("result") == "push"),
-        "n_pending":   len(pending(bets)),
+        "n_push":      sum(1 for b in real if b.get("result") == "push"),
+        "n_pending":   len(pending(real)),
         "yield":       y,
         "record":      _wr_and_odds(counted),
+        # CLV et calibration sur TOUS les paris, papier compris.
         "clv":         clv_stats(bets),
         "calibration": calibration(bets),
-        "by_market":   by_market(bets),
-        "by_sport":    by_sport(bets),
+        "by_market":   by_market(real),
+        "by_sport":    by_sport(real),
         "computed_at": datetime.now(timezone.utc).isoformat(),
     }
+
+    if papier:
+        p_counted = [b for b in papier if b.get("result") in COUNTING]
+        stats["paper"] = {
+            "n_bets":    len(papier),
+            "n_counted": len(p_counted),
+            "n_pending": len(pending(papier)),
+            "yield":     yield_with_ci(p_counted),
+            "record":    _wr_and_odds(p_counted),
+            "clv":       clv_stats(papier),
+            "by_market": by_market(papier),
+        }
+    return stats

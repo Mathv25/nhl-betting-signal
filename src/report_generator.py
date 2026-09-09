@@ -83,6 +83,9 @@ class ReportGenerator:
             mlb_html,
             power_html,
             "</div>",
+            "<div id=\"tab-nfl\" style=\"display:none\">",
+            self._nfl_section(data.get("nfl_analysis")),
+            "</div>",
             "<div id=\"tab-perf\" style=\"display:none\">",
             perf_html,
             "</div>",
@@ -110,6 +113,7 @@ class ReportGenerator:
             "<button class=\"tab\" onclick=\"showTab('tab-props',this)\">Props NHL</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-nba',this)\">NBA</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-mlb',this)\">MLB</button>"
+            "<button class=\"tab\" onclick=\"showTab('tab-nfl',this)\">NFL</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-perf',this)\">Performance</button>"
             ""
             "<button class=\"tab\" onclick=\"showTab('tab-ai',this)\">Expert IA</button>"
@@ -954,6 +958,82 @@ class ReportGenerator:
             "</div>"
         )
 
+    def _nfl_section(self, state) -> str:
+        """
+        Onglet NFL. Le module ne paie des cotes que trois fois par semaine, donc
+        la section affiche presque toujours un etat date: on l'ecrit clairement
+        plutot que de laisser croire a des prix du moment.
+
+        Zero signal est un resultat, pas un echec: sans modele maison on ne
+        cherche que des ecarts entre books, et il y a des semaines ou le marche
+        est aligne. On le dit au lieu de forcer des picks.
+        """
+        st = state or {}
+        games = st.get("games") or []
+        n_sig = st.get("n_signals", 0)
+
+        head = ("<div class=\"sec\"><div class=\"sec-h\">"
+                "<h2>🏈 NFL — ecarts entre books</h2>"
+                "<span class=\"sec-sub\">Sans modele maison: on signale un pari "
+                "quand la meilleure cote du marche bat la probabilite no-vig de "
+                "reference d'au moins " + str(st.get("min_edge", 3)) + "%. "
+                "Les signaux sont suivis en papier, jamais mises automatiquement."
+                "</span></div>")
+
+        if not st:
+            return (head + "<div class=\"perf-empty\">"
+                    "<div class=\"perf-empty-icon\">🏈</div>"
+                    "<div class=\"perf-empty-title\">Module NFL en attente</div>"
+                    "<div class=\"perf-empty-sub\">Les cotes sont relevees le mardi, "
+                    "le vendredi et le dimanche matin.</div></div></div>")
+
+        bandeau = ""
+        if st.get("stale"):
+            bandeau = ("<div class=\"nfl-stale\">Etat date — " + str(st.get("reason", ""))
+                       + ". Prochaine releve: mardi, vendredi ou dimanche matin.</div>")
+
+        if not n_sig:
+            return (head + bandeau + "<div class=\"perf-empty\">"
+                    "<div class=\"perf-empty-icon\">✓</div>"
+                    "<div class=\"perf-empty-title\">Aucun signal cette semaine</div>"
+                    "<div class=\"perf-empty-sub\">"
+                    + str(st.get("n_games", 0)) + " match(s) analyse(s), aucun ecart "
+                    "au-dessus du seuil. Un marche aligne ne produit pas de pari — "
+                    "c'est un resultat valide, pas une panne.</div></div></div>")
+
+        rows = [head, bandeau,
+                "<div class=\"nfl-sum\">" + str(n_sig) + " signal(aux) sur "
+                + str(st.get("n_games", 0)) + " match(s) &middot; semaine du "
+                + str(st.get("week", "")) + "</div>"]
+
+        for g in games:
+            if not g.get("signals"):
+                continue
+            rows.append("<div class=\"nfl-game\">")
+            rows.append("<div class=\"nfl-game-h\">"
+                        "<span class=\"nfl-teams\">" + str(g.get("away_team", ""))
+                        + " @ " + str(g.get("home_team", "")) + "</span>"
+                        "<span class=\"nfl-kick\" data-kick=\""
+                        + str(g.get("commence", "")) + "\">—</span></div>")
+            for sig in g["signals"]:
+                edge = sig.get("edge_pct", 0)
+                col  = "#0F6E56" if edge >= 5 else "#BA7517"
+                rows.append(
+                    "<div class=\"nfl-sig\">"
+                    "<span class=\"nfl-sel\">" + str(sig.get("selection", "")) + "</span>"
+                    "<span class=\"nfl-mk\">" + str(sig.get("market", "")).replace("nfl_", "") + "</span>"
+                    "<span class=\"nfl-odds\">" + f"{sig.get('odds', 0):.2f}"
+                    + " <b>" + str(sig.get("book", ""))[:12] + "</b></span>"
+                    "<span class=\"nfl-fair\">juste " + f"{sig.get('fair_odds', 0):.2f}"
+                    + " &middot; " + f"{sig.get('prob', 0):.1f}%</span>"
+                    "<span class=\"nfl-edge\" style=\"color:" + col + "\">+"
+                    + f"{edge:.1f}" + "%</span>"
+                    "</div>")
+            rows.append("</div>")
+
+        rows.append("</div>")
+        return "".join(rows)
+
     def _disclaimer(self, gen_display, odds_state=None):
         """
         Le bandeau de quota n'est pas cosmetique: quand la cle Odds API est
@@ -1561,12 +1641,29 @@ class ReportGenerator:
         return (
             "<script>"
             + self._js_render() +
+            # Compte a rebours avant le coup d'envoi. Calcule dans le navigateur:
+            # la page est generee une fois puis servie telle quelle, un delai
+            # fige a la generation serait faux des la minute suivante.
+            "function nflKickoffs(){"
+            "document.querySelectorAll('[data-kick]').forEach(function(el){"
+            "var iso=el.getAttribute('data-kick');if(!iso){el.textContent='';return;}"
+            "var t=new Date(iso).getTime();if(isNaN(t)){el.textContent='';return;}"
+            "var ms=t-Date.now();"
+            "if(ms<=0){el.textContent='en cours ou termine';el.style.color='#A32D2D';return;}"
+            "var h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000);"
+            "var j=Math.floor(h/24);"
+            "el.textContent='coup d\\'envoi dans '+(j>0?j+'j '+(h%24)+'h':h+'h '+m+'min');"
+            "});}"
+            "setInterval(nflKickoffs,60000);"
+            "document.addEventListener('DOMContentLoaded',nflKickoffs);"
+
             "function showTab(id,btn){"
             "document.querySelectorAll('[id^=\"tab-\"]').forEach(function(el){el.style.display='none';});"
             "document.getElementById(id).style.display='block';"
             "document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active');});"
             "btn.classList.add('active');"
             "if(id==='tab-perf'){loadPerf();}"
+            "if(id==='tab-nfl'){nflKickoffs();}"
             "}"
 
             "function loadPerf(){"
@@ -2048,6 +2145,28 @@ class ReportGenerator:
             # ── General ───────────────────────────────────────────────────
             ".disc{font-size:11px;color:var(--m);margin-top:2rem;padding-top:1rem;border-top:1px solid var(--b);line-height:1.8}"
             ".upd{font-size:11px;color:var(--m);text-align:right;margin-top:.5rem}"
+            # NFL
+            ".nfl-stale{font-size:11px;color:#BA7517;background:#FEF6E7;border-radius:6px;"
+            "padding:6px 10px;margin-bottom:.75rem}"
+            ".nfl-sum{font-size:12px;color:var(--m);margin-bottom:.75rem}"
+            ".nfl-game{border:1px solid var(--b);border-radius:10px;padding:10px 12px;"
+            "margin-bottom:.6rem}"
+            ".nfl-game-h{display:flex;justify-content:space-between;align-items:baseline;"
+            "gap:8px;margin-bottom:6px}"
+            ".nfl-teams{font-size:13px;font-weight:700;color:var(--t)}"
+            ".nfl-kick{font-size:11px;color:var(--m);white-space:nowrap}"
+            ".nfl-sig{display:flex;align-items:center;gap:10px;font-size:12px;"
+            "padding:5px 0;border-top:1px solid var(--b);flex-wrap:wrap}"
+            ".nfl-sel{flex:1;min-width:130px;font-weight:600;color:var(--t)}"
+            ".nfl-mk{font-size:9px;text-transform:uppercase;letter-spacing:.05em;"
+            "color:var(--m);border:1px solid var(--b);border-radius:4px;padding:1px 5px}"
+            ".nfl-odds{font-variant-numeric:tabular-nums;color:var(--t)}"
+            ".nfl-odds b{font-weight:600;font-size:10px;color:var(--m);"
+            "text-transform:uppercase}"
+            ".nfl-fair{font-size:10px;color:var(--m);font-variant-numeric:tabular-nums}"
+            ".nfl-edge{font-weight:700;font-variant-numeric:tabular-nums;min-width:52px;"
+            "text-align:right}"
+            "@media(max-width:560px){.nfl-fair{display:none}}"
             # Paris suivis (bets.json)
             ".trk{margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--b)}"
             ".trk-sub{font-size:12px;color:var(--m);margin:-.35rem 0 .75rem}"

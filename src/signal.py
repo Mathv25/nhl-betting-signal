@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 import pytz
 from env_file import load_env
 import odds_api
+import nfl_analyzer
 from odds_fetcher import OddsFetcher
 from nba_odds_fetcher import NBAOddsFetcher
 from nba_props_analyzer import NBAPropsAnalyzer
@@ -315,6 +316,18 @@ def main():
     except Exception as e:
         print(f"  [MLB ML] erreur: {e}")
 
+    # ── 7b. NFL ───────────────────────────────────────────────────────────────
+    # Cadence hebdomadaire: le module ne depense du quota que le mardi, le
+    # vendredi et le dimanche matin. Les autres jours il relit son dernier etat
+    # sans faire un seul appel — le MLB et le NHL jouent tous les jours et le
+    # quota doit leur rester.
+    print("\nNFL...")
+    try:
+        nfl_analysis = nfl_analyzer.run(api_key)
+    except Exception as e:
+        print(f"  [NFL] erreur: {e}")
+        nfl_analysis = nfl_analyzer.load_signals()
+
     # ── 8. Output ─────────────────────────────────────────────────────────────
     output = {
         "generated_at":     datetime.now(timezone.utc).isoformat(),
@@ -329,6 +342,7 @@ def main():
         "mlb_analysis":     mlb_analysis,
         "mlb_ml_analysis":  mlb_ml_analysis,
         "power_analysis":   power_analysis,
+        "nfl_analysis":     nfl_analysis,
         # Etat du quota The Odds API. Sans ca, une cle epuisee se traduit par un
         # rapport sans cotes qui a l'air normal: on croit que le marche est
         # muet alors que c'est l'API qui ne repond plus.
