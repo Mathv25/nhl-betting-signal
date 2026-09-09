@@ -1,5 +1,38 @@
 {
-  "bets": [],
+  "bets": [
+    {
+      "date": "2026-09-08",
+      "sport": "nfl",
+      "market": "nfl_ml",
+      "selection": "Arizona Cardinals ML",
+      "model_prob": 20.37,
+      "odds_taken": 5.2,
+      "book": "fanduel",
+      "stake": 1.0,
+      "closing_odds": null,
+      "result": "pending",
+      "note": "top-down +5.9% vs pinnacle (30 books) — Arizona Cardinals @ Los Angeles Chargers",
+      "paper": true,
+      "created_at": "2026-09-09T20:34:29.135851+00:00",
+      "id": "2026-09-08|nfl|nfl_ml|Arizona Cardinals ML"
+    },
+    {
+      "date": "2026-09-08",
+      "sport": "nfl",
+      "market": "nfl_ml",
+      "selection": "Cleveland Browns ML",
+      "model_prob": 22.94,
+      "odds_taken": 4.6,
+      "book": "draftkings",
+      "stake": 1.0,
+      "closing_odds": null,
+      "result": "pending",
+      "note": "top-down +5.5% vs pinnacle (30 books) — Cleveland Browns @ Jacksonville Jaguars",
+      "paper": true,
+      "created_at": "2026-09-09T20:34:29.136322+00:00",
+      "id": "2026-09-08|nfl|nfl_ml|Cleveland Browns ML"
+    }
+  ],
   "note": "Paris reellement pris, ecrits par track.py (add/close). Distinct de results.json, qui suit ce que le modele a propose. Le bloc `stats` est recalcule a chaque ecriture et lu tel quel par l'onglet Performance.",
   "stats": {
     "n_bets": 0,
@@ -31,12 +64,44 @@
       "avg_clv_pct": null,
       "pct_positive": null,
       "beat_close": 0,
-      "n_missing": 0
+      "n_missing": 2
     },
     "calibration": [],
     "by_market": [],
     "by_sport": [],
-    "computed_at": "2026-09-09T20:33:47.104455+00:00"
+    "computed_at": "2026-09-09T20:34:29.136343+00:00",
+    "paper": {
+      "n_bets": 2,
+      "n_counted": 0,
+      "n_pending": 2,
+      "yield": {
+        "n": 0,
+        "staked": 0,
+        "profit": 0.0,
+        "yield_pct": null,
+        "ci_low": null,
+        "ci_high": null,
+        "se_pct": null,
+        "reliable": false
+      },
+      "record": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "win_rate": null,
+        "avg_odds": null,
+        "breakeven_wr": null,
+        "wr_vs_breakeven": null
+      },
+      "clv": {
+        "n": 0,
+        "avg_clv_pct": null,
+        "pct_positive": null,
+        "beat_close": 0,
+        "n_missing": 2
+      },
+      "by_market": []
+    }
   },
-  "updated_at": "2026-09-09T20:33:47.104676+00:00"
+  "updated_at": "2026-09-09T20:34:29.136355+00:00"
 }
