@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-09T20:32:21.127690+00:00",
+  "generated_at": "2026-09-09T20:40:18.145579+00:00",
   "date": "2026-09-09",
   "bookmaker": "bet365",
   "total_games": 0,
@@ -25,8 +25,8 @@
           "season_avg": 7.24,
           "adj_proj": 7.15,
           "adj_proj_raw": 7.06,
-          "adj_mult": 0.9877,
-          "adj_mult_raw": 0.9756,
+          "adj_mult": 0.9875,
+          "adj_mult_raw": 0.9751,
           "opp_k_rate": 21.6,
           "opp_k_source": "saison vs RHP",
           "league_k_rate": 22.1,
@@ -88,7 +88,7 @@
           "odds_rungs": 0,
           "context": [
             "Rolling 6dep: 6.74K · Saison: 8.41K · Blend: 7.24K",
-            "Ajustement régressé x0.988 → 7.15K (brut x0.976 → 7.06K)",
+            "Ajustement régressé x0.988 → 7.15K (brut x0.975 → 7.06K)",
             "Manches: 6.222 IP moy (empirique 15 departs) · 1.15 K/manche · σK 2.98 (Poisson simple: 2.67)"
           ]
         }
@@ -545,308 +545,16 @@
       "commence": "2026-09-09T17:10:00Z",
       "starters": {
         "home": {
-          "nom": "Kade Anderson",
-          "main": "L",
-          "fip": 4.711,
-          "fip_eff": 5.104,
-          "k_bb_pct": 0.118,
-          "whip": 1.5,
-          "ip_par_depart": 4.68,
-          "forme": {
-            "games": 4,
-            "fip": 6.022,
-            "k_bb_pct": 0.0845,
-            "ip_per_gs": 4.17
-          }
-        },
-        "away": {
-          "nom": "Cody Bradford",
-          "main": "L",
-          "fip": 4.314,
-          "fip_eff": 4.605,
-          "k_bb_pct": 0.1028,
-          "whip": 1.53,
-          "ip_par_depart": 4.74,
-          "forme": {
-            "games": 5,
-            "fip": 5.285,
-            "k_bb_pct": 0.0659,
-            "ip_per_gs": 4.0
-          }
-        }
-      },
-      "runs_attendus": {
-        "home": 4.127,
-        "away": 5.732
-      },
-      "run_diff": -1.605,
-      "bullpens": {
-        "home": {
-          "fip": 4.074,
-          "fip_fatigue": 4.074,
-          "usage": {
-            "days": 3,
-            "games": 3,
-            "rel_ip": 11.0,
-            "rel_ip_per_g": 3.67,
-            "rel_pitches": 146,
-            "arms_used": 9,
-            "by_pitcher": {
-              "Tyler Holton": [
-                "2026-09-06"
-              ],
-              "Drew Sommers": [
-                "2026-09-06",
-                "2026-09-07"
-              ],
-              "Tyler Kinley": [
-                "2026-09-06",
-                "2026-09-07"
-              ],
-              "Kenley Jansen": [
-                "2026-09-06",
-                "2026-09-07"
-              ],
-              "Kyle Finnegan": [
-                "2026-09-06"
-              ],
-              "Jacob Waguespack": [
-                "2026-09-07"
-              ],
-              "Beau Brieske": [
-                "2026-09-08"
-              ],
-              "Brant Hurter": [
-                "2026-09-08"
-              ],
-              "Yilber Díaz": [
-                "2026-09-08"
-              ]
-            },
-            "closer": "Kenley Jansen",
-            "closer_days_used": 2,
-            "closer_used_b2b": false
-          }
-        },
-        "away": {
-          "fip": 4.364,
-          "fip_fatigue": 4.614,
-          "usage": {
-            "days": 3,
-            "games": 3,
-            "rel_ip": 11.7,
-            "rel_ip_per_g": 3.89,
-            "rel_pitches": 234,
-            "arms_used": 9,
-            "by_pitcher": {
-              "Kody Funderburk": [
-                "2026-09-06"
-              ],
-              "Andrew Morris": [
-                "2026-09-06",
-                "2026-09-08"
-              ],
-              "Taylor Rogers": [
-                "2026-09-06"
-              ],
-              "Garrett Acton": [
-                "2026-09-06"
-              ],
-              "Tommy Nance": [
-                "2026-09-06"
-              ],
-              "Connor Prielipp": [
-                "2026-09-07"
-              ],
-              "A.J. Minter": [
-                "2026-09-08"
-              ],
-              "Jeff Hoffman": [
-                "2026-09-08"
-              ],
-              "Yoendrys Gómez": [
-                "2026-09-08"
-              ]
-            },
-            "closer": "Yoendrys Gómez",
-            "closer_days_used": 1,
-            "closer_used_b2b": false
-          }
-        }
-      },
-      "offense": {
-        "home": {
-          "vs_hand": "L",
-          "ops": 0.628,
-          "slg": 0.332,
-          "avg": 0.213,
-          "obp": 0.296,
-          "iso": 0.119,
-          "k_pct": 0.2459,
-          "bb_pct": 0.0896,
-          "hr": 46,
-          "pa": 1753,
-          "ops_index": 0.8823
-        },
-        "away": {
-          "vs_hand": "L",
-          "ops": 0.768,
-          "slg": 0.434,
-          "avg": 0.261,
-          "obp": 0.334,
-          "iso": 0.173,
-          "k_pct": 0.2363,
-          "bb_pct": 0.0877,
-          "hr": 53,
-          "pa": 1574,
-          "ops_index": 1.079
-        }
-      },
-      "prob_modele": {
-        "home_ml": 0.3579,
-        "away_ml": 0.6421,
-        "home_rl": 0.2329,
-        "away_rl": 0.5002
-      },
-      "facteurs": {
-        "home": {
-          "facteurs": [
-            {
-              "nom": "Lanceur partant",
-              "pour": false,
-              "ampleur": 0.5,
-              "detail": "FIP 5.10 vs 4.61"
-            },
-            {
-              "nom": "Offense vs la main",
-              "pour": false,
-              "ampleur": 19.7,
-              "detail": "OPS idx 0.882 vs 1.079"
-            },
-            {
-              "nom": "Puissance (ISO)",
-              "pour": false,
-              "ampleur": 0.054,
-              "detail": "ISO 0.119 vs 0.173"
-            },
-            {
-              "nom": "Bullpen",
-              "pour": true,
-              "ampleur": 0.54,
-              "detail": "FIP 4.07 vs 4.61"
-            }
-          ],
-          "pour": 0,
-          "contre": 1,
-          "net": -1
-        },
-        "away": {
-          "facteurs": [
-            {
-              "nom": "Lanceur partant",
-              "pour": true,
-              "ampleur": 0.5,
-              "detail": "FIP 4.61 vs 5.10"
-            },
-            {
-              "nom": "Offense vs la main",
-              "pour": true,
-              "ampleur": 19.7,
-              "detail": "OPS idx 1.079 vs 0.882"
-            },
-            {
-              "nom": "Puissance (ISO)",
-              "pour": true,
-              "ampleur": 0.054,
-              "detail": "ISO 0.173 vs 0.119"
-            },
-            {
-              "nom": "Bullpen",
-              "pour": false,
-              "ampleur": 0.54,
-              "detail": "FIP 4.61 vs 4.07"
-            }
-          ],
-          "pour": 1,
-          "contre": 0,
-          "net": 1
-        }
-      },
-      "bets": [
-        {
-          "marche": "moneyline",
-          "equipe": "Texas Rangers",
-          "probabilite": 55.1,
-          "prob_modele": 64.2,
-          "cote": 2.2,
-          "valeur_pct": 21.2,
-          "cote_equitable": 1.81,
-          "facteurs_nets": 2,
-          "no_brainer": false,
-          "tier": "🔥",
-          "label": "meilleur bet",
-          "raison": "valeur +21.2% et 2 facteurs alignés"
-        },
-        {
-          "marche": "run_line_-1.5",
-          "equipe": "Texas Rangers",
-          "probabilite": 41.5,
-          "prob_modele": 50.0,
-          "prob_marche": 36.9,
-          "cote": 2.59,
-          "valeur_pct": 7.5,
-          "cote_equitable": 2.41,
-          "facteurs_nets": 2,
-          "run_diff": 1.605,
-          "tier": "🟡",
-          "label": "jouable",
-          "raison": "valeur +7.5% mais seulement 2 facteurs alignés (il en faut 3)"
-        },
-        {
-          "marche": "moneyline",
-          "equipe": "Seattle Mariners",
-          "probabilite": 44.9,
-          "prob_modele": 35.8,
-          "cote": 2.05,
-          "valeur_pct": -8.0,
-          "cote_equitable": 2.23,
-          "facteurs_nets": -2,
-          "no_brainer": false,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "prix trop court: 45% à 2.05 = -8.0%"
-        }
-      ],
-      "prob_marche": {
-        "home_ml": 0.498,
-        "away_ml": 0.502,
-        "source": "mediane no-vig (8 books)"
-      },
-      "prob_finale": {
-        "home_ml": 0.449,
-        "away_ml": 0.551
-      }
-    },
-    {
-      "game_pk": 824226,
-      "event_id": "3fdcf1fc18b369e071964b94abe0e5fe",
-      "home_team": "Detroit Tigers",
-      "away_team": "Minnesota Twins",
-      "venue": "Comerica Park",
-      "park_factor": 0.97,
-      "commence": "2026-09-09T17:10:00Z",
-      "starters": {
-        "home": {
           "nom": "Keider Montero",
           "main": "R",
-          "fip": 4.278,
-          "fip_eff": 4.533,
+          "fip": 4.277,
+          "fip_eff": 4.532,
           "k_bb_pct": 0.1052,
           "whip": 1.03,
           "ip_par_depart": 5.48,
           "forme": {
             "games": 5,
-            "fip": 5.127,
+            "fip": 5.126,
             "k_bb_pct": 0.0594,
             "ip_per_gs": 4.93
           }
@@ -854,28 +562,28 @@
         "away": {
           "nom": "Zebby Matthews",
           "main": "R",
-          "fip": 4.766,
-          "fip_eff": 4.744,
+          "fip": 4.765,
+          "fip_eff": 4.743,
           "k_bb_pct": 0.126,
           "whip": 1.27,
           "ip_par_depart": 5.61,
           "forme": {
             "games": 5,
-            "fip": 4.692,
+            "fip": 4.691,
             "k_bb_pct": 0.1327,
             "ip_per_gs": 5.67
           }
         }
       },
       "runs_attendus": {
-        "home": 5.228,
-        "away": 5.292
+        "home": 5.227,
+        "away": 5.291
       },
       "run_diff": -0.064,
       "bullpens": {
         "home": {
-          "fip": 4.282,
-          "fip_fatigue": 4.382,
+          "fip": 4.281,
+          "fip_fatigue": 4.381,
           "usage": {
             "days": 3,
             "games": 3,
@@ -921,8 +629,8 @@
           }
         },
         "away": {
-          "fip": 4.285,
-          "fip_fatigue": 4.385,
+          "fip": 4.284,
+          "fip_fatigue": 4.384,
           "usage": {
             "days": 3,
             "games": 3,
@@ -974,10 +682,10 @@
           "avg": 0.24,
           "obp": 0.313,
           "iso": 0.165,
-          "k_pct": 0.2286,
-          "bb_pct": 0.0869,
+          "k_pct": 0.2287,
+          "bb_pct": 0.0867,
           "hr": 128,
-          "pa": 3889,
+          "pa": 3888,
           "ops_index": 0.9951
         },
         "away": {
@@ -997,7 +705,7 @@
       "prob_modele": {
         "home_ml": 0.4944,
         "away_ml": 0.5056,
-        "home_rl": 0.3582,
+        "home_rl": 0.3581,
         "away_rl": 0.3687
       },
       "facteurs": {
@@ -1032,40 +740,294 @@
         {
           "marche": "moneyline",
           "equipe": "Minnesota Twins",
-          "probabilite": 25.9,
+          "probabilite": 23.7,
           "prob_modele": 50.6,
-          "cote": 8.0,
-          "valeur_pct": 107.0,
-          "cote_equitable": 3.86,
+          "cote": 11.0,
+          "valeur_pct": 160.9,
+          "cote_equitable": 4.22,
           "facteurs_nets": 1,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +107.0% mais facteurs peu alignés (1)"
+          "raison": "valeur +160.9% mais facteurs peu alignés (1)"
         },
         {
           "marche": "moneyline",
           "equipe": "Detroit Tigers",
-          "probabilite": 74.1,
+          "probabilite": 76.3,
           "prob_modele": 49.4,
-          "cote": 1.09,
-          "valeur_pct": -19.2,
-          "cote_equitable": 1.35,
+          "cote": 1.06,
+          "valeur_pct": -19.1,
+          "cote_equitable": 1.31,
           "facteurs_nets": -1,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 74% à 1.09 = -19.2%"
+          "raison": "prix trop court: 76% à 1.06 = -19.1%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.8741,
-        "away_ml": 0.1259,
+        "home_ml": 0.9074,
+        "away_ml": 0.0926,
         "source": "mediane no-vig (7 books)"
       },
       "prob_finale": {
-        "home_ml": 0.7412,
-        "away_ml": 0.2588
+        "home_ml": 0.7629,
+        "away_ml": 0.2371
+      }
+    },
+    {
+      "game_pk": 823172,
+      "event_id": "4a391464b8e1ffee0ee5e205298840de",
+      "home_team": "San Francisco Giants",
+      "away_team": "St. Louis Cardinals",
+      "venue": "Oracle Park",
+      "park_factor": 0.94,
+      "commence": "2026-09-09T19:45:00Z",
+      "starters": {
+        "home": {
+          "nom": "Blade Tidwell",
+          "main": "R",
+          "fip": 4.585,
+          "fip_eff": 5.152,
+          "k_bb_pct": 0.1097,
+          "whip": 1.27,
+          "ip_par_depart": 4.95,
+          "forme": {
+            "games": 5,
+            "fip": 6.475,
+            "k_bb_pct": 0.05,
+            "ip_per_gs": 4.6
+          }
+        },
+        "away": {
+          "nom": "Andre Pallante",
+          "main": "R",
+          "fip": 3.763,
+          "fip_eff": 3.597,
+          "k_bb_pct": 0.1026,
+          "whip": 1.24,
+          "ip_par_depart": 5.46,
+          "forme": {
+            "games": 5,
+            "fip": 3.209,
+            "k_bb_pct": 0.0412,
+            "ip_per_gs": 4.87
+          }
+        }
+      },
+      "runs_attendus": {
+        "home": 4.648,
+        "away": 5.157
+      },
+      "run_diff": -0.509,
+      "bullpens": {
+        "home": {
+          "fip": 4.238,
+          "fip_fatigue": 4.438,
+          "usage": {
+            "days": 3,
+            "games": 3,
+            "rel_ip": 10.0,
+            "rel_ip_per_g": 3.33,
+            "rel_pitches": 196,
+            "arms_used": 6,
+            "by_pitcher": {
+              "Joel Kuhnel": [
+                "2026-09-06",
+                "2026-09-08"
+              ],
+              "Carson Seymour": [
+                "2026-09-06",
+                "2026-09-08"
+              ],
+              "Trent Harris": [
+                "2026-09-07"
+              ],
+              "Dylan Smith": [
+                "2026-09-07"
+              ],
+              "Reiver Sanmartin": [
+                "2026-09-07",
+                "2026-09-08"
+              ],
+              "Jason Foley": [
+                "2026-09-07"
+              ]
+            },
+            "closer": "Joel Kuhnel",
+            "closer_days_used": 2,
+            "closer_used_b2b": true
+          }
+        },
+        "away": {
+          "fip": 4.285,
+          "fip_fatigue": 4.385,
+          "usage": {
+            "days": 3,
+            "games": 3,
+            "rel_ip": 12.0,
+            "rel_ip_per_g": 4.0,
+            "rel_pitches": 193,
+            "arms_used": 8,
+            "by_pitcher": {
+              "Cade Winquest": [
+                "2026-09-06"
+              ],
+              "Cooper Hjerpe": [
+                "2026-09-06"
+              ],
+              "Luis Gastelum": [
+                "2026-09-06"
+              ],
+              "Ryne Stanek": [
+                "2026-09-06",
+                "2026-09-07"
+              ],
+              "George Soriano": [
+                "2026-09-06",
+                "2026-09-07"
+              ],
+              "Justin Bruihl": [
+                "2026-09-07"
+              ],
+              "Riley O'Brien": [
+                "2026-09-07"
+              ],
+              "Gordon Graceffo": [
+                "2026-09-08"
+              ]
+            },
+            "closer": "Riley O'Brien",
+            "closer_days_used": 1,
+            "closer_used_b2b": false
+          }
+        }
+      },
+      "offense": {
+        "home": {
+          "vs_hand": "R",
+          "ops": 0.732,
+          "slg": 0.417,
+          "avg": 0.252,
+          "obp": 0.315,
+          "iso": 0.165,
+          "k_pct": 0.2048,
+          "bb_pct": 0.077,
+          "hr": 124,
+          "pa": 3896,
+          "ops_index": 1.0146
+        },
+        "away": {
+          "vs_hand": "R",
+          "ops": 0.696,
+          "slg": 0.381,
+          "avg": 0.244,
+          "obp": 0.315,
+          "iso": 0.137,
+          "k_pct": 0.2151,
+          "bb_pct": 0.0802,
+          "hr": 102,
+          "pa": 3863,
+          "ops_index": 0.9647
+        }
+      },
+      "prob_modele": {
+        "home_ml": 0.454,
+        "away_ml": 0.546,
+        "home_rl": 0.3156,
+        "away_rl": 0.4018
+      },
+      "facteurs": {
+        "home": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": false,
+              "ampleur": 1.56,
+              "detail": "FIP 5.15 vs 3.60"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": true,
+              "ampleur": 5.0,
+              "detail": "OPS idx 1.015 vs 0.965"
+            },
+            {
+              "nom": "Puissance (ISO)",
+              "pour": true,
+              "ampleur": 0.028,
+              "detail": "ISO 0.165 vs 0.137"
+            }
+          ],
+          "pour": 2,
+          "contre": 1,
+          "net": 1
+        },
+        "away": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": true,
+              "ampleur": 1.56,
+              "detail": "FIP 3.60 vs 5.15"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": false,
+              "ampleur": 5.0,
+              "detail": "OPS idx 0.965 vs 1.015"
+            },
+            {
+              "nom": "Puissance (ISO)",
+              "pour": false,
+              "ampleur": 0.028,
+              "detail": "ISO 0.137 vs 0.165"
+            }
+          ],
+          "pour": 1,
+          "contre": 2,
+          "net": -1
+        }
+      },
+      "bets": [
+        {
+          "marche": "moneyline",
+          "equipe": "San Francisco Giants",
+          "probabilite": 28.9,
+          "prob_modele": 45.4,
+          "cote": 5.5,
+          "valeur_pct": 58.9,
+          "cote_equitable": 3.46,
+          "facteurs_nets": 1,
+          "no_brainer": false,
+          "tier": "🟢",
+          "label": "solide",
+          "raison": "valeur +58.9% mais facteurs peu alignés (1)"
+        },
+        {
+          "marche": "moneyline",
+          "equipe": "St. Louis Cardinals",
+          "probabilite": 71.1,
+          "prob_modele": 54.6,
+          "cote": 1.25,
+          "valeur_pct": -11.1,
+          "cote_equitable": 1.41,
+          "facteurs_nets": -1,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 71% à 1.25 = -11.1%"
+        }
+      ],
+      "prob_marche": {
+        "home_ml": 0.2,
+        "away_ml": 0.8,
+        "source": "mediane no-vig (8 books)"
+      },
+      "prob_finale": {
+        "home_ml": 0.2889,
+        "away_ml": 0.7111
       }
     },
     {
@@ -1087,7 +1049,7 @@
           "ip_par_depart": 3.64,
           "forme": {
             "games": 5,
-            "fip": 3.252,
+            "fip": 3.251,
             "k_bb_pct": 0.1296,
             "ip_per_gs": 2.4
           }
@@ -1096,27 +1058,27 @@
           "nom": "Braydon Fisher",
           "main": "R",
           "fip": 4.029,
-          "fip_eff": 4.466,
+          "fip_eff": 4.465,
           "k_bb_pct": 0.1155,
           "whip": 1.22,
           "ip_par_depart": 2.37,
           "forme": {
             "games": 5,
-            "fip": 5.485,
+            "fip": 5.484,
             "k_bb_pct": -0.1364,
             "ip_per_gs": 1.13
           }
         }
       },
       "runs_attendus": {
-        "home": 5.125,
+        "home": 5.124,
         "away": 4.305
       },
-      "run_diff": 0.82,
+      "run_diff": 0.819,
       "bullpens": {
         "home": {
-          "fip": 4.456,
-          "fip_fatigue": 4.556,
+          "fip": 4.455,
+          "fip_fatigue": 4.555,
           "usage": {
             "days": 3,
             "games": 3,
@@ -1153,8 +1115,8 @@
           }
         },
         "away": {
-          "fip": 3.936,
-          "fip_fatigue": 3.936,
+          "fip": 3.935,
+          "fip_fatigue": 3.935,
           "usage": {
             "days": 3,
             "games": 3,
@@ -1226,9 +1188,9 @@
         }
       },
       "prob_modele": {
-        "home_ml": 0.5753,
-        "away_ml": 0.4247,
-        "home_rl": 0.4274,
+        "home_ml": 0.5752,
+        "away_ml": 0.4248,
+        "home_rl": 0.4273,
         "away_rl": 0.2865
       },
       "facteurs": {
@@ -1238,7 +1200,7 @@
               "nom": "Lanceur partant",
               "pour": true,
               "ampleur": 0.72,
-              "detail": "FIP 3.74 vs 4.47"
+              "detail": "FIP 3.74 vs 4.46"
             },
             {
               "nom": "Offense vs la main",
@@ -1256,7 +1218,7 @@
               "nom": "Bullpen",
               "pour": false,
               "ampleur": 0.62,
-              "detail": "FIP 4.56 vs 3.94"
+              "detail": "FIP 4.55 vs 3.94"
             }
           ],
           "pour": 3,
@@ -1269,7 +1231,7 @@
               "nom": "Lanceur partant",
               "pour": false,
               "ampleur": 0.72,
-              "detail": "FIP 4.47 vs 3.74"
+              "detail": "FIP 4.46 vs 3.74"
             },
             {
               "nom": "Offense vs la main",
@@ -1287,7 +1249,7 @@
               "nom": "Bullpen",
               "pour": true,
               "ampleur": 0.62,
-              "detail": "FIP 3.94 vs 4.56"
+              "detail": "FIP 3.94 vs 4.55"
             }
           ],
           "pour": 1,
@@ -1299,55 +1261,55 @@
         {
           "marche": "moneyline",
           "equipe": "Toronto Blue Jays",
-          "probabilite": 32.9,
+          "probabilite": 29.6,
           "prob_modele": 42.5,
-          "cote": 3.7,
-          "valeur_pct": 21.9,
-          "cote_equitable": 3.04,
+          "cote": 4.75,
+          "valeur_pct": 40.8,
+          "cote_equitable": 3.37,
           "facteurs_nets": -2,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +21.9% mais facteurs peu alignés (-2)"
+          "raison": "valeur +40.8% mais facteurs peu alignés (-2)"
         },
         {
           "marche": "run_line_-1.5",
           "equipe": "Athletics",
-          "probabilite": 46.1,
+          "probabilite": 50.3,
           "prob_modele": 42.7,
-          "prob_marche": 47.8,
-          "cote": 2.0,
-          "valeur_pct": -7.9,
-          "cote_equitable": 2.17,
+          "prob_marche": 54.4,
+          "cote": 1.76,
+          "valeur_pct": -11.5,
+          "cote_equitable": 1.99,
           "facteurs_nets": 2,
-          "run_diff": 0.82,
+          "run_diff": 0.819,
           "tier": "🔴",
           "label": "passe",
-          "raison": "valeur -7.9% sous le seuil 5.0% du -1.5"
+          "raison": "valeur -11.5% sous le seuil 5.0% du -1.5"
         },
         {
           "marche": "moneyline",
           "equipe": "Athletics",
-          "probabilite": 67.1,
+          "probabilite": 70.4,
           "prob_modele": 57.5,
-          "cote": 1.36,
-          "valeur_pct": -8.8,
-          "cote_equitable": 1.49,
+          "cote": 1.25,
+          "valeur_pct": -12.0,
+          "cote_equitable": 1.42,
           "facteurs_nets": 2,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 67% à 1.36 = -8.8%"
+          "raison": "prix trop court: 70% à 1.25 = -12.0%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.7218,
-        "away_ml": 0.2782,
+        "home_ml": 0.7728,
+        "away_ml": 0.2272,
         "source": "mediane no-vig (8 books)"
       },
       "prob_finale": {
-        "home_ml": 0.6705,
-        "away_ml": 0.3295
+        "home_ml": 0.7037,
+        "away_ml": 0.2963
       }
     },
     {
@@ -1362,14 +1324,14 @@
         "home": {
           "nom": "Will Warren",
           "main": "R",
-          "fip": 4.161,
-          "fip_eff": 4.438,
+          "fip": 4.16,
+          "fip_eff": 4.437,
           "k_bb_pct": 0.1454,
           "whip": 1.38,
           "ip_par_depart": 5.14,
           "forme": {
             "games": 5,
-            "fip": 5.085,
+            "fip": 5.084,
             "k_bb_pct": 0.1239,
             "ip_per_gs": 5.07
           }
@@ -1378,27 +1340,27 @@
           "nom": "Tomoyuki Sugano",
           "main": "R",
           "fip": 5.046,
-          "fip_eff": 5.008,
+          "fip_eff": 5.007,
           "k_bb_pct": 0.0971,
           "whip": 1.35,
           "ip_par_depart": 5.26,
           "forme": {
             "games": 5,
-            "fip": 4.918,
+            "fip": 4.917,
             "k_bb_pct": 0.1217,
             "ip_per_gs": 4.8
           }
         }
       },
       "runs_attendus": {
-        "home": 5.918,
-        "away": 5.458
+        "home": 5.917,
+        "away": 5.457
       },
       "run_diff": 0.46,
       "bullpens": {
         "home": {
-          "fip": 3.791,
-          "fip_fatigue": 3.791,
+          "fip": 3.79,
+          "fip_fatigue": 3.79,
           "usage": {
             "days": 3,
             "games": 2,
@@ -1426,8 +1388,8 @@
           }
         },
         "away": {
-          "fip": 4.347,
-          "fip_fatigue": 4.447,
+          "fip": 4.346,
+          "fip_fatigue": 4.446,
           "usage": {
             "days": 3,
             "games": 2,
@@ -1631,43 +1593,43 @@
         "home": {
           "nom": "Walker Buehler",
           "main": "R",
-          "fip": 4.233,
-          "fip_eff": 4.176,
-          "k_bb_pct": 0.1232,
-          "whip": 1.33,
-          "ip_par_depart": 4.8,
+          "fip": 4.226,
+          "fip_eff": 4.159,
+          "k_bb_pct": 0.1229,
+          "whip": 1.32,
+          "ip_par_depart": 4.82,
           "forme": {
             "games": 5,
-            "fip": 4.042,
-            "k_bb_pct": 0.2048,
-            "ip_per_gs": 4.67
+            "fip": 4.001,
+            "k_bb_pct": 0.2,
+            "ip_per_gs": 4.8
           }
         },
         "away": {
           "nom": "Jackson Kent",
           "main": "L",
-          "fip": 4.181,
-          "fip_eff": 4.209,
-          "k_bb_pct": 0.0875,
-          "whip": 1.66,
-          "ip_par_depart": 4.61,
+          "fip": 4.163,
+          "fip_eff": 4.18,
+          "k_bb_pct": 0.0866,
+          "whip": 1.65,
+          "ip_par_depart": 4.68,
           "forme": {
             "games": 5,
-            "fip": 4.275,
-            "k_bb_pct": 0.0104,
-            "ip_per_gs": 4.27
+            "fip": 4.22,
+            "k_bb_pct": 0.0101,
+            "ip_per_gs": 4.4
           }
         }
       },
       "runs_attendus": {
-        "home": 4.871,
-        "away": 4.293
+        "home": 4.849,
+        "away": 4.284
       },
-      "run_diff": 0.578,
+      "run_diff": 0.565,
       "bullpens": {
         "home": {
-          "fip": 3.58,
-          "fip_fatigue": 3.58,
+          "fip": 3.579,
+          "fip_fatigue": 3.579,
           "usage": {
             "days": 3,
             "games": 3,
@@ -1708,8 +1670,8 @@
           }
         },
         "away": {
-          "fip": 4.937,
-          "fip_fatigue": 5.037,
+          "fip": 4.936,
+          "fip_fatigue": 5.036,
           "usage": {
             "days": 3,
             "games": 3,
@@ -1779,10 +1741,10 @@
         }
       },
       "prob_modele": {
-        "home_ml": 0.554,
-        "away_ml": 0.446,
-        "home_rl": 0.4038,
-        "away_rl": 0.303
+        "home_ml": 0.5529,
+        "away_ml": 0.4471,
+        "home_rl": 0.4024,
+        "away_rl": 0.3037
       },
       "facteurs": {
         "home": {
@@ -1791,7 +1753,7 @@
               "nom": "K-BB% partant",
               "pour": true,
               "ampleur": 3.6,
-              "detail": "12.3% vs 8.8%"
+              "detail": "12.3% vs 8.7%"
             },
             {
               "nom": "Offense vs la main",
@@ -1822,7 +1784,7 @@
               "nom": "K-BB% partant",
               "pour": false,
               "ampleur": 3.6,
-              "detail": "8.8% vs 12.3%"
+              "detail": "8.7% vs 12.3%"
             },
             {
               "nom": "Offense vs la main",
@@ -1852,55 +1814,331 @@
         {
           "marche": "moneyline",
           "equipe": "Washington Nationals",
-          "probabilite": 38.3,
-          "prob_modele": 44.6,
-          "cote": 2.9,
-          "valeur_pct": 10.9,
-          "cote_equitable": 2.61,
+          "probabilite": 39.4,
+          "prob_modele": 44.7,
+          "cote": 2.76,
+          "valeur_pct": 8.8,
+          "cote_equitable": 2.54,
           "facteurs_nets": 0,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +10.9% mais facteurs peu alignés (0)"
-        },
-        {
-          "marche": "moneyline",
-          "equipe": "San Diego Padres",
-          "probabilite": 61.7,
-          "prob_modele": 55.4,
-          "cote": 1.55,
-          "valeur_pct": -4.3,
-          "cote_equitable": 1.62,
-          "facteurs_nets": 0,
-          "no_brainer": false,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "prix trop court: 62% à 1.55 = -4.3%"
+          "raison": "valeur +8.8% mais facteurs peu alignés (0)"
         },
         {
           "marche": "run_line_-1.5",
           "equipe": "San Diego Padres",
-          "probabilite": 42.4,
-          "prob_modele": 40.4,
-          "prob_marche": 43.5,
-          "cote": 2.2,
-          "valeur_pct": -6.7,
-          "cote_equitable": 2.36,
+          "probabilite": 41.2,
+          "prob_modele": 40.2,
+          "prob_marche": 41.8,
+          "cote": 2.29,
+          "valeur_pct": -5.5,
+          "cote_equitable": 2.42,
           "facteurs_nets": 0,
-          "run_diff": 0.578,
+          "run_diff": 0.565,
           "tier": "🔴",
           "label": "passe",
-          "raison": "valeur -6.7% sous le seuil 5.0% du -1.5"
+          "raison": "valeur -5.5% sous le seuil 5.0% du -1.5"
+        },
+        {
+          "marche": "moneyline",
+          "equipe": "San Diego Padres",
+          "probabilite": 60.6,
+          "prob_modele": 55.3,
+          "cote": 1.53,
+          "valeur_pct": -7.3,
+          "cote_equitable": 1.65,
+          "facteurs_nets": 0,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 61% à 1.53 = -7.3%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.6516,
-        "away_ml": 0.3484,
+        "home_ml": 0.6341,
+        "away_ml": 0.3659,
         "source": "mediane no-vig (8 books)"
       },
       "prob_finale": {
-        "home_ml": 0.6175,
-        "away_ml": 0.3825
+        "home_ml": 0.6057,
+        "away_ml": 0.3943
+      }
+    },
+    {
+      "game_pk": 823090,
+      "event_id": "e1530fe384fbce5fff1d0a587c45122e",
+      "home_team": "Seattle Mariners",
+      "away_team": "Texas Rangers",
+      "venue": "T-Mobile Park",
+      "park_factor": 0.93,
+      "commence": "2026-09-09T20:10:00Z",
+      "starters": {
+        "home": {
+          "nom": "Kade Anderson",
+          "main": "L",
+          "fip": 4.667,
+          "fip_eff": 5.022,
+          "k_bb_pct": 0.1174,
+          "whip": 1.47,
+          "ip_par_depart": 4.72,
+          "forme": {
+            "games": 4,
+            "fip": 5.849,
+            "k_bb_pct": 0.0833,
+            "ip_per_gs": 4.25
+          }
+        },
+        "away": {
+          "nom": "Cody Bradford",
+          "main": "L",
+          "fip": 4.329,
+          "fip_eff": 4.63,
+          "k_bb_pct": 0.1022,
+          "whip": 1.55,
+          "ip_par_depart": 4.77,
+          "forme": {
+            "games": 5,
+            "fip": 5.334,
+            "k_bb_pct": 0.0645,
+            "ip_per_gs": 4.07
+          }
+        }
+      },
+      "runs_attendus": {
+        "home": 4.149,
+        "away": 5.657
+      },
+      "run_diff": -1.508,
+      "bullpens": {
+        "home": {
+          "fip": 4.073,
+          "fip_fatigue": 4.073,
+          "usage": {
+            "days": 3,
+            "games": 2,
+            "rel_ip": 6.3,
+            "rel_ip_per_g": 3.17,
+            "rel_pitches": 124,
+            "arms_used": 7,
+            "by_pitcher": {
+              "Andrés Muñoz": [
+                "2026-09-06"
+              ],
+              "José A. Ferrer": [
+                "2026-09-08"
+              ],
+              "Eduard Bazardo": [
+                "2026-09-08"
+              ],
+              "Carlos Vargas": [
+                "2026-09-08"
+              ],
+              "Cooper Criswell": [
+                "2026-09-08"
+              ],
+              "Michael Rucker": [
+                "2026-09-08"
+              ],
+              "Hoby Milner": [
+                "2026-09-08"
+              ]
+            },
+            "closer": "Andrés Muñoz",
+            "closer_days_used": 1,
+            "closer_used_b2b": false
+          }
+        },
+        "away": {
+          "fip": 4.363,
+          "fip_fatigue": 4.613,
+          "usage": {
+            "days": 3,
+            "games": 2,
+            "rel_ip": 9.0,
+            "rel_ip_per_g": 4.5,
+            "rel_pitches": 131,
+            "arms_used": 7,
+            "by_pitcher": {
+              "Trevor Williams": [
+                "2026-09-06"
+              ],
+              "Chase Silseth": [
+                "2026-09-06"
+              ],
+              "Tyler Alexander": [
+                "2026-09-06"
+              ],
+              "Jacob Latz": [
+                "2026-09-06"
+              ],
+              "Jakob Junis": [
+                "2026-09-06"
+              ],
+              "Robert Garcia": [
+                "2026-09-08"
+              ],
+              "Adam Macko": [
+                "2026-09-08"
+              ]
+            },
+            "closer": "Jacob Latz",
+            "closer_days_used": 1,
+            "closer_used_b2b": false
+          }
+        }
+      },
+      "offense": {
+        "home": {
+          "vs_hand": "L",
+          "ops": 0.629,
+          "slg": 0.333,
+          "avg": 0.214,
+          "obp": 0.296,
+          "iso": 0.119,
+          "k_pct": 0.2463,
+          "bb_pct": 0.0897,
+          "hr": 46,
+          "pa": 1750,
+          "ops_index": 0.8837
+        },
+        "away": {
+          "vs_hand": "L",
+          "ops": 0.766,
+          "slg": 0.433,
+          "avg": 0.261,
+          "obp": 0.333,
+          "iso": 0.172,
+          "k_pct": 0.2366,
+          "bb_pct": 0.0878,
+          "hr": 53,
+          "pa": 1572,
+          "ops_index": 1.0761
+        }
+      },
+      "prob_modele": {
+        "home_ml": 0.3658,
+        "away_ml": 0.6342,
+        "home_rl": 0.2391,
+        "away_rl": 0.4913
+      },
+      "facteurs": {
+        "home": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": false,
+              "ampleur": 0.39,
+              "detail": "FIP 5.02 vs 4.63"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": false,
+              "ampleur": 19.2,
+              "detail": "OPS idx 0.884 vs 1.076"
+            },
+            {
+              "nom": "Puissance (ISO)",
+              "pour": false,
+              "ampleur": 0.053,
+              "detail": "ISO 0.119 vs 0.172"
+            },
+            {
+              "nom": "Bullpen",
+              "pour": true,
+              "ampleur": 0.54,
+              "detail": "FIP 4.07 vs 4.61"
+            }
+          ],
+          "pour": 1,
+          "contre": 3,
+          "net": -2
+        },
+        "away": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": true,
+              "ampleur": 0.39,
+              "detail": "FIP 4.63 vs 5.02"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": true,
+              "ampleur": 19.2,
+              "detail": "OPS idx 1.076 vs 0.884"
+            },
+            {
+              "nom": "Puissance (ISO)",
+              "pour": true,
+              "ampleur": 0.053,
+              "detail": "ISO 0.172 vs 0.119"
+            },
+            {
+              "nom": "Bullpen",
+              "pour": false,
+              "ampleur": 0.54,
+              "detail": "FIP 4.61 vs 4.07"
+            }
+          ],
+          "pour": 3,
+          "contre": 1,
+          "net": 2
+        }
+      },
+      "bets": [
+        {
+          "marche": "moneyline",
+          "equipe": "Texas Rangers",
+          "probabilite": 55.3,
+          "prob_modele": 63.4,
+          "cote": 1.95,
+          "valeur_pct": 7.8,
+          "cote_equitable": 1.81,
+          "facteurs_nets": 2,
+          "no_brainer": false,
+          "tier": "🟢",
+          "label": "solide",
+          "raison": "valeur +7.8% à 55% de probabilité (cote 1.95)"
+        },
+        {
+          "marche": "run_line_-1.5",
+          "equipe": "Texas Rangers",
+          "probabilite": 40.2,
+          "prob_modele": 49.1,
+          "prob_marche": 35.4,
+          "cote": 2.7,
+          "valeur_pct": 8.6,
+          "cote_equitable": 2.49,
+          "facteurs_nets": 2,
+          "run_diff": 1.508,
+          "tier": "🟡",
+          "label": "jouable",
+          "raison": "valeur +8.6% mais seulement 2 facteurs alignés (il en faut 3)"
+        },
+        {
+          "marche": "moneyline",
+          "equipe": "Seattle Mariners",
+          "probabilite": 44.7,
+          "prob_modele": 36.6,
+          "cote": 2.0,
+          "valeur_pct": -10.5,
+          "cote_equitable": 2.24,
+          "facteurs_nets": -2,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 45% à 2.00 = -10.5%"
+        }
+      ],
+      "prob_marche": {
+        "home_ml": 0.4913,
+        "away_ml": 0.5087,
+        "source": "mediane no-vig (8 books)"
+      },
+      "prob_finale": {
+        "home_ml": 0.4474,
+        "away_ml": 0.5526
       }
     },
     {
@@ -1915,14 +2153,14 @@
         "home": {
           "nom": "Davis Martin",
           "main": "R",
-          "fip": 3.78,
-          "fip_eff": 4.835,
+          "fip": 3.779,
+          "fip_eff": 4.834,
           "k_bb_pct": 0.1334,
           "whip": 1.32,
           "ip_par_depart": 5.22,
           "forme": {
             "games": 5,
-            "fip": 7.296,
+            "fip": 7.295,
             "k_bb_pct": 0.0778,
             "ip_per_gs": 3.93
           }
@@ -1937,21 +2175,21 @@
           "ip_par_depart": 3.29,
           "forme": {
             "games": 5,
-            "fip": 4.721,
+            "fip": 4.72,
             "k_bb_pct": 0.0652,
             "ip_per_gs": 2.2
           }
         }
       },
       "runs_attendus": {
-        "home": 5.012,
-        "away": 5.774
+        "home": 5.011,
+        "away": 5.773
       },
       "run_diff": -0.762,
       "bullpens": {
         "home": {
-          "fip": 4.067,
-          "fip_fatigue": 4.517,
+          "fip": 4.066,
+          "fip_fatigue": 4.516,
           "usage": {
             "days": 3,
             "games": 2,
@@ -1986,8 +2224,8 @@
           }
         },
         "away": {
-          "fip": 3.925,
-          "fip_fatigue": 3.925,
+          "fip": 3.924,
+          "fip_fatigue": 3.924,
           "usage": {
             "days": 3,
             "games": 2,
@@ -2052,7 +2290,7 @@
       "prob_modele": {
         "home_ml": 0.4347,
         "away_ml": 0.5653,
-        "home_rl": 0.3053,
+        "home_rl": 0.3052,
         "away_rl": 0.4287
       },
       "facteurs": {
@@ -2159,14 +2397,14 @@
         "home": {
           "nom": "Shane Baz",
           "main": "R",
-          "fip": 3.539,
-          "fip_eff": 3.536,
+          "fip": 3.538,
+          "fip_eff": 3.535,
           "k_bb_pct": 0.1277,
           "whip": 1.33,
           "ip_par_depart": 5.75,
           "forme": {
             "games": 5,
-            "fip": 3.529,
+            "fip": 3.528,
             "k_bb_pct": 0.1207,
             "ip_per_gs": 5.4
           }
@@ -2174,14 +2412,14 @@
         "away": {
           "nom": "Foster Griffin",
           "main": "L",
-          "fip": 4.111,
+          "fip": 4.11,
           "fip_eff": 3.947,
           "k_bb_pct": 0.1494,
           "whip": 1.14,
           "ip_par_depart": 5.66,
           "forme": {
             "games": 5,
-            "fip": 3.566,
+            "fip": 3.565,
             "k_bb_pct": 0.0982,
             "ip_per_gs": 5.4
           }
@@ -2189,13 +2427,13 @@
       },
       "runs_attendus": {
         "home": 4.883,
-        "away": 4.06
+        "away": 4.059
       },
-      "run_diff": 0.823,
+      "run_diff": 0.824,
       "bullpens": {
         "home": {
-          "fip": 3.815,
-          "fip_fatigue": 3.915,
+          "fip": 3.814,
+          "fip_fatigue": 3.914,
           "usage": {
             "days": 3,
             "games": 3,
@@ -2239,8 +2477,8 @@
           }
         },
         "away": {
-          "fip": 3.699,
-          "fip_fatigue": 4.149,
+          "fip": 3.698,
+          "fip_fatigue": 4.148,
           "usage": {
             "days": 3,
             "games": 3,
@@ -2312,10 +2550,10 @@
         }
       },
       "prob_modele": {
-        "home_ml": 0.5777,
-        "away_ml": 0.4223,
-        "home_rl": 0.425,
-        "away_rl": 0.2803
+        "home_ml": 0.5778,
+        "away_ml": 0.4222,
+        "home_rl": 0.4251,
+        "away_rl": 0.2802
       },
       "facteurs": {
         "home": {
@@ -2400,13 +2638,13 @@
         }
       ],
       "prob_marche": {
-        "home_ml": 0.4859,
-        "away_ml": 0.5141,
+        "home_ml": 0.4857,
+        "away_ml": 0.5143,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.518,
-        "away_ml": 0.482
+        "home_ml": 0.5179,
+        "away_ml": 0.4821
       }
     },
     {
@@ -2421,14 +2659,14 @@
         "home": {
           "nom": "Cristopher Sánchez",
           "main": "L",
-          "fip": 2.868,
+          "fip": 2.867,
           "fip_eff": 2.623,
           "k_bb_pct": 0.2036,
           "whip": 1.2,
           "ip_par_depart": 6.13,
           "forme": {
             "games": 5,
-            "fip": 2.053,
+            "fip": 2.052,
             "k_bb_pct": 0.2063,
             "ip_per_gs": 6.33
           }
@@ -2436,28 +2674,28 @@
         "away": {
           "nom": "Hunter Brown",
           "main": "R",
-          "fip": 4.165,
-          "fip_eff": 4.066,
+          "fip": 4.164,
+          "fip_eff": 4.065,
           "k_bb_pct": 0.1298,
           "whip": 1.3,
           "ip_par_depart": 5.39,
           "forme": {
             "games": 5,
-            "fip": 3.835,
+            "fip": 3.834,
             "k_bb_pct": 0.1345,
             "ip_per_gs": 5.67
           }
         }
       },
       "runs_attendus": {
-        "home": 4.926,
+        "home": 4.925,
         "away": 3.408
       },
-      "run_diff": 1.518,
+      "run_diff": 1.517,
       "bullpens": {
         "home": {
-          "fip": 3.875,
-          "fip_fatigue": 3.875,
+          "fip": 3.874,
+          "fip_fatigue": 3.874,
           "usage": {
             "days": 3,
             "games": 3,
@@ -2492,8 +2730,8 @@
           }
         },
         "away": {
-          "fip": 4.172,
-          "fip_fatigue": 4.172,
+          "fip": 4.171,
+          "fip_fatigue": 4.171,
           "usage": {
             "days": 3,
             "games": 2,
@@ -2554,10 +2792,10 @@
         }
       },
       "prob_modele": {
-        "home_ml": 0.6468,
-        "away_ml": 0.3532,
-        "home_rl": 0.4893,
-        "away_rl": 0.2173
+        "home_ml": 0.6467,
+        "away_ml": 0.3533,
+        "home_rl": 0.4892,
+        "away_rl": 0.2174
       },
       "facteurs": {
         "home": {
@@ -2578,7 +2816,7 @@
               "nom": "Bullpen",
               "pour": true,
               "ampleur": 0.3,
-              "detail": "FIP 3.88 vs 4.17"
+              "detail": "FIP 3.87 vs 4.17"
             }
           ],
           "pour": 3,
@@ -2603,7 +2841,7 @@
               "nom": "Bullpen",
               "pour": false,
               "ampleur": 0.3,
-              "detail": "FIP 4.17 vs 3.88"
+              "detail": "FIP 4.17 vs 3.87"
             }
           ],
           "pour": 0,
@@ -2633,13 +2871,13 @@
           "prob_modele": 48.9,
           "prob_marche": 39.1,
           "cote": 2.45,
-          "valeur_pct": 4.2,
+          "valeur_pct": 4.1,
           "cote_equitable": 2.35,
           "facteurs_nets": 3,
-          "run_diff": 1.518,
+          "run_diff": 1.517,
           "tier": "🔴",
           "label": "passe",
-          "raison": "valeur +4.2% sous le seuil 5.0% du -1.5"
+          "raison": "valeur +4.1% sous le seuil 5.0% du -1.5"
         },
         {
           "marche": "moneyline",
@@ -2662,8 +2900,8 @@
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.6034,
-        "away_ml": 0.3966
+        "home_ml": 0.6033,
+        "away_ml": 0.3967
       }
     },
     {
@@ -2685,7 +2923,7 @@
           "ip_par_depart": 4.7,
           "forme": {
             "games": 5,
-            "fip": 4.045,
+            "fip": 4.044,
             "k_bb_pct": 0.1714,
             "ip_per_gs": 5.0
           }
@@ -2693,28 +2931,28 @@
         "away": {
           "nom": "Griffin Jax",
           "main": "R",
-          "fip": 3.766,
-          "fip_eff": 3.437,
+          "fip": 3.765,
+          "fip_eff": 3.436,
           "k_bb_pct": 0.1698,
           "whip": 1.27,
           "ip_par_depart": 4.61,
           "forme": {
             "games": 5,
-            "fip": 2.668,
+            "fip": 2.667,
             "k_bb_pct": 0.211,
             "ip_per_gs": 4.87
           }
         }
       },
       "runs_attendus": {
-        "home": 4.906,
-        "away": 5.16
+        "home": 4.904,
+        "away": 5.159
       },
-      "run_diff": -0.254,
+      "run_diff": -0.255,
       "bullpens": {
         "home": {
-          "fip": 3.852,
-          "fip_fatigue": 3.852,
+          "fip": 3.851,
+          "fip_fatigue": 3.851,
           "usage": {
             "days": 3,
             "games": 3,
@@ -2748,8 +2986,8 @@
           }
         },
         "away": {
-          "fip": 4.39,
-          "fip_fatigue": 4.49,
+          "fip": 4.389,
+          "fip_fatigue": 4.489,
           "usage": {
             "days": 3,
             "games": 2,
@@ -2814,10 +3052,10 @@
         }
       },
       "prob_modele": {
-        "home_ml": 0.4774,
-        "away_ml": 0.5226,
-        "home_rl": 0.3388,
-        "away_rl": 0.3814
+        "home_ml": 0.4773,
+        "away_ml": 0.5227,
+        "home_rl": 0.3387,
+        "away_rl": 0.3815
       },
       "facteurs": {
         "home": {
@@ -2908,7 +3146,7 @@
           "valeur_pct": -2.4,
           "cote_equitable": 2.72,
           "facteurs_nets": 2,
-          "run_diff": 0.254,
+          "run_diff": 0.255,
           "tier": "🔴",
           "label": "passe",
           "raison": "valeur -2.4% sous le seuil 5.0% du -1.5"
@@ -2918,14 +3156,14 @@
           "equipe": "Atlanta Braves",
           "probabilite": 51.3,
           "prob_modele": 47.7,
-          "cote": 1.83,
-          "valeur_pct": -6.1,
+          "cote": 1.85,
+          "valeur_pct": -5.1,
           "cote_equitable": 1.95,
           "facteurs_nets": -2,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 51% à 1.83 = -6.1%"
+          "raison": "prix trop court: 51% à 1.85 = -5.1%"
         }
       ],
       "prob_marche": {
@@ -2950,14 +3188,14 @@
         "home": {
           "nom": "Yoshinobu Yamamoto",
           "main": "R",
-          "fip": 3.511,
-          "fip_eff": 3.335,
+          "fip": 3.51,
+          "fip_eff": 3.334,
           "k_bb_pct": 0.1819,
           "whip": 0.9,
           "ip_par_depart": 6.41,
           "forme": {
             "games": 5,
-            "fip": 2.924,
+            "fip": 2.923,
             "k_bb_pct": 0.248,
             "ip_per_gs": 6.27
           }
@@ -2972,21 +3210,21 @@
           "ip_par_depart": 4.99,
           "forme": {
             "games": 5,
-            "fip": 5.122,
+            "fip": 5.121,
             "k_bb_pct": 0.0738,
             "ip_per_gs": 5.4
           }
         }
       },
       "runs_attendus": {
-        "home": 6.288,
-        "away": 3.904
+        "home": 6.287,
+        "away": 3.903
       },
       "run_diff": 2.384,
       "bullpens": {
         "home": {
-          "fip": 3.856,
-          "fip_fatigue": 3.956,
+          "fip": 3.855,
+          "fip_fatigue": 3.955,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3030,8 +3268,8 @@
           }
         },
         "away": {
-          "fip": 4.77,
-          "fip_fatigue": 4.87,
+          "fip": 4.769,
+          "fip_fatigue": 4.869,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3102,8 +3340,8 @@
         }
       },
       "prob_modele": {
-        "home_ml": 0.7031,
-        "away_ml": 0.2969,
+        "home_ml": 0.7032,
+        "away_ml": 0.2968,
         "home_rl": 0.5698,
         "away_rl": 0.1858
       },
@@ -3245,13 +3483,13 @@
           "nom": "Janson Junk",
           "main": "R",
           "fip": 4.086,
-          "fip_eff": 3.786,
+          "fip_eff": 3.785,
           "k_bb_pct": 0.1087,
           "whip": 1.28,
           "ip_par_depart": 5.11,
           "forme": {
             "games": 5,
-            "fip": 3.085,
+            "fip": 3.084,
             "k_bb_pct": 0.06,
             "ip_per_gs": 5.07
           }
@@ -3259,28 +3497,28 @@
         "away": {
           "nom": "Robert Stock",
           "main": "R",
-          "fip": 4.118,
-          "fip_eff": 4.08,
+          "fip": 4.117,
+          "fip_eff": 4.079,
           "k_bb_pct": 0.1178,
           "whip": 1.75,
           "ip_par_depart": 4.68,
           "forme": {
             "games": 5,
-            "fip": 3.99,
+            "fip": 3.989,
             "k_bb_pct": 0.0748,
             "ip_per_gs": 4.2
           }
         }
       },
       "runs_attendus": {
-        "home": 5.287,
-        "away": 4.454
+        "home": 5.286,
+        "away": 4.453
       },
-      "run_diff": 0.832,
+      "run_diff": 0.833,
       "bullpens": {
         "home": {
-          "fip": 3.949,
-          "fip_fatigue": 4.199,
+          "fip": 3.948,
+          "fip_fatigue": 4.198,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3320,8 +3558,8 @@
           }
         },
         "away": {
-          "fip": 3.91,
-          "fip_fatigue": 4.21,
+          "fip": 3.909,
+          "fip_fatigue": 4.209,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3396,7 +3634,7 @@
       "prob_modele": {
         "home_ml": 0.5752,
         "away_ml": 0.4248,
-        "home_rl": 0.4302,
+        "home_rl": 0.4301,
         "away_rl": 0.289
       },
       "facteurs": {
@@ -3464,7 +3702,7 @@
           "valeur_pct": 2.2,
           "cote_equitable": 2.6,
           "facteurs_nets": 2,
-          "run_diff": 0.832,
+          "run_diff": 0.833,
           "tier": "🔴",
           "label": "passe",
           "raison": "valeur +2.2% sous le seuil 5.0% du -1.5"
@@ -3506,14 +3744,14 @@
         "home": {
           "nom": "Logan Henderson",
           "main": "R",
-          "fip": 3.558,
-          "fip_eff": 3.553,
+          "fip": 3.557,
+          "fip_eff": 3.552,
           "k_bb_pct": 0.215,
           "whip": 0.79,
           "ip_par_depart": 5.48,
           "forme": {
             "games": 5,
-            "fip": 3.54,
+            "fip": 3.539,
             "k_bb_pct": 0.2288,
             "ip_per_gs": 6.67
           }
@@ -3528,7 +3766,7 @@
           "ip_par_depart": 5.55,
           "forme": {
             "games": 5,
-            "fip": 3.728,
+            "fip": 3.727,
             "k_bb_pct": 0.2308,
             "ip_per_gs": 5.6
           }
@@ -3536,13 +3774,13 @@
       },
       "runs_attendus": {
         "home": 5.53,
-        "away": 4.88
+        "away": 4.878
       },
-      "run_diff": 0.651,
+      "run_diff": 0.652,
       "bullpens": {
         "home": {
-          "fip": 3.72,
-          "fip_fatigue": 4.02,
+          "fip": 3.719,
+          "fip_fatigue": 4.019,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3587,8 +3825,8 @@
           }
         },
         "away": {
-          "fip": 4.656,
-          "fip_fatigue": 4.856,
+          "fip": 4.655,
+          "fip_fatigue": 4.855,
           "usage": {
             "days": 3,
             "games": 3,
@@ -3658,10 +3896,10 @@
         }
       },
       "prob_modele": {
-        "home_ml": 0.5568,
-        "away_ml": 0.4432,
-        "home_rl": 0.4174,
-        "away_rl": 0.3103
+        "home_ml": 0.557,
+        "away_ml": 0.443,
+        "home_rl": 0.4176,
+        "away_rl": 0.3101
       },
       "facteurs": {
         "home": {
@@ -3720,13 +3958,13 @@
           "marche": "run_line_-1.5",
           "equipe": "Milwaukee Brewers",
           "probabilite": 37.8,
-          "prob_modele": 41.7,
+          "prob_modele": 41.8,
           "prob_marche": 35.7,
           "cote": 2.68,
           "valeur_pct": 1.4,
           "cote_equitable": 2.64,
           "facteurs_nets": 1,
-          "run_diff": 0.651,
+          "run_diff": 0.652,
           "tier": "🔴",
           "label": "passe",
           "raison": "valeur +1.4% sous le seuil 5.0% du -1.5"
@@ -3771,564 +4009,6 @@
       }
     },
     {
-      "game_pk": 823172,
-      "event_id": "4a391464b8e1ffee0ee5e205298840de",
-      "home_team": "San Francisco Giants",
-      "away_team": "St. Louis Cardinals",
-      "venue": "Oracle Park",
-      "park_factor": 0.94,
-      "commence": "2026-09-09T19:45:00Z",
-      "starters": {
-        "home": {
-          "nom": "Blade Tidwell",
-          "main": "R",
-          "fip": 4.362,
-          "fip_eff": 4.824,
-          "k_bb_pct": 0.1143,
-          "whip": 1.24,
-          "ip_par_depart": 4.89,
-          "forme": {
-            "games": 5,
-            "fip": 5.903,
-            "k_bb_pct": 0.0625,
-            "ip_per_gs": 4.47
-          }
-        },
-        "away": {
-          "nom": "Andre Pallante",
-          "main": "R",
-          "fip": 3.763,
-          "fip_eff": 3.597,
-          "k_bb_pct": 0.1027,
-          "whip": 1.24,
-          "ip_par_depart": 5.46,
-          "forme": {
-            "games": 5,
-            "fip": 3.21,
-            "k_bb_pct": 0.0417,
-            "ip_per_gs": 4.87
-          }
-        }
-      },
-      "runs_attendus": {
-        "home": 4.649,
-        "away": 4.922
-      },
-      "run_diff": -0.273,
-      "bullpens": {
-        "home": {
-          "fip": 4.239,
-          "fip_fatigue": 4.439,
-          "usage": {
-            "days": 3,
-            "games": 3,
-            "rel_ip": 10.0,
-            "rel_ip_per_g": 3.33,
-            "rel_pitches": 196,
-            "arms_used": 6,
-            "by_pitcher": {
-              "Joel Kuhnel": [
-                "2026-09-06",
-                "2026-09-08"
-              ],
-              "Carson Seymour": [
-                "2026-09-06",
-                "2026-09-08"
-              ],
-              "Trent Harris": [
-                "2026-09-07"
-              ],
-              "Dylan Smith": [
-                "2026-09-07"
-              ],
-              "Reiver Sanmartin": [
-                "2026-09-07",
-                "2026-09-08"
-              ],
-              "Jason Foley": [
-                "2026-09-07"
-              ]
-            },
-            "closer": "Joel Kuhnel",
-            "closer_days_used": 2,
-            "closer_used_b2b": true
-          }
-        },
-        "away": {
-          "fip": 4.286,
-          "fip_fatigue": 4.386,
-          "usage": {
-            "days": 3,
-            "games": 3,
-            "rel_ip": 12.0,
-            "rel_ip_per_g": 4.0,
-            "rel_pitches": 193,
-            "arms_used": 8,
-            "by_pitcher": {
-              "Cade Winquest": [
-                "2026-09-06"
-              ],
-              "Cooper Hjerpe": [
-                "2026-09-06"
-              ],
-              "Luis Gastelum": [
-                "2026-09-06"
-              ],
-              "Ryne Stanek": [
-                "2026-09-06",
-                "2026-09-07"
-              ],
-              "George Soriano": [
-                "2026-09-06",
-                "2026-09-07"
-              ],
-              "Justin Bruihl": [
-                "2026-09-07"
-              ],
-              "Riley O'Brien": [
-                "2026-09-07"
-              ],
-              "Gordon Graceffo": [
-                "2026-09-08"
-              ]
-            },
-            "closer": "Riley O'Brien",
-            "closer_days_used": 1,
-            "closer_used_b2b": false
-          }
-        }
-      },
-      "offense": {
-        "home": {
-          "vs_hand": "R",
-          "ops": 0.732,
-          "slg": 0.417,
-          "avg": 0.252,
-          "obp": 0.315,
-          "iso": 0.165,
-          "k_pct": 0.2048,
-          "bb_pct": 0.077,
-          "hr": 124,
-          "pa": 3896,
-          "ops_index": 1.0146
-        },
-        "away": {
-          "vs_hand": "R",
-          "ops": 0.696,
-          "slg": 0.381,
-          "avg": 0.244,
-          "obp": 0.315,
-          "iso": 0.137,
-          "k_pct": 0.2151,
-          "bb_pct": 0.0802,
-          "hr": 102,
-          "pa": 3863,
-          "ops_index": 0.9647
-        }
-      },
-      "prob_modele": {
-        "home_ml": 0.475,
-        "away_ml": 0.525,
-        "home_rl": 0.3327,
-        "away_rl": 0.3795
-      },
-      "facteurs": {
-        "home": {
-          "facteurs": [
-            {
-              "nom": "Lanceur partant",
-              "pour": false,
-              "ampleur": 1.23,
-              "detail": "FIP 4.82 vs 3.60"
-            },
-            {
-              "nom": "Offense vs la main",
-              "pour": true,
-              "ampleur": 5.0,
-              "detail": "OPS idx 1.015 vs 0.965"
-            },
-            {
-              "nom": "Puissance (ISO)",
-              "pour": true,
-              "ampleur": 0.028,
-              "detail": "ISO 0.165 vs 0.137"
-            }
-          ],
-          "pour": 2,
-          "contre": 1,
-          "net": 1
-        },
-        "away": {
-          "facteurs": [
-            {
-              "nom": "Lanceur partant",
-              "pour": true,
-              "ampleur": 1.23,
-              "detail": "FIP 3.60 vs 4.82"
-            },
-            {
-              "nom": "Offense vs la main",
-              "pour": false,
-              "ampleur": 5.0,
-              "detail": "OPS idx 0.965 vs 1.015"
-            },
-            {
-              "nom": "Puissance (ISO)",
-              "pour": false,
-              "ampleur": 0.028,
-              "detail": "ISO 0.137 vs 0.165"
-            }
-          ],
-          "pour": 1,
-          "contre": 2,
-          "net": -1
-        }
-      },
-      "bets": [
-        {
-          "marche": "moneyline",
-          "equipe": "San Francisco Giants",
-          "probabilite": 45.1,
-          "prob_modele": 47.5,
-          "cote": 2.2,
-          "valeur_pct": -0.8,
-          "cote_equitable": 2.22,
-          "facteurs_nets": 1,
-          "no_brainer": false,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "prix trop court: 45% à 2.20 = -0.8%"
-        },
-        {
-          "marche": "moneyline",
-          "equipe": "St. Louis Cardinals",
-          "probabilite": 54.9,
-          "prob_modele": 52.5,
-          "cote": 1.7,
-          "valeur_pct": -6.6,
-          "cote_equitable": 1.82,
-          "facteurs_nets": -1,
-          "no_brainer": false,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "prix trop court: 55% à 1.70 = -6.6%"
-        },
-        {
-          "marche": "run_line_-1.5",
-          "equipe": "St. Louis Cardinals",
-          "probabilite": 39.8,
-          "prob_modele": 37.9,
-          "prob_marche": 40.7,
-          "cote": 2.35,
-          "valeur_pct": -6.6,
-          "cote_equitable": 2.52,
-          "facteurs_nets": -1,
-          "run_diff": 0.273,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "valeur -6.6% sous le seuil 5.0% du -1.5"
-        }
-      ],
-      "prob_marche": {
-        "home_ml": 0.4377,
-        "away_ml": 0.5623,
-        "source": "mediane no-vig (8 books)"
-      },
-      "prob_finale": {
-        "home_ml": 0.4508,
-        "away_ml": 0.5492
-      }
-    },
-    {
-      "game_pk": 824064,
-      "event_id": "01ff759b99c1daf7fe8fbee28fd97362",
-      "home_team": "Kansas City Royals",
-      "away_team": "Arizona Diamondbacks",
-      "venue": "Kauffman Stadium",
-      "park_factor": 0.97,
-      "commence": "2026-09-09T23:40:00Z",
-      "starters": {
-        "home": {
-          "nom": "Daniel Lynch IV",
-          "main": "L",
-          "fip": 4.547,
-          "fip_eff": 4.772,
-          "k_bb_pct": 0.0982,
-          "whip": 1.1,
-          "ip_par_depart": 4.15,
-          "forme": {
-            "games": 5,
-            "fip": 5.296,
-            "k_bb_pct": 0.037,
-            "ip_per_gs": 3.8
-          }
-        },
-        "away": {
-          "nom": "Zac Gallen",
-          "main": "R",
-          "fip": 4.97,
-          "fip_eff": 5.444,
-          "k_bb_pct": 0.0867,
-          "whip": 1.56,
-          "ip_par_depart": 5.17,
-          "forme": {
-            "games": 5,
-            "fip": 6.549,
-            "k_bb_pct": 0.0391,
-            "ip_per_gs": 5.67
-          }
-        }
-      },
-      "runs_attendus": {
-        "home": 5.945,
-        "away": 6.201
-      },
-      "run_diff": -0.256,
-      "bullpens": {
-        "home": {
-          "fip": 5.101,
-          "fip_fatigue": 5.201,
-          "usage": {
-            "days": 3,
-            "games": 3,
-            "rel_ip": 12.0,
-            "rel_ip_per_g": 4.0,
-            "rel_pitches": 214,
-            "arms_used": 8,
-            "by_pitcher": {
-              "Anthony Gose": [
-                "2026-09-06",
-                "2026-09-08"
-              ],
-              "Jose Cuas": [
-                "2026-09-06",
-                "2026-09-08"
-              ],
-              "Connor Thomas": [
-                "2026-09-06",
-                "2026-09-08"
-              ],
-              "Nolan Hoffman": [
-                "2026-09-06",
-                "2026-09-08"
-              ],
-              "Nate Pearson": [
-                "2026-09-07"
-              ],
-              "Steven Cruz": [
-                "2026-09-07",
-                "2026-09-08"
-              ],
-              "Craig Kimbrel": [
-                "2026-09-07"
-              ],
-              "Alex Lange": [
-                "2026-09-08"
-              ]
-            },
-            "closer": "Alex Lange",
-            "closer_days_used": 1,
-            "closer_used_b2b": false
-          }
-        },
-        "away": {
-          "fip": 3.983,
-          "fip_fatigue": 4.433,
-          "usage": {
-            "days": 3,
-            "games": 3,
-            "rel_ip": 19.0,
-            "rel_ip_per_g": 6.33,
-            "rel_pitches": 304,
-            "arms_used": 11,
-            "by_pitcher": {
-              "Juan Morillo": [
-                "2026-09-06",
-                "2026-09-08"
-              ],
-              "Brandyn Garcia": [
-                "2026-09-06",
-                "2026-09-07"
-              ],
-              "Jonathan Loáisiga": [
-                "2026-09-06",
-                "2026-09-08"
-              ],
-              "Kevin Ginkel": [
-                "2026-09-06",
-                "2026-09-08"
-              ],
-              "Jose Cabrera": [
-                "2026-09-07"
-              ],
-              "Taylor Clarke": [
-                "2026-09-07"
-              ],
-              "Justin Martinez": [
-                "2026-09-07"
-              ],
-              "Gerardo Carrillo": [
-                "2026-09-07"
-              ],
-              "Dennis Santana": [
-                "2026-09-07",
-                "2026-09-08"
-              ],
-              "Kade Strowd": [
-                "2026-09-08"
-              ],
-              "Blake Walston": [
-                "2026-09-08"
-              ]
-            },
-            "closer": "Brandyn Garcia",
-            "closer_days_used": 2,
-            "closer_used_b2b": false
-          }
-        }
-      },
-      "offense": {
-        "home": {
-          "vs_hand": "R",
-          "ops": 0.724,
-          "slg": 0.407,
-          "avg": 0.247,
-          "obp": 0.317,
-          "iso": 0.16,
-          "k_pct": 0.2026,
-          "bb_pct": 0.0874,
-          "hr": 112,
-          "pa": 3766,
-          "ops_index": 1.0035
-        },
-        "away": {
-          "vs_hand": "L",
-          "ops": 0.775,
-          "slg": 0.435,
-          "avg": 0.274,
-          "obp": 0.34,
-          "iso": 0.161,
-          "k_pct": 0.1813,
-          "bb_pct": 0.0874,
-          "hr": 38,
-          "pa": 1522,
-          "ops_index": 1.0888
-        }
-      },
-      "prob_modele": {
-        "home_ml": 0.4793,
-        "away_ml": 0.5207,
-        "home_rl": 0.3545,
-        "away_rl": 0.3939
-      },
-      "facteurs": {
-        "home": {
-          "facteurs": [
-            {
-              "nom": "Lanceur partant",
-              "pour": true,
-              "ampleur": 0.67,
-              "detail": "FIP 4.77 vs 5.44"
-            },
-            {
-              "nom": "Offense vs la main",
-              "pour": false,
-              "ampleur": 8.5,
-              "detail": "OPS idx 1.004 vs 1.089"
-            },
-            {
-              "nom": "Bullpen",
-              "pour": false,
-              "ampleur": 0.77,
-              "detail": "FIP 5.20 vs 4.43"
-            }
-          ],
-          "pour": 1,
-          "contre": 2,
-          "net": -1
-        },
-        "away": {
-          "facteurs": [
-            {
-              "nom": "Lanceur partant",
-              "pour": false,
-              "ampleur": 0.67,
-              "detail": "FIP 5.44 vs 4.77"
-            },
-            {
-              "nom": "Offense vs la main",
-              "pour": true,
-              "ampleur": 8.5,
-              "detail": "OPS idx 1.089 vs 1.004"
-            },
-            {
-              "nom": "Bullpen",
-              "pour": true,
-              "ampleur": 0.77,
-              "detail": "FIP 4.43 vs 5.20"
-            }
-          ],
-          "pour": 2,
-          "contre": 1,
-          "net": 1
-        }
-      },
-      "bets": [
-        {
-          "marche": "moneyline",
-          "equipe": "Kansas City Royals",
-          "probabilite": 47.8,
-          "prob_modele": 47.9,
-          "cote": 2.06,
-          "valeur_pct": -1.5,
-          "cote_equitable": 2.09,
-          "facteurs_nets": -1,
-          "no_brainer": false,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "prix trop court: 48% à 2.06 = -1.5%"
-        },
-        {
-          "marche": "moneyline",
-          "equipe": "Arizona Diamondbacks",
-          "probabilite": 52.2,
-          "prob_modele": 52.1,
-          "cote": 1.87,
-          "valeur_pct": -2.4,
-          "cote_equitable": 1.92,
-          "facteurs_nets": 1,
-          "no_brainer": false,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "prix trop court: 52% à 1.87 = -2.4%"
-        },
-        {
-          "marche": "run_line_-1.5",
-          "equipe": "Arizona Diamondbacks",
-          "probabilite": 39.7,
-          "prob_modele": 39.4,
-          "prob_marche": 39.9,
-          "cote": 2.4,
-          "valeur_pct": -4.7,
-          "cote_equitable": 2.52,
-          "facteurs_nets": 1,
-          "run_diff": 0.256,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "valeur -4.7% sous le seuil 5.0% du -1.5"
-        }
-      ],
-      "prob_marche": {
-        "home_ml": 0.4778,
-        "away_ml": 0.5222,
-        "source": "mediane no-vig (11 books)"
-      },
-      "prob_finale": {
-        "home_ml": 0.4783,
-        "away_ml": 0.5217
-      }
-    },
-    {
       "game_pk": 824713,
       "event_id": "c8513bd1ec6dd659d64e9c17052f4c9d",
       "home_team": "Boston Red Sox",
@@ -4340,14 +4020,14 @@
         "home": {
           "nom": "Jake Bennett",
           "main": "L",
-          "fip": 3.524,
-          "fip_eff": 3.478,
+          "fip": 3.523,
+          "fip_eff": 3.477,
           "k_bb_pct": 0.1516,
           "whip": 1.02,
           "ip_par_depart": 5.74,
           "forme": {
             "games": 5,
-            "fip": 3.371,
+            "fip": 3.37,
             "k_bb_pct": 0.2261,
             "ip_per_gs": 5.67
           }
@@ -4362,21 +4042,21 @@
           "ip_par_depart": 4.95,
           "forme": {
             "games": 5,
-            "fip": 4.604,
+            "fip": 4.603,
             "k_bb_pct": 0.0648,
             "ip_per_gs": 5.53
           }
         }
       },
       "runs_attendus": {
-        "home": 5.708,
-        "away": 3.847
+        "home": 5.707,
+        "away": 3.846
       },
       "run_diff": 1.861,
       "bullpens": {
         "home": {
-          "fip": 3.58,
-          "fip_fatigue": 3.58,
+          "fip": 3.579,
+          "fip_fatigue": 3.579,
           "usage": {
             "days": 3,
             "games": 3,
@@ -4416,8 +4096,8 @@
           }
         },
         "away": {
-          "fip": 4.042,
-          "fip_fatigue": 4.042,
+          "fip": 4.041,
+          "fip_fatigue": 4.041,
           "usage": {
             "days": 3,
             "games": 3,
@@ -4554,48 +4234,33 @@
       },
       "bets": [
         {
-          "marche": "run_line_-1.5",
-          "equipe": "Boston Red Sox",
-          "probabilite": 50.1,
-          "prob_modele": 52.4,
-          "prob_marche": 48.8,
-          "cote": 1.96,
-          "valeur_pct": -1.9,
-          "cote_equitable": 2.0,
-          "facteurs_nets": 4,
-          "run_diff": 1.863,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "valeur -1.9% sous le seuil 5.0% du -1.5"
-        },
-        {
           "marche": "moneyline",
           "equipe": "Boston Red Sox",
           "probabilite": 66.1,
           "prob_modele": 66.6,
-          "cote": 1.48,
-          "valeur_pct": -2.1,
+          "cote": 1.5,
+          "valeur_pct": -0.8,
           "cote_equitable": 1.51,
           "facteurs_nets": 4,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 66% à 1.48 = -2.1%"
+          "raison": "prix trop court: 66% à 1.50 = -0.8%"
         },
         {
           "marche": "run_line_-1.5",
           "equipe": "Boston Red Sox",
-          "probabilite": 50.2,
+          "probabilite": 49.9,
           "prob_modele": 52.3,
-          "prob_marche": 49.1,
-          "cote": 1.95,
-          "valeur_pct": -2.1,
-          "cote_equitable": 1.99,
+          "prob_marche": 48.6,
+          "cote": 1.97,
+          "valeur_pct": -1.7,
+          "cote_equitable": 2.0,
           "facteurs_nets": 4,
           "run_diff": 1.861,
           "tier": "🔴",
           "label": "passe",
-          "raison": "valeur -2.1% sous le seuil 5.0% du -1.5"
+          "raison": "valeur -1.7% sous le seuil 5.0% du -1.5"
         },
         {
           "marche": "moneyline",
@@ -4621,21 +4286,2726 @@
         "home_ml": 0.6614,
         "away_ml": 0.3386
       }
+    },
+    {
+      "game_pk": 824064,
+      "event_id": "01ff759b99c1daf7fe8fbee28fd97362",
+      "home_team": "Kansas City Royals",
+      "away_team": "Arizona Diamondbacks",
+      "venue": "Kauffman Stadium",
+      "park_factor": 0.97,
+      "commence": "2026-09-09T23:40:00Z",
+      "starters": {
+        "home": {
+          "nom": "Daniel Lynch IV",
+          "main": "L",
+          "fip": 4.546,
+          "fip_eff": 4.771,
+          "k_bb_pct": 0.0982,
+          "whip": 1.1,
+          "ip_par_depart": 4.15,
+          "forme": {
+            "games": 5,
+            "fip": 5.295,
+            "k_bb_pct": 0.037,
+            "ip_per_gs": 3.8
+          }
+        },
+        "away": {
+          "nom": "Zac Gallen",
+          "main": "R",
+          "fip": 4.97,
+          "fip_eff": 5.443,
+          "k_bb_pct": 0.0867,
+          "whip": 1.56,
+          "ip_par_depart": 5.17,
+          "forme": {
+            "games": 5,
+            "fip": 6.548,
+            "k_bb_pct": 0.0391,
+            "ip_per_gs": 5.67
+          }
+        }
+      },
+      "runs_attendus": {
+        "home": 5.944,
+        "away": 6.199
+      },
+      "run_diff": -0.255,
+      "bullpens": {
+        "home": {
+          "fip": 5.1,
+          "fip_fatigue": 5.2,
+          "usage": {
+            "days": 3,
+            "games": 3,
+            "rel_ip": 12.0,
+            "rel_ip_per_g": 4.0,
+            "rel_pitches": 214,
+            "arms_used": 8,
+            "by_pitcher": {
+              "Anthony Gose": [
+                "2026-09-06",
+                "2026-09-08"
+              ],
+              "Jose Cuas": [
+                "2026-09-06",
+                "2026-09-08"
+              ],
+              "Connor Thomas": [
+                "2026-09-06",
+                "2026-09-08"
+              ],
+              "Nolan Hoffman": [
+                "2026-09-06",
+                "2026-09-08"
+              ],
+              "Nate Pearson": [
+                "2026-09-07"
+              ],
+              "Steven Cruz": [
+                "2026-09-07",
+                "2026-09-08"
+              ],
+              "Craig Kimbrel": [
+                "2026-09-07"
+              ],
+              "Alex Lange": [
+                "2026-09-08"
+              ]
+            },
+            "closer": "Alex Lange",
+            "closer_days_used": 1,
+            "closer_used_b2b": false
+          }
+        },
+        "away": {
+          "fip": 3.982,
+          "fip_fatigue": 4.432,
+          "usage": {
+            "days": 3,
+            "games": 3,
+            "rel_ip": 19.0,
+            "rel_ip_per_g": 6.33,
+            "rel_pitches": 304,
+            "arms_used": 11,
+            "by_pitcher": {
+              "Juan Morillo": [
+                "2026-09-06",
+                "2026-09-08"
+              ],
+              "Brandyn Garcia": [
+                "2026-09-06",
+                "2026-09-07"
+              ],
+              "Jonathan Loáisiga": [
+                "2026-09-06",
+                "2026-09-08"
+              ],
+              "Kevin Ginkel": [
+                "2026-09-06",
+                "2026-09-08"
+              ],
+              "Jose Cabrera": [
+                "2026-09-07"
+              ],
+              "Taylor Clarke": [
+                "2026-09-07"
+              ],
+              "Justin Martinez": [
+                "2026-09-07"
+              ],
+              "Gerardo Carrillo": [
+                "2026-09-07"
+              ],
+              "Dennis Santana": [
+                "2026-09-07",
+                "2026-09-08"
+              ],
+              "Kade Strowd": [
+                "2026-09-08"
+              ],
+              "Blake Walston": [
+                "2026-09-08"
+              ]
+            },
+            "closer": "Brandyn Garcia",
+            "closer_days_used": 2,
+            "closer_used_b2b": false
+          }
+        }
+      },
+      "offense": {
+        "home": {
+          "vs_hand": "R",
+          "ops": 0.724,
+          "slg": 0.407,
+          "avg": 0.247,
+          "obp": 0.317,
+          "iso": 0.16,
+          "k_pct": 0.2026,
+          "bb_pct": 0.0874,
+          "hr": 112,
+          "pa": 3766,
+          "ops_index": 1.0035
+        },
+        "away": {
+          "vs_hand": "L",
+          "ops": 0.775,
+          "slg": 0.435,
+          "avg": 0.274,
+          "obp": 0.34,
+          "iso": 0.161,
+          "k_pct": 0.1813,
+          "bb_pct": 0.0874,
+          "hr": 38,
+          "pa": 1522,
+          "ops_index": 1.0888
+        }
+      },
+      "prob_modele": {
+        "home_ml": 0.4794,
+        "away_ml": 0.5206,
+        "home_rl": 0.3545,
+        "away_rl": 0.3938
+      },
+      "facteurs": {
+        "home": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": true,
+              "ampleur": 0.67,
+              "detail": "FIP 4.77 vs 5.44"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": false,
+              "ampleur": 8.5,
+              "detail": "OPS idx 1.004 vs 1.089"
+            },
+            {
+              "nom": "Bullpen",
+              "pour": false,
+              "ampleur": 0.77,
+              "detail": "FIP 5.20 vs 4.43"
+            }
+          ],
+          "pour": 1,
+          "contre": 2,
+          "net": -1
+        },
+        "away": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": false,
+              "ampleur": 0.67,
+              "detail": "FIP 5.44 vs 4.77"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": true,
+              "ampleur": 8.5,
+              "detail": "OPS idx 1.089 vs 1.004"
+            },
+            {
+              "nom": "Bullpen",
+              "pour": true,
+              "ampleur": 0.77,
+              "detail": "FIP 4.43 vs 5.20"
+            }
+          ],
+          "pour": 2,
+          "contre": 1,
+          "net": 1
+        }
+      },
+      "bets": [
+        {
+          "marche": "moneyline",
+          "equipe": "Kansas City Royals",
+          "probabilite": 47.8,
+          "prob_modele": 47.9,
+          "cote": 2.06,
+          "valeur_pct": -1.5,
+          "cote_equitable": 2.09,
+          "facteurs_nets": -1,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 48% à 2.06 = -1.5%"
+        },
+        {
+          "marche": "moneyline",
+          "equipe": "Arizona Diamondbacks",
+          "probabilite": 52.2,
+          "prob_modele": 52.1,
+          "cote": 1.88,
+          "valeur_pct": -1.9,
+          "cote_equitable": 1.92,
+          "facteurs_nets": 1,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 52% à 1.88 = -1.9%"
+        },
+        {
+          "marche": "run_line_-1.5",
+          "equipe": "Arizona Diamondbacks",
+          "probabilite": 39.2,
+          "prob_modele": 39.4,
+          "prob_marche": 39.1,
+          "cote": 2.45,
+          "valeur_pct": -4.0,
+          "cote_equitable": 2.55,
+          "facteurs_nets": 1,
+          "run_diff": 0.255,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "valeur -4.0% sous le seuil 5.0% du -1.5"
+        }
+      ],
+      "prob_marche": {
+        "home_ml": 0.4778,
+        "away_ml": 0.5222,
+        "source": "mediane no-vig (11 books)"
+      },
+      "prob_finale": {
+        "home_ml": 0.4784,
+        "away_ml": 0.5216
+      }
     }
   ],
   "power_analysis": [],
+  "nfl_analysis": {
+    "week": "2026-09-08",
+    "window_id": "force-2026-09-09T16",
+    "generated_at": "2026-09-09T20:34:29.126589+00:00",
+    "reason": "hors fenetre NFL (Wednesday 16h ET)",
+    "stale": true,
+    "min_edge": 3.0,
+    "min_books": 4,
+    "n_games": 16,
+    "n_signals": 2,
+    "games": [
+      {
+        "event_id": "1edfa5ceaa1ad2cb57df1c1b908731f6",
+        "home_team": "Los Angeles Chargers",
+        "away_team": "Arizona Cardinals",
+        "commence": "2026-09-13T20:25:00Z",
+        "signals": [
+          {
+            "market": "nfl_ml",
+            "selection": "Arizona Cardinals ML",
+            "point": null,
+            "prob": 20.37,
+            "odds": 5.2,
+            "book": "fanduel",
+            "edge_pct": 5.92,
+            "fair_odds": 4.909,
+            "source": "pinnacle",
+            "n_books": 30
+          }
+        ],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 79.63,
+            "prob_b": 20.37,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 9.0,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "mediane no-vig (1 books)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 9.5,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "mediane no-vig (19 books)",
+            "n_books": 19
+          },
+          {
+            "market": "nfl_spread",
+            "point": 10.0,
+            "prob_a": 49.08,
+            "prob_b": 50.92,
+            "source": "mediane no-vig (5 books)",
+            "n_books": 5
+          },
+          {
+            "market": "nfl_spread",
+            "point": 10.5,
+            "prob_a": 44.67,
+            "prob_b": 55.33,
+            "source": "pinnacle",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_total",
+            "point": 46.5,
+            "prob_a": 52.63,
+            "prob_b": 47.37,
+            "source": "mediane no-vig (1 books)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_total",
+            "point": 47.0,
+            "prob_a": 50.91,
+            "prob_b": 49.09,
+            "source": "pinnacle",
+            "n_books": 11
+          },
+          {
+            "market": "nfl_total",
+            "point": 47.5,
+            "prob_a": 49.48,
+            "prob_b": 50.52,
+            "source": "mediane no-vig (12 books)",
+            "n_books": 12
+          }
+        ],
+        "prices": {
+          "Los Angeles Chargers ML": {
+            "market": "nfl_ml",
+            "odds": 1.23,
+            "book": "betfair_ex_eu",
+            "prob": 79.63,
+            "edge_pct": -2.06
+          },
+          "Arizona Cardinals ML": {
+            "market": "nfl_ml",
+            "odds": 5.2,
+            "book": "fanduel",
+            "prob": 20.37,
+            "edge_pct": 5.92
+          },
+          "Los Angeles Chargers -9": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "bovada",
+            "prob": 50.0,
+            "edge_pct": -4.5
+          },
+          "Arizona Cardinals +9": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "bovada",
+            "prob": 50.0,
+            "edge_pct": -4.5
+          },
+          "Los Angeles Chargers -9.5": {
+            "market": "nfl_spread",
+            "odds": 1.99,
+            "book": "matchbook",
+            "prob": 50.0,
+            "edge_pct": -0.5
+          },
+          "Arizona Cardinals +9.5": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "sport888",
+            "prob": 50.0,
+            "edge_pct": 0.0
+          },
+          "Los Angeles Chargers -10": {
+            "market": "nfl_spread",
+            "odds": 1.94,
+            "book": "leovegas_se",
+            "prob": 49.08,
+            "edge_pct": -4.78
+          },
+          "Arizona Cardinals +10": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "mybookieag",
+            "prob": 50.92,
+            "edge_pct": -2.74
+          },
+          "Los Angeles Chargers -10.5": {
+            "market": "nfl_spread",
+            "odds": 2.18,
+            "book": "pinnacle",
+            "prob": 44.67,
+            "edge_pct": -2.62
+          },
+          "Arizona Cardinals +10.5": {
+            "market": "nfl_spread",
+            "odds": 1.76,
+            "book": "pinnacle",
+            "prob": 55.33,
+            "edge_pct": -2.62
+          },
+          "Over 46.5": {
+            "market": "nfl_total",
+            "odds": 1.8,
+            "book": "sport888",
+            "prob": 52.63,
+            "edge_pct": -5.27
+          },
+          "Under 46.5": {
+            "market": "nfl_total",
+            "odds": 2.0,
+            "book": "sport888",
+            "prob": 47.37,
+            "edge_pct": -5.26
+          },
+          "Over 47": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "mybookieag",
+            "prob": 50.91,
+            "edge_pct": -2.76
+          },
+          "Under 47": {
+            "market": "nfl_total",
+            "odds": 1.98,
+            "book": "lowvig",
+            "prob": 49.09,
+            "edge_pct": -2.8
+          },
+          "Over 47.5": {
+            "market": "nfl_total",
+            "odds": 1.98,
+            "book": "draftkings",
+            "prob": 49.48,
+            "edge_pct": -2.03
+          },
+          "Under 47.5": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "betus",
+            "prob": 50.52,
+            "edge_pct": -3.51
+          }
+        }
+      },
+      {
+        "event_id": "e55c6fe19fce094ce214c8b0e5b504e9",
+        "home_team": "Jacksonville Jaguars",
+        "away_team": "Cleveland Browns",
+        "commence": "2026-09-13T17:00:00Z",
+        "signals": [
+          {
+            "market": "nfl_ml",
+            "selection": "Cleveland Browns ML",
+            "point": null,
+            "prob": 22.94,
+            "odds": 4.6,
+            "book": "draftkings",
+            "edge_pct": 5.52,
+            "fair_odds": 4.359,
+            "source": "pinnacle",
+            "n_books": 30
+          }
+        ],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 77.06,
+            "prob_b": 22.94,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 7.5,
+            "prob_a": 50.4,
+            "prob_b": 49.6,
+            "source": "mediane no-vig (1 books)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 8.0,
+            "prob_a": 50.66,
+            "prob_b": 49.34,
+            "source": "mediane no-vig (5 books)",
+            "n_books": 5
+          },
+          {
+            "market": "nfl_spread",
+            "point": 8.5,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "mediane no-vig (14 books)",
+            "n_books": 14
+          },
+          {
+            "market": "nfl_spread",
+            "point": 9.0,
+            "prob_a": 48.95,
+            "prob_b": 51.05,
+            "source": "mediane no-vig (5 books)",
+            "n_books": 5
+          },
+          {
+            "market": "nfl_spread",
+            "point": 9.5,
+            "prob_a": 48.33,
+            "prob_b": 51.67,
+            "source": "pinnacle",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_total",
+            "point": 40.5,
+            "prob_a": 50.78,
+            "prob_b": 49.22,
+            "source": "pinnacle",
+            "n_books": 24
+          }
+        ],
+        "prices": {
+          "Jacksonville Jaguars ML": {
+            "market": "nfl_ml",
+            "odds": 1.27,
+            "book": "betfair_ex_eu",
+            "prob": 77.06,
+            "edge_pct": -2.13
+          },
+          "Cleveland Browns ML": {
+            "market": "nfl_ml",
+            "odds": 4.6,
+            "book": "draftkings",
+            "prob": 22.94,
+            "edge_pct": 5.52
+          },
+          "Jacksonville Jaguars -7.5": {
+            "market": "nfl_spread",
+            "odds": 1.87,
+            "book": "tipico_de",
+            "prob": 50.4,
+            "edge_pct": -5.75
+          },
+          "Cleveland Browns +7.5": {
+            "market": "nfl_spread",
+            "odds": 1.9,
+            "book": "tipico_de",
+            "prob": 49.6,
+            "edge_pct": -5.76
+          },
+          "Jacksonville Jaguars -8": {
+            "market": "nfl_spread",
+            "odds": 1.88,
+            "book": "unibet_se",
+            "prob": 50.66,
+            "edge_pct": -4.76
+          },
+          "Cleveland Browns +8": {
+            "market": "nfl_spread",
+            "odds": 1.93,
+            "book": "unibet_se",
+            "prob": 49.34,
+            "edge_pct": -4.77
+          },
+          "Jacksonville Jaguars -8.5": {
+            "market": "nfl_spread",
+            "odds": 1.95,
+            "book": "coolbet",
+            "prob": 50.0,
+            "edge_pct": -2.5
+          },
+          "Cleveland Browns +8.5": {
+            "market": "nfl_spread",
+            "odds": 1.92,
+            "book": "gtbets",
+            "prob": 50.0,
+            "edge_pct": -4.0
+          },
+          "Jacksonville Jaguars -9": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "lowvig",
+            "prob": 48.95,
+            "edge_pct": -2.1
+          },
+          "Cleveland Browns +9": {
+            "market": "nfl_spread",
+            "odds": 1.92,
+            "book": "matchbook",
+            "prob": 51.05,
+            "edge_pct": -1.98
+          },
+          "Jacksonville Jaguars -9.5": {
+            "market": "nfl_spread",
+            "odds": 2.01,
+            "book": "pinnacle",
+            "prob": 48.33,
+            "edge_pct": -2.86
+          },
+          "Cleveland Browns +9.5": {
+            "market": "nfl_spread",
+            "odds": 1.88,
+            "book": "pinnacle",
+            "prob": 51.67,
+            "edge_pct": -2.86
+          },
+          "Over 40.5": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "fanduel",
+            "prob": 50.78,
+            "edge_pct": -1.99
+          },
+          "Under 40.5": {
+            "market": "nfl_total",
+            "odds": 1.97,
+            "book": "matchbook",
+            "prob": 49.22,
+            "edge_pct": -3.04
+          }
+        }
+      },
+      {
+        "event_id": "8c94552d022acec4a0458d70c19d3da9",
+        "home_team": "Seattle Seahawks",
+        "away_team": "New England Patriots",
+        "commence": "2026-09-10T00:20:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 61.22,
+            "prob_b": 38.78,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob_a": 51.79,
+            "prob_b": 48.21,
+            "source": "pinnacle",
+            "n_books": 18
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob_a": 47.78,
+            "prob_b": 52.22,
+            "source": "mediane no-vig (8 books)",
+            "n_books": 8
+          },
+          {
+            "market": "nfl_total",
+            "point": 44.0,
+            "prob_a": 49.61,
+            "prob_b": 50.39,
+            "source": "pinnacle",
+            "n_books": 5
+          },
+          {
+            "market": "nfl_total",
+            "point": 44.5,
+            "prob_a": 49.48,
+            "prob_b": 50.52,
+            "source": "mediane no-vig (19 books)",
+            "n_books": 19
+          }
+        ],
+        "prices": {
+          "Seattle Seahawks ML": {
+            "market": "nfl_ml",
+            "odds": 1.62,
+            "book": "betfair_ex_eu",
+            "prob": 61.22,
+            "edge_pct": -0.82
+          },
+          "New England Patriots ML": {
+            "market": "nfl_ml",
+            "odds": 2.6,
+            "book": "betfair_ex_eu",
+            "prob": 38.78,
+            "edge_pct": 0.83
+          },
+          "Seattle Seahawks -3": {
+            "market": "nfl_spread",
+            "odds": 1.92,
+            "book": "matchbook",
+            "prob": 51.79,
+            "edge_pct": -0.56
+          },
+          "New England Patriots +3": {
+            "market": "nfl_spread",
+            "odds": 2.06,
+            "book": "matchbook",
+            "prob": 48.21,
+            "edge_pct": -0.69
+          },
+          "Seattle Seahawks -3.5": {
+            "market": "nfl_spread",
+            "odds": 2.08,
+            "book": "mybookieag",
+            "prob": 47.78,
+            "edge_pct": -0.62
+          },
+          "New England Patriots +3.5": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "sport888",
+            "prob": 52.22,
+            "edge_pct": -0.26
+          },
+          "Over 44": {
+            "market": "nfl_total",
+            "odds": 1.96,
+            "book": "pinnacle",
+            "prob": 49.61,
+            "edge_pct": -2.76
+          },
+          "Under 44": {
+            "market": "nfl_total",
+            "odds": 2.0,
+            "book": "matchbook",
+            "prob": 50.39,
+            "edge_pct": 0.78
+          },
+          "Over 44.5": {
+            "market": "nfl_total",
+            "odds": 1.98,
+            "book": "lowvig",
+            "prob": 49.48,
+            "edge_pct": -2.03
+          },
+          "Under 44.5": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "williamhill_us",
+            "prob": 50.52,
+            "edge_pct": -2.5
+          }
+        }
+      },
+      {
+        "event_id": "acc580d74344ea3b31bbcdd057fe6a9c",
+        "home_team": "Los Angeles Rams",
+        "away_team": "San Francisco 49ers",
+        "commence": "2026-09-11T00:35:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 64.71,
+            "prob_b": 35.29,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob_a": 51.03,
+            "prob_b": 48.97,
+            "source": "pinnacle",
+            "n_books": 20
+          },
+          {
+            "market": "nfl_spread",
+            "point": 4.0,
+            "prob_a": 49.75,
+            "prob_b": 50.25,
+            "source": "mediane no-vig (4 books)",
+            "n_books": 4
+          },
+          {
+            "market": "nfl_spread",
+            "point": 4.5,
+            "prob_a": 49.02,
+            "prob_b": 50.98,
+            "source": "mediane no-vig (2 books)",
+            "n_books": 2
+          },
+          {
+            "market": "nfl_total",
+            "point": 48.0,
+            "prob_a": 50.39,
+            "prob_b": 49.61,
+            "source": "pinnacle",
+            "n_books": 12
+          },
+          {
+            "market": "nfl_total",
+            "point": 48.5,
+            "prob_a": 49.45,
+            "prob_b": 50.55,
+            "source": "mediane no-vig (12 books)",
+            "n_books": 12
+          }
+        ],
+        "prices": {
+          "Los Angeles Rams ML": {
+            "market": "nfl_ml",
+            "odds": 1.54,
+            "book": "betfair_ex_eu",
+            "prob": 64.71,
+            "edge_pct": -0.35
+          },
+          "San Francisco 49ers ML": {
+            "market": "nfl_ml",
+            "odds": 2.83,
+            "book": "betus",
+            "prob": 35.29,
+            "edge_pct": -0.13
+          },
+          "Los Angeles Rams -3.5": {
+            "market": "nfl_spread",
+            "odds": 1.93,
+            "book": "coolbet",
+            "prob": 51.03,
+            "edge_pct": -1.51
+          },
+          "San Francisco 49ers +3.5": {
+            "market": "nfl_spread",
+            "odds": 2.03,
+            "book": "lowvig",
+            "prob": 48.97,
+            "edge_pct": -0.59
+          },
+          "Los Angeles Rams -4": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "matchbook",
+            "prob": 49.75,
+            "edge_pct": -0.5
+          },
+          "San Francisco 49ers +4": {
+            "market": "nfl_spread",
+            "odds": 1.96,
+            "book": "matchbook",
+            "prob": 50.25,
+            "edge_pct": -1.51
+          },
+          "Los Angeles Rams -4.5": {
+            "market": "nfl_spread",
+            "odds": 1.98,
+            "book": "onexbet",
+            "prob": 49.02,
+            "edge_pct": -2.94
+          },
+          "San Francisco 49ers +4.5": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "sport888",
+            "prob": 50.98,
+            "edge_pct": -2.63
+          },
+          "Over 48": {
+            "market": "nfl_total",
+            "odds": 1.92,
+            "book": "gtbets",
+            "prob": 50.39,
+            "edge_pct": -3.25
+          },
+          "Under 48": {
+            "market": "nfl_total",
+            "odds": 1.98,
+            "book": "matchbook",
+            "prob": 49.61,
+            "edge_pct": -1.77
+          },
+          "Over 48.5": {
+            "market": "nfl_total",
+            "odds": 1.95,
+            "book": "fanduel",
+            "prob": 49.45,
+            "edge_pct": -3.57
+          },
+          "Under 48.5": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "betmgm",
+            "prob": 50.55,
+            "edge_pct": -3.45
+          }
+        }
+      },
+      {
+        "event_id": "95c01d1bb797d6df14824b106c5a9130",
+        "home_team": "Pittsburgh Steelers",
+        "away_team": "Atlanta Falcons",
+        "commence": "2026-09-13T17:00:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 62.47,
+            "prob_b": 37.53,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob_a": 48.33,
+            "prob_b": 51.67,
+            "source": "pinnacle",
+            "n_books": 26
+          },
+          {
+            "market": "nfl_total",
+            "point": 41.5,
+            "prob_a": 50.52,
+            "prob_b": 49.48,
+            "source": "mediane no-vig (8 books)",
+            "n_books": 8
+          },
+          {
+            "market": "nfl_total",
+            "point": 42.0,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "mediane no-vig (9 books)",
+            "n_books": 9
+          },
+          {
+            "market": "nfl_total",
+            "point": 42.5,
+            "prob_a": 48.7,
+            "prob_b": 51.3,
+            "source": "pinnacle",
+            "n_books": 7
+          }
+        ],
+        "prices": {
+          "Pittsburgh Steelers ML": {
+            "market": "nfl_ml",
+            "odds": 1.57,
+            "book": "unibet_se",
+            "prob": 62.47,
+            "edge_pct": -1.92
+          },
+          "Atlanta Falcons ML": {
+            "market": "nfl_ml",
+            "odds": 2.72,
+            "book": "betfair_ex_eu",
+            "prob": 37.53,
+            "edge_pct": 2.08
+          },
+          "Pittsburgh Steelers -3.5": {
+            "market": "nfl_spread",
+            "odds": 2.01,
+            "book": "lowvig",
+            "prob": 48.33,
+            "edge_pct": -2.86
+          },
+          "Atlanta Falcons +3.5": {
+            "market": "nfl_spread",
+            "odds": 1.93,
+            "book": "draftkings",
+            "prob": 51.67,
+            "edge_pct": -0.28
+          },
+          "Over 41.5": {
+            "market": "nfl_total",
+            "odds": 1.92,
+            "book": "betrivers",
+            "prob": 50.52,
+            "edge_pct": -3.0
+          },
+          "Under 41.5": {
+            "market": "nfl_total",
+            "odds": 1.98,
+            "book": "lowvig",
+            "prob": 49.48,
+            "edge_pct": -2.03
+          },
+          "Over 42": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "betmgm",
+            "prob": 50.0,
+            "edge_pct": -3.5
+          },
+          "Under 42": {
+            "market": "nfl_total",
+            "odds": 1.95,
+            "book": "bovada",
+            "prob": 50.0,
+            "edge_pct": -2.5
+          },
+          "Over 42.5": {
+            "market": "nfl_total",
+            "odds": 1.98,
+            "book": "pinnacle",
+            "prob": 48.7,
+            "edge_pct": -3.57
+          },
+          "Under 42.5": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "fanatics",
+            "prob": 51.3,
+            "edge_pct": -2.02
+          }
+        }
+      },
+      {
+        "event_id": "b6cfdcbafa61ce220ba87dc2d9b80c77",
+        "home_team": "Indianapolis Colts",
+        "away_team": "Baltimore Ravens",
+        "commence": "2026-09-13T17:00:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 38.2,
+            "prob_b": 61.8,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob_a": 48.21,
+            "prob_b": 51.79,
+            "source": "mediane no-vig (1 books)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob_a": 52.19,
+            "prob_b": 47.81,
+            "source": "pinnacle",
+            "n_books": 25
+          },
+          {
+            "market": "nfl_total",
+            "point": 47.5,
+            "prob_a": 51.95,
+            "prob_b": 48.05,
+            "source": "pinnacle",
+            "n_books": 10
+          },
+          {
+            "market": "nfl_total",
+            "point": 48.0,
+            "prob_a": 49.58,
+            "prob_b": 50.42,
+            "source": "mediane no-vig (12 books)",
+            "n_books": 12
+          },
+          {
+            "market": "nfl_total",
+            "point": 48.5,
+            "prob_a": 49.09,
+            "prob_b": 50.91,
+            "source": "mediane no-vig (2 books)",
+            "n_books": 2
+          }
+        ],
+        "prices": {
+          "Indianapolis Colts ML": {
+            "market": "nfl_ml",
+            "odds": 2.62,
+            "book": "coolbet",
+            "prob": 38.2,
+            "edge_pct": 0.08
+          },
+          "Baltimore Ravens ML": {
+            "market": "nfl_ml",
+            "odds": 1.62,
+            "book": "betfair_ex_eu",
+            "prob": 61.8,
+            "edge_pct": 0.12
+          },
+          "Indianapolis Colts +3": {
+            "market": "nfl_spread",
+            "odds": 2.02,
+            "book": "matchbook",
+            "prob": 48.21,
+            "edge_pct": -2.62
+          },
+          "Baltimore Ravens -3": {
+            "market": "nfl_spread",
+            "odds": 1.88,
+            "book": "matchbook",
+            "prob": 51.79,
+            "edge_pct": -2.63
+          },
+          "Indianapolis Colts +3.5": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "sport888",
+            "prob": 52.19,
+            "edge_pct": -0.32
+          },
+          "Baltimore Ravens -3.5": {
+            "market": "nfl_spread",
+            "odds": 2.04,
+            "book": "lowvig",
+            "prob": 47.81,
+            "edge_pct": -2.47
+          },
+          "Over 47.5": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "betmgm",
+            "prob": 51.95,
+            "edge_pct": -0.78
+          },
+          "Under 47.5": {
+            "market": "nfl_total",
+            "odds": 2.0,
+            "book": "pinnacle",
+            "prob": 48.05,
+            "edge_pct": -3.9
+          },
+          "Over 48": {
+            "market": "nfl_total",
+            "odds": 1.98,
+            "book": "lowvig",
+            "prob": 49.58,
+            "edge_pct": -1.83
+          },
+          "Under 48": {
+            "market": "nfl_total",
+            "odds": 1.92,
+            "book": "gtbets",
+            "prob": 50.42,
+            "edge_pct": -3.19
+          },
+          "Over 48.5": {
+            "market": "nfl_total",
+            "odds": 1.98,
+            "book": "matchbook",
+            "prob": 49.09,
+            "edge_pct": -2.8
+          },
+          "Under 48.5": {
+            "market": "nfl_total",
+            "odds": 1.87,
+            "book": "tipico_de",
+            "prob": 50.91,
+            "edge_pct": -4.8
+          }
+        }
+      },
+      {
+        "event_id": "7e09efed7e12c659b82740b67ce2f9a1",
+        "home_team": "Houston Texans",
+        "away_team": "Buffalo Bills",
+        "commence": "2026-09-13T17:00:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 48.33,
+            "prob_b": 51.67,
+            "source": "pinnacle",
+            "n_books": 29
+          },
+          {
+            "market": "nfl_spread",
+            "point": 0.0,
+            "prob_a": 47.78,
+            "prob_b": 52.22,
+            "source": "mediane no-vig (1 books)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 1.0,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "pinnacle",
+            "n_books": 17
+          },
+          {
+            "market": "nfl_spread",
+            "point": 1.5,
+            "prob_a": 51.23,
+            "prob_b": 48.77,
+            "source": "mediane no-vig (8 books)",
+            "n_books": 8
+          },
+          {
+            "market": "nfl_total",
+            "point": 44.5,
+            "prob_a": 50.26,
+            "prob_b": 49.74,
+            "source": "mediane no-vig (15 books)",
+            "n_books": 15
+          },
+          {
+            "market": "nfl_total",
+            "point": 45.0,
+            "prob_a": 49.87,
+            "prob_b": 50.13,
+            "source": "pinnacle",
+            "n_books": 9
+          }
+        ],
+        "prices": {
+          "Houston Texans ML": {
+            "market": "nfl_ml",
+            "odds": 2.06,
+            "book": "betfair_ex_eu",
+            "prob": 48.33,
+            "edge_pct": -0.44
+          },
+          "Buffalo Bills ML": {
+            "market": "nfl_ml",
+            "odds": 1.92,
+            "book": "betfair_ex_eu",
+            "prob": 51.67,
+            "edge_pct": -0.79
+          },
+          "Houston Texans +0": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "betus",
+            "prob": 47.78,
+            "edge_pct": -4.44
+          },
+          "Buffalo Bills +0": {
+            "market": "nfl_spread",
+            "odds": 1.83,
+            "book": "betus",
+            "prob": 52.22,
+            "edge_pct": -4.44
+          },
+          "Houston Texans +1": {
+            "market": "nfl_spread",
+            "odds": 1.95,
+            "book": "lowvig",
+            "prob": 50.0,
+            "edge_pct": -2.5
+          },
+          "Buffalo Bills -1": {
+            "market": "nfl_spread",
+            "odds": 1.95,
+            "book": "lowvig",
+            "prob": 50.0,
+            "edge_pct": -2.5
+          },
+          "Houston Texans +1.5": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "sport888",
+            "prob": 51.23,
+            "edge_pct": -2.15
+          },
+          "Buffalo Bills -1.5": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "matchbook",
+            "prob": 48.77,
+            "edge_pct": -2.46
+          },
+          "Over 44.5": {
+            "market": "nfl_total",
+            "odds": 1.92,
+            "book": "gtbets",
+            "prob": 50.26,
+            "edge_pct": -3.5
+          },
+          "Under 44.5": {
+            "market": "nfl_total",
+            "odds": 1.96,
+            "book": "williamhill_us",
+            "prob": 49.74,
+            "edge_pct": -2.51
+          },
+          "Over 45": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "lowvig",
+            "prob": 49.87,
+            "edge_pct": -3.75
+          },
+          "Under 45": {
+            "market": "nfl_total",
+            "odds": 1.94,
+            "book": "matchbook",
+            "prob": 50.13,
+            "edge_pct": -2.75
+          }
+        }
+      },
+      {
+        "event_id": "fc362aff0d889ec52d358307a70c32ed",
+        "home_team": "Carolina Panthers",
+        "away_team": "Chicago Bears",
+        "commence": "2026-09-13T17:00:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 39.66,
+            "prob_b": 60.34,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 2.5,
+            "prob_a": 45.15,
+            "prob_b": 54.85,
+            "source": "pinnacle",
+            "n_books": 3
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob_a": 49.94,
+            "prob_b": 50.06,
+            "source": "mediane no-vig (20 books)",
+            "n_books": 20
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob_a": 52.63,
+            "prob_b": 47.37,
+            "source": "mediane no-vig (3 books)",
+            "n_books": 3
+          },
+          {
+            "market": "nfl_total",
+            "point": 46.5,
+            "prob_a": 52.63,
+            "prob_b": 47.37,
+            "source": "mediane no-vig (1 books)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_total",
+            "point": 47.0,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "mediane no-vig (18 books)",
+            "n_books": 18
+          },
+          {
+            "market": "nfl_total",
+            "point": 47.5,
+            "prob_a": 48.19,
+            "prob_b": 51.81,
+            "source": "pinnacle",
+            "n_books": 5
+          }
+        ],
+        "prices": {
+          "Carolina Panthers ML": {
+            "market": "nfl_ml",
+            "odds": 2.5,
+            "book": "williamhill",
+            "prob": 39.66,
+            "edge_pct": -0.85
+          },
+          "Chicago Bears ML": {
+            "market": "nfl_ml",
+            "odds": 1.67,
+            "book": "marathonbet",
+            "prob": 60.34,
+            "edge_pct": 0.77
+          },
+          "Carolina Panthers +2.5": {
+            "market": "nfl_spread",
+            "odds": 2.15,
+            "book": "pinnacle",
+            "prob": 45.15,
+            "edge_pct": -2.93
+          },
+          "Chicago Bears -2.5": {
+            "market": "nfl_spread",
+            "odds": 1.77,
+            "book": "pinnacle",
+            "prob": 54.85,
+            "edge_pct": -2.92
+          },
+          "Carolina Panthers +3": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "lowvig",
+            "prob": 49.94,
+            "edge_pct": -0.12
+          },
+          "Chicago Bears -3": {
+            "market": "nfl_spread",
+            "odds": 1.94,
+            "book": "fanduel",
+            "prob": 50.06,
+            "edge_pct": -2.88
+          },
+          "Carolina Panthers +3.5": {
+            "market": "nfl_spread",
+            "odds": 1.83,
+            "book": "onexbet",
+            "prob": 52.63,
+            "edge_pct": -3.69
+          },
+          "Chicago Bears -3.5": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "tipico_de",
+            "prob": 47.37,
+            "edge_pct": -5.26
+          },
+          "Over 46.5": {
+            "market": "nfl_total",
+            "odds": 1.8,
+            "book": "sport888",
+            "prob": 52.63,
+            "edge_pct": -5.27
+          },
+          "Under 46.5": {
+            "market": "nfl_total",
+            "odds": 2.0,
+            "book": "sport888",
+            "prob": 47.37,
+            "edge_pct": -5.26
+          },
+          "Over 47": {
+            "market": "nfl_total",
+            "odds": 1.94,
+            "book": "matchbook",
+            "prob": 50.0,
+            "edge_pct": -3.0
+          },
+          "Under 47": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "lowvig",
+            "prob": 50.0,
+            "edge_pct": -3.5
+          },
+          "Over 47.5": {
+            "market": "nfl_total",
+            "odds": 2.0,
+            "book": "pinnacle",
+            "prob": 48.19,
+            "edge_pct": -3.62
+          },
+          "Under 47.5": {
+            "market": "nfl_total",
+            "odds": 1.87,
+            "book": "tipico_de",
+            "prob": 51.81,
+            "edge_pct": -3.12
+          }
+        }
+      },
+      {
+        "event_id": "ed6d24ff979f9c71979fead577b0b3f7",
+        "home_team": "Cincinnati Bengals",
+        "away_team": "Tampa Bay Buccaneers",
+        "commence": "2026-09-13T17:00:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 64.62,
+            "prob_b": 35.38,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob_a": 50.55,
+            "prob_b": 49.45,
+            "source": "mediane no-vig (18 books)",
+            "n_books": 18
+          },
+          {
+            "market": "nfl_spread",
+            "point": 4.0,
+            "prob_a": 49.1,
+            "prob_b": 50.9,
+            "source": "pinnacle",
+            "n_books": 8
+          },
+          {
+            "market": "nfl_total",
+            "point": 50.0,
+            "prob_a": 50.65,
+            "prob_b": 49.35,
+            "source": "pinnacle",
+            "n_books": 2
+          },
+          {
+            "market": "nfl_total",
+            "point": 50.5,
+            "prob_a": 49.8,
+            "prob_b": 50.2,
+            "source": "mediane no-vig (22 books)",
+            "n_books": 22
+          }
+        ],
+        "prices": {
+          "Cincinnati Bengals ML": {
+            "market": "nfl_ml",
+            "odds": 1.55,
+            "book": "betfair_ex_eu",
+            "prob": 64.62,
+            "edge_pct": 0.16
+          },
+          "Tampa Bay Buccaneers ML": {
+            "market": "nfl_ml",
+            "odds": 2.78,
+            "book": "coolbet",
+            "prob": 35.38,
+            "edge_pct": -1.64
+          },
+          "Cincinnati Bengals -3.5": {
+            "market": "nfl_spread",
+            "odds": 1.93,
+            "book": "coolbet",
+            "prob": 50.55,
+            "edge_pct": -2.44
+          },
+          "Tampa Bay Buccaneers +3.5": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "sport888",
+            "prob": 49.45,
+            "edge_pct": -1.1
+          },
+          "Cincinnati Bengals -4": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "lowvig",
+            "prob": 49.1,
+            "edge_pct": -1.8
+          },
+          "Tampa Bay Buccaneers +4": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "lowvig",
+            "prob": 50.9,
+            "edge_pct": -2.78
+          },
+          "Over 50": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "matchbook",
+            "prob": 50.65,
+            "edge_pct": -3.26
+          },
+          "Under 50": {
+            "market": "nfl_total",
+            "odds": 1.95,
+            "book": "pinnacle",
+            "prob": 49.35,
+            "edge_pct": -3.77
+          },
+          "Over 50.5": {
+            "market": "nfl_total",
+            "odds": 1.98,
+            "book": "lowvig",
+            "prob": 49.8,
+            "edge_pct": -1.4
+          },
+          "Under 50.5": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "fanduel",
+            "prob": 50.2,
+            "edge_pct": -3.11
+          }
+        }
+      },
+      {
+        "event_id": "c1d3fcec25aaeb06ebd2244d33d338e0",
+        "home_team": "Detroit Lions",
+        "away_team": "New Orleans Saints",
+        "commence": "2026-09-13T17:00:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 73.64,
+            "prob_b": 26.36,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 6.5,
+            "prob_a": 52.36,
+            "prob_b": 47.64,
+            "source": "mediane no-vig (5 books)",
+            "n_books": 5
+          },
+          {
+            "market": "nfl_spread",
+            "point": 7.0,
+            "prob_a": 49.61,
+            "prob_b": 50.39,
+            "source": "pinnacle",
+            "n_books": 20
+          },
+          {
+            "market": "nfl_spread",
+            "point": 7.5,
+            "prob_a": 47.75,
+            "prob_b": 52.25,
+            "source": "mediane no-vig (1 books)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_total",
+            "point": 49.5,
+            "prob_a": 50.65,
+            "prob_b": 49.35,
+            "source": "pinnacle",
+            "n_books": 8
+          },
+          {
+            "market": "nfl_total",
+            "point": 50.0,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "mediane no-vig (14 books)",
+            "n_books": 14
+          },
+          {
+            "market": "nfl_total",
+            "point": 50.5,
+            "prob_a": 48.59,
+            "prob_b": 51.41,
+            "source": "mediane no-vig (2 books)",
+            "n_books": 2
+          }
+        ],
+        "prices": {
+          "Detroit Lions ML": {
+            "market": "nfl_ml",
+            "odds": 1.34,
+            "book": "betfair_ex_eu",
+            "prob": 73.64,
+            "edge_pct": -1.32
+          },
+          "New Orleans Saints ML": {
+            "market": "nfl_ml",
+            "odds": 3.8,
+            "book": "betfair_ex_eu",
+            "prob": 26.36,
+            "edge_pct": 0.17
+          },
+          "Detroit Lions -6.5": {
+            "market": "nfl_spread",
+            "odds": 1.82,
+            "book": "fanduel",
+            "prob": 52.36,
+            "edge_pct": -4.7
+          },
+          "New Orleans Saints +6.5": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "fanduel",
+            "prob": 47.64,
+            "edge_pct": -4.72
+          },
+          "Detroit Lions -7": {
+            "market": "nfl_spread",
+            "odds": 2.01,
+            "book": "lowvig",
+            "prob": 49.61,
+            "edge_pct": -0.28
+          },
+          "New Orleans Saints +7": {
+            "market": "nfl_spread",
+            "odds": 1.93,
+            "book": "pinnacle",
+            "prob": 50.39,
+            "edge_pct": -2.75
+          },
+          "Detroit Lions -7.5": {
+            "market": "nfl_spread",
+            "odds": 1.97,
+            "book": "tipico_de",
+            "prob": 47.75,
+            "edge_pct": -5.93
+          },
+          "New Orleans Saints +7.5": {
+            "market": "nfl_spread",
+            "odds": 1.8,
+            "book": "tipico_de",
+            "prob": 52.25,
+            "edge_pct": -5.95
+          },
+          "Over 49.5": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "betmgm",
+            "prob": 50.65,
+            "edge_pct": -3.26
+          },
+          "Under 49.5": {
+            "market": "nfl_total",
+            "odds": 2.0,
+            "book": "sport888",
+            "prob": 49.35,
+            "edge_pct": -1.3
+          },
+          "Over 50": {
+            "market": "nfl_total",
+            "odds": 1.96,
+            "book": "matchbook",
+            "prob": 50.0,
+            "edge_pct": -2.0
+          },
+          "Under 50": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "lowvig",
+            "prob": 50.0,
+            "edge_pct": -3.5
+          },
+          "Over 50.5": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "tipico_de",
+            "prob": 48.59,
+            "edge_pct": -6.22
+          },
+          "Under 50.5": {
+            "market": "nfl_total",
+            "odds": 1.83,
+            "book": "tipico_de",
+            "prob": 51.41,
+            "edge_pct": -5.92
+          }
+        }
+      },
+      {
+        "event_id": "7dddb296a42e7a41a774b24bd1709ce1",
+        "home_team": "Tennessee Titans",
+        "away_team": "New York Jets",
+        "commence": "2026-09-13T17:00:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 51.79,
+            "prob_b": 48.21,
+            "source": "pinnacle",
+            "n_books": 27
+          },
+          {
+            "market": "nfl_spread",
+            "point": 0.0,
+            "prob_a": 51.54,
+            "prob_b": 48.46,
+            "source": "mediane no-vig (3 books)",
+            "n_books": 3
+          },
+          {
+            "market": "nfl_spread",
+            "point": 0.5,
+            "prob_a": 51.33,
+            "prob_b": 48.67,
+            "source": "mediane no-vig (1 books)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 1.0,
+            "prob_a": 50.39,
+            "prob_b": 49.61,
+            "source": "pinnacle",
+            "n_books": 4
+          },
+          {
+            "market": "nfl_spread",
+            "point": 1.5,
+            "prob_a": 49.74,
+            "prob_b": 50.26,
+            "source": "mediane no-vig (18 books)",
+            "n_books": 18
+          },
+          {
+            "market": "nfl_total",
+            "point": 38.5,
+            "prob_a": 49.87,
+            "prob_b": 50.13,
+            "source": "pinnacle",
+            "n_books": 20
+          },
+          {
+            "market": "nfl_total",
+            "point": 39.0,
+            "prob_a": 49.46,
+            "prob_b": 50.54,
+            "source": "mediane no-vig (4 books)",
+            "n_books": 4
+          }
+        ],
+        "prices": {
+          "Tennessee Titans ML": {
+            "market": "nfl_ml",
+            "odds": 1.9,
+            "book": "betfair_ex_eu",
+            "prob": 51.79,
+            "edge_pct": -1.6
+          },
+          "New York Jets ML": {
+            "market": "nfl_ml",
+            "odds": 2.1,
+            "book": "matchbook",
+            "prob": 48.21,
+            "edge_pct": 1.24
+          },
+          "Tennessee Titans +0": {
+            "market": "nfl_spread",
+            "odds": 1.89,
+            "book": "lowvig",
+            "prob": 51.54,
+            "edge_pct": -2.59
+          },
+          "New York Jets +0": {
+            "market": "nfl_spread",
+            "odds": 2.01,
+            "book": "lowvig",
+            "prob": 48.46,
+            "edge_pct": -2.6
+          },
+          "Tennessee Titans -0.5": {
+            "market": "nfl_spread",
+            "odds": 1.83,
+            "book": "tipico_de",
+            "prob": 51.33,
+            "edge_pct": -6.07
+          },
+          "New York Jets +0.5": {
+            "market": "nfl_spread",
+            "odds": 1.93,
+            "book": "tipico_de",
+            "prob": 48.67,
+            "edge_pct": -6.07
+          },
+          "Tennessee Titans -1": {
+            "market": "nfl_spread",
+            "odds": 1.94,
+            "book": "matchbook",
+            "prob": 50.39,
+            "edge_pct": -2.24
+          },
+          "New York Jets +1": {
+            "market": "nfl_spread",
+            "odds": 1.96,
+            "book": "pinnacle",
+            "prob": 49.61,
+            "edge_pct": -2.76
+          },
+          "Tennessee Titans -1.5": {
+            "market": "nfl_spread",
+            "odds": 1.95,
+            "book": "fanatics",
+            "prob": 49.74,
+            "edge_pct": -3.01
+          },
+          "New York Jets +1.5": {
+            "market": "nfl_spread",
+            "odds": 1.92,
+            "book": "williamhill_us",
+            "prob": 50.26,
+            "edge_pct": -3.5
+          },
+          "Over 38.5": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "lowvig",
+            "prob": 49.87,
+            "edge_pct": -3.75
+          },
+          "Under 38.5": {
+            "market": "nfl_total",
+            "odds": 1.95,
+            "book": "williamhill_us",
+            "prob": 50.13,
+            "edge_pct": -2.25
+          },
+          "Over 39": {
+            "market": "nfl_total",
+            "odds": 2.0,
+            "book": "matchbook",
+            "prob": 49.46,
+            "edge_pct": -1.08
+          },
+          "Under 39": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "coolbet",
+            "prob": 50.54,
+            "edge_pct": -3.47
+          }
+        }
+      },
+      {
+        "event_id": "cb77efed7e711d25a72c1a2a0a1af119",
+        "home_team": "Minnesota Vikings",
+        "away_team": "Green Bay Packers",
+        "commence": "2026-09-13T20:25:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 53.08,
+            "prob_b": 46.92,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 1.0,
+            "prob_a": 51.67,
+            "prob_b": 48.33,
+            "source": "pinnacle",
+            "n_books": 5
+          },
+          {
+            "market": "nfl_spread",
+            "point": 1.5,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "mediane no-vig (21 books)",
+            "n_books": 21
+          },
+          {
+            "market": "nfl_total",
+            "point": 46.0,
+            "prob_a": 50.65,
+            "prob_b": 49.35,
+            "source": "pinnacle",
+            "n_books": 12
+          },
+          {
+            "market": "nfl_total",
+            "point": 46.5,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "mediane no-vig (12 books)",
+            "n_books": 12
+          }
+        ],
+        "prices": {
+          "Minnesota Vikings ML": {
+            "market": "nfl_ml",
+            "odds": 1.85,
+            "book": "unibet_nl",
+            "prob": 53.08,
+            "edge_pct": -1.8
+          },
+          "Green Bay Packers ML": {
+            "market": "nfl_ml",
+            "odds": 2.16,
+            "book": "betfair_ex_eu",
+            "prob": 46.92,
+            "edge_pct": 1.35
+          },
+          "Minnesota Vikings -1": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "lowvig",
+            "prob": 51.67,
+            "edge_pct": -1.31
+          },
+          "Green Bay Packers +1": {
+            "market": "nfl_spread",
+            "odds": 2.01,
+            "book": "pinnacle",
+            "prob": 48.33,
+            "edge_pct": -2.86
+          },
+          "Minnesota Vikings -1.5": {
+            "market": "nfl_spread",
+            "odds": 1.95,
+            "book": "everygame",
+            "prob": 50.0,
+            "edge_pct": -2.5
+          },
+          "Green Bay Packers +1.5": {
+            "market": "nfl_spread",
+            "odds": 1.97,
+            "book": "matchbook",
+            "prob": 50.0,
+            "edge_pct": -1.5
+          },
+          "Over 46": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "betmgm",
+            "prob": 50.65,
+            "edge_pct": -3.26
+          },
+          "Under 46": {
+            "market": "nfl_total",
+            "odds": 2.0,
+            "book": "matchbook",
+            "prob": 49.35,
+            "edge_pct": -1.3
+          },
+          "Over 46.5": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "draftkings",
+            "prob": 50.0,
+            "edge_pct": -3.5
+          },
+          "Under 46.5": {
+            "market": "nfl_total",
+            "odds": 1.92,
+            "book": "gtbets",
+            "prob": 50.0,
+            "edge_pct": -4.0
+          }
+        }
+      },
+      {
+        "event_id": "c5d95f48a16849ab6bebc68fbbfcb74a",
+        "home_team": "Las Vegas Raiders",
+        "away_team": "Miami Dolphins",
+        "commence": "2026-09-13T20:25:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 61.03,
+            "prob_b": 38.97,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 2.5,
+            "prob_a": 54.16,
+            "prob_b": 45.84,
+            "source": "mediane no-vig (2 books)",
+            "n_books": 2
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob_a": 51.16,
+            "prob_b": 48.84,
+            "source": "pinnacle",
+            "n_books": 21
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob_a": 47.37,
+            "prob_b": 52.63,
+            "source": "mediane no-vig (3 books)",
+            "n_books": 3
+          },
+          {
+            "market": "nfl_total",
+            "point": 39.5,
+            "prob_a": 50.52,
+            "prob_b": 49.48,
+            "source": "mediane no-vig (3 books)",
+            "n_books": 3
+          },
+          {
+            "market": "nfl_total",
+            "point": 40.0,
+            "prob_a": 50.66,
+            "prob_b": 49.34,
+            "source": "mediane no-vig (7 books)",
+            "n_books": 7
+          },
+          {
+            "market": "nfl_total",
+            "point": 40.5,
+            "prob_a": 48.83,
+            "prob_b": 51.17,
+            "source": "pinnacle",
+            "n_books": 14
+          }
+        ],
+        "prices": {
+          "Las Vegas Raiders ML": {
+            "market": "nfl_ml",
+            "odds": 1.67,
+            "book": "unibet_se",
+            "prob": 61.03,
+            "edge_pct": 1.92
+          },
+          "Miami Dolphins ML": {
+            "market": "nfl_ml",
+            "odds": 2.6,
+            "book": "betfair_ex_eu",
+            "prob": 38.97,
+            "edge_pct": 1.32
+          },
+          "Las Vegas Raiders -2.5": {
+            "market": "nfl_spread",
+            "odds": 1.71,
+            "book": "nordicbet",
+            "prob": 54.16,
+            "edge_pct": -7.39
+          },
+          "Miami Dolphins +2.5": {
+            "market": "nfl_spread",
+            "odds": 2.02,
+            "book": "nordicbet",
+            "prob": 45.84,
+            "edge_pct": -7.4
+          },
+          "Las Vegas Raiders -3": {
+            "market": "nfl_spread",
+            "odds": 1.98,
+            "book": "lowvig",
+            "prob": 51.16,
+            "edge_pct": 1.3
+          },
+          "Miami Dolphins +3": {
+            "market": "nfl_spread",
+            "odds": 1.99,
+            "book": "pinnacle",
+            "prob": 48.84,
+            "edge_pct": -2.81
+          },
+          "Las Vegas Raiders -3.5": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "onexbet",
+            "prob": 47.37,
+            "edge_pct": -5.26
+          },
+          "Miami Dolphins +3.5": {
+            "market": "nfl_spread",
+            "odds": 1.8,
+            "book": "tipico_de",
+            "prob": 52.63,
+            "edge_pct": -5.27
+          },
+          "Over 39.5": {
+            "market": "nfl_total",
+            "odds": 1.89,
+            "book": "fanduel",
+            "prob": 50.52,
+            "edge_pct": -4.52
+          },
+          "Under 39.5": {
+            "market": "nfl_total",
+            "odds": 2.0,
+            "book": "sport888",
+            "prob": 49.48,
+            "edge_pct": -1.04
+          },
+          "Over 40": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "betus",
+            "prob": 50.66,
+            "edge_pct": -3.24
+          },
+          "Under 40": {
+            "market": "nfl_total",
+            "odds": 1.95,
+            "book": "bovada",
+            "prob": 49.34,
+            "edge_pct": -3.79
+          },
+          "Over 40.5": {
+            "market": "nfl_total",
+            "odds": 1.97,
+            "book": "pinnacle",
+            "prob": 48.83,
+            "edge_pct": -3.8
+          },
+          "Under 40.5": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "draftkings",
+            "prob": 51.17,
+            "edge_pct": -1.24
+          }
+        }
+      },
+      {
+        "event_id": "17885cb8dcade8f6c3bce14b2de805e8",
+        "home_team": "Philadelphia Eagles",
+        "away_team": "Washington Commanders",
+        "commence": "2026-09-13T20:25:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 67.65,
+            "prob_b": 32.35,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 4.5,
+            "prob_a": 51.03,
+            "prob_b": 48.97,
+            "source": "pinnacle",
+            "n_books": 14
+          },
+          {
+            "market": "nfl_spread",
+            "point": 5.0,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "mediane no-vig (8 books)",
+            "n_books": 8
+          },
+          {
+            "market": "nfl_spread",
+            "point": 5.5,
+            "prob_a": 49.54,
+            "prob_b": 50.46,
+            "source": "mediane no-vig (4 books)",
+            "n_books": 4
+          },
+          {
+            "market": "nfl_total",
+            "point": 44.0,
+            "prob_a": 51.05,
+            "prob_b": 48.95,
+            "source": "mediane no-vig (3 books)",
+            "n_books": 3
+          },
+          {
+            "market": "nfl_total",
+            "point": 44.5,
+            "prob_a": 48.7,
+            "prob_b": 51.3,
+            "source": "pinnacle",
+            "n_books": 21
+          }
+        ],
+        "prices": {
+          "Philadelphia Eagles ML": {
+            "market": "nfl_ml",
+            "odds": 1.47,
+            "book": "unibet_se",
+            "prob": 67.65,
+            "edge_pct": -0.55
+          },
+          "Washington Commanders ML": {
+            "market": "nfl_ml",
+            "odds": 3.1,
+            "book": "betfair_ex_eu",
+            "prob": 32.35,
+            "edge_pct": 0.29
+          },
+          "Philadelphia Eagles -4.5": {
+            "market": "nfl_spread",
+            "odds": 1.93,
+            "book": "lowvig",
+            "prob": 51.03,
+            "edge_pct": -1.51
+          },
+          "Washington Commanders +4.5": {
+            "market": "nfl_spread",
+            "odds": 1.99,
+            "book": "matchbook",
+            "prob": 48.97,
+            "edge_pct": -2.55
+          },
+          "Philadelphia Eagles -5": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "unibet_se",
+            "prob": 50.0,
+            "edge_pct": -4.5
+          },
+          "Washington Commanders +5": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "unibet_se",
+            "prob": 50.0,
+            "edge_pct": -4.5
+          },
+          "Philadelphia Eagles -5.5": {
+            "market": "nfl_spread",
+            "odds": 1.95,
+            "book": "fanduel",
+            "prob": 49.54,
+            "edge_pct": -3.4
+          },
+          "Washington Commanders +5.5": {
+            "market": "nfl_spread",
+            "odds": 1.91,
+            "book": "betmgm",
+            "prob": 50.46,
+            "edge_pct": -3.62
+          },
+          "Over 44": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "everygame",
+            "prob": 51.05,
+            "edge_pct": -2.49
+          },
+          "Under 44": {
+            "market": "nfl_total",
+            "odds": 1.95,
+            "book": "bovada",
+            "prob": 48.95,
+            "edge_pct": -4.55
+          },
+          "Over 44.5": {
+            "market": "nfl_total",
+            "odds": 1.99,
+            "book": "matchbook",
+            "prob": 48.7,
+            "edge_pct": -3.09
+          },
+          "Under 44.5": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "fanduel",
+            "prob": 51.3,
+            "edge_pct": -0.99
+          }
+        }
+      },
+      {
+        "event_id": "3e646c7479c57f5d9752d8c7dfe7059b",
+        "home_team": "New York Giants",
+        "away_team": "Dallas Cowboys",
+        "commence": "2026-09-14T00:20:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 40.69,
+            "prob_b": 59.31,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 2.5,
+            "prob_a": 46.41,
+            "prob_b": 53.59,
+            "source": "pinnacle",
+            "n_books": 7
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob_a": 51.05,
+            "prob_b": 48.95,
+            "source": "mediane no-vig (18 books)",
+            "n_books": 18
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob_a": 52.63,
+            "prob_b": 47.37,
+            "source": "mediane no-vig (1 books)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_total",
+            "point": 47.5,
+            "prob_a": 51.69,
+            "prob_b": 48.31,
+            "source": "pinnacle",
+            "n_books": 4
+          },
+          {
+            "market": "nfl_total",
+            "point": 48.0,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "mediane no-vig (15 books)",
+            "n_books": 15
+          },
+          {
+            "market": "nfl_total",
+            "point": 48.5,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "mediane no-vig (5 books)",
+            "n_books": 5
+          }
+        ],
+        "prices": {
+          "New York Giants ML": {
+            "market": "nfl_ml",
+            "odds": 2.5,
+            "book": "betfair_ex_eu",
+            "prob": 40.69,
+            "edge_pct": 1.72
+          },
+          "Dallas Cowboys ML": {
+            "market": "nfl_ml",
+            "odds": 1.71,
+            "book": "marathonbet",
+            "prob": 59.31,
+            "edge_pct": 1.42
+          },
+          "New York Giants +2.5": {
+            "market": "nfl_spread",
+            "odds": 2.09,
+            "book": "pinnacle",
+            "prob": 46.41,
+            "edge_pct": -3.0
+          },
+          "Dallas Cowboys -2.5": {
+            "market": "nfl_spread",
+            "odds": 1.87,
+            "book": "fanduel",
+            "prob": 53.59,
+            "edge_pct": 0.21
+          },
+          "New York Giants +3": {
+            "market": "nfl_spread",
+            "odds": 1.93,
+            "book": "lowvig",
+            "prob": 51.05,
+            "edge_pct": -1.47
+          },
+          "Dallas Cowboys -3": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "mybookieag",
+            "prob": 48.95,
+            "edge_pct": -2.1
+          },
+          "New York Giants +3.5": {
+            "market": "nfl_spread",
+            "odds": 1.8,
+            "book": "sport888",
+            "prob": 52.63,
+            "edge_pct": -5.27
+          },
+          "Dallas Cowboys -3.5": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "sport888",
+            "prob": 47.37,
+            "edge_pct": -5.26
+          },
+          "Over 47.5": {
+            "market": "nfl_total",
+            "odds": 1.88,
+            "book": "matchbook",
+            "prob": 51.69,
+            "edge_pct": -2.82
+          },
+          "Under 47.5": {
+            "market": "nfl_total",
+            "odds": 2.02,
+            "book": "matchbook",
+            "prob": 48.31,
+            "edge_pct": -2.41
+          },
+          "Over 48": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "lowvig",
+            "prob": 50.0,
+            "edge_pct": -3.5
+          },
+          "Under 48": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "betmgm",
+            "prob": 50.0,
+            "edge_pct": -3.5
+          },
+          "Over 48.5": {
+            "market": "nfl_total",
+            "odds": 1.95,
+            "book": "draftkings",
+            "prob": 50.0,
+            "edge_pct": -2.5
+          },
+          "Under 48.5": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "mybookieag",
+            "prob": 50.0,
+            "edge_pct": -4.5
+          }
+        }
+      },
+      {
+        "event_id": "5ad8135dc2b5f27de0b777acd317855a",
+        "home_team": "Kansas City Chiefs",
+        "away_team": "Denver Broncos",
+        "commence": "2026-09-15T00:15:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 57.79,
+            "prob_b": 42.21,
+            "source": "pinnacle",
+            "n_books": 30
+          },
+          {
+            "market": "nfl_spread",
+            "point": 2.0,
+            "prob_a": 52.22,
+            "prob_b": 47.78,
+            "source": "mediane no-vig (1 books)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 2.5,
+            "prob_a": 51.57,
+            "prob_b": 48.43,
+            "source": "mediane no-vig (22 books)",
+            "n_books": 22
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob_a": 46.92,
+            "prob_b": 53.08,
+            "source": "pinnacle",
+            "n_books": 2
+          },
+          {
+            "market": "nfl_total",
+            "point": 43.5,
+            "prob_a": 50.26,
+            "prob_b": 49.74,
+            "source": "mediane no-vig (20 books)",
+            "n_books": 20
+          },
+          {
+            "market": "nfl_total",
+            "point": 44.0,
+            "prob_a": 49.35,
+            "prob_b": 50.65,
+            "source": "pinnacle",
+            "n_books": 4
+          }
+        ],
+        "prices": {
+          "Kansas City Chiefs ML": {
+            "market": "nfl_ml",
+            "odds": 1.76,
+            "book": "betfair_ex_eu",
+            "prob": 57.79,
+            "edge_pct": 1.71
+          },
+          "Denver Broncos ML": {
+            "market": "nfl_ml",
+            "odds": 2.3,
+            "book": "draftkings",
+            "prob": 42.21,
+            "edge_pct": -2.92
+          },
+          "Kansas City Chiefs -2": {
+            "market": "nfl_spread",
+            "odds": 1.83,
+            "book": "betus",
+            "prob": 52.22,
+            "edge_pct": -4.44
+          },
+          "Denver Broncos +2": {
+            "market": "nfl_spread",
+            "odds": 2.0,
+            "book": "betus",
+            "prob": 47.78,
+            "edge_pct": -4.44
+          },
+          "Kansas City Chiefs -2.5": {
+            "market": "nfl_spread",
+            "odds": 1.9,
+            "book": "coolbet",
+            "prob": 51.57,
+            "edge_pct": -2.02
+          },
+          "Denver Broncos +2.5": {
+            "market": "nfl_spread",
+            "odds": 2.01,
+            "book": "lowvig",
+            "prob": 48.43,
+            "edge_pct": -2.66
+          },
+          "Kansas City Chiefs -3": {
+            "market": "nfl_spread",
+            "odds": 2.07,
+            "book": "pinnacle",
+            "prob": 46.92,
+            "edge_pct": -2.88
+          },
+          "Denver Broncos +3": {
+            "market": "nfl_spread",
+            "odds": 1.83,
+            "book": "draftkings",
+            "prob": 53.08,
+            "edge_pct": -2.86
+          },
+          "Over 43.5": {
+            "market": "nfl_total",
+            "odds": 1.93,
+            "book": "fanduel",
+            "prob": 50.26,
+            "edge_pct": -3.0
+          },
+          "Under 43.5": {
+            "market": "nfl_total",
+            "odds": 1.98,
+            "book": "lowvig",
+            "prob": 49.74,
+            "edge_pct": -1.51
+          },
+          "Over 44": {
+            "market": "nfl_total",
+            "odds": 1.99,
+            "book": "matchbook",
+            "prob": 49.35,
+            "edge_pct": -1.79
+          },
+          "Under 44": {
+            "market": "nfl_total",
+            "odds": 1.91,
+            "book": "everygame",
+            "prob": 50.65,
+            "edge_pct": -3.26
+          }
+        }
+      }
+    ],
+    "paper_logged": 2
+  },
   "odds_api": {
-    "remaining": 17489,
-    "used": 2511,
+    "remaining": 17413,
+    "used": 2587,
     "calls": 34,
     "cache_hits": 0,
-    "credits_spent": 74,
+    "credits_spent": 64,
     "refused": 0,
-    "day_budget": 796,
-    "spent_today": 398,
+    "day_budget": 792,
+    "spent_today": 474,
     "est_spent": 608,
-    "cost_factor": 0.122,
-    "prop_credits": 105.08625011275434,
+    "cost_factor": 0.105,
+    "prop_credits": 85.3972714259771,
     "regions": "us,eu",
     "cache_ttl_s": 1800,
     "healthy": true,
