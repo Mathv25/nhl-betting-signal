@@ -440,6 +440,11 @@ def run(api_key: str = None, force: bool = False) -> dict:
         state = load_signals()
         state["stale"] = True
         state["reason"] = motif
+        try:
+            import nfl_props
+            state["props"] = {**nfl_props.load_props(), "stale": True}
+        except Exception:
+            pass
         print(f"  [NFL] {motif} — aucun credit depense, dernier etat conserve")
         return state
 
@@ -502,6 +507,23 @@ def run(api_key: str = None, force: bool = False) -> dict:
             state["closing_captured"] = capture_closing(games, week)
     except Exception as e:
         print(f"  [NFL] tracking papier indisponible: {e}")
+
+    # Props joueurs: une seule fenetre par semaine, le dimanche matin. Importe
+    # ici et non en tete de fichier — nfl_props importe ce module.
+    try:
+        import nfl_props
+        if force or nfl_props.should_run(when)[0]:
+            state["props"] = nfl_props.run(api_key, state, force=force)
+        else:
+            state["props"] = nfl_props.load_props()
+            state["props"]["stale"] = True
+    except Exception as e:
+        print(f"  [Props NFL] erreur: {e}")
+        try:
+            import nfl_props
+            state["props"] = nfl_props.load_props()
+        except Exception:
+            state["props"] = {}
 
     save_signals(state)
     print(f"  [NFL] {motif}: {len(games)} match(s), {n_sig} signal(aux) "

@@ -1045,6 +1045,12 @@ class ReportGenerator:
         # section mettait tout le contenu en colonnes cote a cote.
         head = ("<div class=\"sec\">🏈 NFL — ecarts entre books</div>"
                 "<div class=\"nfl-wrap\">"
+                "<div class=\"nfl-subtabs\">"
+                "<button class=\"nfl-st active\" onclick=\"nflSub('matchs',this)\">"
+                "Matchs</button>"
+                "<button class=\"nfl-st\" onclick=\"nflSub('props',this)\">"
+                "Props joueurs</button></div>"
+                "<div id=\"nfl-sub-matchs\">"
                 "<p class=\"nfl-intro\">Sans modele maison: un signal est emis "
                 "quand la meilleure cote jouable bat la probabilite no-vig de "
                 "reference d'au moins <b>" + f"{thr:g}" + "%</b>, sur au moins "
@@ -1161,8 +1167,117 @@ class ReportGenerator:
                 rows.append("<div class=\"nfl-none\">" + " &middot; ".join(pied) + "</div>")
             rows.append("</div>")
 
-        rows.append("</div>")
+        rows.append("</div>")                       # fin du sous-onglet matchs
+        rows.append("<div id=\"nfl-sub-props\" style=\"display:none\">")
+        rows.append(self._nfl_props_section(st.get("props")))
+        rows.append("</div></div>")                 # fin props, fin nfl-wrap
         return "".join(rows)
+
+    def _nfl_props_section(self, props) -> str:
+        """
+        Sous-onglet des props joueurs.
+
+        Deux natures de signal cohabitent et ne se lisent pas pareil:
+        un ECART DE COTE se juge sur son esperance, un ECART DE LIGNE sur la
+        largeur de la fenetre qu'il ouvre — un middle de 5 verges n'a pas
+        d'esperance affichable, il a une fenetre. Les deux sont donc presentes
+        separement plutot que meles dans une colonne "edge" qui vaudrait zero
+        pour la moitie des lignes.
+        """
+        st = props or {}
+        sigs = st.get("signals") or []
+        cotes = [s for s in sigs if s.get("type") == "cote"]
+        lignes = [s for s in sigs if s.get("type") == "ligne"]
+
+        if not st:
+            return ("<div class=\"perf-empty\"><div class=\"perf-empty-icon\">📋</div>"
+                    "<div class=\"perf-empty-title\">Props pas encore relevees</div>"
+                    "<div class=\"perf-empty-sub\">Un seul releve par semaine, le "
+                    "dimanche matin: les lignes d'ouverture sont trop larges pour "
+                    "qu'un ecart y veuille dire quelque chose.</div></div>")
+
+        out = ["<p class=\"nfl-intro\">Seuls les matchs dont le total depasse "
+               + f"{st.get('min_total', 47):g}" + " points sont scannes — le volume de "
+               "verges s'y concentre, et une requete par match et par marche se paie "
+               "sur le meme quota que le MLB.</p>"]
+
+        out.append(
+            "<div class=\"nfl-quota\">"
+            "<b>" + str(st.get("requests_week", 0)) + "</b>/"
+            + str(st.get("max_requests", 40)) + " requetes utilisees cette semaine "
+            "&middot; " + str(st.get("n_scanned", 0)) + " match(s) scanne(s) sur "
+            + str(st.get("n_games", 0)) + " retenu(s)"
+            + ("<br>Releve date — " + str(st.get("reason", "")) if st.get("stale") else "")
+            + "</div>")
+
+        if not sigs:
+            return "".join(out) + (
+                "<div class=\"perf-empty\"><div class=\"perf-empty-icon\">✓</div>"
+                "<div class=\"perf-empty-title\">Aucun signal</div>"
+                "<div class=\"perf-empty-sub\">Les books sont alignes sur les props "
+                "scannees. C'est un resultat, pas une panne.</div></div>")
+
+        if cotes:
+            out.append("<div class=\"nfl-day\">ecarts de cote &middot; "
+                       + str(len(cotes)) + "</div>")
+            for s in cotes:
+                out.append(self._nfl_prop_row(s))
+
+        if lignes:
+            out.append("<div class=\"nfl-day\">ecarts de ligne (middles) &middot; "
+                       + str(len(lignes)) + "</div>")
+            for s in lignes:
+                o, u = s.get("over", {}), s.get("under", {})
+                out.append(
+                    "<div class=\"nfl-prop\">"
+                    "<div class=\"nfl-prop-h\"><span class=\"nfl-prop-j\">"
+                    + str(s.get("joueur", "")) + "</span>"
+                    "<span class=\"nfl-mk\">" + str(s.get("marche_lbl", "")) + "</span>"
+                    "<span class=\"nfl-prop-g\">" + str(s.get("game", "")) + "</span></div>"
+                    "<div class=\"nfl-mid\">"
+                    "<span>Over <b>" + f"{o.get('ligne', 0):g}" + "</b> @ "
+                    + f"{o.get('odds', 0):.2f}" + " <i>" + str(o.get("book", ""))[:11]
+                    + "</i></span>"
+                    "<span class=\"nfl-mid-win\">fenetre <b>"
+                    + f"{s.get('fenetre', 0):g}" + "</b> verges</span>"
+                    "<span>Under <b>" + f"{u.get('ligne', 0):g}" + "</b> @ "
+                    + f"{u.get('odds', 0):.2f}" + " <i>" + str(u.get("book", ""))[:11]
+                    + "</i></span></div>"
+                    + self._nfl_books(s.get("books"))
+                    + "</div>")
+
+        return "".join(out)
+
+    def _nfl_books(self, books) -> str:
+        """Ligne et prix chez chaque book: c'est la moitie de l'information."""
+        if not books:
+            return ""
+        cells = "".join(
+            "<span class=\"nfl-bk\"><i>" + str(b.get("book", ""))[:11] + "</i>"
+            + f"{b.get('ligne', 0):g}"
+            + ("" if not b.get("over") else " <em>" + f"{b['over']:.2f}" + "</em>")
+            + "</span>"
+            for b in books)
+        return "<div class=\"nfl-bks\">" + cells + "</div>"
+
+    def _nfl_prop_row(self, s: dict) -> str:
+        edge = s.get("edge_pct", 0)
+        return (
+            "<div class=\"nfl-prop\">"
+            "<div class=\"nfl-prop-h\">"
+            "<span class=\"nfl-prop-j\">★ " + str(s.get("joueur", "")) + "</span>"
+            "<span class=\"nfl-mk\">" + str(s.get("marche_lbl", "")) + "</span>"
+            "<span class=\"nfl-prop-g\">" + str(s.get("game", "")) + "</span>"
+            "<span class=\"nfl-prop-e\" style=\"color:var(--nfl-good)\">+"
+            + f"{edge:.1f}" + "%</span></div>"
+            "<div class=\"nfl-prop-d\">"
+            "<b>" + str(s.get("side", "")) + " " + f"{s.get('ligne', 0):g}" + "</b>"
+            " &middot; " + f"{s.get('odds', 0):.2f}" + " chez <b>"
+            + str(s.get("book", "")) + "</b>"
+            " &middot; juste " + f"{s.get('fair_odds', 0):.2f}"
+            + " (" + f"{s.get('prob', 0):.1f}" + "% no-vig, "
+            + str(s.get("source", "")) + ", " + str(s.get("n_books", 0)) + " books)"
+            "</div>" + self._nfl_books(s.get("books")) + "</div>")
 
     @staticmethod
     def _nfl_day(commence: str) -> str:
@@ -1812,6 +1927,16 @@ class ReportGenerator:
             "setInterval(nflKickoffs,60000);"
             "document.addEventListener('DOMContentLoaded',nflKickoffs);"
 
+            "function nflSub(which,btn){"
+            "['matchs','props'].forEach(function(k){"
+            "var el=document.getElementById('nfl-sub-'+k);"
+            "if(el)el.style.display=(k===which?'block':'none');});"
+            "document.querySelectorAll('.nfl-st').forEach(function(b){"
+            "b.classList.remove('active');});"
+            "btn.classList.add('active');"
+            "if(which==='matchs')nflKickoffs();"
+            "}"
+
             "function showTab(id,btn){"
             "document.querySelectorAll('[id^=\"tab-\"]').forEach(function(el){el.style.display='none';});"
             "document.getElementById(id).style.display='block';"
@@ -2316,6 +2441,36 @@ class ReportGenerator:
             ".nfl-wrap{font-size:13px;font-weight:400;color:var(--t);text-transform:none;"
             "letter-spacing:normal}"
             ".nfl-intro{font-size:12px;color:var(--m);line-height:1.5;margin:0 0 1rem}"
+            ".nfl-subtabs{display:flex;gap:2px;background:var(--bg);padding:3px;"
+            "border-radius:9px;border:1px solid var(--b);margin-bottom:1rem;width:fit-content}"
+            ".nfl-st{border:none;background:none;padding:5px 14px;border-radius:7px;"
+            "font-size:12px;font-weight:600;color:var(--m);cursor:pointer;font-family:inherit}"
+            ".nfl-st.active{background:var(--s);color:var(--t);box-shadow:0 1px 2px rgba(0,0,0,.08)}"
+            ".nfl-quota{font-size:11px;color:var(--m);background:var(--bg);border-radius:8px;"
+            "padding:8px 11px;margin-bottom:1rem;line-height:1.5}"
+            ".nfl-quota b{color:var(--t)}"
+            ".nfl-prop{border:1px solid var(--b);border-radius:10px;padding:10px 12px;"
+            "margin-bottom:.5rem;background:var(--s)}"
+            ".nfl-prop-h{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}"
+            ".nfl-prop-j{font-size:13px;font-weight:700;color:var(--t)}"
+            ".nfl-prop-g{font-size:10px;color:var(--m)}"
+            ".nfl-prop-e{margin-left:auto;font-weight:700;font-size:13px;"
+            "font-variant-numeric:tabular-nums}"
+            ".nfl-prop-d{font-size:11.5px;color:var(--m);margin-top:5px}"
+            ".nfl-prop-d b{color:var(--t)}"
+            ".nfl-mid{display:flex;align-items:center;gap:12px;flex-wrap:wrap;"
+            "font-size:11.5px;color:var(--m);margin-top:6px}"
+            ".nfl-mid b{color:var(--t);font-variant-numeric:tabular-nums}"
+            ".nfl-mid i{font-style:normal;font-size:9px;text-transform:uppercase;"
+            "letter-spacing:.04em}"
+            ".nfl-mid-win{color:var(--nfl-good);font-weight:600}"
+            ".nfl-bks{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;"
+            "padding-top:6px;border-top:1px solid var(--b)}"
+            ".nfl-bk{font-size:10px;color:var(--t);background:var(--bg);border-radius:5px;"
+            "padding:2px 6px;font-variant-numeric:tabular-nums}"
+            ".nfl-bk i{font-style:normal;color:var(--m);text-transform:uppercase;"
+            "letter-spacing:.03em;margin-right:4px;font-size:9px}"
+            ".nfl-bk em{font-style:normal;color:var(--m)}"
             ".nfl-intro b{color:var(--t)}"
             ".nfl-stale{font-size:11px;color:#BA7517;background:#FEF6E7;border-radius:6px;"
             "padding:6px 10px;margin-bottom:.75rem}"

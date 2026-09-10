@@ -446,7 +446,14 @@ class OddsAPIClient:
             st  = load_usage()
             day = today_et()
             if st.get("date") != day or st.get("remaining_at_start") is None:
-                st = {"date": day, "remaining_at_start": self.remaining}
+                # Le compteur du JOUR repart a zero, mais les compteurs d'autres
+                # periodes (le plafond hebdomadaire des props NFL, par exemple)
+                # doivent traverser le changement de date: on ne reinitialise
+                # que les champs quotidiens.
+                quotidien = {"date", "remaining_at_start", "remaining",
+                             "spent_today", "day_budget", "updated_at"}
+                st = {k: v for k, v in st.items() if k not in quotidien}
+                st.update({"date": day, "remaining_at_start": self.remaining})
             elif self.remaining is not None and self.remaining > st["remaining_at_start"]:
                 # Le quota est remonte: renouvellement du plan en cours de mois.
                 st["remaining_at_start"] = self.remaining
