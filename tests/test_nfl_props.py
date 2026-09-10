@@ -308,6 +308,57 @@ class TestLineDiscrepancy(unittest.TestCase):
              "c": (67.5, 1.92, 1.93)}) if s["type"] == "ligne"], [])
 
 
+class TestMiddleEconomics(unittest.TestCase):
+    """
+    Une fenetre d'une verge demande au resultat de tomber exactement dessus.
+    Sur le premier releve reel, huit middles sur vingt et un etaient a une
+    verge — vrais au sens ou deux books divergent, mais sous le seuil de
+    rentabilite une fois la marge payee des deux cotes.
+    """
+
+    def test_breakeven_comes_from_the_two_prices(self):
+        # 1.90 des deux cotes: on gagne 1.80 quand ca tombe, on perd 0.10
+        # sinon -> 0.10 / 1.90 = 5.26%.
+        self.assertAlmostEqual(P.middle_breakeven(1.90, 1.90), 5.26, places=1)
+
+    def test_worse_prices_demand_more(self):
+        self.assertGreater(P.middle_breakeven(1.80, 1.80),
+                           P.middle_breakeven(1.95, 1.95))
+
+    def test_an_asymmetric_pair_uses_the_worst_side(self):
+        # Annoncer la moyenne flatterait le pari.
+        self.assertGreater(P.middle_breakeven(2.05, 1.85),
+                           P.middle_breakeven(1.95, 1.95))
+
+    def test_a_one_yard_window_is_dropped(self):
+        par_ligne = {5.5: {"draftkings": {"Over": 1.90, "Under": 1.90}},
+                     6.5: {"betmgm": {"Over": 1.90, "Under": 1.90}}}
+        sigs = P.analyze_player("Kyle Juszczyk", par_ligne,
+                                "player_reception_yds", game())
+        self.assertEqual([s for s in sigs if s["type"] == "ligne"], [])
+
+    def test_a_wide_enough_window_is_kept_with_its_breakeven(self):
+        par_ligne = {258.5: {"fanduel": {"Over": 1.90, "Under": 1.92}},
+                     263.5: {"betmgm": {"Over": 1.91, "Under": 1.90}}}
+        m = [s for s in P.analyze_player("Matthew Stafford", par_ligne,
+                                         "player_pass_yds", game())
+             if s["type"] == "ligne"]
+        self.assertEqual(len(m), 1)
+        self.assertEqual(m[0]["fenetre"], 5.0)
+        self.assertGreater(m[0]["breakeven"], 0)
+
+    def test_the_window_threshold_is_configurable(self):
+        os.environ["NFL_PROPS_MIN_MIDDLE"] = "1"
+        try:
+            par_ligne = {5.5: {"draftkings": {"Over": 1.90, "Under": 1.90}},
+                         6.5: {"betmgm": {"Over": 1.90, "Under": 1.90}}}
+            self.assertTrue([s for s in P.analyze_player(
+                "Kyle Juszczyk", par_ligne, "player_reception_yds", game())
+                if s["type"] == "ligne"])
+        finally:
+            os.environ.pop("NFL_PROPS_MIN_MIDDLE", None)
+
+
 class TestCadence(unittest.TestCase):
 
     def test_only_sunday_morning(self):

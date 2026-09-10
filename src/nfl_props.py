@@ -81,6 +81,45 @@ def min_edge() -> float:
         return 3.0
 
 
+def min_middle() -> float:
+    """
+    Fenetre minimale d'un middle, dans l'unite du marche (des verges ici).
+
+    Une fenetre d'une verge demande au resultat de tomber exactement dessus.
+    Sur le premier releve reel, la moitie des middles detectes etaient a une
+    verge — vrais au sens ou les deux books divergent, mais sous le seuil de
+    rentabilite une fois la marge payee des deux cotes.
+    """
+    try:
+        return float(os.environ.get("NFL_PROPS_MIN_MIDDLE", "") or 2.0)
+    except ValueError:
+        return 2.0
+
+
+def middle_breakeven(over_odds: float, under_odds: float) -> float:
+    """
+    Frequence a laquelle le resultat doit tomber DANS la fenetre pour que le
+    middle soit rentable, en %.
+
+    Une unite de chaque cote. Si le resultat tombe dans la fenetre, les deux
+    paris gagnent: (cote_over - 1) + (cote_under - 1). Sinon un gagne et
+    l'autre perd, ce qui laisse la difference — negative des que les deux cotes
+    sont sous 2.00, c'est-a-dire toujours.
+
+    On prend le pire des deux cas a un seul gagnant: annoncer la moyenne
+    flatterait le pari.
+
+    Ce chiffre se calcule sur les prix seuls. La probabilite REELLE que le
+    resultat tombe dans la fenetre, elle, demanderait un modele de distribution
+    des verges qu'on n'a pas — c'est au lecteur de juger, et c'est dit.
+    """
+    gain  = (over_odds - 1.0) + (under_odds - 1.0)
+    perte = min(over_odds, under_odds) - 2.0      # negatif
+    if gain <= perte:
+        return 100.0
+    return round(-perte / (gain - perte) * 100, 2)
+
+
 def min_books() -> int:
     """Comme pour les marches principaux: deux books ne font pas un consensus."""
     try:
@@ -291,7 +330,7 @@ def analyze_player(joueur: str, par_ligne: dict, market: str,
             meilleur_under = (ligne, c["Under"], bk)
 
     if (meilleur_over and meilleur_under
-            and meilleur_under[0] > meilleur_over[0]
+            and meilleur_under[0] - meilleur_over[0] >= min_middle()
             and meilleur_under[2] != meilleur_over[2]):
         lo, o_odds, o_book = meilleur_over
         hi, u_odds, u_book = meilleur_under
@@ -307,6 +346,7 @@ def analyze_player(joueur: str, par_ligne: dict, market: str,
             "over":       {"ligne": lo, "odds": round(o_odds, 3), "book": o_book},
             "under":      {"ligne": hi, "odds": round(u_odds, 3), "book": u_book},
             "consensus":  consensus,
+            "breakeven":  middle_breakeven(o_odds, u_odds),
             "odds":       round(o_odds, 3),
             "book":       o_book,
             "edge_pct":   0.0,

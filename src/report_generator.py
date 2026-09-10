@@ -1226,6 +1226,11 @@ class ReportGenerator:
         if lignes:
             out.append("<div class=\"nfl-day\">ecarts de ligne (middles) &middot; "
                        + str(len(lignes)) + "</div>")
+            out.append("<p class=\"nfl-intro\">Le taux indique est celui qu'il faut "
+                       "atteindre pour que le middle soit rentable, calcule sur les "
+                       "deux prix. La frequence reelle a laquelle le resultat tombe "
+                       "dans la fenetre demanderait un modele de distribution des "
+                       "verges qu'on n'a pas: c'est a vous de juger.</p>")
             for s in lignes:
                 o, u = s.get("over", {}), s.get("under", {})
                 out.append(
@@ -1240,6 +1245,9 @@ class ReportGenerator:
                     + "</i></span>"
                     "<span class=\"nfl-mid-win\">fenetre <b>"
                     + f"{s.get('fenetre', 0):g}" + "</b> verges</span>"
+                    + ("" if not s.get("breakeven") else
+                       "<span class=\"nfl-mid-be\">rentable au-dela de <b>"
+                       + f"{s['breakeven']:.1f}" + "%</b> de reussite</span>")
                     "<span>Under <b>" + f"{u.get('ligne', 0):g}" + "</b> @ "
                     + f"{u.get('odds', 0):.2f}" + " <i>" + str(u.get("book", ""))[:11]
                     + "</i></span></div>"
@@ -2464,6 +2472,8 @@ class ReportGenerator:
             ".nfl-mid i{font-style:normal;font-size:9px;text-transform:uppercase;"
             "letter-spacing:.04em}"
             ".nfl-mid-win{color:var(--nfl-good);font-weight:600}"
+            ".nfl-mid-be{color:var(--m);margin-left:auto;font-size:11px}"
+            ".nfl-mid-be b{color:var(--t)}"
             ".nfl-bks{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;"
             "padding-top:6px;border-top:1px solid var(--b)}"
             ".nfl-bk{font-size:10px;color:var(--t);background:var(--bg);border-radius:5px;"
