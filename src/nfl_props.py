@@ -32,7 +32,7 @@ probabilites — seulement en comparant les lignes.
 from __future__ import annotations
 
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import odds_api
 import nfl_analyzer as NFL
@@ -135,16 +135,39 @@ def game_total(game: dict):
     return float(max(totaux, key=lambda m: m.get("n_books", 0))["point"])
 
 
-def select_games(games: list) -> list:
+def kickoff_in_hours(commence: str, when: datetime = None):
+    """Heures avant le coup d'envoi; negatif si le match a commence."""
+    if not commence:
+        return None
+    try:
+        k = datetime.fromisoformat(commence.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    ref = (when or NFL.now_et()).replace(tzinfo=None) + timedelta(hours=4)
+    return (k.replace(tzinfo=None) - ref).total_seconds() / 3600.0
+
+
+def select_games(games: list, within_hours: float = None,
+                 when: datetime = None) -> list:
     """
     Matchs dont les props valent une requete: total au-dessus du seuil, les
     plus hauts d'abord, dans la limite de max_games.
+
+    `within_hours` restreint aux matchs qui commencent bientot. C'est le mode
+    des matchs de semaine: un jeudi soir ne tombe dans aucune fenetre
+    hebdomadaire, et scanner tout le calendrier pour lui depenserait des
+    requetes sur des lignes de dimanche encore immatures.
     """
     avec = []
     for g in games or []:
         t = game_total(g)
-        if t is not None and t >= min_total() and g.get("event_id"):
-            avec.append((t, g))
+        if t is None or t < min_total() or not g.get("event_id"):
+            continue
+        if within_hours is not None:
+            h = kickoff_in_hours(g.get("commence", ""), when)
+            if h is None or not (-2.0 <= h <= within_hours):
+                continue
+        avec.append((t, g))
     avec.sort(key=lambda x: -x[0])
     return [{**g, "_total": t} for t, g in avec[:max_games()]]
 
@@ -277,7 +300,8 @@ def fetch_market(client, event_id: str, market: str) -> dict:
     }, cost=odds_api.COST_PER_MARKET_REGION_PROP)
 
 
-def run(api_key: str = None, slate: dict = None, force: bool = False) -> dict:
+def run(api_key: str = None, slate: dict = None, force: bool = False,
+        within_hours: float = None) -> dict:
     """
     Releve des props de la semaine.
 
@@ -294,7 +318,9 @@ def run(api_key: str = None, slate: dict = None, force: bool = False) -> dict:
         etat["reason"] = motif
         return etat
 
-    games = select_games((slate or {}).get("games") or [])
+    games = select_games((slate or {}).get("games") or [], within_hours, when)
+    if within_hours is not None:
+        print(f"  [Props NFL] restreint aux matchs des {within_hours:g} prochaines heures")
     client = odds_api.get_client(api_key)
     if not client.healthy:
         etat = load_props()
@@ -340,6 +366,7 @@ def run(api_key: str = None, slate: dict = None, force: bool = False) -> dict:
         "min_total":    min_total(),
         "min_books":    min_books(),
         "n_games":      len(games),
+        "within_hours": within_hours,
         "n_scanned":    len(scannes),
         "requests":     demandes,
         "requests_week": compteur.get("requests", 0),

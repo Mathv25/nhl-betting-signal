@@ -103,6 +103,41 @@ class TestGameSelection(unittest.TestCase):
         self.assertEqual(P.select_games([g]), [])
 
 
+class TestImminentOnly(unittest.TestCase):
+    """
+    Mode des matchs de semaine: un jeudi soir ne tombe dans aucune fenetre
+    hebdomadaire, et scanner tout le calendrier pour lui depenserait des
+    requetes sur des lignes de dimanche encore larges.
+    """
+
+    JEUDI = datetime(2026, 9, 10, 14)     # 14h ET, coup d'envoi a 20h35
+
+    def _slate(self):
+        ce_soir = game("tnf", 48.0)
+        ce_soir["commence"] = "2026-09-11T00:35:00Z"      # jeudi 20h35 ET
+        dimanche = game("sun", 52.0)
+        dimanche["commence"] = "2026-09-13T17:00:00Z"
+        return [ce_soir, dimanche]
+
+    def test_only_the_imminent_game_is_kept(self):
+        gardes = P.select_games(self._slate(), within_hours=12, when=self.JEUDI)
+        self.assertEqual([g["event_id"] for g in gardes], ["tnf"])
+
+    def test_without_the_option_everything_qualifies(self):
+        gardes = P.select_games(self._slate(), when=self.JEUDI)
+        self.assertEqual(len(gardes), 2)
+
+    def test_a_game_already_played_is_dropped(self):
+        vieux = game("hier", 50.0)
+        vieux["commence"] = "2026-09-09T00:20:00Z"
+        self.assertEqual(P.select_games([vieux], within_hours=12, when=self.JEUDI), [])
+
+    def test_the_total_filter_still_applies(self):
+        faible = game("tnf", 44.0)
+        faible["commence"] = "2026-09-11T00:35:00Z"
+        self.assertEqual(P.select_games([faible], within_hours=12, when=self.JEUDI), [])
+
+
 class TestRequestBudget(unittest.TestCase):
     """
     Le plafond hebdomadaire. Un endpoint props coute une requete par match et

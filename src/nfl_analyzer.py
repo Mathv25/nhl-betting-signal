@@ -423,7 +423,8 @@ def capture_closing(games: list, week: str) -> int:
 
 # ── Point d'entree ──────────────────────────────────────────────────────────
 
-def run(api_key: str = None, force: bool = False) -> dict:
+def run(api_key: str = None, force: bool = False,
+        props_within: float = None) -> dict:
     """
     Produit l'etat NFL pour le dashboard.
 
@@ -513,7 +514,8 @@ def run(api_key: str = None, force: bool = False) -> dict:
     try:
         import nfl_props
         if force or nfl_props.should_run(when)[0]:
-            state["props"] = nfl_props.run(api_key, state, force=force)
+            state["props"] = nfl_props.run(api_key, state, force=force,
+                                           within_hours=props_within)
         else:
             state["props"] = nfl_props.load_props()
             state["props"]["stale"] = True
