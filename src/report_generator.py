@@ -1248,7 +1248,7 @@ class ReportGenerator:
                     + ("" if not s.get("breakeven") else
                        "<span class=\"nfl-mid-be\">rentable au-dela de <b>"
                        + f"{s['breakeven']:.1f}" + "%</b> de reussite</span>")
-                    "<span>Under <b>" + f"{u.get('ligne', 0):g}" + "</b> @ "
+                    + "<span>Under <b>" + f"{u.get('ligne', 0):g}" + "</b> @ "
                     + f"{u.get('odds', 0):.2f}" + " <i>" + str(u.get("book", ""))[:11]
                     + "</i></span></div>"
                     + self._nfl_books(s.get("books"))

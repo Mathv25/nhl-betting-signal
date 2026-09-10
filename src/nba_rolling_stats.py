@@ -4,6 +4,7 @@ Utilise stats.nba.com via urllib (requests est bloqué par NBA).
 IDs hardcodés pour éviter le rate-limit sur l'endpoint de recherche.
 Retourne les moyennes sur les 10 derniers matchs playoffs / saison.
 """
+from __future__ import annotations   # `dict | None` sur Python 3.9
 import json, time, urllib.request, urllib.parse
 
 TIMEOUT    = 12

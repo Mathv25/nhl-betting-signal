@@ -5,6 +5,7 @@ Endpoint: https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=YYYY-MM-DD&hyd
 Retourne un dict: {(home_team, away_team): {"home": "Nom Lanceur", "away": "Nom Lanceur"}}
 Les noms sont normalisés pour matcher MLB_PITCHERS.
 """
+from __future__ import annotations   # `dict | None` sur Python 3.9
 
 import requests
 from datetime import datetime

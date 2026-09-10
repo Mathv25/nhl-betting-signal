@@ -3,6 +3,7 @@ MLB Rolling Stats Fetcher
 Utilise l'API officielle MLB (statsapi.mlb.com) — gratuite, aucune auth.
 Retourne les moyennes sur les N derniers matchs plutôt que la saison entière.
 """
+from __future__ import annotations   # `dict | None` sur Python 3.9
 import requests, time
 
 MLB_API   = "https://statsapi.mlb.com/api/v1"

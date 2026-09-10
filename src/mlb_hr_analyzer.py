@@ -4,6 +4,7 @@ Angles: forme récente (15j) + splits vs main lanceur + H2H carrière
 Filtre: au moins 2 angles positifs sur 3 pour générer un bet
 Edge min: 15% (marché plus difficile que K props)
 """
+from __future__ import annotations   # `dict | None` sur Python 3.9
 
 import math
 import time
