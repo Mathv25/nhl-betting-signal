@@ -1106,7 +1106,10 @@ class ReportGenerator:
         # ne peut pas comparer son prix: on donne la cote a exiger chez soi et
         # la mise correspondante. Un signal dont on ne sait rien dire de
         # concret n'a rien a faire en tete de page.
-        rows.append(self._nfl_todo(games, thr))
+        rows.append(self._nfl_todo(
+            games, thr,
+            [x for x in ((st.get("props") or {}).get("signals") or [])
+             if x.get("type") == "cote"]))
 
         # Legende: la couleur ne doit jamais porter seule une information.
         rows.append(
@@ -1314,7 +1317,7 @@ class ReportGenerator:
             + str(s.get("source", "")) + ", " + str(s.get("n_books", 0)) + " books)"
             "</div>" + self._nfl_books(s.get("books")) + "</div>")
 
-    def _nfl_todo(self, games: list, thr: float) -> str:
+    def _nfl_todo(self, games: list, thr: float, props_cotes: list = ()) -> str:
         """
         "Qu'est-ce que je mise, et combien ?" — la seule question a laquelle le
         reste de la page ne repondait pas.
@@ -1327,6 +1330,10 @@ class ReportGenerator:
         for g in games:
             for s in g.get("signals") or []:
                 actions.append((s, g))
+        # Les props comptent autant: le seul pari d'un soir de semaine peut
+        # etre une prop, et le bloc d'action l'ignorait.
+        for s in props_cotes:
+            actions.append((s, {"away_team": s.get("game", ""), "home_team": ""}))
         if not actions:
             return ""
 
@@ -1341,8 +1348,10 @@ class ReportGenerator:
             lignes.append(
                 "<div class=\"nfl-todo-r\">"
                 "<span class=\"nfl-todo-sel\">" + str(s.get("selection", "")) + "</span>"
-                "<span class=\"nfl-todo-g\">" + str(g.get("away_team", ""))[:14]
-                + " @ " + str(g.get("home_team", ""))[:14] + "</span>"
+                "<span class=\"nfl-todo-g\">"
+                + (str(g.get("away_team", ""))[:32] if not g.get("home_team")
+                   else str(g.get("away_team", ""))[:14] + " @ "
+                        + str(g.get("home_team", ""))[:14]) + "</span>"
                 "<span class=\"nfl-todo-o\">exiger <b>" + f"{cible:.2f}" + "</b> ou mieux</span>"
                 "<span class=\"nfl-todo-m\"><b>" + f"{mise:.2f}" + "</b> u</span>"
                 "</div>")

@@ -238,8 +238,15 @@ def parse_market(data: dict, market: str) -> dict:
     return out
 
 
+# Ecart sous le seuil en-deca duquel on garde la trace d'une prop ecartee.
+# Sans cela, "plus de signal sur X" est inexplicable: on ne sait pas si le
+# prix a bouge, si le marche s'est resserre, ou si le book a disparu.
+MARGE_TRACE = 2.0
+
+
 def analyze_player(joueur: str, par_ligne: dict, market: str,
-                   game: dict, threshold: float = None) -> list:
+                   game: dict, threshold: float = None,
+                   ecartes: list = None) -> list:
     """
     Signaux d'un joueur sur un marche. Deux natures distinctes:
 
@@ -271,6 +278,15 @@ def analyze_player(joueur: str, par_ligne: dict, market: str,
                 continue
             odds, book = pair["best"][side]
             ev = NFL.ev_pct(pair[side], odds)
+            if ecartes is not None and thr - MARGE_TRACE <= ev < thr:
+                ecartes.append({
+                    "joueur": joueur, "market": market,
+                    "marche_lbl": MARKET_LABELS.get(market, market),
+                    "selection": f"{joueur} {side} {ligne:g}",
+                    "prob": round(pair[side] * 100, 2), "odds": round(odds, 3),
+                    "book": book, "edge_pct": ev, "manque": round(thr - ev, 2),
+                    "n_books": pair["n_books"], "source": pair["source"],
+                })
             if ev >= thr:
                 sigs.append({
                     "type":      "cote",
@@ -405,7 +421,7 @@ def run(api_key: str = None, slate: dict = None, force: bool = False,
     print(f"  [Props NFL] {len(games)} match(s) au-dessus de {min_total():g} points, "
           f"{budget}/{max_requests()} requete(s) restantes cette semaine")
 
-    signaux, scannes, demandes = [], [], 0
+    signaux, scannes, demandes, ecartes = [], [], 0, []
     # Marche par marche plutot que match par match: si le budget s'epuise, il
     # reste couvert en priorite le marche le plus haut de la liste sur tous les
     # matchs, plutot qu'un seul match couvert sur trois marches.
@@ -422,7 +438,8 @@ def run(api_key: str = None, slate: dict = None, force: bool = False,
             if joueurs and g["event_id"] not in scannes:
                 scannes.append(g["event_id"])
             for joueur, par_ligne in joueurs.items():
-                signaux.extend(analyze_player(joueur, par_ligne, market, g))
+                signaux.extend(analyze_player(joueur, par_ligne, market, g,
+                                              ecartes=ecartes))
         if demandes >= budget:
             print(f"  [Props NFL] plafond hebdomadaire atteint apres {market}")
             break
@@ -449,6 +466,9 @@ def run(api_key: str = None, slate: dict = None, force: bool = False,
                           "commence": g.get("commence", "")} for g in games],
         "signals":      signaux,
         "n_signals":    len(signaux),
+        # Props passees pres du seuil: permet de repondre a "pourquoi X n'est
+        # plus signale" au lieu de laisser le silence.
+        "near_misses":  sorted(ecartes, key=lambda e: e["manque"])[:15],
     }
 
     try:
