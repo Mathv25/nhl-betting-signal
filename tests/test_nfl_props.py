@@ -252,7 +252,7 @@ class TestLineDiscrepancy(unittest.TestCase):
         return P.analyze_player("Puka Nacua", joueurs["Puka Nacua"],
                                 "player_reception_yds", game())
 
-    def test_a_middle_is_detected(self):
+    def test_a_middle_between_two_books_is_detected(self):
         lignes = {"draftkings": (67.5, 1.91, 1.95), "pinnacle": (72.5, 1.90, 1.92),
                   "fanduel": (70.5, 1.90, 1.92)}
         m = [s for s in self._sigs(lignes) if s["type"] == "ligne"]
@@ -262,6 +262,45 @@ class TestLineDiscrepancy(unittest.TestCase):
         self.assertEqual(m[0]["under"]["ligne"], 72.5)    # Under: la plus haute
         self.assertEqual(m[0]["under"]["book"], "pinnacle")
         self.assertEqual(m[0]["fenetre"], 5.0)
+
+    def test_one_book_alone_is_never_a_middle(self):
+        """
+        Cas reel du 10 septembre. Bovada publie une echelle de lignes
+        alternatives correctement cotees; en prendre les deux extremites
+        fabriquait une fenetre de 60 verges qui n'existe pas — le book accepte
+        volontiers les deux cotes a ces prix.
+        """
+        echelle = {f"bovada@{pt}": (pt, 1.41, 1.43)
+                   for pt in (232.5, 242.5, 252.5, 262.5, 272.5, 282.5, 292.5)}
+        # Toutes les offres viennent du meme book: on renomme les cles apres coup.
+        par_ligne = {}
+        for pt in (232.5, 242.5, 252.5, 262.5, 272.5, 282.5, 292.5):
+            par_ligne[pt] = {"bovada": {"Over": 1.41, "Under": 1.43}}
+        sigs = P.analyze_player("Matthew Stafford", par_ligne,
+                                "player_pass_yds", game())
+        self.assertEqual([s for s in sigs if s["type"] == "ligne"], [])
+
+    def test_the_main_line_of_each_book_is_compared(self):
+        """
+        Meme cas, avec les vrais books autour. La fenetre doit etre l'ecart
+        REEL entre books (258.5 chez fanduel, 263.5 chez betmgm), pas
+        l'amplitude de l'echelle de bovada.
+        """
+        par_ligne = {}
+        for pt in (232.5, 242.5, 252.5, 262.5, 272.5, 282.5, 292.5):
+            par_ligne.setdefault(pt, {})["bovada"] = {"Over": 1.41, "Under": 1.43}
+        for bk, pt in (("betmgm", 263.5), ("pinnacle", 263.5), ("draftkings", 262.5),
+                       ("fanduel", 258.5), ("betrivers", 261.5)):
+            par_ligne.setdefault(pt, {})[bk] = {"Over": 1.90, "Under": 1.92}
+        m = [s for s in P.analyze_player("Matthew Stafford", par_ligne,
+                                         "player_pass_yds", game())
+             if s["type"] == "ligne"]
+        self.assertEqual(len(m), 1)
+        self.assertEqual(m[0]["fenetre"], 5.0)
+        self.assertEqual(m[0]["over"]["ligne"], 258.5)
+        self.assertEqual(m[0]["over"]["book"], "fanduel")
+        self.assertEqual(m[0]["under"]["ligne"], 263.5)
+        self.assertNotEqual(m[0]["under"]["book"], m[0]["over"]["book"])
 
     def test_a_single_line_has_no_middle(self):
         self.assertEqual([s for s in self._sigs(

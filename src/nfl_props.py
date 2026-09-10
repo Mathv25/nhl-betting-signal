@@ -254,18 +254,45 @@ def analyze_player(joueur: str, par_ligne: dict, market: str,
                 })
 
     # ── Ecart de ligne (middle) ─────────────────────────────────────────────
-    # Pour un Over on veut la ligne la PLUS BASSE, pour un Under la PLUS HAUTE.
-    # Si la plus haute des Under depasse la plus basse des Over, tout resultat
-    # strictement entre les deux fait gagner les deux paris.
-    meilleur_over = meilleur_under = None
+    # Un middle suppose que DEUX books ne voient pas le match pareil. Deux
+    # pieges ecartes ici, vus sur des donnees reelles:
+    #
+    #   1. Un seul book des deux cotes n'est jamais un middle. Bovada publie
+    #      une echelle de lignes alternatives (232.5, 242.5, ... 292.5) dont
+    #      chaque barreau est correctement cote; prendre ses deux extremites
+    #      fabriquait une "fenetre de 60 verges" qui n'existe pas — le book
+    #      accepte volontiers les deux cotes a ces prix.
+    #   2. Meme entre deux books, comparer un barreau d'echelle a une ligne
+    #      principale revient au meme. On ne retient donc de chaque book que
+    #      sa ligne PRINCIPALE: celle qu'il cote le plus pres du consensus.
+    #
+    # Sur le meme match, cette regle ramene la fenetre annoncee de 60 verges
+    # fictives a l'ecart reel entre books: 258.5 chez l'un, 263.5 chez l'autre.
+    lignes_par_book = {}
     for ligne, par_book in par_ligne.items():
         for bk, c in par_book.items():
-            if c.get("Over") and (meilleur_over is None or ligne < meilleur_over[0]):
-                meilleur_over = (ligne, c["Over"], bk)
-            if c.get("Under") and (meilleur_under is None or ligne > meilleur_under[0]):
-                meilleur_under = (ligne, c["Under"], bk)
+            lignes_par_book.setdefault(bk, []).append((ligne, c))
 
-    if meilleur_over and meilleur_under and meilleur_under[0] > meilleur_over[0]:
+    compte = {}
+    for ligne, par_book in par_ligne.items():
+        compte[ligne] = len(par_book)
+    consensus = max(compte, key=lambda l: (compte[l], -abs(l)))
+
+    principales = {}
+    for bk, offres in lignes_par_book.items():
+        ligne, c = min(offres, key=lambda x: abs(x[0] - consensus))
+        principales[bk] = (ligne, c)
+
+    meilleur_over = meilleur_under = None
+    for bk, (ligne, c) in principales.items():
+        if c.get("Over") and (meilleur_over is None or ligne < meilleur_over[0]):
+            meilleur_over = (ligne, c["Over"], bk)
+        if c.get("Under") and (meilleur_under is None or ligne > meilleur_under[0]):
+            meilleur_under = (ligne, c["Under"], bk)
+
+    if (meilleur_over and meilleur_under
+            and meilleur_under[0] > meilleur_over[0]
+            and meilleur_under[2] != meilleur_over[2]):
         lo, o_odds, o_book = meilleur_over
         hi, u_odds, u_book = meilleur_under
         sigs.append({
@@ -279,6 +306,7 @@ def analyze_player(joueur: str, par_ligne: dict, market: str,
             "fenetre":    round(hi - lo, 1),
             "over":       {"ligne": lo, "odds": round(o_odds, 3), "book": o_book},
             "under":      {"ligne": hi, "odds": round(u_odds, 3), "book": u_book},
+            "consensus":  consensus,
             "odds":       round(o_odds, 3),
             "book":       o_book,
             "edge_pct":   0.0,
