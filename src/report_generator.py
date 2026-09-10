@@ -9,14 +9,24 @@ from datetime import datetime
 import pytz
 
 
-def odds_api_kelly(sig: dict) -> float:
-    """Mise de repli pour un signal produit par une version anterieure."""
+def nfl_cible_et_mise(sig: dict, seuil: float) -> tuple:
+    """
+    Cote a exiger et mise correspondante: (cote, unites).
+
+    La mise se calcule AU PRIX CIBLE, pas au prix juste. Au prix juste
+    l'esperance est nulle par definition, donc Kelly renvoie zero — et
+    "exiger 4.86, miser 0.00 unite" ne veut rien dire pour un lecteur.
+
+    Recalcule ici quand le signal ne porte pas encore ces champs, pour que la
+    page reste juste avec un releve produit par une version anterieure.
+    """
     try:
         import odds_api
-        return odds_api.kelly_units(sig.get("prob", 0),
-                                    sig.get("target_odds") or sig.get("fair_odds", 0))
+        prob  = sig.get("prob", 0)
+        cible = sig.get("target_odds") or odds_api.min_odds_for(prob, seuil)
+        return cible, odds_api.kelly_units(prob, cible)
     except Exception:
-        return 0.0
+        return sig.get("fair_odds", 0), 0.0
 
 
 class ReportGenerator:
@@ -1327,8 +1337,7 @@ class ReportGenerator:
                   "votre book. En dessous, le pari est perdant meme si un autre book "
                   "l'offre plus cher. 1 unite = 1% du bankroll.</div>"]
         for s, g in sorted(actions, key=lambda a: -a[0].get("edge_pct", 0)):
-            mise = s.get("stake_units") or odds_api_kelly(s)
-            cible = s.get("target_odds") or s.get("fair_odds", 0)
+            cible, mise = nfl_cible_et_mise(s, thr)
             lignes.append(
                 "<div class=\"nfl-todo-r\">"
                 "<span class=\"nfl-todo-sel\">" + str(s.get("selection", "")) + "</span>"
