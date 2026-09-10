@@ -31,6 +31,54 @@
       "paper": true,
       "created_at": "2026-09-09T20:34:29.136322+00:00",
       "id": "2026-09-08|nfl|nfl_ml|Cleveland Browns ML"
+    },
+    {
+      "date": "2026-09-08",
+      "sport": "nfl",
+      "market": "nfl_spread",
+      "selection": "Arizona Cardinals +9.5",
+      "model_prob": 51.67,
+      "odds_taken": 2.0,
+      "book": "sport888",
+      "stake": 1.0,
+      "closing_odds": null,
+      "result": "pending",
+      "note": "top-down +3.3% vs pinnacle (24 books) — Arizona Cardinals @ Los Angeles Chargers",
+      "paper": true,
+      "created_at": "2026-09-10T18:14:51.719294+00:00",
+      "id": "2026-09-08|nfl|nfl_spread|Arizona Cardinals +9.5"
+    },
+    {
+      "date": "2026-09-08",
+      "sport": "nfl",
+      "market": "nfl_ml",
+      "selection": "Atlanta Falcons ML",
+      "model_prob": 36.28,
+      "odds_taken": 2.9,
+      "book": "matchbook",
+      "stake": 1.0,
+      "closing_odds": null,
+      "result": "pending",
+      "note": "top-down +5.2% vs pinnacle (30 books) — Atlanta Falcons @ Pittsburgh Steelers",
+      "paper": true,
+      "created_at": "2026-09-10T18:14:51.719744+00:00",
+      "id": "2026-09-08|nfl|nfl_ml|Atlanta Falcons ML"
+    },
+    {
+      "date": "2026-09-08",
+      "sport": "nfl",
+      "market": "nfl_prop_rush_yds",
+      "selection": "Matthew Stafford Over 0.5",
+      "model_prob": 41.01,
+      "odds_taken": 2.54,
+      "book": "fanduel",
+      "stake": 1.0,
+      "closing_odds": 2.54,
+      "result": "pending",
+      "note": "top-down +4.2% vs pinnacle (4 books) — San Francisco 49ers @ Los Angeles Rams",
+      "paper": true,
+      "created_at": "2026-09-10T18:14:52.453351+00:00",
+      "id": "2026-09-08|nfl|nfl_prop_rush_yds|Matthew Stafford Over 0.5"
     }
   ],
   "note": "Paris reellement pris, ecrits par track.py (add/close). Distinct de results.json, qui suit ce que le modele a propose. Le bloc `stats` est recalcule a chaque ecriture et lu tel quel par l'onglet Performance.",
@@ -60,20 +108,20 @@
       "wr_vs_breakeven": null
     },
     "clv": {
-      "n": 0,
-      "avg_clv_pct": null,
-      "pct_positive": null,
+      "n": 1,
+      "avg_clv_pct": 0.0,
+      "pct_positive": 0.0,
       "beat_close": 0,
-      "n_missing": 2
+      "n_missing": 4
     },
     "calibration": [],
     "by_market": [],
     "by_sport": [],
-    "computed_at": "2026-09-09T20:34:29.136343+00:00",
+    "computed_at": "2026-09-10T18:14:52.453806+00:00",
     "paper": {
-      "n_bets": 2,
+      "n_bets": 5,
       "n_counted": 0,
-      "n_pending": 2,
+      "n_pending": 5,
       "yield": {
         "n": 0,
         "staked": 0,
@@ -94,14 +142,14 @@
         "wr_vs_breakeven": null
       },
       "clv": {
-        "n": 0,
-        "avg_clv_pct": null,
-        "pct_positive": null,
+        "n": 1,
+        "avg_clv_pct": 0.0,
+        "pct_positive": 0.0,
         "beat_close": 0,
-        "n_missing": 2
+        "n_missing": 4
       },
       "by_market": []
     }
   },
-  "updated_at": "2026-09-09T20:34:29.136355+00:00"
+  "updated_at": "2026-09-10T18:14:52.453824+00:00"
 }
