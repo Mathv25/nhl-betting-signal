@@ -99,6 +99,27 @@ def best_at_my_books(prices: list) -> tuple:
     return float(odds), book
 
 
+def min_odds_for(prob: float, edge_pct: float = 0.0) -> float:
+    """
+    Cote minimale a exiger pour qu'un pari vaille la peine, a une probabilite
+    donnee et pour un edge cible.
+
+        cote = (1 + edge) / p
+
+    A edge nul, c'est le prix juste: en dessous, on parie a perte. C'est le
+    seul chiffre utilisable quand le book de l'utilisateur n'est pas dans le
+    flux — et bet365 n'y est pas, quelle que soit la region. Plutot que de
+    comparer un prix qu'on ne voit pas, on dit lequel exiger.
+    """
+    try:
+        p = float(prob) / 100.0
+    except (TypeError, ValueError):
+        return 0.0
+    if p <= 0:
+        return 0.0
+    return round((1.0 + float(edge_pct) / 100.0) / p, 2)
+
+
 def kelly_units(prob: float, odds: float, fraction: float = None,
                 cap: float = None) -> float:
     """

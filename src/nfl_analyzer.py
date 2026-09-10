@@ -318,6 +318,11 @@ def analyze_event(event: dict, threshold: float = None) -> dict:
                     "my_book":     m_book,
                     "my_edge_pct": m_ev,
                     "playable":    bool(m_odds),
+                    # Ce qu'il faut exiger chez son propre book, qui n'est pas
+                    # forcement dans le flux: en dessous du prix juste on parie
+                    # a perte, en dessous de la cible on n'a pas le seuil.
+                    "min_odds":    odds_api.min_odds_for(pair[side] * 100, 0),
+                    "target_odds": odds_api.min_odds_for(pair[side] * 100, thr),
                     "stake_units": (odds_api.kelly_units(pair[side] * 100, m_odds)
                                     if m_odds else 0),
                     "fair_odds":   round(1.0 / pair[side], 3) if pair[side] > 0 else 0,

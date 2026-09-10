@@ -9,6 +9,16 @@ from datetime import datetime
 import pytz
 
 
+def odds_api_kelly(sig: dict) -> float:
+    """Mise de repli pour un signal produit par une version anterieure."""
+    try:
+        import odds_api
+        return odds_api.kelly_units(sig.get("prob", 0),
+                                    sig.get("target_odds") or sig.get("fair_odds", 0))
+    except Exception:
+        return 0.0
+
+
 class ReportGenerator:
 
     def generate_html(self, data: dict):
@@ -1081,6 +1091,13 @@ class ReportGenerator:
             + str(st.get("week", "")) + " &middot; seuil " + f"{thr:g}" + "%</span></div>"
             "</div>")
 
+        # Bloc d'action. Le reste de l'onglet explique POURQUOI; celui-ci dit
+        # QUOI FAIRE. bet365 n'est dans aucune region du flux Odds API, donc on
+        # ne peut pas comparer son prix: on donne la cote a exiger chez soi et
+        # la mise correspondante. Un signal dont on ne sait rien dire de
+        # concret n'a rien a faire en tete de page.
+        rows.append(self._nfl_todo(games, thr))
+
         # Legende: la couleur ne doit jamais porter seule une information.
         rows.append(
             "<div class=\"nfl-legend\">"
@@ -1286,6 +1303,44 @@ class ReportGenerator:
             + " (" + f"{s.get('prob', 0):.1f}" + "% no-vig, "
             + str(s.get("source", "")) + ", " + str(s.get("n_books", 0)) + " books)"
             "</div>" + self._nfl_books(s.get("books")) + "</div>")
+
+    def _nfl_todo(self, games: list, thr: float) -> str:
+        """
+        "Qu'est-ce que je mise, et combien ?" — la seule question a laquelle le
+        reste de la page ne repondait pas.
+
+        Pour chaque signal: la cote MINIMALE a exiger chez son book (en dessous
+        on parie a perte, quel que soit l'edge affiche ailleurs) et la mise en
+        unites si on l'obtient. Une unite = 1% du bankroll.
+        """
+        actions = []
+        for g in games:
+            for s in g.get("signals") or []:
+                actions.append((s, g))
+        if not actions:
+            return ""
+
+        lignes = ["<div class=\"nfl-todo\">"
+                  "<div class=\"nfl-todo-t\">A miser &middot; " + str(len(actions))
+                  + "</div>"
+                  "<div class=\"nfl-todo-s\">Le prix indique est celui a EXIGER chez "
+                  "votre book. En dessous, le pari est perdant meme si un autre book "
+                  "l'offre plus cher. 1 unite = 1% du bankroll.</div>"]
+        for s, g in sorted(actions, key=lambda a: -a[0].get("edge_pct", 0)):
+            mise = s.get("stake_units") or odds_api_kelly(s)
+            cible = s.get("target_odds") or s.get("fair_odds", 0)
+            lignes.append(
+                "<div class=\"nfl-todo-r\">"
+                "<span class=\"nfl-todo-sel\">" + str(s.get("selection", "")) + "</span>"
+                "<span class=\"nfl-todo-g\">" + str(g.get("away_team", ""))[:14]
+                + " @ " + str(g.get("home_team", ""))[:14] + "</span>"
+                "<span class=\"nfl-todo-o\">exiger <b>" + f"{cible:.2f}" + "</b> ou mieux</span>"
+                "<span class=\"nfl-todo-m\"><b>" + f"{mise:.2f}" + "</b> u</span>"
+                "</div>")
+        lignes.append("<div class=\"nfl-todo-f\">Meilleur prix vu sur le marche a titre "
+                      "de reference dans la liste ci-dessous — pas forcement disponible "
+                      "chez vous.</div></div>")
+        return "".join(lignes)
 
     @staticmethod
     def _nfl_day(commence: str) -> str:
@@ -2494,6 +2549,22 @@ class ReportGenerator:
             ".nfl-hero-t b{color:var(--t)}"
             ".nfl-hero-s{font-size:11px}"
 
+            ".nfl-todo{border:1px solid var(--nfl-good);border-radius:10px;padding:12px 14px;"
+            "margin-bottom:1rem;background:rgba(12,163,12,.05)}"
+            ".nfl-todo-t{font-size:12px;font-weight:700;text-transform:uppercase;"
+            "letter-spacing:.06em;color:var(--nfl-good);margin-bottom:3px}"
+            ".nfl-todo-s{font-size:11px;color:var(--m);line-height:1.5;margin-bottom:9px}"
+            ".nfl-todo-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap;"
+            "font-size:12.5px;padding:5px 0;border-top:1px solid var(--b)}"
+            ".nfl-todo-sel{font-weight:700;color:var(--t);flex:1;min-width:150px}"
+            ".nfl-todo-g{font-size:10px;color:var(--m)}"
+            ".nfl-todo-o{font-size:11.5px;color:var(--m)}"
+            ".nfl-todo-o b{color:var(--t);font-variant-numeric:tabular-nums}"
+            ".nfl-todo-m{min-width:62px;text-align:right;color:var(--m);font-size:11.5px}"
+            ".nfl-todo-m b{color:var(--nfl-good);font-size:14px;"
+            "font-variant-numeric:tabular-nums}"
+            ".nfl-todo-f{font-size:10px;color:var(--m);margin-top:8px;padding-top:6px;"
+            "border-top:1px solid var(--b)}"
             ".nfl-legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;"
             "font-size:10px;color:var(--m);margin-bottom:.85rem;padding-bottom:.6rem;"
             "border-bottom:1px solid var(--b)}"
