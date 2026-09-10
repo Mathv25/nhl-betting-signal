@@ -89,7 +89,7 @@ def get_batter_rolling(name: str, n: int = N_BATTING) -> object:
             _batting_cache[pid] = None
             return None
 
-        splits = r.json().get("stats", [{}])[0].get("splits", [])
+        splits = (r.json().get("stats") or [{}])[0].get("splits", [])
         # Prendre les n derniers matchs
         recent = splits[-n:] if len(splits) >= n else splits
         if len(recent) < 3:
@@ -150,7 +150,7 @@ def get_pitcher_rolling(name: str, n: int = N_PITCHING) -> object:
             _pitching_cache[pid] = None
             return None
 
-        splits = r.json().get("stats", [{}])[0].get("splits", [])
+        splits = (r.json().get("stats") or [{}])[0].get("splits", [])
         all_starts = [
             g for g in splits
             if _innings_to_float(g["stat"].get("inningsPitched", "0")) >= 3.0
@@ -240,7 +240,7 @@ def get_pitcher_ip_starts(name: str, n: int = N_IP_STARTS) -> object:
             _ip_cache[pid] = None
             return None
 
-        splits = r.json().get("stats", [{}])[0].get("splits", [])
+        splits = (r.json().get("stats") or [{}])[0].get("splits", [])
         ip_values = []
         for g in splits:
             st = g.get("stat", {})
@@ -330,7 +330,7 @@ def get_league_k_rate() -> float:
             headers=HEADERS, timeout=TIMEOUT
         )
         if r.status_code == 200:
-            splits = r.json().get("stats", [{}])[0].get("splits", [])
+            splits = (r.json().get("stats") or [{}])[0].get("splits", [])
             pa = sum(_f(s.get("stat", {}).get("plateAppearances")) for s in splits)
             k  = sum(_f(s.get("stat", {}).get("strikeOuts")) for s in splits)
             # Garde-fou: en début de saison l'échantillon est trop mince.
@@ -381,7 +381,7 @@ def get_team_k_rate_season(team_name: str, vs_hand: str = None) -> dict:
                 headers=HEADERS, timeout=TIMEOUT
             )
             if r.status_code == 200:
-                splits = r.json().get("stats", [{}])[0].get("splits", [])
+                splits = (r.json().get("stats") or [{}])[0].get("splits", [])
                 st = splits[0].get("stat", {}) if splits else {}
                 pa = _f(st.get("plateAppearances"))
                 k  = _f(st.get("strikeOuts"))
@@ -404,7 +404,7 @@ def get_team_k_rate_season(team_name: str, vs_hand: str = None) -> dict:
             headers=HEADERS, timeout=TIMEOUT
         )
         if r.status_code == 200:
-            splits = r.json().get("stats", [{}])[0].get("splits", [])
+            splits = (r.json().get("stats") or [{}])[0].get("splits", [])
             st = splits[0].get("stat", {}) if splits else {}
             pa = _f(st.get("plateAppearances"))
             k  = _f(st.get("strikeOuts"))
@@ -451,7 +451,7 @@ def get_team_k_rate(team_name: str, n_games: int = 10) -> float:
             _team_k_cache[key] = LEAGUE_AVG_K
             return LEAGUE_AVG_K
 
-        splits = r.json().get("stats", [{}])[0].get("splits", [])
+        splits = (r.json().get("stats") or [{}])[0].get("splits", [])
         if not splits:
             _team_k_cache[key] = LEAGUE_AVG_K
             return LEAGUE_AVG_K

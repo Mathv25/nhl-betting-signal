@@ -235,7 +235,7 @@ def get_batter_tb_rolling(name: str, n_games: int = N_GAMES) -> dict | None:
         _tb_cache[key] = None
         return None
 
-    splits = data.get("stats", [{}])[0].get("splits", [])
+    splits = (data.get("stats") or [{}])[0].get("splits", [])
     games  = [g for g in splits if g["stat"].get("atBats", 0) >= MIN_AB_GAME]
     if len(games) < 5:
         _tb_cache[key] = None

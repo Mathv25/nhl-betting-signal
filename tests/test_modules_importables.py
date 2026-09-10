@@ -119,3 +119,31 @@ class TestDashboardSeGenere(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestLectureDeStatsVides(unittest.TestCase):
+    """
+    L'API MLB renvoie `{"stats": []}` pour un joueur sans statistiques sur la
+    periode demandee. `data.get("stats", [{}])[0]` ne protege que la cle
+    ABSENTE: la liste existe, elle est vide, et l'indexation leve IndexError.
+
+    C'est ce qui a fait tomber le signal horaire le 10 septembre, sur un
+    frappeur des Pirates. Le motif etait present neuf fois dans src/.
+    """
+
+    def test_aucun_module_n_indexe_stats_sans_protection(self):
+        import re
+        motif = re.compile(r'\.get\("stats",\s*\[\{\}\]\)\[0\]')
+        fautifs = []
+        for f in modules():
+            t = open(os.path.join(SRC, f), encoding="utf-8").read()
+            if motif.search(t):
+                fautifs.append(f)
+        self.assertEqual(fautifs, [], "indexation non protegee de `stats`")
+
+    def test_les_trois_formes_de_reponse(self):
+        for payload, attendu in (({"stats": []}, []),
+                                 ({}, []),
+                                 ({"stats": [{"splits": [1, 2]}]}, [1, 2])):
+            self.assertEqual((payload.get("stats") or [{}])[0].get("splits", []),
+                             attendu)

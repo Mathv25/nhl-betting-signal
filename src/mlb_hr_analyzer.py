@@ -74,7 +74,7 @@ def _get_recent_hr_rate(batter_id: int) -> dict | None:
     if not data:
         _recent_cache[batter_id] = None
         return None
-    splits = data.get("stats", [{}])[0].get("splits", [])
+    splits = (data.get("stats") or [{}])[0].get("splits", [])
     recent = splits[-N_RECENT:] if len(splits) >= N_RECENT else splits
     if len(recent) < 5:
         _recent_cache[batter_id] = None
