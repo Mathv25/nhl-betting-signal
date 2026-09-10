@@ -1,13 +1,13 @@
 {
   "week": "2026-09-08",
   "window_id": "force-2026-09-10T14",
-  "generated_at": "2026-09-10T18:14:51.655961+00:00",
+  "generated_at": "2026-09-10T18:17:31.891081+00:00",
   "reason": "force",
   "stale": false,
   "min_edge": 3.0,
   "min_books": 4,
   "n_games": 15,
-  "n_signals": 4,
+  "n_signals": 3,
   "games": [
     {
       "event_id": "1edfa5ceaa1ad2cb57df1c1b908731f6",
@@ -51,19 +51,11 @@
         },
         {
           "market": "nfl_spread",
-          "point": 8.5,
-          "prob_a": 50.0,
-          "prob_b": 50.0,
-          "source": "mediane no-vig (1 books)",
-          "n_books": 1
-        },
-        {
-          "market": "nfl_spread",
           "point": 9.0,
-          "prob_a": 48.95,
-          "prob_b": 51.05,
-          "source": "mediane no-vig (1 books)",
-          "n_books": 1
+          "prob_a": 49.48,
+          "prob_b": 50.52,
+          "source": "mediane no-vig (2 books)",
+          "n_books": 2
         },
         {
           "market": "nfl_spread",
@@ -113,33 +105,19 @@
           "prob": 20.47,
           "edge_pct": 10.54
         },
-        "Los Angeles Chargers -8.5": {
-          "market": "nfl_spread",
-          "odds": 1.91,
-          "book": "fanatics",
-          "prob": 50.0,
-          "edge_pct": -4.5
-        },
-        "Arizona Cardinals +8.5": {
-          "market": "nfl_spread",
-          "odds": 1.91,
-          "book": "fanatics",
-          "prob": 50.0,
-          "edge_pct": -4.5
-        },
         "Los Angeles Chargers -9": {
           "market": "nfl_spread",
           "odds": 1.95,
           "book": "bovada",
-          "prob": 48.95,
-          "edge_pct": -4.55
+          "prob": 49.48,
+          "edge_pct": -3.51
         },
         "Arizona Cardinals +9": {
           "market": "nfl_spread",
-          "odds": 1.87,
-          "book": "bovada",
-          "prob": 51.05,
-          "edge_pct": -4.54
+          "odds": 1.91,
+          "book": "fanatics",
+          "prob": 50.52,
+          "edge_pct": -3.51
         },
         "Los Angeles Chargers -9.5": {
           "market": "nfl_spread",
@@ -422,184 +400,6 @@
       }
     },
     {
-      "event_id": "95c01d1bb797d6df14824b106c5a9130",
-      "home_team": "Pittsburgh Steelers",
-      "away_team": "Atlanta Falcons",
-      "commence": "2026-09-13T17:00:00Z",
-      "signals": [
-        {
-          "market": "nfl_ml",
-          "selection": "Atlanta Falcons ML",
-          "point": null,
-          "prob": 36.28,
-          "odds": 2.9,
-          "book": "matchbook",
-          "edge_pct": 5.21,
-          "fair_odds": 2.756,
-          "source": "pinnacle",
-          "n_books": 30
-        }
-      ],
-      "markets": [
-        {
-          "market": "nfl_ml",
-          "point": null,
-          "prob_a": 63.72,
-          "prob_b": 36.28,
-          "source": "pinnacle",
-          "n_books": 30
-        },
-        {
-          "market": "nfl_spread",
-          "point": 3.5,
-          "prob_a": 50.0,
-          "prob_b": 50.0,
-          "source": "pinnacle",
-          "n_books": 17
-        },
-        {
-          "market": "nfl_spread",
-          "point": 4.0,
-          "prob_a": 50.0,
-          "prob_b": 50.0,
-          "source": "mediane no-vig (7 books)",
-          "n_books": 7
-        },
-        {
-          "market": "nfl_spread",
-          "point": 4.5,
-          "prob_a": 49.28,
-          "prob_b": 50.72,
-          "source": "mediane no-vig (2 books)",
-          "n_books": 2
-        },
-        {
-          "market": "nfl_total",
-          "point": 41.5,
-          "prob_a": 50.0,
-          "prob_b": 50.0,
-          "source": "mediane no-vig (8 books)",
-          "n_books": 8
-        },
-        {
-          "market": "nfl_total",
-          "point": 42.0,
-          "prob_a": 50.0,
-          "prob_b": 50.0,
-          "source": "mediane no-vig (11 books)",
-          "n_books": 11
-        },
-        {
-          "market": "nfl_total",
-          "point": 42.5,
-          "prob_a": 48.19,
-          "prob_b": 51.81,
-          "source": "pinnacle",
-          "n_books": 5
-        }
-      ],
-      "prices": {
-        "Pittsburgh Steelers ML": {
-          "market": "nfl_ml",
-          "odds": 1.54,
-          "book": "unibet_se",
-          "prob": 63.72,
-          "edge_pct": -1.87
-        },
-        "Atlanta Falcons ML": {
-          "market": "nfl_ml",
-          "odds": 2.9,
-          "book": "matchbook",
-          "prob": 36.28,
-          "edge_pct": 5.21
-        },
-        "Pittsburgh Steelers -3.5": {
-          "market": "nfl_spread",
-          "odds": 1.95,
-          "book": "onexbet",
-          "prob": 50.0,
-          "edge_pct": -2.5
-        },
-        "Atlanta Falcons +3.5": {
-          "market": "nfl_spread",
-          "odds": 2.0,
-          "book": "draftkings",
-          "prob": 50.0,
-          "edge_pct": 0.0
-        },
-        "Pittsburgh Steelers -4": {
-          "market": "nfl_spread",
-          "odds": 1.95,
-          "book": "matchbook",
-          "prob": 50.0,
-          "edge_pct": -2.5
-        },
-        "Atlanta Falcons +4": {
-          "market": "nfl_spread",
-          "odds": 1.98,
-          "book": "matchbook",
-          "prob": 50.0,
-          "edge_pct": -1.0
-        },
-        "Pittsburgh Steelers -4.5": {
-          "market": "nfl_spread",
-          "odds": 1.95,
-          "book": "fanduel",
-          "prob": 49.28,
-          "edge_pct": -3.9
-        },
-        "Atlanta Falcons +4.5": {
-          "market": "nfl_spread",
-          "odds": 1.87,
-          "book": "fanduel",
-          "prob": 50.72,
-          "edge_pct": -5.15
-        },
-        "Over 41.5": {
-          "market": "nfl_total",
-          "odds": 1.95,
-          "book": "fanduel",
-          "prob": 50.0,
-          "edge_pct": -2.5
-        },
-        "Under 41.5": {
-          "market": "nfl_total",
-          "odds": 1.99,
-          "book": "matchbook",
-          "prob": 50.0,
-          "edge_pct": -0.5
-        },
-        "Over 42": {
-          "market": "nfl_total",
-          "odds": 1.93,
-          "book": "lowvig",
-          "prob": 50.0,
-          "edge_pct": -3.5
-        },
-        "Under 42": {
-          "market": "nfl_total",
-          "odds": 1.93,
-          "book": "lowvig",
-          "prob": 50.0,
-          "edge_pct": -3.5
-        },
-        "Over 42.5": {
-          "market": "nfl_total",
-          "odds": 2.0,
-          "book": "pinnacle",
-          "prob": 48.19,
-          "edge_pct": -3.62
-        },
-        "Under 42.5": {
-          "market": "nfl_total",
-          "odds": 1.91,
-          "book": "onexbet",
-          "prob": 51.81,
-          "edge_pct": -1.04
-        }
-      }
-    },
-    {
       "event_id": "acc580d74344ea3b31bbcdd057fe6a9c",
       "home_team": "Los Angeles Rams",
       "away_team": "San Francisco 49ers",
@@ -739,6 +539,171 @@
           "book": "tipico_de",
           "prob": 51.59,
           "edge_pct": -5.59
+        }
+      }
+    },
+    {
+      "event_id": "95c01d1bb797d6df14824b106c5a9130",
+      "home_team": "Pittsburgh Steelers",
+      "away_team": "Atlanta Falcons",
+      "commence": "2026-09-13T17:00:00Z",
+      "signals": [],
+      "markets": [
+        {
+          "market": "nfl_ml",
+          "point": null,
+          "prob_a": 64.62,
+          "prob_b": 35.38,
+          "source": "pinnacle",
+          "n_books": 30
+        },
+        {
+          "market": "nfl_spread",
+          "point": 3.5,
+          "prob_a": 51.41,
+          "prob_b": 48.59,
+          "source": "pinnacle",
+          "n_books": 17
+        },
+        {
+          "market": "nfl_spread",
+          "point": 4.0,
+          "prob_a": 50.0,
+          "prob_b": 50.0,
+          "source": "mediane no-vig (7 books)",
+          "n_books": 7
+        },
+        {
+          "market": "nfl_spread",
+          "point": 4.5,
+          "prob_a": 49.28,
+          "prob_b": 50.72,
+          "source": "mediane no-vig (2 books)",
+          "n_books": 2
+        },
+        {
+          "market": "nfl_total",
+          "point": 41.5,
+          "prob_a": 50.0,
+          "prob_b": 50.0,
+          "source": "mediane no-vig (8 books)",
+          "n_books": 8
+        },
+        {
+          "market": "nfl_total",
+          "point": 42.0,
+          "prob_a": 50.0,
+          "prob_b": 50.0,
+          "source": "mediane no-vig (12 books)",
+          "n_books": 12
+        },
+        {
+          "market": "nfl_total",
+          "point": 42.5,
+          "prob_a": 48.19,
+          "prob_b": 51.81,
+          "source": "pinnacle",
+          "n_books": 4
+        }
+      ],
+      "prices": {
+        "Pittsburgh Steelers ML": {
+          "market": "nfl_ml",
+          "odds": 1.54,
+          "book": "unibet_se",
+          "prob": 64.62,
+          "edge_pct": -0.49
+        },
+        "Atlanta Falcons ML": {
+          "market": "nfl_ml",
+          "odds": 2.9,
+          "book": "betfair_ex_eu",
+          "prob": 35.38,
+          "edge_pct": 2.6
+        },
+        "Pittsburgh Steelers -3.5": {
+          "market": "nfl_spread",
+          "odds": 1.95,
+          "book": "onexbet",
+          "prob": 51.41,
+          "edge_pct": 0.25
+        },
+        "Atlanta Falcons +3.5": {
+          "market": "nfl_spread",
+          "odds": 2.0,
+          "book": "draftkings",
+          "prob": 48.59,
+          "edge_pct": -2.82
+        },
+        "Pittsburgh Steelers -4": {
+          "market": "nfl_spread",
+          "odds": 1.95,
+          "book": "matchbook",
+          "prob": 50.0,
+          "edge_pct": -2.5
+        },
+        "Atlanta Falcons +4": {
+          "market": "nfl_spread",
+          "odds": 1.98,
+          "book": "matchbook",
+          "prob": 50.0,
+          "edge_pct": -1.0
+        },
+        "Pittsburgh Steelers -4.5": {
+          "market": "nfl_spread",
+          "odds": 1.95,
+          "book": "fanduel",
+          "prob": 49.28,
+          "edge_pct": -3.9
+        },
+        "Atlanta Falcons +4.5": {
+          "market": "nfl_spread",
+          "odds": 1.87,
+          "book": "fanduel",
+          "prob": 50.72,
+          "edge_pct": -5.15
+        },
+        "Over 41.5": {
+          "market": "nfl_total",
+          "odds": 1.95,
+          "book": "fanduel",
+          "prob": 50.0,
+          "edge_pct": -2.5
+        },
+        "Under 41.5": {
+          "market": "nfl_total",
+          "odds": 1.99,
+          "book": "matchbook",
+          "prob": 50.0,
+          "edge_pct": -0.5
+        },
+        "Over 42": {
+          "market": "nfl_total",
+          "odds": 1.93,
+          "book": "lowvig",
+          "prob": 50.0,
+          "edge_pct": -3.5
+        },
+        "Under 42": {
+          "market": "nfl_total",
+          "odds": 1.93,
+          "book": "lowvig",
+          "prob": 50.0,
+          "edge_pct": -3.5
+        },
+        "Over 42.5": {
+          "market": "nfl_total",
+          "odds": 2.0,
+          "book": "pinnacle",
+          "prob": 48.19,
+          "edge_pct": -3.62
+        },
+        "Under 42.5": {
+          "market": "nfl_total",
+          "odds": 1.91,
+          "book": "onexbet",
+          "prob": 51.81,
+          "edge_pct": -1.04
         }
       }
     },
@@ -914,15 +879,15 @@
           "prob_a": 48.07,
           "prob_b": 51.93,
           "source": "pinnacle",
-          "n_books": 13
+          "n_books": 12
         },
         {
           "market": "nfl_spread",
           "point": 1.5,
-          "prob_a": 50.39,
-          "prob_b": 49.61,
-          "source": "mediane no-vig (12 books)",
-          "n_books": 12
+          "prob_a": 50.26,
+          "prob_b": 49.74,
+          "source": "mediane no-vig (13 books)",
+          "n_books": 13
         },
         {
           "market": "nfl_total",
@@ -986,17 +951,17 @@
         },
         "Houston Texans +1.5": {
           "market": "nfl_spread",
-          "odds": 1.92,
-          "book": "gtbets",
-          "prob": 50.39,
-          "edge_pct": -3.25
+          "odds": 1.95,
+          "book": "matchbook",
+          "prob": 50.26,
+          "edge_pct": -1.99
         },
         "Buffalo Bills -1.5": {
           "market": "nfl_spread",
           "odds": 1.96,
           "book": "williamhill_us",
-          "prob": 49.61,
-          "edge_pct": -2.76
+          "prob": 49.74,
+          "edge_pct": -2.51
         },
         "Over 44.5": {
           "market": "nfl_total",
@@ -1354,10 +1319,10 @@
         {
           "market": "nfl_spread",
           "point": 6.5,
-          "prob_a": 52.63,
-          "prob_b": 47.37,
-          "source": "mediane no-vig (3 books)",
-          "n_books": 3
+          "prob_a": 52.36,
+          "prob_b": 47.64,
+          "source": "mediane no-vig (5 books)",
+          "n_books": 5
         },
         {
           "market": "nfl_spread",
@@ -1370,10 +1335,10 @@
         {
           "market": "nfl_spread",
           "point": 7.5,
-          "prob_a": 48.03,
-          "prob_b": 51.97,
-          "source": "mediane no-vig (3 books)",
-          "n_books": 3
+          "prob_a": 47.75,
+          "prob_b": 52.25,
+          "source": "mediane no-vig (1 books)",
+          "n_books": 1
         },
         {
           "market": "nfl_total",
@@ -1417,17 +1382,17 @@
         },
         "Detroit Lions -6.5": {
           "market": "nfl_spread",
-          "odds": 1.82,
-          "book": "fanduel",
-          "prob": 52.63,
-          "edge_pct": -4.21
+          "odds": 1.84,
+          "book": "nordicbet",
+          "prob": 52.36,
+          "edge_pct": -3.66
         },
         "New Orleans Saints +6.5": {
           "market": "nfl_spread",
           "odds": 2.0,
           "book": "fanduel",
-          "prob": 47.37,
-          "edge_pct": -5.26
+          "prob": 47.64,
+          "edge_pct": -4.72
         },
         "Detroit Lions -7": {
           "market": "nfl_spread",
@@ -1445,17 +1410,17 @@
         },
         "Detroit Lions -7.5": {
           "market": "nfl_spread",
-          "odds": 1.98,
-          "book": "nordicbet",
-          "prob": 48.03,
-          "edge_pct": -4.9
+          "odds": 1.97,
+          "book": "tipico_de",
+          "prob": 47.75,
+          "edge_pct": -5.93
         },
         "New Orleans Saints +7.5": {
           "market": "nfl_spread",
-          "odds": 1.83,
-          "book": "nordicbet",
-          "prob": 51.97,
-          "edge_pct": -4.89
+          "odds": 1.8,
+          "book": "tipico_de",
+          "prob": 52.25,
+          "edge_pct": -5.95
         },
         "Over 49.5": {
           "market": "nfl_total",
@@ -2116,15 +2081,15 @@
           "prob_a": 46.04,
           "prob_b": 53.96,
           "source": "pinnacle",
-          "n_books": 7
+          "n_books": 6
         },
         {
           "market": "nfl_spread",
           "point": 3.0,
-          "prob_a": 50.85,
-          "prob_b": 49.15,
-          "source": "mediane no-vig (18 books)",
-          "n_books": 18
+          "prob_a": 51.04,
+          "prob_b": 48.96,
+          "source": "mediane no-vig (19 books)",
+          "n_books": 19
         },
         {
           "market": "nfl_spread",
@@ -2192,15 +2157,15 @@
           "market": "nfl_spread",
           "odds": 1.93,
           "book": "lowvig",
-          "prob": 50.85,
-          "edge_pct": -1.86
+          "prob": 51.04,
+          "edge_pct": -1.49
         },
         "Dallas Cowboys -3": {
           "market": "nfl_spread",
           "odds": 2.02,
-          "book": "matchbook",
-          "prob": 49.15,
-          "edge_pct": -0.72
+          "book": "coolbet",
+          "prob": 48.96,
+          "edge_pct": -1.1
         },
         "New York Giants +3.5": {
           "market": "nfl_spread",
@@ -2404,10 +2369,10 @@
       }
     }
   ],
-  "paper_logged": 2,
+  "paper_logged": 0,
   "props": {
     "week": "2026-09-08",
-    "generated_at": "2026-09-10T18:14:52.452931+00:00",
+    "generated_at": "2026-09-10T18:17:32.189613+00:00",
     "reason": "force",
     "stale": false,
     "min_edge": 3.0,
@@ -2417,7 +2382,7 @@
     "within_hours": 12.0,
     "n_scanned": 1,
     "requests": 3,
-    "requests_week": 3,
+    "requests_week": 6,
     "max_requests": 40,
     "games": [
       {
@@ -2474,130 +2439,26 @@
       },
       {
         "type": "ligne",
-        "joueur": "Matthew Stafford",
-        "market": "player_pass_yds",
-        "marche_lbl": "verges de passe",
-        "selection": "Matthew Stafford middle 232.5-292.5",
-        "ligne": 232.5,
-        "ligne_haute": 292.5,
-        "fenetre": 60.0,
-        "over": {
-          "ligne": 232.5,
-          "odds": 1.41,
-          "book": "bovada"
-        },
-        "under": {
-          "ligne": 292.5,
-          "odds": 1.43,
-          "book": "bovada"
-        },
-        "odds": 1.41,
-        "book": "bovada",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "bovada",
-            "ligne": 232.5,
-            "over": 1.41,
-            "under": 2.8
-          },
-          {
-            "book": "bovada",
-            "ligne": 242.5,
-            "over": 1.54,
-            "under": 2.4
-          },
-          {
-            "book": "bovada",
-            "ligne": 252.5,
-            "over": 1.69,
-            "under": 2.1
-          },
-          {
-            "book": "fanduel",
-            "ligne": 258.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "betrivers",
-            "ligne": 261.5,
-            "over": 1.87,
-            "under": 1.87
-          },
-          {
-            "book": "betonlineag",
-            "ligne": 262.5,
-            "over": 1.87,
-            "under": 1.89
-          },
-          {
-            "book": "bovada",
-            "ligne": 262.5,
-            "over": 1.87,
-            "under": 1.87
-          },
-          {
-            "book": "draftkings",
-            "ligne": 262.5,
-            "over": 1.88,
-            "under": 1.9
-          },
-          {
-            "book": "betmgm",
-            "ligne": 263.5,
-            "over": 1.87,
-            "under": 1.87
-          },
-          {
-            "book": "pinnacle",
-            "ligne": 263.5,
-            "over": 2.01,
-            "under": 1.81
-          },
-          {
-            "book": "bovada",
-            "ligne": 272.5,
-            "over": 2.1,
-            "under": 1.69
-          },
-          {
-            "book": "bovada",
-            "ligne": 282.5,
-            "over": 2.4,
-            "under": 1.54
-          },
-          {
-            "book": "bovada",
-            "ligne": 292.5,
-            "over": 2.7,
-            "under": 1.43
-          }
-        ]
-      },
-      {
-        "type": "ligne",
         "joueur": "Brock Purdy",
         "market": "player_pass_yds",
         "marche_lbl": "verges de passe",
-        "selection": "Brock Purdy middle 208.5-268.5",
-        "ligne": 208.5,
-        "ligne_haute": 268.5,
-        "fenetre": 60.0,
+        "selection": "Brock Purdy middle 238.5-245.5",
+        "ligne": 238.5,
+        "ligne_haute": 245.5,
+        "fenetre": 7.0,
         "over": {
-          "ligne": 208.5,
-          "odds": 1.4,
-          "book": "bovada"
+          "ligne": 238.5,
+          "odds": 1.9,
+          "book": "draftkings"
         },
         "under": {
-          "ligne": 268.5,
-          "odds": 1.43,
-          "book": "bovada"
+          "ligne": 245.5,
+          "odds": 1.87,
+          "book": "fanatics"
         },
-        "odds": 1.4,
-        "book": "bovada",
+        "consensus": 238.5,
+        "odds": 1.9,
+        "book": "draftkings",
         "edge_pct": 0.0,
         "game": "San Francisco 49ers @ Los Angeles Rams",
         "commence": "2026-09-11T00:35:00Z",
@@ -2690,25 +2551,302 @@
       },
       {
         "type": "ligne",
+        "joueur": "Matthew Stafford",
+        "market": "player_pass_yds",
+        "marche_lbl": "verges de passe",
+        "selection": "Matthew Stafford middle 258.5-263.5",
+        "ligne": 258.5,
+        "ligne_haute": 263.5,
+        "fenetre": 5.0,
+        "over": {
+          "ligne": 258.5,
+          "odds": 1.88,
+          "book": "fanduel"
+        },
+        "under": {
+          "ligne": 263.5,
+          "odds": 1.87,
+          "book": "betmgm"
+        },
+        "consensus": 262.5,
+        "odds": 1.88,
+        "book": "fanduel",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "bovada",
+            "ligne": 232.5,
+            "over": 1.41,
+            "under": 2.8
+          },
+          {
+            "book": "bovada",
+            "ligne": 242.5,
+            "over": 1.54,
+            "under": 2.4
+          },
+          {
+            "book": "bovada",
+            "ligne": 252.5,
+            "over": 1.69,
+            "under": 2.1
+          },
+          {
+            "book": "fanduel",
+            "ligne": 258.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "betrivers",
+            "ligne": 261.5,
+            "over": 1.87,
+            "under": 1.87
+          },
+          {
+            "book": "betonlineag",
+            "ligne": 262.5,
+            "over": 1.87,
+            "under": 1.89
+          },
+          {
+            "book": "bovada",
+            "ligne": 262.5,
+            "over": 1.87,
+            "under": 1.87
+          },
+          {
+            "book": "draftkings",
+            "ligne": 262.5,
+            "over": 1.88,
+            "under": 1.9
+          },
+          {
+            "book": "betmgm",
+            "ligne": 263.5,
+            "over": 1.87,
+            "under": 1.87
+          },
+          {
+            "book": "pinnacle",
+            "ligne": 263.5,
+            "over": 2.01,
+            "under": 1.81
+          },
+          {
+            "book": "bovada",
+            "ligne": 272.5,
+            "over": 2.1,
+            "under": 1.69
+          },
+          {
+            "book": "bovada",
+            "ligne": 282.5,
+            "over": 2.4,
+            "under": 1.54
+          },
+          {
+            "book": "bovada",
+            "ligne": 292.5,
+            "over": 2.7,
+            "under": 1.43
+          }
+        ]
+      },
+      {
+        "type": "ligne",
+        "joueur": "Brock Purdy",
+        "market": "player_rush_yds",
+        "marche_lbl": "verges au sol",
+        "selection": "Brock Purdy middle 15.5-19.5",
+        "ligne": 15.5,
+        "ligne_haute": 19.5,
+        "fenetre": 4.0,
+        "over": {
+          "ligne": 15.5,
+          "odds": 1.67,
+          "book": "fanatics"
+        },
+        "under": {
+          "ligne": 19.5,
+          "odds": 1.81,
+          "book": "betonlineag"
+        },
+        "consensus": 18.5,
+        "odds": 1.67,
+        "book": "fanatics",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "fanatics",
+            "ligne": 15.5,
+            "over": 1.67,
+            "under": 2.1
+          },
+          {
+            "book": "betmgm",
+            "ligne": 18.5,
+            "over": 1.83,
+            "under": 1.9
+          },
+          {
+            "book": "betrivers",
+            "ligne": 18.5,
+            "over": 1.85,
+            "under": 1.88
+          },
+          {
+            "book": "bovada",
+            "ligne": 18.5,
+            "over": 1.74,
+            "under": 2.05
+          },
+          {
+            "book": "draftkings",
+            "ligne": 18.5,
+            "over": 1.87,
+            "under": 1.91
+          },
+          {
+            "book": "fanduel",
+            "ligne": 18.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "pinnacle",
+            "ligne": 18.5,
+            "over": 1.84,
+            "under": 1.98
+          },
+          {
+            "book": "betonlineag",
+            "ligne": 19.5,
+            "over": 1.95,
+            "under": 1.81
+          }
+        ]
+      },
+      {
+        "type": "ligne",
+        "joueur": "George Kittle",
+        "market": "player_reception_yds",
+        "marche_lbl": "verges de reception",
+        "selection": "George Kittle middle 32.5-35.5",
+        "ligne": 32.5,
+        "ligne_haute": 35.5,
+        "fenetre": 3.0,
+        "over": {
+          "ligne": 32.5,
+          "odds": 1.87,
+          "book": "draftkings"
+        },
+        "under": {
+          "ligne": 35.5,
+          "odds": 1.88,
+          "book": "betonlineag"
+        },
+        "consensus": 32.5,
+        "odds": 1.87,
+        "book": "draftkings",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "bovada",
+            "ligne": 22.5,
+            "over": 1.41,
+            "under": 2.8
+          },
+          {
+            "book": "bovada",
+            "ligne": 27.5,
+            "over": 1.61,
+            "under": 2.25
+          },
+          {
+            "book": "betrivers",
+            "ligne": 32.5,
+            "over": 1.85,
+            "under": 1.88
+          },
+          {
+            "book": "bovada",
+            "ligne": 32.5,
+            "over": 1.83,
+            "under": 1.91
+          },
+          {
+            "book": "draftkings",
+            "ligne": 32.5,
+            "over": 1.87,
+            "under": 1.92
+          },
+          {
+            "book": "fanduel",
+            "ligne": 33.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "pinnacle",
+            "ligne": 33.5,
+            "over": 1.91,
+            "under": 1.91
+          },
+          {
+            "book": "betmgm",
+            "ligne": 34.5,
+            "over": 1.87,
+            "under": 1.87
+          },
+          {
+            "book": "betonlineag",
+            "ligne": 35.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "bovada",
+            "ligne": 37.5,
+            "over": 2.1,
+            "under": 1.69
+          },
+          {
+            "book": "bovada",
+            "ligne": 42.5,
+            "over": 2.45,
+            "under": 1.53
+          }
+        ]
+      },
+      {
+        "type": "ligne",
         "joueur": "Puka Nacua",
         "market": "player_reception_yds",
         "marche_lbl": "verges de reception",
-        "selection": "Puka Nacua middle 70.5-110.5",
-        "ligne": 70.5,
-        "ligne_haute": 110.5,
-        "fenetre": 40.0,
+        "selection": "Puka Nacua middle 88.5-90.5",
+        "ligne": 88.5,
+        "ligne_haute": 90.5,
+        "fenetre": 2.0,
         "over": {
-          "ligne": 70.5,
-          "odds": 1.38,
-          "book": "bovada"
+          "ligne": 88.5,
+          "odds": 1.88,
+          "book": "betrivers"
         },
         "under": {
-          "ligne": 110.5,
-          "odds": 1.43,
-          "book": "bovada"
+          "ligne": 90.5,
+          "odds": 1.88,
+          "book": "draftkings"
         },
-        "odds": 1.38,
-        "book": "bovada",
+        "consensus": 90.5,
+        "odds": 1.88,
+        "book": "betrivers",
         "edge_pct": 0.0,
         "game": "San Francisco 49ers @ Los Angeles Rams",
         "commence": "2026-09-11T00:35:00Z",
@@ -2792,22 +2930,23 @@
         "joueur": "Davante Adams",
         "market": "player_reception_yds",
         "marche_lbl": "verges de reception",
-        "selection": "Davante Adams middle 42.5-62.5",
-        "ligne": 42.5,
-        "ligne_haute": 62.5,
-        "fenetre": 20.0,
+        "selection": "Davante Adams middle 50.5-52.5",
+        "ligne": 50.5,
+        "ligne_haute": 52.5,
+        "fenetre": 2.0,
         "over": {
-          "ligne": 42.5,
-          "odds": 1.53,
-          "book": "bovada"
+          "ligne": 50.5,
+          "odds": 1.85,
+          "book": "betmgm"
         },
         "under": {
-          "ligne": 62.5,
-          "odds": 1.56,
-          "book": "bovada"
+          "ligne": 52.5,
+          "odds": 1.88,
+          "book": "draftkings"
         },
-        "odds": 1.53,
-        "book": "bovada",
+        "consensus": 52.5,
+        "odds": 1.85,
+        "book": "betmgm",
         "edge_pct": 0.0,
         "game": "San Francisco 49ers @ Los Angeles Rams",
         "commence": "2026-09-11T00:35:00Z",
@@ -2885,22 +3024,23 @@
         "joueur": "Mike Evans",
         "market": "player_reception_yds",
         "marche_lbl": "verges de reception",
-        "selection": "Mike Evans middle 39.5-59.5",
-        "ligne": 39.5,
-        "ligne_haute": 59.5,
-        "fenetre": 20.0,
+        "selection": "Mike Evans middle 48.5-50.5",
+        "ligne": 48.5,
+        "ligne_haute": 50.5,
+        "fenetre": 2.0,
         "over": {
-          "ligne": 39.5,
-          "odds": 1.5,
-          "book": "bovada"
+          "ligne": 48.5,
+          "odds": 1.85,
+          "book": "betrivers"
         },
         "under": {
-          "ligne": 59.5,
-          "odds": 1.54,
-          "book": "bovada"
+          "ligne": 50.5,
+          "odds": 1.87,
+          "book": "betmgm"
         },
-        "odds": 1.5,
-        "book": "bovada",
+        "consensus": 49.5,
+        "odds": 1.85,
+        "book": "betrivers",
         "edge_pct": 0.0,
         "game": "San Francisco 49ers @ Los Angeles Rams",
         "commence": "2026-09-11T00:35:00Z",
@@ -2975,118 +3115,26 @@
       },
       {
         "type": "ligne",
-        "joueur": "Christian McCaffrey",
-        "market": "player_reception_yds",
-        "marche_lbl": "verges de reception",
-        "selection": "Christian McCaffrey middle 29.5-49.5",
-        "ligne": 29.5,
-        "ligne_haute": 49.5,
-        "fenetre": 20.0,
-        "over": {
-          "ligne": 29.5,
-          "odds": 1.43,
-          "book": "bovada"
-        },
-        "under": {
-          "ligne": 49.5,
-          "odds": 1.54,
-          "book": "bovada"
-        },
-        "odds": 1.43,
-        "book": "bovada",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "bovada",
-            "ligne": 29.5,
-            "over": 1.43,
-            "under": 2.7
-          },
-          {
-            "book": "bovada",
-            "ligne": 34.5,
-            "over": 1.62,
-            "under": 2.2
-          },
-          {
-            "book": "betmgm",
-            "ligne": 39.5,
-            "over": 1.87,
-            "under": 1.87
-          },
-          {
-            "book": "betonlineag",
-            "ligne": 39.5,
-            "over": 1.85,
-            "under": 1.91
-          },
-          {
-            "book": "bovada",
-            "ligne": 39.5,
-            "over": 1.83,
-            "under": 1.91
-          },
-          {
-            "book": "draftkings",
-            "ligne": 39.5,
-            "over": 1.87,
-            "under": 1.92
-          },
-          {
-            "book": "fanduel",
-            "ligne": 39.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "pinnacle",
-            "ligne": 39.5,
-            "over": 1.91,
-            "under": 1.91
-          },
-          {
-            "book": "betrivers",
-            "ligne": 40.5,
-            "over": 1.88,
-            "under": 1.85
-          },
-          {
-            "book": "bovada",
-            "ligne": 44.5,
-            "over": 2.1,
-            "under": 1.69
-          },
-          {
-            "book": "bovada",
-            "ligne": 49.5,
-            "over": 2.4,
-            "under": 1.54
-          }
-        ]
-      },
-      {
-        "type": "ligne",
         "joueur": "De'Zhaun Stribling",
         "market": "player_reception_yds",
         "marche_lbl": "verges de reception",
-        "selection": "De'Zhaun Stribling middle 23.5-43.5",
-        "ligne": 23.5,
-        "ligne_haute": 43.5,
-        "fenetre": 20.0,
+        "selection": "De'Zhaun Stribling middle 31.5-33.5",
+        "ligne": 31.5,
+        "ligne_haute": 33.5,
+        "fenetre": 2.0,
         "over": {
-          "ligne": 23.5,
-          "odds": 1.43,
-          "book": "bovada"
+          "ligne": 31.5,
+          "odds": 1.89,
+          "book": "betonlineag"
         },
         "under": {
-          "ligne": 43.5,
-          "odds": 1.5,
-          "book": "bovada"
+          "ligne": 33.5,
+          "odds": 1.9,
+          "book": "draftkings"
         },
-        "odds": 1.43,
-        "book": "bovada",
+        "consensus": 33.5,
+        "odds": 1.89,
+        "book": "betonlineag",
         "edge_pct": 0.0,
         "game": "San Francisco 49ers @ Los Angeles Rams",
         "commence": "2026-09-11T00:35:00Z",
@@ -3161,94 +3209,683 @@
       },
       {
         "type": "ligne",
-        "joueur": "George Kittle",
+        "joueur": "Deebo Samuel",
         "market": "player_reception_yds",
         "marche_lbl": "verges de reception",
-        "selection": "George Kittle middle 22.5-42.5",
-        "ligne": 22.5,
-        "ligne_haute": 42.5,
-        "fenetre": 20.0,
+        "selection": "Deebo Samuel middle 28.5-30.5",
+        "ligne": 28.5,
+        "ligne_haute": 30.5,
+        "fenetre": 2.0,
         "over": {
-          "ligne": 22.5,
-          "odds": 1.41,
-          "book": "bovada"
+          "ligne": 28.5,
+          "odds": 1.87,
+          "book": "betmgm"
         },
         "under": {
-          "ligne": 42.5,
-          "odds": 1.53,
-          "book": "bovada"
+          "ligne": 30.5,
+          "odds": 1.88,
+          "book": "betonlineag"
         },
-        "odds": 1.41,
-        "book": "bovada",
+        "consensus": 28.5,
+        "odds": 1.87,
+        "book": "betmgm",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "betmgm",
+            "ligne": 28.5,
+            "over": 1.87,
+            "under": 1.87
+          },
+          {
+            "book": "fanduel",
+            "ligne": 28.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "pinnacle",
+            "ligne": 28.5,
+            "over": 1.91,
+            "under": 1.91
+          },
+          {
+            "book": "betrivers",
+            "ligne": 29.5,
+            "over": 1.88,
+            "under": 1.85
+          },
+          {
+            "book": "bovada",
+            "ligne": 29.5,
+            "over": 1.91,
+            "under": 1.83
+          },
+          {
+            "book": "draftkings",
+            "ligne": 29.5,
+            "over": 1.92,
+            "under": 1.87
+          },
+          {
+            "book": "betonlineag",
+            "ligne": 30.5,
+            "over": 1.88,
+            "under": 1.88
+          }
+        ]
+      },
+      {
+        "type": "ligne",
+        "joueur": "Terrance Ferguson",
+        "market": "player_reception_yds",
+        "marche_lbl": "verges de reception",
+        "selection": "Terrance Ferguson middle 23.5-25.5",
+        "ligne": 23.5,
+        "ligne_haute": 25.5,
+        "fenetre": 2.0,
+        "over": {
+          "ligne": 23.5,
+          "odds": 1.87,
+          "book": "betmgm"
+        },
+        "under": {
+          "ligne": 25.5,
+          "odds": 1.88,
+          "book": "betonlineag"
+        },
+        "consensus": 23.5,
+        "odds": 1.87,
+        "book": "betmgm",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "betmgm",
+            "ligne": 23.5,
+            "over": 1.87,
+            "under": 1.87
+          },
+          {
+            "book": "betrivers",
+            "ligne": 23.5,
+            "over": 1.88,
+            "under": 1.85
+          },
+          {
+            "book": "fanduel",
+            "ligne": 23.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "bovada",
+            "ligne": 24.5,
+            "over": 1.91,
+            "under": 1.83
+          },
+          {
+            "book": "draftkings",
+            "ligne": 24.5,
+            "over": 1.92,
+            "under": 1.87
+          },
+          {
+            "book": "pinnacle",
+            "ligne": 24.5,
+            "over": 1.95,
+            "under": 1.87
+          },
+          {
+            "book": "betonlineag",
+            "ligne": 25.5,
+            "over": 1.88,
+            "under": 1.88
+          }
+        ]
+      },
+      {
+        "type": "ligne",
+        "joueur": "Tyler Higbee",
+        "market": "player_reception_yds",
+        "marche_lbl": "verges de reception",
+        "selection": "Tyler Higbee middle 15.5-17.5",
+        "ligne": 15.5,
+        "ligne_haute": 17.5,
+        "fenetre": 2.0,
+        "over": {
+          "ligne": 15.5,
+          "odds": 1.87,
+          "book": "betmgm"
+        },
+        "under": {
+          "ligne": 17.5,
+          "odds": 1.88,
+          "book": "fanduel"
+        },
+        "consensus": 16.5,
+        "odds": 1.87,
+        "book": "betmgm",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "betmgm",
+            "ligne": 15.5,
+            "over": 1.87,
+            "under": 1.87
+          },
+          {
+            "book": "betonlineag",
+            "ligne": 16.5,
+            "over": 1.9,
+            "under": 1.86
+          },
+          {
+            "book": "betrivers",
+            "ligne": 16.5,
+            "over": 1.85,
+            "under": 1.88
+          },
+          {
+            "book": "bovada",
+            "ligne": 16.5,
+            "over": 1.83,
+            "under": 1.91
+          },
+          {
+            "book": "draftkings",
+            "ligne": 16.5,
+            "over": 1.86,
+            "under": 1.93
+          },
+          {
+            "book": "pinnacle",
+            "ligne": 16.5,
+            "over": 1.91,
+            "under": 1.91
+          },
+          {
+            "book": "fanduel",
+            "ligne": 17.5,
+            "over": 1.88,
+            "under": 1.88
+          }
+        ]
+      },
+      {
+        "type": "ligne",
+        "joueur": "Kyren Williams",
+        "market": "player_reception_yds",
+        "marche_lbl": "verges de reception",
+        "selection": "Kyren Williams middle 10.5-12.5",
+        "ligne": 10.5,
+        "ligne_haute": 12.5,
+        "fenetre": 2.0,
+        "over": {
+          "ligne": 10.5,
+          "odds": 1.84,
+          "book": "draftkings"
+        },
+        "under": {
+          "ligne": 12.5,
+          "odds": 1.83,
+          "book": "betmgm"
+        },
+        "consensus": 10.5,
+        "odds": 1.84,
+        "book": "draftkings",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "betonlineag",
+            "ligne": 10.5,
+            "over": 1.82,
+            "under": 1.94
+          },
+          {
+            "book": "betrivers",
+            "ligne": 10.5,
+            "over": 1.92,
+            "under": 1.82
+          },
+          {
+            "book": "bovada",
+            "ligne": 10.5,
+            "over": 1.83,
+            "under": 1.91
+          },
+          {
+            "book": "draftkings",
+            "ligne": 10.5,
+            "over": 1.84,
+            "under": 1.94
+          },
+          {
+            "book": "fanduel",
+            "ligne": 10.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "pinnacle",
+            "ligne": 10.5,
+            "over": 1.8,
+            "under": 2.03
+          },
+          {
+            "book": "betmgm",
+            "ligne": 12.5,
+            "over": 1.91,
+            "under": 1.83
+          }
+        ]
+      },
+      {
+        "type": "ligne",
+        "joueur": "Demarcus Robinson",
+        "market": "player_reception_yds",
+        "marche_lbl": "verges de reception",
+        "selection": "Demarcus Robinson middle 9.5-11.5",
+        "ligne": 9.5,
+        "ligne_haute": 11.5,
+        "fenetre": 2.0,
+        "over": {
+          "ligne": 9.5,
+          "odds": 1.88,
+          "book": "fanduel"
+        },
+        "under": {
+          "ligne": 11.5,
+          "odds": 1.83,
+          "book": "betrivers"
+        },
+        "consensus": 10.5,
+        "odds": 1.88,
+        "book": "fanduel",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "fanduel",
+            "ligne": 9.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "betonlineag",
+            "ligne": 10.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "bovada",
+            "ligne": 10.5,
+            "over": 1.87,
+            "under": 1.87
+          },
+          {
+            "book": "draftkings",
+            "ligne": 10.5,
+            "over": 1.91,
+            "under": 1.88
+          },
+          {
+            "book": "betrivers",
+            "ligne": 11.5,
+            "over": 1.91,
+            "under": 1.83
+          },
+          {
+            "book": "pinnacle",
+            "ligne": 11.5,
+            "over": 1.93,
+            "under": 1.88
+          }
+        ]
+      },
+      {
+        "type": "ligne",
+        "joueur": "Christian McCaffrey",
+        "market": "player_reception_yds",
+        "marche_lbl": "verges de reception",
+        "selection": "Christian McCaffrey middle 39.5-40.5",
+        "ligne": 39.5,
+        "ligne_haute": 40.5,
+        "fenetre": 1.0,
+        "over": {
+          "ligne": 39.5,
+          "odds": 1.87,
+          "book": "draftkings"
+        },
+        "under": {
+          "ligne": 40.5,
+          "odds": 1.85,
+          "book": "betrivers"
+        },
+        "consensus": 39.5,
+        "odds": 1.87,
+        "book": "draftkings",
         "edge_pct": 0.0,
         "game": "San Francisco 49ers @ Los Angeles Rams",
         "commence": "2026-09-11T00:35:00Z",
         "books": [
           {
             "book": "bovada",
-            "ligne": 22.5,
-            "over": 1.41,
-            "under": 2.8
+            "ligne": 29.5,
+            "over": 1.43,
+            "under": 2.7
           },
           {
             "book": "bovada",
-            "ligne": 27.5,
-            "over": 1.61,
-            "under": 2.25
-          },
-          {
-            "book": "betrivers",
-            "ligne": 32.5,
-            "over": 1.85,
-            "under": 1.88
-          },
-          {
-            "book": "bovada",
-            "ligne": 32.5,
-            "over": 1.83,
-            "under": 1.91
-          },
-          {
-            "book": "draftkings",
-            "ligne": 32.5,
-            "over": 1.87,
-            "under": 1.92
-          },
-          {
-            "book": "fanduel",
-            "ligne": 33.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "pinnacle",
-            "ligne": 33.5,
-            "over": 1.91,
-            "under": 1.91
+            "ligne": 34.5,
+            "over": 1.62,
+            "under": 2.2
           },
           {
             "book": "betmgm",
-            "ligne": 34.5,
+            "ligne": 39.5,
             "over": 1.87,
             "under": 1.87
           },
           {
             "book": "betonlineag",
-            "ligne": 35.5,
+            "ligne": 39.5,
+            "over": 1.85,
+            "under": 1.91
+          },
+          {
+            "book": "bovada",
+            "ligne": 39.5,
+            "over": 1.83,
+            "under": 1.91
+          },
+          {
+            "book": "draftkings",
+            "ligne": 39.5,
+            "over": 1.87,
+            "under": 1.92
+          },
+          {
+            "book": "fanduel",
+            "ligne": 39.5,
             "over": 1.88,
             "under": 1.88
           },
           {
+            "book": "pinnacle",
+            "ligne": 39.5,
+            "over": 1.91,
+            "under": 1.91
+          },
+          {
+            "book": "betrivers",
+            "ligne": 40.5,
+            "over": 1.88,
+            "under": 1.85
+          },
+          {
             "book": "bovada",
-            "ligne": 37.5,
+            "ligne": 44.5,
             "over": 2.1,
             "under": 1.69
           },
           {
             "book": "bovada",
-            "ligne": 42.5,
-            "over": 2.45,
-            "under": 1.53
+            "ligne": 49.5,
+            "over": 2.4,
+            "under": 1.54
+          }
+        ]
+      },
+      {
+        "type": "ligne",
+        "joueur": "Colby Parkinson",
+        "market": "player_reception_yds",
+        "marche_lbl": "verges de reception",
+        "selection": "Colby Parkinson middle 18.5-19.5",
+        "ligne": 18.5,
+        "ligne_haute": 19.5,
+        "fenetre": 1.0,
+        "over": {
+          "ligne": 18.5,
+          "odds": 1.92,
+          "book": "draftkings"
+        },
+        "under": {
+          "ligne": 19.5,
+          "odds": 1.83,
+          "book": "betrivers"
+        },
+        "consensus": 18.5,
+        "odds": 1.92,
+        "book": "draftkings",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "betmgm",
+            "ligne": 18.5,
+            "over": 1.87,
+            "under": 1.87
+          },
+          {
+            "book": "betonlineag",
+            "ligne": 18.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "bovada",
+            "ligne": 18.5,
+            "over": 1.91,
+            "under": 1.83
+          },
+          {
+            "book": "draftkings",
+            "ligne": 18.5,
+            "over": 1.92,
+            "under": 1.87
+          },
+          {
+            "book": "fanduel",
+            "ligne": 18.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "pinnacle",
+            "ligne": 18.5,
+            "over": 1.93,
+            "under": 1.89
+          },
+          {
+            "book": "betrivers",
+            "ligne": 19.5,
+            "over": 1.91,
+            "under": 1.83
+          }
+        ]
+      },
+      {
+        "type": "ligne",
+        "joueur": "Jake Tonges",
+        "market": "player_reception_yds",
+        "marche_lbl": "verges de reception",
+        "selection": "Jake Tonges middle 10.5-11.5",
+        "ligne": 10.5,
+        "ligne_haute": 11.5,
+        "fenetre": 1.0,
+        "over": {
+          "ligne": 10.5,
+          "odds": 1.88,
+          "book": "draftkings"
+        },
+        "under": {
+          "ligne": 11.5,
+          "odds": 1.88,
+          "book": "fanduel"
+        },
+        "consensus": 10.5,
+        "odds": 1.88,
+        "book": "draftkings",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "betonlineag",
+            "ligne": 10.5,
+            "over": 1.86,
+            "under": 1.9
+          },
+          {
+            "book": "bovada",
+            "ligne": 10.5,
+            "over": 1.87,
+            "under": 1.87
+          },
+          {
+            "book": "draftkings",
+            "ligne": 10.5,
+            "over": 1.88,
+            "under": 1.9
+          },
+          {
+            "book": "fanduel",
+            "ligne": 11.5,
+            "over": 1.88,
+            "under": 1.88
+          }
+        ]
+      },
+      {
+        "type": "ligne",
+        "joueur": "Kyle Juszczyk",
+        "market": "player_reception_yds",
+        "marche_lbl": "verges de reception",
+        "selection": "Kyle Juszczyk middle 5.5-6.5",
+        "ligne": 5.5,
+        "ligne_haute": 6.5,
+        "fenetre": 1.0,
+        "over": {
+          "ligne": 5.5,
+          "odds": 1.84,
+          "book": "draftkings"
+        },
+        "under": {
+          "ligne": 6.5,
+          "odds": 1.87,
+          "book": "betmgm"
+        },
+        "consensus": 5.5,
+        "odds": 1.84,
+        "book": "draftkings",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "betonlineag",
+            "ligne": 5.5,
+            "over": 1.83,
+            "under": 1.93
+          },
+          {
+            "book": "betrivers",
+            "ligne": 5.5,
+            "over": 1.85,
+            "under": 1.88
+          },
+          {
+            "book": "bovada",
+            "ligne": 5.5,
+            "over": 1.83,
+            "under": 1.91
+          },
+          {
+            "book": "draftkings",
+            "ligne": 5.5,
+            "over": 1.84,
+            "under": 1.94
+          },
+          {
+            "book": "fanduel",
+            "ligne": 5.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "pinnacle",
+            "ligne": 5.5,
+            "over": 1.86,
+            "under": 1.96
+          },
+          {
+            "book": "betmgm",
+            "ligne": 6.5,
+            "over": 1.87,
+            "under": 1.87
+          }
+        ]
+      },
+      {
+        "type": "ligne",
+        "joueur": "Blake Corum",
+        "market": "player_reception_yds",
+        "marche_lbl": "verges de reception",
+        "selection": "Blake Corum middle 2.5-3.5",
+        "ligne": 2.5,
+        "ligne_haute": 3.5,
+        "fenetre": 1.0,
+        "over": {
+          "ligne": 2.5,
+          "odds": 1.88,
+          "book": "fanduel"
+        },
+        "under": {
+          "ligne": 3.5,
+          "odds": 1.88,
+          "book": "draftkings"
+        },
+        "consensus": 3.5,
+        "odds": 1.88,
+        "book": "fanduel",
+        "edge_pct": 0.0,
+        "game": "San Francisco 49ers @ Los Angeles Rams",
+        "commence": "2026-09-11T00:35:00Z",
+        "books": [
+          {
+            "book": "fanduel",
+            "ligne": 2.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "betonlineag",
+            "ligne": 3.5,
+            "over": 1.88,
+            "under": 1.88
+          },
+          {
+            "book": "bovada",
+            "ligne": 3.5,
+            "over": 1.87,
+            "under": 1.87
+          },
+          {
+            "book": "draftkings",
+            "ligne": 3.5,
+            "over": 1.9,
+            "under": 1.88
           }
         ]
       },
@@ -3257,22 +3894,23 @@
         "joueur": "Christian McCaffrey",
         "market": "player_rush_yds",
         "marche_lbl": "verges au sol",
-        "selection": "Christian McCaffrey middle 49.5-69.5",
-        "ligne": 49.5,
-        "ligne_haute": 69.5,
-        "fenetre": 20.0,
+        "selection": "Christian McCaffrey middle 58.5-59.5",
+        "ligne": 58.5,
+        "ligne_haute": 59.5,
+        "fenetre": 1.0,
         "over": {
-          "ligne": 49.5,
-          "odds": 1.48,
-          "book": "bovada"
+          "ligne": 58.5,
+          "odds": 1.85,
+          "book": "betrivers"
         },
         "under": {
-          "ligne": 69.5,
-          "odds": 1.53,
-          "book": "bovada"
+          "ligne": 59.5,
+          "odds": 1.91,
+          "book": "draftkings"
         },
-        "odds": 1.48,
-        "book": "bovada",
+        "consensus": 59.5,
+        "odds": 1.85,
+        "book": "betrivers",
         "edge_pct": 0.0,
         "game": "San Francisco 49ers @ Los Angeles Rams",
         "commence": "2026-09-11T00:35:00Z",
@@ -3350,22 +3988,23 @@
         "joueur": "Kyren Williams",
         "market": "player_rush_yds",
         "marche_lbl": "verges au sol",
-        "selection": "Kyren Williams middle 46.5-66.5",
-        "ligne": 46.5,
-        "ligne_haute": 66.5,
-        "fenetre": 20.0,
+        "selection": "Kyren Williams middle 55.5-56.5",
+        "ligne": 55.5,
+        "ligne_haute": 56.5,
+        "fenetre": 1.0,
         "over": {
-          "ligne": 46.5,
-          "odds": 1.48,
-          "book": "bovada"
+          "ligne": 55.5,
+          "odds": 1.87,
+          "book": "betmgm"
         },
         "under": {
-          "ligne": 66.5,
-          "odds": 1.5,
-          "book": "bovada"
+          "ligne": 56.5,
+          "odds": 1.88,
+          "book": "draftkings"
         },
-        "odds": 1.48,
-        "book": "bovada",
+        "consensus": 55.5,
+        "odds": 1.87,
+        "book": "betmgm",
         "edge_pct": 0.0,
         "game": "San Francisco 49ers @ Los Angeles Rams",
         "commence": "2026-09-11T00:35:00Z",
@@ -3443,22 +4082,23 @@
         "joueur": "Blake Corum",
         "market": "player_rush_yds",
         "marche_lbl": "verges au sol",
-        "selection": "Blake Corum middle 35.5-55.5",
-        "ligne": 35.5,
-        "ligne_haute": 55.5,
-        "fenetre": 20.0,
+        "selection": "Blake Corum middle 44.5-45.5",
+        "ligne": 44.5,
+        "ligne_haute": 45.5,
+        "fenetre": 1.0,
         "over": {
-          "ligne": 35.5,
-          "odds": 1.43,
-          "book": "bovada"
+          "ligne": 44.5,
+          "odds": 1.87,
+          "book": "betmgm"
         },
         "under": {
-          "ligne": 55.5,
-          "odds": 1.48,
-          "book": "bovada"
+          "ligne": 45.5,
+          "odds": 1.88,
+          "book": "draftkings"
         },
-        "odds": 1.43,
-        "book": "bovada",
+        "consensus": 44.5,
+        "odds": 1.87,
+        "book": "betmgm",
         "edge_pct": 0.0,
         "game": "San Francisco 49ers @ Los Angeles Rams",
         "commence": "2026-09-11T00:35:00Z",
@@ -3530,664 +4170,10 @@
             "under": 1.48
           }
         ]
-      },
-      {
-        "type": "ligne",
-        "joueur": "Brock Purdy",
-        "market": "player_rush_yds",
-        "marche_lbl": "verges au sol",
-        "selection": "Brock Purdy middle 15.5-19.5",
-        "ligne": 15.5,
-        "ligne_haute": 19.5,
-        "fenetre": 4.0,
-        "over": {
-          "ligne": 15.5,
-          "odds": 1.67,
-          "book": "fanatics"
-        },
-        "under": {
-          "ligne": 19.5,
-          "odds": 1.81,
-          "book": "betonlineag"
-        },
-        "odds": 1.67,
-        "book": "fanatics",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "fanatics",
-            "ligne": 15.5,
-            "over": 1.67,
-            "under": 2.1
-          },
-          {
-            "book": "betmgm",
-            "ligne": 18.5,
-            "over": 1.83,
-            "under": 1.9
-          },
-          {
-            "book": "betrivers",
-            "ligne": 18.5,
-            "over": 1.85,
-            "under": 1.88
-          },
-          {
-            "book": "bovada",
-            "ligne": 18.5,
-            "over": 1.74,
-            "under": 2.05
-          },
-          {
-            "book": "draftkings",
-            "ligne": 18.5,
-            "over": 1.87,
-            "under": 1.91
-          },
-          {
-            "book": "fanduel",
-            "ligne": 18.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "pinnacle",
-            "ligne": 18.5,
-            "over": 1.84,
-            "under": 1.98
-          },
-          {
-            "book": "betonlineag",
-            "ligne": 19.5,
-            "over": 1.95,
-            "under": 1.81
-          }
-        ]
-      },
-      {
-        "type": "ligne",
-        "joueur": "Deebo Samuel",
-        "market": "player_reception_yds",
-        "marche_lbl": "verges de reception",
-        "selection": "Deebo Samuel middle 28.5-30.5",
-        "ligne": 28.5,
-        "ligne_haute": 30.5,
-        "fenetre": 2.0,
-        "over": {
-          "ligne": 28.5,
-          "odds": 1.87,
-          "book": "betmgm"
-        },
-        "under": {
-          "ligne": 30.5,
-          "odds": 1.88,
-          "book": "betonlineag"
-        },
-        "odds": 1.87,
-        "book": "betmgm",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "betmgm",
-            "ligne": 28.5,
-            "over": 1.87,
-            "under": 1.87
-          },
-          {
-            "book": "fanduel",
-            "ligne": 28.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "pinnacle",
-            "ligne": 28.5,
-            "over": 1.91,
-            "under": 1.91
-          },
-          {
-            "book": "betrivers",
-            "ligne": 29.5,
-            "over": 1.88,
-            "under": 1.85
-          },
-          {
-            "book": "bovada",
-            "ligne": 29.5,
-            "over": 1.91,
-            "under": 1.83
-          },
-          {
-            "book": "draftkings",
-            "ligne": 29.5,
-            "over": 1.92,
-            "under": 1.87
-          },
-          {
-            "book": "betonlineag",
-            "ligne": 30.5,
-            "over": 1.88,
-            "under": 1.88
-          }
-        ]
-      },
-      {
-        "type": "ligne",
-        "joueur": "Terrance Ferguson",
-        "market": "player_reception_yds",
-        "marche_lbl": "verges de reception",
-        "selection": "Terrance Ferguson middle 23.5-25.5",
-        "ligne": 23.5,
-        "ligne_haute": 25.5,
-        "fenetre": 2.0,
-        "over": {
-          "ligne": 23.5,
-          "odds": 1.87,
-          "book": "betmgm"
-        },
-        "under": {
-          "ligne": 25.5,
-          "odds": 1.88,
-          "book": "betonlineag"
-        },
-        "odds": 1.87,
-        "book": "betmgm",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "betmgm",
-            "ligne": 23.5,
-            "over": 1.87,
-            "under": 1.87
-          },
-          {
-            "book": "betrivers",
-            "ligne": 23.5,
-            "over": 1.88,
-            "under": 1.85
-          },
-          {
-            "book": "fanduel",
-            "ligne": 23.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "bovada",
-            "ligne": 24.5,
-            "over": 1.91,
-            "under": 1.83
-          },
-          {
-            "book": "draftkings",
-            "ligne": 24.5,
-            "over": 1.92,
-            "under": 1.87
-          },
-          {
-            "book": "pinnacle",
-            "ligne": 24.5,
-            "over": 1.95,
-            "under": 1.87
-          },
-          {
-            "book": "betonlineag",
-            "ligne": 25.5,
-            "over": 1.88,
-            "under": 1.88
-          }
-        ]
-      },
-      {
-        "type": "ligne",
-        "joueur": "Tyler Higbee",
-        "market": "player_reception_yds",
-        "marche_lbl": "verges de reception",
-        "selection": "Tyler Higbee middle 15.5-17.5",
-        "ligne": 15.5,
-        "ligne_haute": 17.5,
-        "fenetre": 2.0,
-        "over": {
-          "ligne": 15.5,
-          "odds": 1.87,
-          "book": "betmgm"
-        },
-        "under": {
-          "ligne": 17.5,
-          "odds": 1.88,
-          "book": "fanduel"
-        },
-        "odds": 1.87,
-        "book": "betmgm",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "betmgm",
-            "ligne": 15.5,
-            "over": 1.87,
-            "under": 1.87
-          },
-          {
-            "book": "betonlineag",
-            "ligne": 16.5,
-            "over": 1.9,
-            "under": 1.86
-          },
-          {
-            "book": "betrivers",
-            "ligne": 16.5,
-            "over": 1.85,
-            "under": 1.88
-          },
-          {
-            "book": "bovada",
-            "ligne": 16.5,
-            "over": 1.83,
-            "under": 1.91
-          },
-          {
-            "book": "draftkings",
-            "ligne": 16.5,
-            "over": 1.86,
-            "under": 1.93
-          },
-          {
-            "book": "pinnacle",
-            "ligne": 16.5,
-            "over": 1.91,
-            "under": 1.91
-          },
-          {
-            "book": "fanduel",
-            "ligne": 17.5,
-            "over": 1.88,
-            "under": 1.88
-          }
-        ]
-      },
-      {
-        "type": "ligne",
-        "joueur": "Kyren Williams",
-        "market": "player_reception_yds",
-        "marche_lbl": "verges de reception",
-        "selection": "Kyren Williams middle 10.5-12.5",
-        "ligne": 10.5,
-        "ligne_haute": 12.5,
-        "fenetre": 2.0,
-        "over": {
-          "ligne": 10.5,
-          "odds": 1.84,
-          "book": "draftkings"
-        },
-        "under": {
-          "ligne": 12.5,
-          "odds": 1.83,
-          "book": "betmgm"
-        },
-        "odds": 1.84,
-        "book": "draftkings",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "betonlineag",
-            "ligne": 10.5,
-            "over": 1.82,
-            "under": 1.94
-          },
-          {
-            "book": "betrivers",
-            "ligne": 10.5,
-            "over": 1.92,
-            "under": 1.82
-          },
-          {
-            "book": "bovada",
-            "ligne": 10.5,
-            "over": 1.83,
-            "under": 1.91
-          },
-          {
-            "book": "draftkings",
-            "ligne": 10.5,
-            "over": 1.84,
-            "under": 1.94
-          },
-          {
-            "book": "fanduel",
-            "ligne": 10.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "pinnacle",
-            "ligne": 10.5,
-            "over": 1.8,
-            "under": 2.03
-          },
-          {
-            "book": "betmgm",
-            "ligne": 12.5,
-            "over": 1.91,
-            "under": 1.83
-          }
-        ]
-      },
-      {
-        "type": "ligne",
-        "joueur": "Demarcus Robinson",
-        "market": "player_reception_yds",
-        "marche_lbl": "verges de reception",
-        "selection": "Demarcus Robinson middle 9.5-11.5",
-        "ligne": 9.5,
-        "ligne_haute": 11.5,
-        "fenetre": 2.0,
-        "over": {
-          "ligne": 9.5,
-          "odds": 1.88,
-          "book": "fanduel"
-        },
-        "under": {
-          "ligne": 11.5,
-          "odds": 1.83,
-          "book": "betrivers"
-        },
-        "odds": 1.88,
-        "book": "fanduel",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "fanduel",
-            "ligne": 9.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "betonlineag",
-            "ligne": 10.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "bovada",
-            "ligne": 10.5,
-            "over": 1.87,
-            "under": 1.87
-          },
-          {
-            "book": "draftkings",
-            "ligne": 10.5,
-            "over": 1.91,
-            "under": 1.88
-          },
-          {
-            "book": "betrivers",
-            "ligne": 11.5,
-            "over": 1.91,
-            "under": 1.83
-          },
-          {
-            "book": "pinnacle",
-            "ligne": 11.5,
-            "over": 1.93,
-            "under": 1.88
-          }
-        ]
-      },
-      {
-        "type": "ligne",
-        "joueur": "Colby Parkinson",
-        "market": "player_reception_yds",
-        "marche_lbl": "verges de reception",
-        "selection": "Colby Parkinson middle 18.5-19.5",
-        "ligne": 18.5,
-        "ligne_haute": 19.5,
-        "fenetre": 1.0,
-        "over": {
-          "ligne": 18.5,
-          "odds": 1.92,
-          "book": "draftkings"
-        },
-        "under": {
-          "ligne": 19.5,
-          "odds": 1.83,
-          "book": "betrivers"
-        },
-        "odds": 1.92,
-        "book": "draftkings",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "betmgm",
-            "ligne": 18.5,
-            "over": 1.87,
-            "under": 1.87
-          },
-          {
-            "book": "betonlineag",
-            "ligne": 18.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "bovada",
-            "ligne": 18.5,
-            "over": 1.91,
-            "under": 1.83
-          },
-          {
-            "book": "draftkings",
-            "ligne": 18.5,
-            "over": 1.92,
-            "under": 1.87
-          },
-          {
-            "book": "fanduel",
-            "ligne": 18.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "pinnacle",
-            "ligne": 18.5,
-            "over": 1.93,
-            "under": 1.89
-          },
-          {
-            "book": "betrivers",
-            "ligne": 19.5,
-            "over": 1.91,
-            "under": 1.83
-          }
-        ]
-      },
-      {
-        "type": "ligne",
-        "joueur": "Jake Tonges",
-        "market": "player_reception_yds",
-        "marche_lbl": "verges de reception",
-        "selection": "Jake Tonges middle 10.5-11.5",
-        "ligne": 10.5,
-        "ligne_haute": 11.5,
-        "fenetre": 1.0,
-        "over": {
-          "ligne": 10.5,
-          "odds": 1.88,
-          "book": "draftkings"
-        },
-        "under": {
-          "ligne": 11.5,
-          "odds": 1.88,
-          "book": "fanduel"
-        },
-        "odds": 1.88,
-        "book": "draftkings",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "betonlineag",
-            "ligne": 10.5,
-            "over": 1.86,
-            "under": 1.9
-          },
-          {
-            "book": "bovada",
-            "ligne": 10.5,
-            "over": 1.87,
-            "under": 1.87
-          },
-          {
-            "book": "draftkings",
-            "ligne": 10.5,
-            "over": 1.88,
-            "under": 1.9
-          },
-          {
-            "book": "fanduel",
-            "ligne": 11.5,
-            "over": 1.88,
-            "under": 1.88
-          }
-        ]
-      },
-      {
-        "type": "ligne",
-        "joueur": "Kyle Juszczyk",
-        "market": "player_reception_yds",
-        "marche_lbl": "verges de reception",
-        "selection": "Kyle Juszczyk middle 5.5-6.5",
-        "ligne": 5.5,
-        "ligne_haute": 6.5,
-        "fenetre": 1.0,
-        "over": {
-          "ligne": 5.5,
-          "odds": 1.84,
-          "book": "draftkings"
-        },
-        "under": {
-          "ligne": 6.5,
-          "odds": 1.87,
-          "book": "betmgm"
-        },
-        "odds": 1.84,
-        "book": "draftkings",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "betonlineag",
-            "ligne": 5.5,
-            "over": 1.83,
-            "under": 1.93
-          },
-          {
-            "book": "betrivers",
-            "ligne": 5.5,
-            "over": 1.85,
-            "under": 1.88
-          },
-          {
-            "book": "bovada",
-            "ligne": 5.5,
-            "over": 1.83,
-            "under": 1.91
-          },
-          {
-            "book": "draftkings",
-            "ligne": 5.5,
-            "over": 1.84,
-            "under": 1.94
-          },
-          {
-            "book": "fanduel",
-            "ligne": 5.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "pinnacle",
-            "ligne": 5.5,
-            "over": 1.86,
-            "under": 1.96
-          },
-          {
-            "book": "betmgm",
-            "ligne": 6.5,
-            "over": 1.87,
-            "under": 1.87
-          }
-        ]
-      },
-      {
-        "type": "ligne",
-        "joueur": "Blake Corum",
-        "market": "player_reception_yds",
-        "marche_lbl": "verges de reception",
-        "selection": "Blake Corum middle 2.5-3.5",
-        "ligne": 2.5,
-        "ligne_haute": 3.5,
-        "fenetre": 1.0,
-        "over": {
-          "ligne": 2.5,
-          "odds": 1.88,
-          "book": "fanduel"
-        },
-        "under": {
-          "ligne": 3.5,
-          "odds": 1.88,
-          "book": "draftkings"
-        },
-        "odds": 1.88,
-        "book": "fanduel",
-        "edge_pct": 0.0,
-        "game": "San Francisco 49ers @ Los Angeles Rams",
-        "commence": "2026-09-11T00:35:00Z",
-        "books": [
-          {
-            "book": "fanduel",
-            "ligne": 2.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "betonlineag",
-            "ligne": 3.5,
-            "over": 1.88,
-            "under": 1.88
-          },
-          {
-            "book": "bovada",
-            "ligne": 3.5,
-            "over": 1.87,
-            "under": 1.87
-          },
-          {
-            "book": "draftkings",
-            "ligne": 3.5,
-            "over": 1.9,
-            "under": 1.88
-          }
-        ]
       }
     ],
     "n_signals": 22,
-    "paper_logged": 1,
-    "closing_captured": 1
+    "paper_logged": 0,
+    "closing_captured": 0
   }
 }
