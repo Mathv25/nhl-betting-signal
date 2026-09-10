@@ -191,12 +191,17 @@ def devig_pair(per_book: dict, side_a: str, side_b: str) -> dict:
         # ne peut pas produire une paire qui somme a 1 honnetement.
         return {}
 
-    best = {}
+    best, chez_moi = {}, {}
     for side in (side_a, side_b):
         prices = [(bk, pr.get(side)) for bk, pr in per_book.items() if pr.get(side)]
         odds, book, _drop = odds_api.best_playable(prices)
         if odds:
             best[side] = (odds, book)
+        # Le prix chez MES books: un edge chez un book ou je n'ai pas de
+        # compte n'est pas un edge, c'est une information.
+        m_odds, m_book = odds_api.best_at_my_books(prices)
+        if m_odds:
+            chez_moi[side] = (m_odds, m_book)
 
     return {
         side_a:   round(p_a, 6),
@@ -204,6 +209,7 @@ def devig_pair(per_book: dict, side_a: str, side_b: str) -> dict:
         "source": agg_a["baseline_source"],
         "n_books": agg_a["n_books"],
         "best":   best,
+        "mine":   chez_moi,
     }
 
 
@@ -286,11 +292,20 @@ def analyze_event(event: dict, threshold: float = None) -> dict:
                 continue
             odds, book = pair["best"][side]
             ev = ev_pct(pair[side], odds)
+            m_odds, m_book = pair["mine"].get(side, (0.0, ""))
+            m_ev  = ev_pct(pair[side], m_odds) if m_odds else None
             out["prices"][label] = {
                 "market": MARKET_KEYS[market_key], "odds": round(odds, 3),
                 "book": book, "prob": round(pair[side] * 100, 2), "edge_pct": ev,
+                "my_odds": round(m_odds, 3) if m_odds else 0,
+                "my_book": m_book, "my_edge_pct": m_ev,
+                "stake_units": (odds_api.kelly_units(pair[side] * 100, m_odds)
+                                if m_odds else 0),
             }
-            if ev >= thr and pair["n_books"] >= min_books():
+            # Le seuil s'applique au prix JOUABLE quand on en a un; sinon au
+            # meilleur du marche, en signalant que le pari n'est pas prenable.
+            juge = m_ev if m_ev is not None else ev
+            if juge >= thr and pair["n_books"] >= min_books():
                 out["signals"].append({
                     "market":      MARKET_KEYS[market_key],
                     "selection":   label,
@@ -299,6 +314,12 @@ def analyze_event(event: dict, threshold: float = None) -> dict:
                     "odds":        round(odds, 3),
                     "book":        book,
                     "edge_pct":    ev,
+                    "my_odds":     round(m_odds, 3) if m_odds else 0,
+                    "my_book":     m_book,
+                    "my_edge_pct": m_ev,
+                    "playable":    bool(m_odds),
+                    "stake_units": (odds_api.kelly_units(pair[side] * 100, m_odds)
+                                    if m_odds else 0),
                     "fair_odds":   round(1.0 / pair[side], 3) if pair[side] > 0 else 0,
                     "source":      pair["source"],
                     "n_books":     pair["n_books"],

@@ -30,6 +30,9 @@ Reglages par variables d'environnement:
   ODDS_MAX_PROP_EVENTS    plafond dur d'evenements props par execution (defaut 15)
   ODDS_USAGE_PATH         fichier de suivi quotidien (defaut docs/odds_usage.json)
   ODDS_PROPS_ENABLED      "0" pour couper les appels props (defaut actif)
+  MY_BOOKS                books ou l'on peut reellement miser (defaut bet365)
+  STAKE_KELLY_FRACTION    fraction de Kelly pour la mise (defaut 0.25)
+  STAKE_CAP_UNITS         plafond de mise en unites (defaut 2)
   ODDS_MAX_PRICE_RATIO    ecart maximal a la mediane des books (defaut 1.25):
                           au-dela, le prix est juge injouable et ignore
   ODDS_PROPS_HOURS_ET     fenetre horaire ET ou les props sont payees
@@ -63,8 +66,73 @@ def _env_int(name: str, default: int) -> int:
 
 
 def regions() -> str:
-    """Regions demandees. Pinnacle n'existe que dans la region `eu`."""
-    return os.environ.get("ODDS_REGIONS", "us,eu")
+    """
+    Regions demandees. Pinnacle n'existe que dans `eu`, bet365 dans `uk`:
+    sans les trois, un signal peut pointer vers un book ou l'utilisateur n'a
+    pas de compte, ce qui le rend inutilisable meme s'il est juste.
+    """
+    return os.environ.get("ODDS_REGIONS", "us,eu,uk")
+
+
+def my_books() -> list:
+    """
+    Books ou l'utilisateur peut REELLEMENT miser.
+
+    Un edge chez un book inaccessible n'est pas un edge, c'est une
+    information. La distinction structure tout l'affichage: on montre le
+    meilleur prix du marche comme reference, et a cote le prix jouable.
+    """
+    raw = os.environ.get("MY_BOOKS", "bet365")
+    return [b.strip().lower() for b in raw.split(",") if b.strip()]
+
+
+def best_at_my_books(prices: list) -> tuple:
+    """
+    Meilleure cote parmi les books de l'utilisateur: (cote, book).
+    (0, "") si aucun d'eux ne cote ce pari.
+    """
+    mine = [(b, o) for b, o in (prices or [])
+            if b and b.lower() in my_books() and o and float(o) > 1.0]
+    if not mine:
+        return 0.0, ""
+    book, odds = max(mine, key=lambda x: x[1])
+    return float(odds), book
+
+
+def kelly_units(prob: float, odds: float, fraction: float = None,
+                cap: float = None) -> float:
+    """
+    Mise recommandee, en UNITES, par Kelly fractionne. Une unite = 1% du
+    bankroll, la convention du tracker.
+
+        f = (p x cote - 1) / (cote - 1)      (fraction du bankroll)
+        mise = f x fraction x 100            (en unites)
+
+    Kelly entier suppose une probabilite JUSTE. Ici elle vient du consensus du
+    marche, pas d'un modele valide: on en prend une fraction (defaut le quart)
+    et on plafonne. Sur un edge de 4% a la cote 2.54, cela donne 0.67 unite —
+    petit, et c'est la bonne taille pour un edge de cette nature. Un edge de
+    4% ne justifie pas une grosse mise, c'est justement ce que Kelly dit.
+    """
+    fraction = fraction if fraction is not None else _env_float("STAKE_KELLY_FRACTION", 0.25)
+    cap      = cap if cap is not None else _env_float("STAKE_CAP_UNITS", 2.0)
+    try:
+        p, o = float(prob) / 100.0, float(odds)
+    except (TypeError, ValueError):
+        return 0.0
+    if o <= 1.0 or not (0 < p < 1):
+        return 0.0
+    f = (p * o - 1.0) / (o - 1.0)
+    if f <= 0:
+        return 0.0
+    return round(min(f * fraction * 100.0, cap), 2)
+
+
+def _env_float(name: str, default: float) -> float:
+    try:
+        return float(os.environ.get(name, "") or default)
+    except ValueError:
+        return default
 
 
 def cache_ttl() -> int:
