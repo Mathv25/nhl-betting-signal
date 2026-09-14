@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-14T11:27:53.914597+00:00",
+  "generated_at": "2026-09-14T17:29:11.216002+00:00",
   "date": "2026-09-14",
   "bookmaker": "bet365",
   "total_games": 0,
@@ -9,6 +9,286 @@
   "props_analysis": [],
   "nba_analysis": [],
   "mlb_analysis": [
+    {
+      "event_id": "99d391c2ac7a5942710858c928ac73f8",
+      "home_team": "Chicago Cubs",
+      "away_team": "Atlanta Braves",
+      "bets": [
+        {
+          "player": "Reynaldo López",
+          "team": "Atlanta Braves",
+          "opponent": "Chicago Cubs",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.23,
+          "adj_proj": 5.23,
+          "adj_proj_raw": 5.02,
+          "adj_mult": 0.9997,
+          "adj_mult_raw": 0.9606,
+          "opp_k_rate": 21.2,
+          "opp_k_source": "saison vs RHP",
+          "league_k_rate": 22.1,
+          "ip_mean": 4.528,
+          "k_rate_per_ip": 1.1551,
+          "k_std": 2.7186,
+          "k_model": "empirique 12 departs",
+          "park_factor": 1.02,
+          "our_prob": 46.8,
+          "edge_pct": 0,
+          "kelly": 0,
+          "min_odds": 2.14,
+          "est_odds": 0,
+          "dk_implied": 0,
+          "dk_implied_basis": "",
+          "dk_book": "",
+          "k_curve": [
+            {
+              "line": 2.5,
+              "k_exact": 3,
+              "prob": 60.0
+            },
+            {
+              "line": 3.5,
+              "k_exact": 4,
+              "prob": 54.1
+            },
+            {
+              "line": 4.5,
+              "k_exact": 5,
+              "prob": 46.8
+            },
+            {
+              "line": 5.5,
+              "k_exact": 6,
+              "prob": 38.9
+            },
+            {
+              "line": 6.5,
+              "k_exact": 7,
+              "prob": 31.5
+            },
+            {
+              "line": 7.5,
+              "k_exact": 8,
+              "prob": 25.5
+            },
+            {
+              "line": 8.5,
+              "k_exact": 9,
+              "prob": 21.2
+            },
+            {
+              "line": 9.5,
+              "k_exact": 10,
+              "prob": 18.3
+            }
+          ],
+          "odds_rungs": 0,
+          "context": [
+            "Ajustement régressé x1.000 → 5.23K (brut x0.961 → 5.02K)",
+            "Manches: 4.528 IP moy (empirique 12 departs) · 1.16 K/manche · σK 2.72 (Poisson simple: 2.29)",
+            "Terrain: Neutre (PF 1.02)"
+          ]
+        }
+      ],
+      "commence_time": "2026-09-14T23:41:00Z"
+    },
+    {
+      "event_id": "68721959a546157007d97eeca5682379",
+      "home_team": "Minnesota Twins",
+      "away_team": "New York Yankees",
+      "bets": [
+        {
+          "player": "Will Warren",
+          "team": "New York Yankees",
+          "opponent": "Minnesota Twins",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.9,
+          "adj_proj": 5.63,
+          "adj_proj_raw": 5.47,
+          "adj_mult": 0.9537,
+          "adj_mult_raw": 0.928,
+          "opp_k_rate": 20.5,
+          "opp_k_source": "saison vs RHP",
+          "league_k_rate": 22.1,
+          "ip_mean": 5.0,
+          "k_rate_per_ip": 1.126,
+          "k_std": 2.6637,
+          "k_model": "empirique 15 departs",
+          "park_factor": 0.99,
+          "our_prob": 49.1,
+          "edge_pct": 16.4,
+          "kelly": 1.8,
+          "min_odds": 2.04,
+          "est_odds": 2.22,
+          "dk_implied": 42.2,
+          "dk_implied_basis": "novig",
+          "dk_book": "pinnacle",
+          "k_curve": [
+            {
+              "line": 2.5,
+              "k_exact": 3,
+              "prob": 63.0
+            },
+            {
+              "line": 3.5,
+              "k_exact": 4,
+              "prob": 56.8
+            },
+            {
+              "line": 4.5,
+              "k_exact": 5,
+              "prob": 49.1,
+              "best_odds": 2.22,
+              "best_book": "pinnacle",
+              "market_prob": 42.19,
+              "baseline_source": "pinnacle",
+              "n_books": 7,
+              "ev_pct": 9.0,
+              "edge_pct": 16.4
+            },
+            {
+              "line": 5.5,
+              "k_exact": 6,
+              "prob": 40.9
+            },
+            {
+              "line": 6.5,
+              "k_exact": 7,
+              "prob": 33.3
+            },
+            {
+              "line": 7.5,
+              "k_exact": 8,
+              "prob": 27.2
+            },
+            {
+              "line": 8.5,
+              "k_exact": 9,
+              "prob": 22.6
+            },
+            {
+              "line": 9.5,
+              "k_exact": 10,
+              "prob": 19.4
+            }
+          ],
+          "odds_rungs": 1,
+          "context": [
+            "Adversaire K% (saison vs RHP): 20.5% (difficile)",
+            "Ajustement régressé x0.954 → 5.63K (brut x0.928 → 5.47K)",
+            "Manches: 5.0 IP moy (empirique 15 departs) · 1.13 K/manche · σK 2.66 (Poisson simple: 2.37)",
+            "Terrain: Neutre (PF 0.99)"
+          ]
+        }
+      ],
+      "commence_time": "2026-09-14T23:41:00Z"
+    },
+    {
+      "event_id": "20dfbbb1031896904e98bed3182f9fc4",
+      "home_team": "Colorado Rockies",
+      "away_team": "San Diego Padres",
+      "bets": [
+        {
+          "player": "Casey Mize",
+          "team": "San Diego Padres",
+          "opponent": "Colorado Rockies",
+          "player_type": "pitcher",
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.09,
+          "adj_proj": 5.87,
+          "adj_proj_raw": 5.12,
+          "adj_mult": 1.1536,
+          "adj_mult_raw": 1.0063,
+          "opp_k_rate": 22.2,
+          "opp_k_source": "saison vs RHP",
+          "league_k_rate": 22.1,
+          "ip_mean": 5.044,
+          "k_rate_per_ip": 1.1637,
+          "k_std": 2.838,
+          "k_model": "empirique 15 departs",
+          "park_factor": 1.15,
+          "our_prob": 50.3,
+          "edge_pct": 32.5,
+          "kelly": 4.0,
+          "min_odds": 1.99,
+          "est_odds": 2.45,
+          "dk_implied": 38.0,
+          "dk_implied_basis": "novig",
+          "dk_book": "betmgm",
+          "k_curve": [
+            {
+              "line": 2.5,
+              "k_exact": 3,
+              "prob": 62.9
+            },
+            {
+              "line": 3.5,
+              "k_exact": 4,
+              "prob": 57.3,
+              "best_odds": 1.74,
+              "best_book": "betonlineag",
+              "market_prob": 56.96,
+              "baseline_source": "pinnacle",
+              "n_books": 7,
+              "ev_pct": -0.3,
+              "edge_pct": 0.6
+            },
+            {
+              "line": 4.5,
+              "k_exact": 5,
+              "prob": 50.3,
+              "best_odds": 2.45,
+              "best_book": "betmgm",
+              "market_prob": 37.97,
+              "baseline_source": "mediane no-vig (1 books)",
+              "n_books": 1,
+              "ev_pct": 23.24,
+              "edge_pct": 32.5
+            },
+            {
+              "line": 5.5,
+              "k_exact": 6,
+              "prob": 42.8
+            },
+            {
+              "line": 6.5,
+              "k_exact": 7,
+              "prob": 35.6
+            },
+            {
+              "line": 7.5,
+              "k_exact": 8,
+              "prob": 29.3
+            },
+            {
+              "line": 8.5,
+              "k_exact": 9,
+              "prob": 24.4
+            },
+            {
+              "line": 9.5,
+              "k_exact": 10,
+              "prob": 20.8
+            }
+          ],
+          "odds_rungs": 2,
+          "context": [
+            "Ajustement régressé x1.154 → 5.87K (brut x1.006 → 5.12K)",
+            "Manches: 5.044 IP moy (empirique 15 departs) · 1.16 K/manche · σK 2.84 (Poisson simple: 2.42)",
+            "Terrain: Tres favorable frappeurs (PF 1.15)"
+          ]
+        }
+      ],
+      "commence_time": "2026-09-15T00:41:00Z"
+    },
     {
       "event_id": "2a828119814add28306d706ccb802ac3",
       "home_team": "Cleveland Guardians",
@@ -512,40 +792,40 @@
         {
           "marche": "moneyline",
           "equipe": "Los Angeles Angels",
-          "probabilite": 55.6,
+          "probabilite": 55.7,
           "prob_modele": 67.8,
           "cote": 2.0,
-          "valeur_pct": 11.3,
+          "valeur_pct": 11.4,
           "cote_equitable": 1.8,
           "facteurs_nets": 4,
           "no_brainer": true,
           "tier": "🔥",
           "label": "meilleur bet",
-          "raison": "valeur +11.3% et 4 facteurs alignés — et no brainer"
+          "raison": "valeur +11.4% et 4 facteurs alignés — et no brainer"
         },
         {
           "marche": "moneyline",
           "equipe": "Seattle Mariners",
-          "probabilite": 44.4,
+          "probabilite": 44.3,
           "prob_modele": 32.2,
-          "cote": 1.92,
-          "valeur_pct": -14.8,
-          "cote_equitable": 2.25,
+          "cote": 1.93,
+          "valeur_pct": -14.5,
+          "cote_equitable": 2.26,
           "facteurs_nets": -4,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 44% à 1.92 = -14.8%"
+          "raison": "prix trop court: 44% à 1.93 = -14.5%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.491,
-        "away_ml": 0.509,
+        "home_ml": 0.4921,
+        "away_ml": 0.5079,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.5563,
-        "away_ml": 0.4437
+        "home_ml": 0.557,
+        "away_ml": 0.443
       }
     },
     {
@@ -800,310 +1080,55 @@
         {
           "marche": "moneyline",
           "equipe": "Colorado Rockies",
-          "probabilite": 40.8,
+          "probabilite": 39.4,
           "prob_modele": 46.5,
-          "cote": 2.58,
-          "valeur_pct": 5.3,
-          "cote_equitable": 2.45,
+          "cote": 2.78,
+          "valeur_pct": 9.5,
+          "cote_equitable": 2.54,
           "facteurs_nets": -1,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +5.3% à 41% de probabilité (cote 2.58)"
+          "raison": "valeur +9.5% mais facteurs peu alignés (-1)"
         },
         {
           "marche": "moneyline",
           "equipe": "San Diego Padres",
-          "probabilite": 59.2,
+          "probabilite": 60.6,
           "prob_modele": 53.5,
-          "cote": 1.57,
-          "valeur_pct": -7.0,
-          "cote_equitable": 1.69,
+          "cote": 1.51,
+          "valeur_pct": -8.5,
+          "cote_equitable": 1.65,
           "facteurs_nets": 1,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 59% à 1.57 = -7.0%"
+          "raison": "prix trop court: 61% à 1.51 = -8.5%"
         },
         {
           "marche": "run_line_-1.5",
           "equipe": "San Diego Padres",
-          "probabilite": 48.3,
+          "probabilite": 49.8,
           "prob_modele": 41.9,
-          "prob_marche": 51.7,
-          "cote": 1.85,
-          "valeur_pct": -10.7,
-          "cote_equitable": 2.07,
+          "prob_marche": 54.1,
+          "cote": 1.77,
+          "valeur_pct": -11.9,
+          "cote_equitable": 2.01,
           "facteurs_nets": 1,
           "run_diff": 0.476,
           "tier": "🔴",
           "label": "passe",
-          "raison": "valeur -10.7% sous le seuil 5.0% du -1.5"
+          "raison": "valeur -11.9% sous le seuil 5.0% du -1.5"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.3775,
-        "away_ml": 0.6225,
+        "home_ml": 0.3556,
+        "away_ml": 0.6444,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.408,
-        "away_ml": 0.592
-      }
-    },
-    {
-      "game_pk": 823656,
-      "event_id": "68721959a546157007d97eeca5682379",
-      "home_team": "Minnesota Twins",
-      "away_team": "New York Yankees",
-      "venue": "Target Field",
-      "park_factor": 0.98,
-      "commence": "2026-09-14T23:40:00Z",
-      "starters": {
-        "home": {
-          "nom": "Dean Kremer",
-          "main": "R",
-          "fip": 4.798,
-          "fip_eff": 4.823,
-          "k_bb_pct": 0.1413,
-          "whip": 1.3,
-          "ip_par_depart": 5.14,
-          "forme": {
-            "games": 5,
-            "fip": 4.88,
-            "k_bb_pct": 0.1038,
-            "ip_per_gs": 4.73
-          }
-        },
-        "away": {
-          "nom": "Will Warren",
-          "main": "R",
-          "fip": 4.156,
-          "fip_eff": 4.531,
-          "k_bb_pct": 0.1488,
-          "whip": 1.36,
-          "ip_par_depart": 5.17,
-          "forme": {
-            "games": 5,
-            "fip": 5.405,
-            "k_bb_pct": 0.1416,
-            "ip_per_gs": 5.2
-          }
-        }
-      },
-      "runs_attendus": {
-        "home": 5.494,
-        "away": 5.073
-      },
-      "run_diff": 0.421,
-      "bullpens": {
-        "home": {
-          "fip": 4.287,
-          "fip_fatigue": 4.387,
-          "usage": {
-            "days": 3,
-            "games": 3,
-            "rel_ip": 11.7,
-            "rel_ip_per_g": 3.89,
-            "rel_pitches": 213,
-            "arms_used": 8,
-            "by_pitcher": {
-              "A.J. Minter": [
-                "2026-09-11",
-                "2026-09-12"
-              ],
-              "Jeff Hoffman": [
-                "2026-09-11",
-                "2026-09-12"
-              ],
-              "Yoendrys Gómez": [
-                "2026-09-11"
-              ],
-              "Kody Funderburk": [
-                "2026-09-11",
-                "2026-09-12"
-              ],
-              "Andrew Morris": [
-                "2026-09-12"
-              ],
-              "Travis Adams": [
-                "2026-09-13"
-              ],
-              "Taylor Rogers": [
-                "2026-09-13"
-              ],
-              "Tommy Nance": [
-                "2026-09-13"
-              ]
-            },
-            "closer": "Yoendrys Gómez",
-            "closer_days_used": 1,
-            "closer_used_b2b": false
-          }
-        },
-        "away": {
-          "fip": 3.88,
-          "fip_fatigue": 4.08,
-          "usage": {
-            "days": 3,
-            "games": 3,
-            "rel_ip": 10.3,
-            "rel_ip_per_g": 3.44,
-            "rel_pitches": 196,
-            "arms_used": 6,
-            "by_pitcher": {
-              "Paul Blackburn": [
-                "2026-09-11",
-                "2026-09-13"
-              ],
-              "Brent Headrick": [
-                "2026-09-11",
-                "2026-09-13"
-              ],
-              "David Bednar": [
-                "2026-09-11",
-                "2026-09-13"
-              ],
-              "Ryan Yarbrough": [
-                "2026-09-12"
-              ],
-              "Tim Hill": [
-                "2026-09-12"
-              ],
-              "Bradley Hanner": [
-                "2026-09-12"
-              ]
-            },
-            "closer": "David Bednar",
-            "closer_days_used": 2,
-            "closer_used_b2b": true
-          }
-        }
-      },
-      "offense": {
-        "home": {
-          "vs_hand": "R",
-          "ops": 0.743,
-          "slg": 0.424,
-          "avg": 0.249,
-          "obp": 0.319,
-          "iso": 0.175,
-          "k_pct": 0.2048,
-          "bb_pct": 0.0832,
-          "hr": 137,
-          "pa": 3920,
-          "ops_index": 1.0272
-        },
-        "away": {
-          "vs_hand": "R",
-          "ops": 0.715,
-          "slg": 0.405,
-          "avg": 0.229,
-          "obp": 0.31,
-          "iso": 0.176,
-          "k_pct": 0.2465,
-          "bb_pct": 0.0999,
-          "hr": 143,
-          "pa": 3684,
-          "ops_index": 0.9885
-        }
-      },
-      "prob_modele": {
-        "home_ml": 0.5366,
-        "away_ml": 0.4634,
-        "home_rl": 0.3988,
-        "away_rl": 0.3298
-      },
-      "facteurs": {
-        "home": {
-          "facteurs": [
-            {
-              "nom": "Lanceur partant",
-              "pour": false,
-              "ampleur": 0.29,
-              "detail": "FIP 4.82 vs 4.53"
-            },
-            {
-              "nom": "Offense vs la main",
-              "pour": true,
-              "ampleur": 3.9,
-              "detail": "OPS idx 1.027 vs 0.989"
-            },
-            {
-              "nom": "Bullpen",
-              "pour": false,
-              "ampleur": 0.31,
-              "detail": "FIP 4.39 vs 4.08"
-            }
-          ],
-          "pour": 1,
-          "contre": 2,
-          "net": -1
-        },
-        "away": {
-          "facteurs": [
-            {
-              "nom": "Lanceur partant",
-              "pour": true,
-              "ampleur": 0.29,
-              "detail": "FIP 4.53 vs 4.82"
-            },
-            {
-              "nom": "Offense vs la main",
-              "pour": false,
-              "ampleur": 3.9,
-              "detail": "OPS idx 0.989 vs 1.027"
-            },
-            {
-              "nom": "Bullpen",
-              "pour": true,
-              "ampleur": 0.31,
-              "detail": "FIP 4.08 vs 4.39"
-            }
-          ],
-          "pour": 2,
-          "contre": 1,
-          "net": 1
-        }
-      },
-      "bets": [
-        {
-          "marche": "moneyline",
-          "equipe": "Minnesota Twins",
-          "probabilite": 47.8,
-          "prob_modele": 53.7,
-          "cote": 2.19,
-          "valeur_pct": 4.6,
-          "cote_equitable": 2.09,
-          "facteurs_nets": -1,
-          "no_brainer": false,
-          "tier": "🟢",
-          "label": "solide",
-          "raison": "valeur +4.6% à 48% de probabilité (cote 2.19)"
-        },
-        {
-          "marche": "moneyline",
-          "equipe": "New York Yankees",
-          "probabilite": 52.2,
-          "prob_modele": 46.3,
-          "cote": 1.77,
-          "valeur_pct": -7.5,
-          "cote_equitable": 1.91,
-          "facteurs_nets": 1,
-          "no_brainer": false,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "prix trop court: 52% à 1.77 = -7.5%"
-        }
-      ],
-      "prob_marche": {
-        "home_ml": 0.4459,
-        "away_ml": 0.5541,
-        "source": "mediane no-vig (11 books)"
-      },
-      "prob_finale": {
-        "home_ml": 0.4776,
-        "away_ml": 0.5224
+        "home_ml": 0.3937,
+        "away_ml": 0.6063
       }
     },
     {
@@ -1307,14 +1332,14 @@
           "equipe": "New York Mets",
           "probabilite": 56.6,
           "prob_modele": 63.3,
-          "cote": 1.84,
-          "valeur_pct": 4.2,
+          "cote": 1.85,
+          "valeur_pct": 4.7,
           "cote_equitable": 1.77,
           "facteurs_nets": 2,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +4.2% à 57% de probabilité (cote 1.84)"
+          "raison": "valeur +4.7% à 57% de probabilité (cote 1.85)"
         },
         {
           "marche": "run_line_-1.5",
@@ -1337,23 +1362,23 @@
           "probabilite": 43.4,
           "prob_modele": 36.7,
           "cote": 2.09,
-          "valeur_pct": -9.4,
-          "cote_equitable": 2.31,
+          "valeur_pct": -9.3,
+          "cote_equitable": 2.3,
           "facteurs_nets": -2,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 43% à 2.09 = -9.4%"
+          "raison": "prix trop court: 43% à 2.09 = -9.3%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.5306,
-        "away_ml": 0.4694,
+        "home_ml": 0.5299,
+        "away_ml": 0.4701,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.5664,
-        "away_ml": 0.4336
+        "home_ml": 0.5659,
+        "away_ml": 0.4341
       }
     },
     {
@@ -1602,55 +1627,55 @@
         {
           "marche": "moneyline",
           "equipe": "Chicago White Sox",
-          "probabilite": 44.7,
+          "probabilite": 44.5,
           "prob_modele": 49.4,
-          "cote": 2.32,
-          "valeur_pct": 3.7,
-          "cote_equitable": 2.24,
+          "cote": 2.35,
+          "valeur_pct": 4.5,
+          "cote_equitable": 2.25,
           "facteurs_nets": 1,
           "no_brainer": false,
           "tier": "🟢",
           "label": "solide",
-          "raison": "valeur +3.7% à 45% de probabilité (cote 2.32)"
+          "raison": "valeur +4.5% à 44% de probabilité (cote 2.35)"
         },
         {
           "marche": "run_line_-1.5",
           "equipe": "Cleveland Guardians",
-          "probabilite": 35.6,
+          "probabilite": 36.5,
           "prob_modele": 34.6,
-          "prob_marche": 36.1,
-          "cote": 2.65,
-          "valeur_pct": -5.7,
-          "cote_equitable": 2.81,
+          "prob_marche": 37.5,
+          "cote": 2.55,
+          "valeur_pct": -6.9,
+          "cote_equitable": 2.74,
           "facteurs_nets": -1,
           "run_diff": 0.055,
           "tier": "🔴",
           "label": "passe",
-          "raison": "valeur -5.7% sous le seuil 5.0% du -1.5"
+          "raison": "valeur -6.9% sous le seuil 5.0% du -1.5"
         },
         {
           "marche": "moneyline",
           "equipe": "Cleveland Guardians",
-          "probabilite": 55.3,
+          "probabilite": 55.5,
           "prob_modele": 50.6,
-          "cote": 1.68,
-          "valeur_pct": -7.1,
-          "cote_equitable": 1.81,
+          "cote": 1.67,
+          "valeur_pct": -7.2,
+          "cote_equitable": 1.8,
           "facteurs_nets": -1,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 55% à 1.68 = -7.1%"
+          "raison": "prix trop court: 56% à 1.67 = -7.2%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.5787,
-        "away_ml": 0.4213,
+        "home_ml": 0.5823,
+        "away_ml": 0.4177,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.5531,
-        "away_ml": 0.4469
+        "home_ml": 0.5554,
+        "away_ml": 0.4446
       }
     },
     {
@@ -1892,55 +1917,310 @@
         {
           "marche": "moneyline",
           "equipe": "Los Angeles Dodgers",
-          "probabilite": 69.8,
+          "probabilite": 69.4,
           "prob_modele": 75.9,
           "cote": 1.48,
-          "valeur_pct": 3.2,
-          "cote_equitable": 1.43,
+          "valeur_pct": 2.7,
+          "cote_equitable": 1.44,
           "facteurs_nets": 3,
           "no_brainer": false,
-          "tier": "🟢",
-          "label": "solide",
-          "raison": "valeur +3.2% à 70% de probabilité (cote 1.48)"
+          "tier": "🟡",
+          "label": "jouable",
+          "raison": "avantage marginal +2.7%"
         },
         {
           "marche": "run_line_-1.5",
           "equipe": "Los Angeles Dodgers",
-          "probabilite": 56.7,
+          "probabilite": 57.1,
           "prob_modele": 65.0,
-          "prob_marche": 52.3,
-          "cote": 1.83,
-          "valeur_pct": 3.8,
-          "cote_equitable": 1.76,
+          "prob_marche": 52.9,
+          "cote": 1.81,
+          "valeur_pct": 3.4,
+          "cote_equitable": 1.75,
           "facteurs_nets": 3,
           "run_diff": 3.477,
           "tier": "🔴",
           "label": "passe",
-          "raison": "valeur +3.8% sous le seuil 5.0% du -1.5"
+          "raison": "valeur +3.4% sous le seuil 5.0% du -1.5"
         },
         {
           "marche": "moneyline",
           "equipe": "Cincinnati Reds",
-          "probabilite": 30.2,
+          "probabilite": 30.6,
           "prob_modele": 24.1,
-          "cote": 2.97,
-          "valeur_pct": -10.2,
-          "cote_equitable": 3.31,
+          "cote": 2.89,
+          "valeur_pct": -11.6,
+          "cote_equitable": 3.27,
           "facteurs_nets": -4,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 30% à 2.97 = -10.2%"
+          "raison": "prix trop court: 31% à 2.89 = -11.6%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.3357,
-        "away_ml": 0.6643,
+        "home_ml": 0.3412,
+        "away_ml": 0.6588,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.3025,
-        "away_ml": 0.6975
+        "home_ml": 0.306,
+        "away_ml": 0.694
+      }
+    },
+    {
+      "game_pk": 823656,
+      "event_id": "68721959a546157007d97eeca5682379",
+      "home_team": "Minnesota Twins",
+      "away_team": "New York Yankees",
+      "venue": "Target Field",
+      "park_factor": 0.98,
+      "commence": "2026-09-14T23:40:00Z",
+      "starters": {
+        "home": {
+          "nom": "Dean Kremer",
+          "main": "R",
+          "fip": 4.798,
+          "fip_eff": 4.823,
+          "k_bb_pct": 0.1413,
+          "whip": 1.3,
+          "ip_par_depart": 5.14,
+          "forme": {
+            "games": 5,
+            "fip": 4.88,
+            "k_bb_pct": 0.1038,
+            "ip_per_gs": 4.73
+          }
+        },
+        "away": {
+          "nom": "Will Warren",
+          "main": "R",
+          "fip": 4.156,
+          "fip_eff": 4.531,
+          "k_bb_pct": 0.1488,
+          "whip": 1.36,
+          "ip_par_depart": 5.17,
+          "forme": {
+            "games": 5,
+            "fip": 5.405,
+            "k_bb_pct": 0.1416,
+            "ip_per_gs": 5.2
+          }
+        }
+      },
+      "runs_attendus": {
+        "home": 5.494,
+        "away": 5.073
+      },
+      "run_diff": 0.421,
+      "bullpens": {
+        "home": {
+          "fip": 4.287,
+          "fip_fatigue": 4.387,
+          "usage": {
+            "days": 3,
+            "games": 3,
+            "rel_ip": 11.7,
+            "rel_ip_per_g": 3.89,
+            "rel_pitches": 213,
+            "arms_used": 8,
+            "by_pitcher": {
+              "A.J. Minter": [
+                "2026-09-11",
+                "2026-09-12"
+              ],
+              "Jeff Hoffman": [
+                "2026-09-11",
+                "2026-09-12"
+              ],
+              "Yoendrys Gómez": [
+                "2026-09-11"
+              ],
+              "Kody Funderburk": [
+                "2026-09-11",
+                "2026-09-12"
+              ],
+              "Andrew Morris": [
+                "2026-09-12"
+              ],
+              "Travis Adams": [
+                "2026-09-13"
+              ],
+              "Taylor Rogers": [
+                "2026-09-13"
+              ],
+              "Tommy Nance": [
+                "2026-09-13"
+              ]
+            },
+            "closer": "Yoendrys Gómez",
+            "closer_days_used": 1,
+            "closer_used_b2b": false
+          }
+        },
+        "away": {
+          "fip": 3.88,
+          "fip_fatigue": 4.08,
+          "usage": {
+            "days": 3,
+            "games": 3,
+            "rel_ip": 10.3,
+            "rel_ip_per_g": 3.44,
+            "rel_pitches": 196,
+            "arms_used": 6,
+            "by_pitcher": {
+              "Paul Blackburn": [
+                "2026-09-11",
+                "2026-09-13"
+              ],
+              "Brent Headrick": [
+                "2026-09-11",
+                "2026-09-13"
+              ],
+              "David Bednar": [
+                "2026-09-11",
+                "2026-09-13"
+              ],
+              "Ryan Yarbrough": [
+                "2026-09-12"
+              ],
+              "Tim Hill": [
+                "2026-09-12"
+              ],
+              "Bradley Hanner": [
+                "2026-09-12"
+              ]
+            },
+            "closer": "David Bednar",
+            "closer_days_used": 2,
+            "closer_used_b2b": true
+          }
+        }
+      },
+      "offense": {
+        "home": {
+          "vs_hand": "R",
+          "ops": 0.743,
+          "slg": 0.424,
+          "avg": 0.249,
+          "obp": 0.319,
+          "iso": 0.175,
+          "k_pct": 0.2048,
+          "bb_pct": 0.0832,
+          "hr": 137,
+          "pa": 3920,
+          "ops_index": 1.0272
+        },
+        "away": {
+          "vs_hand": "R",
+          "ops": 0.715,
+          "slg": 0.405,
+          "avg": 0.229,
+          "obp": 0.31,
+          "iso": 0.176,
+          "k_pct": 0.2465,
+          "bb_pct": 0.0999,
+          "hr": 143,
+          "pa": 3684,
+          "ops_index": 0.9885
+        }
+      },
+      "prob_modele": {
+        "home_ml": 0.5366,
+        "away_ml": 0.4634,
+        "home_rl": 0.3988,
+        "away_rl": 0.3298
+      },
+      "facteurs": {
+        "home": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": false,
+              "ampleur": 0.29,
+              "detail": "FIP 4.82 vs 4.53"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": true,
+              "ampleur": 3.9,
+              "detail": "OPS idx 1.027 vs 0.989"
+            },
+            {
+              "nom": "Bullpen",
+              "pour": false,
+              "ampleur": 0.31,
+              "detail": "FIP 4.39 vs 4.08"
+            }
+          ],
+          "pour": 1,
+          "contre": 2,
+          "net": -1
+        },
+        "away": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": true,
+              "ampleur": 0.29,
+              "detail": "FIP 4.53 vs 4.82"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": false,
+              "ampleur": 3.9,
+              "detail": "OPS idx 0.989 vs 1.027"
+            },
+            {
+              "nom": "Bullpen",
+              "pour": true,
+              "ampleur": 0.31,
+              "detail": "FIP 4.08 vs 4.39"
+            }
+          ],
+          "pour": 2,
+          "contre": 1,
+          "net": 1
+        }
+      },
+      "bets": [
+        {
+          "marche": "moneyline",
+          "equipe": "Minnesota Twins",
+          "probabilite": 49.1,
+          "prob_modele": 53.7,
+          "cote": 2.09,
+          "valeur_pct": 2.7,
+          "cote_equitable": 2.04,
+          "facteurs_nets": -1,
+          "no_brainer": false,
+          "tier": "🟡",
+          "label": "jouable",
+          "raison": "avantage marginal +2.7%"
+        },
+        {
+          "marche": "moneyline",
+          "equipe": "New York Yankees",
+          "probabilite": 50.9,
+          "prob_modele": 46.3,
+          "cote": 1.83,
+          "valeur_pct": -6.9,
+          "cote_equitable": 1.97,
+          "facteurs_nets": 1,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 51% à 1.83 = -6.9%"
+        }
+      ],
+      "prob_marche": {
+        "home_ml": 0.4668,
+        "away_ml": 0.5332,
+        "source": "mediane no-vig (11 books)"
+      },
+      "prob_finale": {
+        "home_ml": 0.4912,
+        "away_ml": 0.5088
       }
     },
     {
@@ -2160,16 +2440,16 @@
         {
           "marche": "moneyline",
           "equipe": "Detroit Tigers",
-          "probabilite": 46.5,
+          "probabilite": 46.0,
           "prob_modele": 49.1,
-          "cote": 2.19,
-          "valeur_pct": 1.8,
-          "cote_equitable": 2.15,
+          "cote": 2.21,
+          "valeur_pct": 1.6,
+          "cote_equitable": 2.17,
           "facteurs_nets": 0,
           "no_brainer": false,
           "tier": "🟡",
           "label": "jouable",
-          "raison": "avantage marginal +1.8%"
+          "raison": "avantage marginal +1.6%"
         },
         {
           "marche": "run_line_-1.5",
@@ -2189,26 +2469,26 @@
         {
           "marche": "moneyline",
           "equipe": "Toronto Blue Jays",
-          "probabilite": 53.5,
+          "probabilite": 54.0,
           "prob_modele": 50.9,
-          "cote": 1.78,
-          "valeur_pct": -4.7,
-          "cote_equitable": 1.87,
+          "cote": 1.77,
+          "valeur_pct": -4.4,
+          "cote_equitable": 1.85,
           "facteurs_nets": 0,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 54% à 1.78 = -4.7%"
+          "raison": "prix trop court: 54% à 1.77 = -4.4%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.5494,
-        "away_ml": 0.4506,
+        "home_ml": 0.557,
+        "away_ml": 0.443,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.5352,
-        "away_ml": 0.4648
+        "home_ml": 0.5401,
+        "away_ml": 0.4599
       }
     },
     {
@@ -2412,55 +2692,55 @@
         {
           "marche": "run_line_-1.5",
           "equipe": "St. Louis Cardinals",
-          "probabilite": 38.0,
+          "probabilite": 38.6,
           "prob_modele": 41.5,
-          "prob_marche": 36.1,
-          "cote": 2.65,
-          "valeur_pct": 0.7,
-          "cote_equitable": 2.63,
+          "prob_marche": 37.1,
+          "cote": 2.58,
+          "valeur_pct": -0.3,
+          "cote_equitable": 2.59,
           "facteurs_nets": 1,
           "run_diff": 0.67,
           "tier": "🔴",
           "label": "passe",
-          "raison": "valeur +0.7% sous le seuil 5.0% du -1.5"
-        },
-        {
-          "marche": "moneyline",
-          "equipe": "San Francisco Giants",
-          "probabilite": 43.8,
-          "prob_modele": 43.9,
-          "cote": 2.25,
-          "valeur_pct": -1.6,
-          "cote_equitable": 2.29,
-          "facteurs_nets": -1,
-          "no_brainer": false,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "prix trop court: 44% à 2.25 = -1.6%"
+          "raison": "valeur -0.3% sous le seuil 5.0% du -1.5"
         },
         {
           "marche": "moneyline",
           "equipe": "St. Louis Cardinals",
-          "probabilite": 56.2,
+          "probabilite": 56.3,
           "prob_modele": 56.1,
-          "cote": 1.72,
-          "valeur_pct": -3.3,
+          "cote": 1.74,
+          "valeur_pct": -2.0,
           "cote_equitable": 1.78,
           "facteurs_nets": 1,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 56% à 1.72 = -3.3%"
+          "raison": "prix trop court: 56% à 1.74 = -2.0%"
+        },
+        {
+          "marche": "moneyline",
+          "equipe": "San Francisco Giants",
+          "probabilite": 43.7,
+          "prob_modele": 43.9,
+          "cote": 2.23,
+          "valeur_pct": -2.5,
+          "cote_equitable": 2.29,
+          "facteurs_nets": -1,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 44% à 2.23 = -2.5%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.5633,
-        "away_ml": 0.4367,
+        "home_ml": 0.5641,
+        "away_ml": 0.4359,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.5625,
-        "away_ml": 0.4375
+        "home_ml": 0.563,
+        "away_ml": 0.437
       }
     },
     {
@@ -2682,55 +2962,55 @@
         {
           "marche": "run_line_-1.5",
           "equipe": "Chicago Cubs",
-          "probabilite": 39.9,
+          "probabilite": 40.1,
           "prob_modele": 43.0,
-          "prob_marche": 38.3,
-          "cote": 2.5,
-          "valeur_pct": -0.1,
-          "cote_equitable": 2.5,
+          "prob_marche": 38.6,
+          "cote": 2.48,
+          "valeur_pct": -0.4,
+          "cote_equitable": 2.49,
           "facteurs_nets": 1,
           "run_diff": 0.786,
           "tier": "🔴",
           "label": "passe",
-          "raison": "valeur -0.1% sous le seuil 5.0% du -1.5"
+          "raison": "valeur -0.4% sous le seuil 5.0% du -1.5"
         },
         {
           "marche": "moneyline",
           "equipe": "Chicago Cubs",
-          "probabilite": 55.7,
+          "probabilite": 55.8,
           "prob_modele": 56.8,
-          "cote": 1.78,
-          "valeur_pct": -0.8,
+          "cote": 1.77,
+          "valeur_pct": -1.2,
           "cote_equitable": 1.79,
           "facteurs_nets": 1,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 56% à 1.78 = -0.8%"
+          "raison": "prix trop court: 56% à 1.77 = -1.2%"
         },
         {
           "marche": "moneyline",
           "equipe": "Atlanta Braves",
-          "probabilite": 44.3,
+          "probabilite": 44.2,
           "prob_modele": 43.2,
           "cote": 2.19,
-          "valeur_pct": -3.0,
+          "valeur_pct": -3.2,
           "cote_equitable": 2.26,
           "facteurs_nets": -1,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 44% à 2.19 = -3.0%"
+          "raison": "prix trop court: 44% à 2.19 = -3.2%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.5515,
-        "away_ml": 0.4485,
+        "home_ml": 0.5527,
+        "away_ml": 0.4473,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.5571,
-        "away_ml": 0.4429
+        "home_ml": 0.5579,
+        "away_ml": 0.4421
       }
     }
   ],
@@ -2739,7 +3019,7 @@
     "week": "2026-09-08",
     "window_id": "2026-09-11|vendredi",
     "generated_at": "2026-09-11T17:33:06.837512+00:00",
-    "reason": "hors fenetre NFL (Monday 07h ET)",
+    "reason": "hors fenetre NFL (Monday 13h ET)",
     "stale": true,
     "min_edge": 3.0,
     "min_books": 4,
@@ -8028,17 +8308,17 @@
     }
   },
   "odds_api": {
-    "remaining": 15196,
-    "used": 4804,
-    "calls": 4,
+    "remaining": 15125,
+    "used": 4875,
+    "calls": 24,
     "cache_hits": 0,
-    "credits_spent": 11,
+    "credits_spent": 71,
     "refused": 0,
     "day_budget": 891,
-    "spent_today": 11,
-    "est_spent": 11,
-    "cost_factor": 1.0,
-    "prop_credits": 0,
+    "spent_today": 82,
+    "est_spent": 611,
+    "cost_factor": 0.116,
+    "prop_credits": 112.55533039297022,
     "regions": "us,eu,uk",
     "cache_ttl_s": 1800,
     "healthy": true,
