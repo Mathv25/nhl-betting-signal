@@ -45,7 +45,12 @@ jobs:
         run: |
           git config --global user.name "NHL Bot"
           git config --global user.email "bot@nhl.local"
-          git add docs/nfl_signals.json docs/nfl_props.json docs/bets.json docs/odds_usage.json
+          # Tout docs/, pas une liste: enumerer les fichiers fait echouer
+          # le run des qu'un module en ecrit un nouveau — apres avoir
+          # depense les requetes API. C'est ce qui est arrive le 15
+          # septembre avec docs/nfl_signals.json, un mardi, jour de
+          # releve NFL: trois runs perdus a l'etape git.
+          git add docs/
           git diff --staged --quiet || git commit -m "NFL $(date +'%Y-%m-%d %H:%M UTC')"
           git pull --rebase -X theirs origin main || true
           git push || true
