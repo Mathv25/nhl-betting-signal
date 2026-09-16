@@ -1,9 +1,9 @@
 name: CLV Capture — Cotes de fermeture
 
 on:
-  schedule:
-    # 23h00 UTC = 19h00 ET — juste avant les matchs du soir
-    - cron: '0 23 * * *'
+  # Plus de cron. Attention: la cote de FERMETURE doit etre relevee
+  # juste avant les matchs (vers 19h ET). Lancee plus tard, elle ne
+  # mesure plus rien. C'est le seul job dont le moment compte vraiment.
   workflow_dispatch:
 
 permissions:

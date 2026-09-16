@@ -1,7 +1,9 @@
 name: NHL Signal - Actualisation toutes les 2h
 on:
-  schedule:
-    - cron: '0 * * * *'
+  # Plus de cron: le signal se declenche a la demande, par le bouton
+  # Actualiser du dashboard ou depuis l'onglet Actions. Le cron horaire
+  # depensait environ 520 credits Odds API par jour pour regenerer une
+  # page que personne ne regardait la plupart du temps.
   workflow_dispatch:
 permissions:
   contents: write

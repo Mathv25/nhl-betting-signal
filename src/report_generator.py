@@ -138,7 +138,9 @@ class ReportGenerator:
             ""
             "<button class=\"tab\" onclick=\"showTab('tab-ai',this)\">Expert IA</button>"
             "</div>"
-            "<button id=\"refreshBtn\" onclick=\"refreshData()\" title=\"Recharger le signal\" style=\""
+            "<button id=\"refreshBtn\" onclick=\"refreshData()\" title=\"Regenere le signal: "
+            "relance le workflow et consomme des credits Odds API. Rien ne tourne "
+            "automatiquement, c'est ce bouton qui met la page a jour.\" style=\""
             "background:none;border:1px solid var(--b);border-radius:8px;padding:5px 12px;"
             "font-size:13px;font-weight:500;cursor:pointer;color:var(--m);transition:all .15s;"
             "white-space:nowrap;\">"
@@ -1416,7 +1418,8 @@ class ReportGenerator:
             "Verifiez les cotes directement sur DraftKings avant de parier. "
             "Jouez de facon responsable. 18+"
             "</p>"
-            "<p class=\"upd\" id=\"stat-gentime\">Genere le " + gen_display + "</p>"
+            "<p class=\"upd\" id=\"stat-gentime\">Genere le " + gen_display
+            + " &middot; mise a jour manuelle (bouton Actualiser)</p>"
             + quota
         )
 

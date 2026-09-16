@@ -1,7 +1,6 @@
 name: NHL Betting Signal
 on:
-  schedule:
-    - cron: '0 18 * * *'
+  # Plus de cron: doublon du signal horaire, meme cout en credits.
   workflow_dispatch:
 permissions:
   contents: write

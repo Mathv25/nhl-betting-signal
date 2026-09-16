@@ -5,10 +5,10 @@ name: NFL Signal — releve hebdomadaire
 # module revalide la fenetre en heure ET de son cote, donc un decalage de cron
 # ne declenche pas de depense hors fenetre.
 on:
-  schedule:
-    - cron: '0 14 * * 2'   # mardi 10h ET — ouverture des lignes
-    - cron: '0 14 * * 5'   # vendredi 10h ET — mouvement de mi-semaine
-    - cron: '0 14 * * 0'   # dimanche 10h ET — lignes finales + cotes de fermeture
+  # Plus de cron. Les trois fenetres (mardi, vendredi, dimanche matin) restent
+  # codees dans le module: un lancement manuel hors fenetre ne depense rien
+  # sauf avec l'option force. Le releve des props reste limite au dimanche
+  # matin, ou a force + props_within pour un match de semaine.
   workflow_dispatch:
     inputs:
       force:
