@@ -1431,17 +1431,58 @@ class ReportGenerator:
             "var GH_REPO='Mathv25/nhl-betting-signal';"
             "var GH_WORKFLOW='hourly_signal.yml';"
 
+            # Le bouton attend que la page CHANGE, pas un delai fixe.
+            #
+            # L'ancienne version rechargeait une seule fois apres 130 secondes.
+            # Les runs prennent 4.5 a 8 minutes, plus le deploiement Pages: le
+            # rechargement tombait toujours avant la publication, retrouvait les
+            # memes donnees, et le bouton revenait a l'etat initial. Du point de
+            # vue de l'utilisateur, le bouton ne faisait rien — alors que le run
+            # avait bien tourne.
+            "var REFRESH_TIMEOUT_MS=900000;"      # 15 min: au-dela, c'est une panne
+            "var REFRESH_POLL_MS=5000;"
+
+            "function refreshSetState(btn,txt,couleur){"
+            "btn.textContent=txt;"
+            "btn.style.color=couleur||'var(--m)';"
+            "}"
+
+            "async function refreshPoll(btn,avant,debut,orig){"
+            "var ecoule=Date.now()-debut;"
+            "var mm=Math.floor(ecoule/60000),ss=Math.floor(ecoule%60000/1000);"
+            "if(ecoule>REFRESH_TIMEOUT_MS){"
+            "refreshSetState(btn,'\u26a0 Toujours rien apres '+mm+' min — voir Actions','#BA7517');"
+            "btn.disabled=false;return;}"
+            "try{"
+            "var r=await fetch('signal.json?t='+Date.now(),{cache:'no-store'});"
+            "if(r.ok){"
+            "var d=await r.json();"
+            "if(!avant||d.generated_at!==avant){"
+            "gSignal=d;renderAll(d);"
+            "if(typeof loadPerf==='function'){try{loadPerf();}catch(e){}}"
+            "refreshSetState(btn,'\u2713 Mis a jour','#0F6E56');"
+            "btn.disabled=false;"
+            "setTimeout(function(){refreshSetState(btn,orig);},6000);"
+            "return;}}"
+            "}catch(e){}"
+            "refreshSetState(btn,'\u23f3 Generation... '+mm+':'+(ss<10?'0':'')+ss);"
+            "setTimeout(function(){refreshPoll(btn,avant,debut,orig);},REFRESH_POLL_MS);"
+            "}"
+
             "async function refreshData(){"
             "var btn=document.getElementById('refreshBtn');"
-            "var orig=btn.textContent;"
-            # Get or prompt for GitHub token
+            "var orig='\u21bb Actualiser';"
             "var token=localStorage.getItem('gh_workflow_token');"
             "if(!token){"
-            "token=prompt('Entre ton GitHub Personal Access Token (Actions: write):\\n\\nCree un token sur github.com/settings/tokens avec la permission workflow.');"
-            "if(!token)return;"
-            "localStorage.setItem('gh_workflow_token',token);}"
-            # Trigger workflow
-            "btn.textContent='\u23f3 Generation...';"
+            "token=prompt('Token GitHub (permission workflow):\\n\\n"
+            "github.com/settings/tokens — le token reste dans ce navigateur.');"
+            "if(!token){refreshSetState(btn,'\u2717 Annule: pas de token','#A32D2D');"
+            "setTimeout(function(){refreshSetState(btn,orig);},4000);return;}"
+            "localStorage.setItem('gh_workflow_token',token.trim());"
+            "token=token.trim();}"
+
+            "var avant=gSignal&&gSignal.generated_at;"
+            "refreshSetState(btn,'\u23f3 Lancement...');"
             "btn.disabled=true;"
             "try{"
             "var r=await fetch('https://api.github.com/repos/'+GH_REPO+'/actions/workflows/'+GH_WORKFLOW+'/dispatches',{"
@@ -1449,25 +1490,21 @@ class ReportGenerator:
             "headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},"
             "body:JSON.stringify({ref:'main'})});"
             "if(r.status===204){"
-            "btn.textContent='\u2713 Signal en generation (~2 min)';"
-            "setTimeout(async function(){"
-            "try{"
-            "var r2=await fetch('signal.json?t='+Date.now());"
-            "if(r2.ok){gSignal=await r2.json();renderAll(gSignal);}"
-            "}catch(e){}"
-            "btn.textContent=orig;btn.disabled=false;"
-            "},130000);"
+            # Le run dure plusieurs minutes: on surveille signal.json jusqu'a ce
+            # que son horodatage change, ce qui est le seul signe fiable que la
+            # page publiee est nouvelle.
+            "refreshPoll(btn,avant,Date.now(),orig);"
             "}else if(r.status===401||r.status===403){"
             "localStorage.removeItem('gh_workflow_token');"
-            "btn.textContent='\u2717 Token invalide';"
-            "setTimeout(function(){btn.textContent=orig;btn.disabled=false;},3000);"
+            "refreshSetState(btn,'\u2717 Token refuse — recliquer pour le resaisir','#A32D2D');"
+            "btn.disabled=false;"
             "}else{"
-            "btn.textContent='\u2717 Erreur '+r.status;"
-            "setTimeout(function(){btn.textContent=orig;btn.disabled=false;},3000);"
-            "}"
+            "var msg='';try{msg=(await r.json()).message||'';}catch(e){}"
+            "refreshSetState(btn,'\u2717 Erreur '+r.status+(msg?': '+msg.slice(0,40):''),'#A32D2D');"
+            "btn.disabled=false;}"
             "}catch(e){"
-            "btn.textContent='\u2717 Erreur reseau';"
-            "setTimeout(function(){btn.textContent=orig;btn.disabled=false;},3000);}}"
+            "refreshSetState(btn,'\u2717 Reseau injoignable','#A32D2D');"
+            "btn.disabled=false;}}"
 
             "function renderAll(d){"
             "renderHeaderGrid(d);renderSignalTab(d);renderPropsTab(d);renderNBATab(d);renderMLBTab(d);mlbCalcInit(d);}"
