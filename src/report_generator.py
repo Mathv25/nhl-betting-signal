@@ -1753,9 +1753,11 @@ class ReportGenerator:
             "var mlb=(d.mlb_analysis||[]).filter(function(g){"
             "if(!g.commence_time)return true;"
             "try{return new Date(g.commence_time).getTime()>now;}catch(e){return true;}});"
-            "var h='';"
-            # Le tableau Moneyline / -1.5 vit sur l'onglet Signal (page
-            # d'atterrissage), pas ici \u2014 pas de duplication.
+            # Le tableau Moneyline / -1.5 est aussi en tete de l'onglet MLB: la
+            # page bascule ici des qu'il y a des props K, et l'onglet Signal
+            # devient alors invisible. Le tableau n'a pas d'id, donc le
+            # dupliquer ne casse pas les calculateurs K (cf. a553b32).
+            "var h=mlTableHTML(d);"
             "if(!mlb.length){h+='<div style=\"color:var(--m);padding:1rem 0;font-size:13px\">Aucune analyse de props MLB disponible.</div>';}"
             "else{"
             "h+='<div class=\"mlb-header\">MLB Player Props \u2014 Analyse +EV</div>';"
@@ -2296,7 +2298,13 @@ class ReportGenerator:
             "<span class=\"he\" style=\"color:'+ec2+'\">'+(h.ep>=0?'+':'')+h.ep.toFixed(1)+'%</span></div>';"
             "}).join('');}"
             # Auto-bascule sur l'onglet MLB si la NHL est vide (hors-saison) mais que MLB a des bets
+            # Le tableau Moneyline / -1.5 n'est produit qu'en JS (mlTableHTML):
+            # le HTML statique des onglets ne le contient pas. Sans cette
+            # injection, il n'apparaissait qu'apres un clic sur Actualiser.
             "(function(){function go(){try{var s=window._SIGNAL||{};"
+            "var mlh=mlTableHTML(s);"
+            "if(mlh){['tab-signal','tab-mlb'].forEach(function(id){"
+            "var t=document.getElementById(id);if(t)t.insertAdjacentHTML('afterbegin',mlh);});}"
             "var mlb=(s.mlb_analysis||[]).reduce(function(n,g){return n+((g.bets||[]).length);},0);"
             "var nhl=s.total_value_bets||0;"
             "if(nhl===0&&mlb>0){var b=null;document.querySelectorAll('.tab').forEach(function(x){if(x.textContent.trim()==='MLB')b=x;});if(b)showTab('tab-mlb',b);}"
