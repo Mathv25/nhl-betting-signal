@@ -199,10 +199,11 @@ def main():
         if hr_raw:
             # Récupérer le lanceur adverse depuis mlb_starters
             try:
-                from mlb_starters import fetch_probable_starters, get_starter_for_team, TEAM_NAME_MAP as _TNMAP
-                _starters = fetch_probable_starters(today_et)
+                from mlb_starters import fetch_probable_starters, get_starter_for_team, starters_for_game, TEAM_NAME_MAP as _TNMAP
                 _home_n = _TNMAP.get(mg.get("home_team",""), mg.get("home_team",""))
                 _away_n = _TNMAP.get(mg.get("away_team",""), mg.get("away_team",""))
+                _starters = starters_for_game(fetch_probable_starters(today_et), _home_n, _away_n,
+                                              mg.get("commence_time", ""))
             except Exception:
                 _starters, _home_n, _away_n = {}, mg.get("home_team",""), mg.get("away_team","")
 

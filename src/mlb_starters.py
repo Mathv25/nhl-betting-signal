@@ -51,6 +51,10 @@ TEAM_NAME_MAP = {
 
 
 _cache = {}  # date_str -> starters dict
+# (home, away) -> [{"home", "away", "gameDate"}, ...] pour chaque match du
+# couple. Un programme double a deux entrees; le dict de fetch_probable_starters
+# n'en garde qu'une (la derniere ecrase la premiere). Voir starters_for_game.
+_games_by_matchup = {}
 
 
 def fetch_probable_starters(date_str: str = None) -> dict:
@@ -79,6 +83,7 @@ def fetch_probable_starters(date_str: str = None) -> dict:
         return {}
 
     result = {}
+    _games_by_matchup.clear()
     for date_entry in data.get("dates", []):
         for game in date_entry.get("games", []):
             teams = game.get("teams", {})
@@ -104,6 +109,11 @@ def fetch_probable_starters(date_str: str = None) -> dict:
                 "home": home_name,
                 "away": away_name,
             }
+            _games_by_matchup.setdefault((home_team, away_team), []).append({
+                "home": home_name,
+                "away": away_name,
+                "gameDate": game.get("gameDate", ""),
+            })
             # Index aussi par (away, home) pour recherche dans les deux sens
             result[(away_team, home_team)] = {
                 "home": away_name,   # du point de vue inversé
@@ -113,6 +123,38 @@ def fetch_probable_starters(date_str: str = None) -> dict:
     print(f"  [MLB Starters] {len(result)//2} matchs, partants chargés depuis MLB API")
     _cache[date_str] = result
     return result
+
+
+def starters_for_game(starters: dict, home: str, away: str, commence_time: str) -> dict:
+    """
+    Copie de `starters` ou le couple (home, away) pointe sur LE match qui
+    commence a commence_time — celui le plus proche en heure.
+
+    Sans ca, un programme double donne les partants du 2e match aux deux
+    matchs (2026-09-23, Blue Jays @ Orioles: Scherzer/Bassitt au 1er match,
+    partants du 2e pas encore annonces — les deux cartes K sortaient avec
+    Rogers et Cease). Hors programme double, renvoie `starters` tel quel.
+    """
+    home = TEAM_NAME_MAP.get(home, home)
+    away = TEAM_NAME_MAP.get(away, away)
+    games = _games_by_matchup.get((home, away), [])
+    if len(games) < 2 or not commence_time:
+        return starters
+
+    def _ts(iso):
+        try:
+            return datetime.fromisoformat(iso.replace("Z", "+00:00")).timestamp()
+        except Exception:
+            return None
+
+    target = _ts(commence_time)
+    if target is None:
+        return starters
+    best = min(games, key=lambda g: abs((_ts(g["gameDate"]) or 0) - target))
+    out = dict(starters)
+    out[(home, away)] = {"home": best["home"], "away": best["away"]}
+    out[(away, home)] = {"home": best["away"], "away": best["home"]}
+    return out
 
 
 def get_starter_for_team(team: str, opponent: str, starters: dict):

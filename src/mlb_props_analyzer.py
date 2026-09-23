@@ -713,8 +713,10 @@ class MLBPropsAnalyzer:
 
         # ── Partants probables depuis MLB API officielle ───────────────────────
         try:
-            from mlb_starters import fetch_probable_starters, get_starter_for_team, fetch_confirmed_lineups, is_in_lineup, is_on_active_roster
-            _mlb_starters = fetch_probable_starters()
+            from mlb_starters import fetch_probable_starters, get_starter_for_team, fetch_confirmed_lineups, is_in_lineup, is_on_active_roster, starters_for_game
+            # Programme double: les partants de CE match, pas du dernier du couple.
+            _mlb_starters = starters_for_game(fetch_probable_starters(), home, away,
+                                              game.get("commence_time", ""))
             _mlb_lineups  = fetch_confirmed_lineups()
         except Exception:
             _mlb_starters = {}
@@ -837,6 +839,17 @@ class MLBPropsAnalyzer:
                         continue
                 except Exception:
                     pass
+                # Check 1b — Pas de partant annoncé pour cette équipe: sans ligne K
+                # du bookmaker, rien ne dit que ce lanceur part ce soir. Avant,
+                # toute la rotation passait (2026-09-23, 2e match du programme
+                # double BAL-TOR: Rogers et Cease sortis sans être annoncés).
+                try:
+                    _team_starter = get_starter_for_team(team, opp, _mlb_starters) if _mlb_starters else None
+                except Exception:
+                    _team_starter = None
+                if not _team_starter and not real_lkp.get(pitcher.lower(), {}).get("strikeouts"):
+                    print(f"    [MLB Skip] {pitcher}: partant {team} non annoncé et pas de ligne K → skip")
+                    continue
                 # Check 2 — Partant confirmé par MLB API
                 if confirmed_starter_lasts:
                     pitcher_lower = pitcher.lower()

@@ -1575,7 +1575,10 @@ class ReportGenerator:
             "var sigDate=d.date||'';"
             "var todayET=new Date().toLocaleDateString('fr-CA',{timeZone:'America/Toronto'});"
             "if(sigDate&&sigDate!==todayET){"
-            "stale.textContent='\u26a0\ufe0f Signal du '+sigDate+' — les matchs d\\'aujourd\\'hui ne sont pas encore disponibles. Prochain refresh automatique dans l\\'heure.';"
+            # Plus de cron (retire des hourly/daily_signal.yml): le signal du
+            # jour n'existe que si on clique Actualiser. Ne pas promettre un
+            # refresh automatique qui ne viendra pas.
+            "stale.textContent='\u26a0\ufe0f Signal du '+sigDate+' — pas encore genere aujourd\\'hui. Clique \u21bb Actualiser (environ 10 min).';"
             "stale.style.display='block';"
             "}else{stale.style.display='none';}}"
             "catch(e){}"
