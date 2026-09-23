@@ -37,6 +37,10 @@ COLUMNS = [
     "id", "date", "event_id", "match", "commence_time", "joueur", "ligne", "k",
     "prob_brute", "prob_calibree", "statut", "cote_juste",
     "fermeture_novig", "clv", "source",
+    # Prix vu a la prediction chez un AUTRE book que bet365 (reference, pas
+    # jouable), si la prediction a ete retenue par le modele, et le CLV de ce
+    # prix de reference (« CLV papier »), distinct du CLV reel sur cote_prise.
+    "cote_reference", "book_reference", "selectionne", "clv_reference",
 ]
 
 # Champs que la prediction suivante (meme id, avant le match) a le droit de
@@ -45,6 +49,7 @@ PREDICTION_FIELDS = {
     "timestamp", "prob_modele", "prob_marche_novig", "edge", "prob_brute",
     "prob_calibree", "statut", "cote_juste", "version_modele", "ligne",
     "commence_time", "event_id", "match", "source",
+    "cote_reference", "book_reference", "selectionne",
 }
 
 
@@ -138,7 +143,7 @@ def upsert(new_rows: list, p: str = None, now: datetime = None) -> dict:
 # saisie ne peut pas effacer une fermeture.
 OWNED = {
     "prediction": PREDICTION_FIELDS,
-    "settle": {"cote_fermeture", "fermeture_novig", "clv", "resultat"},
+    "settle": {"cote_fermeture", "fermeture_novig", "clv", "clv_reference", "resultat"},
 }
 
 

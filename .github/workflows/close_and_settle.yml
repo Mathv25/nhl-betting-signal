@@ -1,0 +1,76 @@
+name: Fermeture et resultats (CLV)
+
+# Fermeture Pinnacle (Shin) des predictions ML et totaux dont le match commence
+# dans les 35 prochaines minutes: toutes les 30 min de 12h a 22h ET (16h-02h
+# UTC en heure d'ete). Un appel par sport concerne, 2 credits; aucun appel s'il
+# n'y a rien a fermer. Resultats (sources gratuites) une fois par jour, au
+# passage de 11h ET. Decision du 2026-09-23: ~40-80 credits/jour acceptes,
+# props K exclues.
+on:
+  schedule:
+    - cron: '*/30 16-23 * * *'
+    - cron: '*/30 0-2 * * *'
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "close, settle ou both"
+        required: false
+        default: "both"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: close-and-settle
+  cancel-in-progress: false
+
+jobs:
+  close-settle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer dependances
+        run: pip install -r requirements.txt
+      - name: Fermer et regler
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Une fermeture doit etre fraiche: aucun cache.
+          ODDS_CACHE_TTL: "0"
+          MODE: ${{ inputs.mode }}
+          EVENT: ${{ github.event_name }}
+          CRON: ${{ github.event.schedule }}
+        run: |
+          cd src
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            case "$MODE" in
+              close)  python3 close_and_settle.py --close ;;
+              settle) python3 close_and_settle.py --settle ;;
+              *)      python3 close_and_settle.py ;;
+            esac
+          elif [ "$CRON" = "0 15 * * *" ]; then
+            python3 close_and_settle.py --settle
+          else
+            python3 close_and_settle.py --close
+          fi
+      - name: Commit et push
+        run: |
+          git config --global user.name "NHL Bot"
+          git config --global user.email "bot@nhl.local"
+          # Meme regle que le signal: data/predictions.csv est FUSIONNE ligne
+          # par ligne (colonnes de fermeture et de resultat seulement), jamais
+          # ecrase par un rebase.
+          [ -f data/predictions.csv ] && cp data/predictions.csv /tmp/pred_settle.csv
+          git checkout -- data/predictions.csv 2>/dev/null || true
+          git add docs/performance.json
+          git diff --staged --quiet || git commit -m "Performance $(date +'%Y-%m-%d %H:%M')"
+          git pull --rebase -X theirs origin main || (git rebase --abort && git pull --ff-only origin main)
+          if [ -f /tmp/pred_settle.csv ]; then
+            python3 src/predictions_log.py merge /tmp/pred_settle.csv data/predictions.csv settle
+            git add data/
+            git diff --staged --quiet || git commit -m "Fermeture/resultats $(date +'%Y-%m-%d %H:%M')"
+          fi
+          git push || (git pull --rebase -X theirs origin main && git push)

@@ -383,6 +383,18 @@ def main():
         "odds_api":         odds_api.get_client(api_key).status(),
     }
 
+    # ── 8b. Journal des predictions + Performance ────────────────────────────
+    # Toutes les predictions d'avant-match, misees ou non (data/predictions.csv),
+    # puis docs/performance.json pour l'onglet Performance.
+    try:
+        import prediction_capture, performance
+        _st = prediction_capture.log_all(output)
+        print(f"\nJournal des predictions: {_st['added']} nouvelle(s), "
+              f"{_st['updated']} mise(s) a jour, {_st['frozen']} gelee(s)")
+        performance.write()
+    except Exception as e:
+        print(f"  [Journal] erreur: {e}")
+
     # ── 9. Analyse experte IA ─────────────────────────────────────────────────
     print("\nAnalyse experte IA...")
     ai_analysis = run_analysis(output)
