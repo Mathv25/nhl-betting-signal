@@ -13,6 +13,12 @@ try:
 except ImportError:
     HAS_ANTHROPIC = False
 
+# Choix du 2026-09-23: Sonnet 5, appele a chaque Actualiser. Effort « medium »:
+# c'est un resume du signal, pas un calcul; monter a « high » si l'analyse
+# parait superficielle.
+MODEL  = "claude-sonnet-5"
+EFFORT = "medium"
+
 
 def _format_signal_for_prompt(data: dict) -> str:
     """Formate le signal en texte lisible pour le prompt."""
@@ -143,6 +149,7 @@ def run_analysis(signal_data: dict) -> dict:
         signal_data.get("value_bets") or
         any(g.get("bets") for g in signal_data.get("props_analysis", [])) or
         any(g.get("bets") for g in signal_data.get("mlb_analysis", [])) or
+        any(g.get("bets") for g in signal_data.get("mlb_ml_analysis", [])) or
         any(g.get("bets") for g in signal_data.get("nba_analysis", []))
     )
     if not has_content:
@@ -151,12 +158,15 @@ def run_analysis(signal_data: dict) -> dict:
 
     signal_text = _format_signal_for_prompt(signal_data)
 
-    print("  [AI Analyst] Appel Claude API...")
+    print(f"  [AI Analyst] Appel Claude API ({MODEL})...")
+    client = anthropic.Anthropic(api_key=api_key)
     try:
-        client = anthropic.Anthropic(api_key=api_key)
         message = client.messages.create(
-            model="claude-opus-4-6",
-            max_tokens=2000,
+            model=MODEL,
+            # Sonnet 5 reflechit par defaut (adaptive), et la reflexion compte
+            # dans max_tokens: 2000 tronquait la reponse avant le JSON.
+            max_tokens=16000,
+            output_config={"effort": EFFORT},
             system=SYSTEM_PROMPT,
             messages=[
                 {
@@ -169,22 +179,39 @@ def run_analysis(signal_data: dict) -> dict:
                 }
             ],
         )
-        raw = message.content[0].text.strip()
-
-        # Extraire le JSON (au cas où il y aurait du texte autour)
-        m = re.search(r"\{.*\}", raw, re.DOTALL)
-        if m:
-            result = json.loads(m.group(0))
-            n_bets = len(result.get("bets", []))
-            print(f"  [AI Analyst] Analyse complète — {n_bets} bets évalués")
-            return result
-        else:
-            print("  [AI Analyst] Réponse non-JSON reçue")
-            return {}
-
-    except Exception as e:
-        print(f"  [AI Analyst] Erreur: {e}")
+    except anthropic.AuthenticationError:
+        print("  [AI Analyst] ANTHROPIC_API_KEY refusee (401) — verifier le secret du depot")
         return {}
+    except anthropic.RateLimitError:
+        print("  [AI Analyst] Limite de debit atteinte (429) — analyse sautee pour ce run")
+        return {}
+    except anthropic.APIStatusError as e:
+        print(f"  [AI Analyst] Erreur API {e.status_code}: {e.message} (request {e.request_id})")
+        return {}
+    except anthropic.APIConnectionError as e:
+        print(f"  [AI Analyst] Reseau injoignable: {e}")
+        return {}
+
+    if message.stop_reason == "refusal":
+        print("  [AI Analyst] Requete declinee par le modele (refusal)")
+        return {}
+    if message.stop_reason == "max_tokens":
+        print("  [AI Analyst] Reponse tronquee (max_tokens) — JSON probablement incomplet")
+
+    # Le premier bloc peut etre un bloc de reflexion: on prend le texte.
+    raw = "".join(b.text for b in message.content if b.type == "text").strip()
+    m = re.search(r"\{.*\}", raw, re.DOTALL)
+    if not m:
+        print(f"  [AI Analyst] Réponse non-JSON reçue (request {message._request_id})")
+        return {}
+    try:
+        result = json.loads(m.group(0))
+    except json.JSONDecodeError as e:
+        print(f"  [AI Analyst] JSON illisible: {e}")
+        return {}
+    n_bets = len(result.get("bets", []))
+    print(f"  [AI Analyst] Analyse complète — {n_bets} bets évalués")
+    return result
 
 
 if __name__ == "__main__":
