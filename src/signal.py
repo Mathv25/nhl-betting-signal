@@ -23,6 +23,29 @@ from props_analyzer import PropsAnalyzer
 from ai_analyst import run_analysis
 
 
+def dedupe_mlb_cards(mlb_analysis: list) -> list:
+    """
+    Une carte par (game_id, lanceur). La conservation du signal precedent et
+    un eventuel doublon de l'API pouvaient sortir deux fois le meme match; un
+    programme double reste deux matchs distincts (event_id differents).
+    """
+    seen_games, seen_cards, out = set(), set(), []
+    for g in mlb_analysis:
+        gid = g.get("event_id") or f"{g.get('away_team')}@{g.get('home_team')}|{g.get('commence_time', '')}"
+        if gid in seen_games:
+            continue
+        seen_games.add(gid)
+        bets = []
+        for b in g.get("bets", []):
+            key = (gid, (b.get("player") or "").lower())
+            if key in seen_cards:
+                continue
+            seen_cards.add(key)
+            bets.append(b)
+        out.append(dict(g, bets=bets))
+    return out
+
+
 def main():
     tz     = pytz.timezone("America/Toronto")
     now_et = datetime.now(tz)
@@ -283,6 +306,10 @@ def main():
                 print(f"  [Expiré] {pg.get('away_team')} @ {pg.get('home_team')} (débuté il y a {hours_ago:.1f}h → ignoré)")
     except Exception as e:
         print(f"  [Conservation prev signal] erreur: {e}")
+
+    # Dedoublonnage des cartes K: un meme lanceur ne s'affiche qu'une fois par
+    # match (game_id = event_id, a defaut le couple d'equipes + l'heure).
+    mlb_analysis = dedupe_mlb_cards(mlb_analysis)
 
     # ── 6. Vérification: au moins un sport a du contenu ───────────────────────
     has_content = games or nba_games or mlb_games

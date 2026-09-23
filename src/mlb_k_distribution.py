@@ -1,5 +1,12 @@
 """
-Modele de retraits au baton en deux etapes: manches lancees, puis K | manches.
+Modele de retraits au baton.
+
+Depuis 2026-09-23, les probabilites viennent d'une binomiale negative globale
+(build_k_model, K_MU_FACTOR, K_NB_R), ajustee sur les departs reconstitues par
+mlb_k_backtest.py. Le melange en deux etapes decrit ci-dessous reste disponible
+(build_ip_mixture_model) pour comparaison et pour les manches affichees.
+
+Melange historique: manches lancees, puis K | manches.
 
 Pourquoi pas un Poisson simple (ni une normale a ecart-type forfaitaire):
 la principale source de variance d'un total de K n'est pas le taux de retraits,
@@ -37,9 +44,23 @@ _moved = [p for p in _sys.path
 for _p in _moved:
     _sys.path.remove(_p)
 try:
-    from scipy.stats import binom, poisson
+    from scipy.stats import binom, nbinom, poisson
 finally:
     _sys.path[0:0] = _moved
+
+# ── Binomiale negative: le modele K utilise depuis 2026-09-23 ────────────────
+# Ajustee par maximum de vraisemblance sur 2742 departs reconstitues sans fuite
+# de donnees (1er juin - 22 septembre 2026, voir mlb_k_backtest.py et
+# docs/k_calibration.json):
+#   K ~ NB(moyenne = K_MU_FACTOR * projection, Var = mu + mu^2 / K_NB_R)
+# La projection surestimait de +0.40 K en moyenne (5.26 projete, 4.86 reel);
+# le facteur ramene le biais a +0.01. La dispersion est faible (r = 57, soit
+# Var ~ 1.1 x mu): la NB bat le Poisson, mais de peu.
+# Relancer mlb_k_backtest.py pour reajuster; ne pas retoucher a la main.
+K_MU_FACTOR = 0.9259
+K_NB_R      = 56.92
+# Ecrit dans data/predictions.csv (version_modele) pour separer les epoques.
+MODEL_VERSION = "k-nb-c0.926-r56.9-2026-09-23"
 
 # Bornes physiques d'un depart, en manches.
 IP_MIN = 1.0
@@ -153,8 +174,58 @@ def binomial_ip_distribution(mean_ip: float) -> list:
     return dist
 
 
+def nb_at_least(mu: float, var: float, k: int) -> float:
+    """
+    P(K >= k) en [0, 1] pour une binomiale negative de moyenne `mu` et de
+    variance `var`: n = mu^2 / (var - mu), p = mu / var, puis 1 - CDF(k-1).
+    Variance <= moyenne: pas de surdispersion possible -> Poisson(mu).
+    """
+    if k <= 0:
+        return 1.0
+    if mu <= 0:
+        return 0.0
+    if var <= mu:
+        return float(poisson.sf(k - 1, mu))
+    n = mu * mu / (var - mu)
+    p = mu / var
+    return float(nbinom.sf(k - 1, n, p))
+
+
+def nb_pmf(mu: float, var: float, k: int) -> float:
+    """P(K = k) pour la meme parametrisation que nb_at_least."""
+    if k < 0 or mu <= 0:
+        return 1.0 if (k == 0 and mu <= 0) else 0.0
+    if var <= mu:
+        return float(poisson.pmf(k, mu))
+    return float(nbinom.pmf(k, mu * mu / (var - mu), mu / var))
+
+
+def nb_var(mu: float, r: float = None) -> float:
+    """Variance de la NB globale: mu + mu^2 / r."""
+    r = K_NB_R if r is None else r
+    return mu + (mu * mu / r if r and r > 0 else 0.0)
+
+
 def build_k_model(lambda_adj: float, ip_values: list = None,
                   mean_ip: float = None) -> dict:
+    """
+    Modele K d'un lanceur: binomiale negative de moyenne `lambda_adj` (deja
+    corrigee par K_MU_FACTOR dans _k_projection) et de variance nb_var().
+
+    Les manches (ip_values / mean_ip) ne changent plus les probabilites: elles
+    restent calculees pour l'affichage (IP moyennes, K par manche). Le melange
+    Poisson x manches ci-dessous (build_ip_mixture_model) est conserve pour
+    comparaison; sur les 2742 departs reconstitues, la NB ajustee le bat en
+    Brier sur les barreaux K>=6 a K>=10.
+    """
+    mix = build_ip_mixture_model(lambda_adj, ip_values, mean_ip)
+    lam = mix["lambda"]
+    return dict(mix, kind="nb", var=round(nb_var(lam), 4), r=K_NB_R,
+                source=f"binomiale negative (r={K_NB_R:g}) · manches {mix['source']}")
+
+
+def build_ip_mixture_model(lambda_adj: float, ip_values: list = None,
+                           mean_ip: float = None) -> dict:
     """
     Assemble le modele pour un lanceur.
 
@@ -193,13 +264,17 @@ def build_k_model(lambda_adj: float, ip_values: list = None,
         "rate":     round(rate, 4),
         "source":   source,
         "n_starts": n_starts,
+        "kind":     "mixture",
     }
 
 
 def p_at_least(model: dict, n: int) -> float:
-    """P(K >= n) en pourcentage, marginalisee sur la distribution d'IP."""
+    """P(K >= n) en pourcentage (NB, ou melange sur les manches si kind='mixture')."""
     if n <= 0:
         return 100.0
+    if model.get("kind") == "nb":
+        return round(100.0 * nb_at_least(model.get("lambda", 0.0),
+                                         model.get("var", 0.0), n), 2)
     rate = model.get("rate", 0.0)
     if rate <= 0:
         return 0.0
@@ -223,7 +298,7 @@ def p_over(model: dict, line: float) -> float:
 
 
 def ladder(model: dict, lo: int = 3, hi: int = 10) -> list:
-    """Ladder brut (non calibre) P(K >= n) pour n de `lo` a `hi`."""
+    """Ladder brut (non calibre) P(K >= n) pour n de `lo` a `hi`, en %."""
     return [{"line": n - 0.5, "k_exact": n, "prob": p_at_least(model, n)}
             for n in range(lo, hi + 1)]
 
@@ -234,11 +309,15 @@ def moments(model: dict) -> dict:
       E[K]   = rate * E[IP]                       (== lambda par construction)
       Var[K] = rate * E[IP] + rate^2 * Var[IP]    (Poisson + variance des IP)
     """
-    rate = model.get("rate", 0.0)
-    e_ip = dist_mean(model.get("ip_dist", []))
-    v_ip = dist_var(model.get("ip_dist", []))
-    mean = rate * e_ip
-    var  = mean + rate ** 2 * v_ip
+    if model.get("kind") == "nb":
+        mean = model.get("lambda", 0.0)
+        var  = model.get("var", mean)
+    else:
+        rate = model.get("rate", 0.0)
+        e_ip = dist_mean(model.get("ip_dist", []))
+        v_ip = dist_var(model.get("ip_dist", []))
+        mean = rate * e_ip
+        var  = mean + rate ** 2 * v_ip
     return {
         "mean":              round(mean, 4),
         "var":               round(var, 4),

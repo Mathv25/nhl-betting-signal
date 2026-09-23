@@ -62,7 +62,9 @@ jobs:
           # depense les requetes API. C'est ce qui est arrive le 15
           # septembre avec docs/nfl_signals.json, un mardi, jour de
           # releve NFL: trois runs perdus a l'etape git.
-          git add docs/
+          # data/: journal des predictions (data/predictions.csv), qui doit
+          # persister d'un run a l'autre pour la calibration et le CLV.
+          git add docs/ data/
           git diff --staged --quiet || git commit -m "Signal refresh $(date +'%Y-%m-%d %H:%M')"
           # Si l'arbre n'est pas propre ici, le rebase echouera avec un message
           # qui ne dit pas QUEL fichier bloque. On l'affiche.

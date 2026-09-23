@@ -65,13 +65,13 @@ class TestIPDistribution(unittest.TestCase):
             self.assertLessEqual(max(ip for ip, _ in dist), KD.IP_MAX)
 
     def test_few_starts_uses_binomial(self):
-        model = KD.build_k_model(6.0, [6.0, 5.0], mean_ip=5.5)
+        model = KD.build_ip_mixture_model(6.0, [6.0, 5.0], mean_ip=5.5)
         self.assertEqual(model["source"], "binomiale tronquee")
-        model15 = KD.build_k_model(6.0, WEBB_IP, mean_ip=6.4)
+        model15 = KD.build_ip_mixture_model(6.0, WEBB_IP, mean_ip=6.4)
         self.assertTrue(model15["source"].startswith("empirique"))
 
     def test_no_ip_data_still_builds(self):
-        model = KD.build_k_model(6.0, None, None)
+        model = KD.build_ip_mixture_model(6.0, None, None)
         self.assertEqual(model["source"], "binomiale tronquee")
         self.assertGreater(model["mean_ip"], 0)
         self.assertGreater(KD.p_at_least(model, 3), 0)
@@ -106,7 +106,7 @@ class TestLadderMonotonicity(unittest.TestCase):
             self.assertLessEqual(c["prob"], 100.0)
 
     def test_calibrated_ladder_stays_ordered(self):
-        """La calibration est affine croissante: elle ne doit pas casser l'ordre."""
+        """La calibration par barreau finit par un PAV: l'ordre doit tenir."""
         model = KD.build_k_model(5.86, WEBB_IP, mean_ip=6.4)
         probs = [c["prob"] for c in MPA._k_curve(model)]
         for a, b in zip(probs, probs[1:]):
@@ -152,11 +152,11 @@ class TestCoherenceWithLambda(unittest.TestCase):
 
 
 class TestOverdispersion(unittest.TestCase):
-    """Le point du chantier: la variance doit depasser celle d'un Poisson."""
+    """Melange Poisson x manches (conserve pour comparaison, build_ip_mixture_model)."""
 
     def test_variance_exceeds_poisson(self):
         lam   = 5.86
-        model = KD.build_k_model(lam, WEBB_IP, mean_ip=6.4)
+        model = KD.build_ip_mixture_model(lam, WEBB_IP, mean_ip=6.4)
         mom   = KD.moments(model)
         self.assertGreater(mom["var"], mom["poisson_var"])
         self.assertGreater(mom["overdispersion"], 1.10)
@@ -164,7 +164,7 @@ class TestOverdispersion(unittest.TestCase):
     def test_no_overdispersion_when_ip_is_constant(self):
         """Sans variance d'IP, on doit retomber exactement sur le Poisson simple."""
         lam   = 6.0
-        model = KD.build_k_model(lam, STABLE_IP, mean_ip=6.0)
+        model = KD.build_ip_mixture_model(lam, STABLE_IP, mean_ip=6.0)
         mom   = KD.moments(model)
         self.assertAlmostEqual(mom["var"], mom["poisson_var"], delta=0.01)
         for n in range(LADDER_MIN, LADDER_MAX + 1):
@@ -173,7 +173,7 @@ class TestOverdispersion(unittest.TestCase):
 
     def test_tails_are_fatter_than_poisson(self):
         lam   = 5.86
-        model = KD.build_k_model(lam, WEBB_IP, mean_ip=6.4)
+        model = KD.build_ip_mixture_model(lam, WEBB_IP, mean_ip=6.4)
         # Queue haute plus epaisse
         self.assertGreater(KD.p_at_least(model, 10), poisson_at_least(10, lam))
         # Queue basse aussi: moins de masse sur les barreaux faciles

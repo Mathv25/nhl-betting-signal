@@ -18,11 +18,13 @@ Meilleures pratiques integrees:
 from __future__ import annotations
 
 import math
+from datetime import datetime, timezone
 
 # Modele K en deux etapes (manches puis retraits). Dependance dure: sans lui on
 # n'a plus de ladder, et un repli silencieux sur l'ancienne normale publierait
 # des probabilites differentes sans le dire.
 import mlb_k_distribution as KD
+import k_calibration as KCAL
 import odds_api
 
 try:
@@ -445,21 +447,20 @@ def _kelly(prob: float, dk_implied: float = B365_IMPLIED, dk_odds: float = B365_
     return round(max(k, 0.0), 1)
 
 
-# ── Calibration empirique (Platt linéaire) ────────────────────────────────────
-# Refit 2026-08-19 sur 760 bets strikeouts résolus. L'ancienne calibration
-# (1.8 + 0.824*p) restait surconfiante de 4 à 14 pts à TOUS les niveaux:
-#   prob annoncée 50-55% → WR réelle 46.7%   (n=152)
-#   prob annoncée 60-65% → WR réelle 48.1%   (n=135)
-#   prob annoncée 65-70% → WR réelle 56.8%   (n=74)
-# Résidu mesuré sur la prob déjà calibrée: réel ≈ 13.7 + 0.654 * calibré_ancien.
-# Composé avec l'ancienne transformation → réel ≈ 14.9 + 0.539 * brut.
-CAL_A = 14.9
-CAL_B = 0.539
+# ── Calibration par barreau (k_calibration.py) ───────────────────────────────
+# Remplace la calibration Platt lineaire (14.9 + 0.539 * p) du 2026-08-19. Elle
+# avait ete ajustee sur des probabilites de 50 a 70% puis appliquee a tout le
+# ladder: P(K>=3) brute de 95% sortait a 66%. Desormais un barreau n'est
+# calibre qu'avec >= 50 predictions resolues a ce barreau; sinon la brute est
+# affichee et la prop reste informative (jamais « a miser »).
 
 
-def _calibrate(prob: float) -> float:
-    """Corrige la surconfiance du modèle vers la fréquence réellement observée."""
-    return round(max(min(CAL_A + CAL_B * prob, 99.0), 1.0), 1)
+def _rung_info(model: dict, k: int) -> dict:
+    """Barreau K>=k calibre (ou brut), en % — voir KCAL.Calibrator.ladder."""
+    raw = {n: KD.p_at_least(model, n) / 100.0 for n in KCAL.LADDER}
+    if k not in raw:
+        raw[k] = KD.p_at_least(model, k) / 100.0
+    return KCAL.default().ladder(raw)[k]
 
 
 def build_k_model(adj_mean: float, pitcher_name: str = "") -> dict:
@@ -484,29 +485,55 @@ def build_k_model(adj_mean: float, pitcher_name: str = "") -> dict:
 
 
 def _k_prob_at_least(model: dict, k: int) -> float:
-    """P(K >= k) calibrée, en %."""
-    return _calibrate(KD.p_at_least(model, k))
+    """P(K >= k) utilisee (calibree si le barreau l'est, sinon brute), en %."""
+    return round(100.0 * _rung_info(model, k)["prob"], 1)
 
 
 def _k_prob_over(model: dict, line: float) -> float:
-    """P(K > line) calibrée, en % — pour une ligne de book (Over 4.5 = K >= 5)."""
-    return _calibrate(KD.p_over(model, line))
+    """P(K > line) en % — pour une ligne de book (Over 4.5 = K >= 5)."""
+    return _k_prob_at_least(model, int(math.floor(float(line))) + 1)
 
 
 def _k_curve(model: dict) -> list:
     """
-    Génère la courbe de probabilité pour K >= N (N=3 à 10).
-    On n'invente PAS les cotes bet365 — elles varient par lanceur.
-    L'utilisateur compare nos prob% contre ce qu'il voit sur bet365.
+    Ladder K>=3..10. `prob` = valeur utilisee (calibree si le barreau l'est,
+    sinon brute); `prob_raw` et `prob_cal` sont affichees toutes les deux.
+    `calibrated` False = barreau informatif: aucune mise possible.
+    On n'invente PAS les cotes bet365: l'utilisateur les saisit.
     """
-    return [
-        {
-            "line":    c["line"],      # format Over X.5 pour cohérence backtester
-            "k_exact": c["k_exact"],
-            "prob":    _calibrate(c["prob"]),
-        }
-        for c in KD.ladder(model, 3, 10)
-    ]
+    raw = {c["k_exact"]: c["prob"] / 100.0 for c in KD.ladder(model, 3, 10)}
+    info = KCAL.default().ladder(raw)
+    out = []
+    for c in KD.ladder(model, 3, 10):
+        i = info[c["k_exact"]]
+        out.append({
+            "line":       c["line"],      # format Over X.5 pour coherence backtester
+            "k_exact":    c["k_exact"],
+            "prob":       round(100.0 * i["prob"], 1),
+            "prob_raw":   round(100.0 * i["prob_raw"], 1),
+            "prob_cal":   round(100.0 * i["prob_cal"], 1) if i["prob_cal"] is not None else None,
+            "calibrated": i["calibrated"],
+            "n_cal":      i["n_cal"],
+        })
+    return out
+
+
+def _k_status(curve: list, rec_line) -> dict:
+    """
+    Statut d'une prop K selon le barreau recommande. Non calibre (moins de
+    KCAL.MIN_N resolus): « informatif » — jamais a miser, quelle que soit la
+    cote. Les deux probabilites sont exposees pour l'affichage.
+    """
+    k = int(math.floor(float(rec_line))) + 1
+    rung = next((c for c in curve if c["k_exact"] == k), None)
+    calibrated = bool(rung and rung["calibrated"])
+    return {
+        "statut":           "calibre" if calibrated else "informatif",
+        "a_miser_possible": calibrated,
+        "our_prob_raw":     rung["prob_raw"] if rung else None,
+        "our_prob_cal":     rung["prob_cal"] if rung else None,
+        "n_cal":            rung["n_cal"] if rung else 0,
+    }
 
 
 def _attach_odds_to_curve(curve: list, dk_lines: list) -> int:
@@ -666,7 +693,9 @@ def _k_projection(mean_k: float, opp_k_rate: float, league_k: float,
     pf    = park_factor if park_factor and park_factor > 0 else 1.0
 
     mult_raw = ratio
-    mult_reg = (ratio ** K_REGRESSION_EXP) * pf
+    # K_MU_FACTOR: correction globale du biais (+0.40 K) mesuree sur 2742
+    # departs reconstitues — voir mlb_k_distribution et mlb_k_backtest.py.
+    mult_reg = (ratio ** K_REGRESSION_EXP) * pf * KD.K_MU_FACTOR
     return {
         "adj":       round(mean_k * mult_reg, 2),
         "adj_raw":   round(mean_k * mult_raw, 2),
@@ -674,6 +703,71 @@ def _k_projection(mean_k: float, opp_k_rate: float, league_k: float,
         "mult_raw":  round(mult_raw, 4),
         "league_k":  round(lg, 4),
     }
+
+
+def k_ladder_rows(game: dict, starters: dict, league_k: float = None) -> list:
+    """
+    Courbe brute ET utilisee (K>=3..10) de chaque partant CONFIRME du match,
+    en lignes pour data/predictions.csv — misee ou non, sans aucun filtre
+    d'edge ni de cote. C'est ce qui evite le biais de selection de
+    results.json (qui ne garde que la ligne choisie) et nourrit la
+    calibration par barreau de k_calibration.py.
+    """
+    import predictions_log as PL
+    from mlb_starters import get_starter_for_team
+    home, away = game.get("home_team", ""), game.get("away_team", "")
+    ct = game.get("commence_time", "")
+    try:
+        import pytz
+        day = (datetime.fromisoformat(ct.replace("Z", "+00:00"))
+               .astimezone(pytz.timezone("America/Toronto")).strftime("%Y-%m-%d"))
+    except Exception:
+        day = datetime.now().strftime("%Y-%m-%d")
+    lg = league_k or LEAGUE_K_FALLBACK
+    rows = []
+    for team, opp in ((home, away), (away, home)):
+        name = get_starter_for_team(team, opp, starters) if starters else None
+        if not name or not HAS_MLB_ROLLING:
+            continue
+        try:
+            rolling = _mlb_pitcher_rolling(name)
+        except Exception:
+            rolling = None
+        if not rolling or rolling.get("games", 0) < 2:
+            continue
+        try:
+            hand = _get_pitcher_hand(name) or ""
+        except Exception:
+            hand = ""
+        opp_k, _src = _opp_k_season(opp, hand)
+        proj  = _k_projection(rolling["strikeouts"], opp_k, lg, PARK_FACTORS.get(home, 1.00))
+        curve = _k_curve(build_k_model(proj["adj"], name))
+        for c in curve:
+            k = c["k_exact"]
+            sel = f"{name} Over {k - 0.5} K"
+            prob = c["prob"] / 100.0
+            rows.append({
+                "id":              PL.make_id(day, "mlb", KCAL.MARKET, sel),
+                "date":            day,
+                "sport":           "mlb",
+                "marche":          KCAL.MARKET,
+                "selection":       sel,
+                "joueur":          name,
+                "ligne":           k - 0.5,
+                "k":               k,
+                "prob_modele":     round(prob, 4),
+                "prob_brute":      round(c["prob_raw"] / 100.0, 4),
+                "prob_calibree":   round(c["prob_cal"] / 100.0, 4) if c["prob_cal"] is not None else "",
+                "statut":          "calibre" if c["calibrated"] else "informatif",
+                "cote_juste":      round(1.0 / prob, 3) if prob > 0 else "",
+                "mise_u":          0,
+                "version_modele":  KD.MODEL_VERSION,
+                "event_id":        game.get("event_id", ""),
+                "match":           f"{away} @ {home}",
+                "commence_time":   ct,
+                "source":          f"ladder · proj {proj['adj']}K",
+            })
+    return rows
 
 
 def _park_label(pf: float) -> str:
@@ -724,6 +818,20 @@ class MLBPropsAnalyzer:
             is_on_active_roster = lambda p, t: True  # fallback: on laisse passer
 
         batting_team_for = {home: away, away: home}  # opp_team -> batting_team
+
+        # Journal: courbe complete de chaque partant confirme, avant tout filtre.
+        try:
+            _ct = game.get("commence_time", "")
+            _future = (not _ct) or datetime.fromisoformat(_ct.replace("Z", "+00:00")) > datetime.now(timezone.utc)
+            if _mlb_starters and _future:
+                import predictions_log as _PL
+                _rows = k_ladder_rows(game, _mlb_starters, league_k)
+                if _rows:
+                    _st = _PL.upsert(_rows)
+                    print(f"    [Journal K] {len(_rows)} barreaux ({_st['added']} nouveaux, "
+                          f"{_st['updated']} mis a jour, {_st['frozen']} geles)")
+        except Exception as _e:
+            print(f"    [Journal K] erreur: {_e}")
 
         def _actual_starter(opp_team: str):
             """
@@ -1008,6 +1116,7 @@ class MLBPropsAnalyzer:
                     "team":          team,
                     "opponent":      opp,
                     "player_type":   "pitcher",
+                    **_k_status(curve, rec_line),
                     "market":        f"{cfg_k['label']} Over {rec_line}",
                     "stat_key":      "strikeouts",
                     "line":          rec_line,
@@ -1148,6 +1257,7 @@ class MLBPropsAnalyzer:
                     ev_bets.append({
                         "player": display, "team": team, "opponent": opp,
                         "player_type": "pitcher",
+                        **_k_status(curve, rec_line),
                         "market": f"{cfg_k['label']} Over {rec_line}",
                         "stat_key": "strikeouts", "line": rec_line,
                         "season_avg": mean_k, "adj_proj": adj_mean,

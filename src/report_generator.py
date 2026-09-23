@@ -663,7 +663,10 @@ class ReportGenerator:
                     "</div>"
                     "</div>"
                     "<div class='mlb-bet-label'>" + market + "</div>"
-                    "<div class='mlb-stats'>"
+                    + (("<div class='mlb-info-badge'>Informatif — barreau non calibré ("
+                        + str(b.get("n_cal", 0)) + "/50 résolus) · pas à miser</div>")
+                       if player_type == "pitcher" and b.get("statut") == "informatif" else "")
+                    + "<div class='mlb-stats'>"
                     "<div class='mlb-stat'><span>Moy saison</span><strong>" + str(season_avg) + "K</strong></div>"
                     "<div class='mlb-stat'><span>Proj. régressée</span><strong>" + str(adj_proj) + "K</strong>"
                     + ("<span style='text-transform:none;font-weight:500'>x" + f"{adj_mult:.3f}" + "</span>" if adj_mult else "")
@@ -722,11 +725,18 @@ class ReportGenerator:
                         kc_bdr = "2px solid #0F6E56" if is_best else "1px solid #E5E7EB"
                         prob   = kc.get("prob", 0)
                         odds   = kc.get("best_odds")
+                        # Brute et calibree cote a cote; un barreau non calibre
+                        # (< 50 resolus) affiche la brute et le dit.
+                        p_raw = kc.get("prob_raw", prob)
+                        p_cal = kc.get("prob_cal")
+                        sub = (("brut " + str(p_raw) + " · cal " + str(p_cal)) if p_cal is not None
+                               else ("brut · non calibré (" + str(kc.get("n_cal", 0)) + "/50)"))
                         html += (
                             "<div class='mlb-k-cell' style='border:" + kc_bdr + ";background:" + kc_bg
                             + ";cursor:pointer' onclick=\"mlbCalcSel('" + cid + "'," + str(k) + "," + str(prob) + ")\">"
                             "<div class='mlb-k-num'>K≥" + str(k) + "</div>"
                             "<div class='mlb-k-prob'>" + str(prob) + "%</div>"
+                            "<div class='mlb-k-sub'>" + sub + "</div>"
                         )
                         if odds:
                             ev  = kc.get("ev_pct", 0)
@@ -1788,6 +1798,7 @@ class ReportGenerator:
             "var badgeTxt=isPit?('proj '+(b.adj_proj||0)+'K'):('+'+ep+'% edge');"
             "h+='</div><div class=\"mlb-edge\" style=\"color:'+badgeCol+';background:'+badgeBg+'\">'+badgeTxt+'</div></div>';"
             "h+='<div class=\"mlb-bet-label\">'+(b.market||'')+'</div>';"
+            "if(isPit&&b.statut==='informatif')h+='<div class=\"mlb-info-badge\">Informatif — barreau non calibré ('+(b.n_cal||0)+'/50 résolus) · pas à miser</div>';"
             "h+='<div class=\"mlb-stats\">';"
             "h+='<div class=\"mlb-stat\"><span>Moy saison</span><strong>'+(b.season_avg||0)+'K</strong></div>';"
             "var mreg=b.adj_mult,mraw=b.adj_mult_raw,praw=b.adj_proj_raw;"
@@ -1821,6 +1832,8 @@ class ReportGenerator:
             " onclick=\"mlbCalcSel(\\''+cid+'\\','+k+','+prob+')\">';"
             "h+='<div class=\"mlb-k-num\">K≥'+k+'</div>';"
             "h+='<div class=\"mlb-k-prob\">'+prob+'%</div>';"
+            "var pr=(c.prob_raw!=null?c.prob_raw:prob);"
+            "h+='<div class=\"mlb-k-sub\">'+(c.prob_cal!=null?('brut '+pr+' · cal '+c.prob_cal):('brut · non calibré ('+(c.n_cal||0)+'/50)'))+'</div>';"
             "h+='</div>';});"
             "h+='</div>';"
             "h+='<div class=\"mlb-k-calc\" id=\"kc-'+cid+'\" style=\"display:none\">';"
@@ -2533,6 +2546,9 @@ class ReportGenerator:
             ".mlb-k-cell:hover{opacity:.8}"
             ".mlb-k-num{font-size:10px;font-weight:700;color:var(--m);letter-spacing:.05em}"
             ".mlb-k-prob{font-size:13px;font-weight:700;color:var(--t);margin:2px 0}"
+            ".mlb-k-sub{font-size:9px;color:var(--m);line-height:1.2}"
+            ".mlb-info-badge{display:inline-block;margin:4px 0 6px;padding:3px 8px;border-radius:6px;"
+            "background:#FEF3C7;color:#92400E;font-size:11px;font-weight:600}"
             ".mlb-k-ev{font-size:11px;font-weight:700;line-height:1.2}"
             ".mlb-k-book{font-size:9px;color:var(--m);letter-spacing:.02em;"
             "text-transform:uppercase;line-height:1.3}"
