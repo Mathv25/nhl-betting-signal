@@ -1,0 +1,48 @@
+name: Enregistrer une cote saisie
+
+# Declenche par le bouton « Enregistrer » du dashboard. La saisie arrive en
+# JSON dans l'input `payload` et n'est JAMAIS interpolee dans une commande
+# shell: elle passe par la variable d'environnement PAYLOAD.
+on:
+  workflow_dispatch:
+    inputs:
+      payload:
+        description: "Saisie JSON (sport, marche, selection, prob_modele, cote_prise, mise_u, ...)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: record-prediction
+  cancel-in-progress: false
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ecrire, commiter et pousser
+        env:
+          PAYLOAD: ${{ inputs.payload }}
+        run: |
+          git config --global user.name "NHL Bot"
+          git config --global user.email "bot@nhl.local"
+          # Le bot du signal ecrit aussi data/predictions.csv. En cas de course,
+          # on ne fusionne pas deux CSV: on repart du dernier main et on
+          # reecrit la saisie dessus.
+          for essai in 1 2 3; do
+            git fetch origin main && git reset --hard origin/main
+            python3 src/record_prediction.py || exit 1
+            git add data/
+            git diff --staged --quiet && exit 0
+            git commit -m "Cote saisie $(date +'%Y-%m-%d %H:%M')"
+            git push origin HEAD:main && exit 0
+            echo "push refuse (essai $essai), on recommence sur le dernier main"
+            sleep 5
+          done
+          exit 1

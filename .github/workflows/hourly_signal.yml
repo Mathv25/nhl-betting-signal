@@ -57,21 +57,33 @@ jobs:
         run: |
           git config --global user.name "NHL Bot"
           git config --global user.email "bot@nhl.local"
+          # data/predictions.csv est aussi ecrit par record_prediction.yml
+          # (cotes saisies). On le met de cote, on rattrape main, puis on le
+          # FUSIONNE ligne par ligne: jamais de resolution -X theirs sur ce
+          # fichier, elle effacerait une saisie faite pendant le run.
+          if [ -f data/predictions.csv ]; then
+            cp data/predictions.csv /tmp/pred_run.csv
+            git checkout -- data/predictions.csv 2>/dev/null || rm -f data/predictions.csv
+          fi
           # Tout docs/, pas une liste: enumerer les fichiers fait echouer
           # le run des qu'un module en ecrit un nouveau — apres avoir
           # depense les requetes API. C'est ce qui est arrive le 15
           # septembre avec docs/nfl_signals.json, un mardi, jour de
           # releve NFL: trois runs perdus a l'etape git.
-          # data/: journal des predictions (data/predictions.csv), qui doit
-          # persister d'un run a l'autre pour la calibration et le CLV.
-          git add docs/ data/
+          git add docs/
           git diff --staged --quiet || git commit -m "Signal refresh $(date +'%Y-%m-%d %H:%M')"
           # Si l'arbre n'est pas propre ici, le rebase echouera avec un message
           # qui ne dit pas QUEL fichier bloque. On l'affiche.
-          if [ -n "$(git status --porcelain)" ]; then
+          if [ -n "$(git status --porcelain -- . ':!data')" ]; then
             echo "Arbre non propre avant le rebase:"
             git status --porcelain
           fi
           # Rebase sur remote avec strategy "theirs" pour les conflits sur fichiers bot
           git pull --rebase -X theirs origin main || (git rebase --abort && git pull --ff-only origin main)
+          if [ -f /tmp/pred_run.csv ]; then
+            mkdir -p data
+            python3 src/predictions_log.py merge /tmp/pred_run.csv data/predictions.csv prediction
+            git add data/
+            git diff --staged --quiet || git commit -m "Journal des predictions $(date +'%Y-%m-%d %H:%M')"
+          fi
           git push || (git pull --rebase -X theirs origin main && git push)

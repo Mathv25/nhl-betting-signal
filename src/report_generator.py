@@ -75,6 +75,7 @@ class ReportGenerator:
             # ── NHL market edges ──
             "<div class=\"sec\">Bets recommandes - Edge minimum 5%</div>",
             bet_cards,
+            self._nhl_model_lines(signals),
             # ── NHL player props ──
             "<div class=\"sec\" style=\"margin-top:1.5rem\">Props joueurs NHL</div>",
             props_html if props_html else "<p class=\"no-bets\">Aucun prop NHL identifie.</p>",
@@ -180,6 +181,48 @@ class ReportGenerator:
             "</div>"
             "</div>"
         )
+
+    def _nhl_model_lines(self, signals: list) -> str:
+        """
+        Lignes du modele LNH a comparer chez bet365 (absent du flux Odds API):
+        probabilite, cote juste, cote minimale, saisie et « Enregistrer ».
+        """
+        now = datetime.now(pytz.utc)
+        blocs = []
+        for sg in signals or []:
+            g = sg.get("game") or {}
+            lines = g.get("model_lines") or []
+            ct = g.get("commence_time", "")
+            try:
+                start = datetime.fromisoformat(ct.replace("Z", "+00:00"))
+                if start <= now:
+                    continue
+                d_et = start.astimezone(pytz.timezone("America/Toronto")).strftime("%Y-%m-%d")
+            except (ValueError, AttributeError):
+                d_et = ""
+            if not lines:
+                continue
+            match = (g.get("away_team", "") + " @ " + g.get("home_team", "")).replace("'", "")
+            h = "<div class='nhl-ml-game'><div class='nhl-ml-h'>" + match + "</div>"
+            for ln in lines:
+                p = ln.get("prob", 0)
+                h += ("<div class='nfl-row rec-row' data-sport='nhl' data-marche='" + ln["marche"]
+                      + "' data-selection='" + ln["selection"].replace("'", "") + "' data-prob='"
+                      + f"{p:.4f}" + "' data-date='" + d_et + "' data-commence_time='" + ct
+                      + "' data-match='" + match + "' data-event_id='" + str(g.get("id", "")) + "'>"
+                      "<span class='nfl-sel'>" + ln["selection"] + "</span>"
+                      "<span class='nfl-mk'>" + ln["marche"].replace("nhl_", "") + "</span>"
+                      "<span class='nfl-fair'>" + f"{p * 100:.1f}" + "% · juste " + f"{ln['fair_odds']:.2f}" + "</span>"
+                      "<span class='nfl-px'>exiger <b>" + f"{ln['min_odds']:.2f}" + "</b></span>"
+                      "<span class='nfl-rec'><input class='rec-odds' type='number' step='0.01' min='1.01' "
+                      "placeholder='bet365' oninput='recCalc(this)'> <span class='rec-out'></span> "
+                      "<input class='rec-stake' type='number' step='0.25' min='0' value='0'> u "
+                      "<button class='rec-btn' onclick='recSave(this)'>Enregistrer</button></span></div>")
+            blocs.append(h + "</div>")
+        if not blocs:
+            return ""
+        return ("<div class='sec' style='margin-top:1.5rem'>LNH — lignes du modèle "
+                "(bet365 absent du flux: saisir la cote)</div>" + "".join(blocs))
 
     def _bet_cards(self, value_bets):
         if not value_bets:
@@ -711,8 +754,9 @@ class ReportGenerator:
                     nbk   = next((kc.get("n_books", 0) for kc in k_curve
                                   if kc.get("best_odds")), 0)
                     if coted:
-                        title = ("EV par palier — meilleure cote du marché · baseline "
-                                 + (src or "?") + " · " + str(nbk) + " book(s)")
+                        title = ("Référence seulement — EV à la meilleure cote d'AUTRES books "
+                                 "(pas jouable) · baseline " + (src or "?") + " · " + str(nbk)
+                                 + " book(s). Cliquer un niveau pour saisir la cote bet365.")
                     else:
                         title = "Prob K — cliquer un niveau puis entrer la cote bet365 (cotes API indisponibles)"
                     html += "<div class='mlb-k-curve'><span class='mlb-k-curve-title'>" + title + "</span>"
@@ -733,7 +777,8 @@ class ReportGenerator:
                                else ("brut · non calibré (" + str(kc.get("n_cal", 0)) + "/50)"))
                         html += (
                             "<div class='mlb-k-cell' style='border:" + kc_bdr + ";background:" + kc_bg
-                            + ";cursor:pointer' onclick=\"mlbCalcSel('" + cid + "'," + str(k) + "," + str(prob) + ")\">"
+                            + ";cursor:pointer' onclick=\"mlbCalcSel('" + cid + "'," + str(k) + "," + str(prob)
+                            + "," + ("1" if kc.get("calibrated") else "0") + ")\">"
                             "<div class='mlb-k-num'>K≥" + str(k) + "</div>"
                             "<div class='mlb-k-prob'>" + str(prob) + "%</div>"
                             "<div class='mlb-k-sub'>" + sub + "</div>"
@@ -749,15 +794,30 @@ class ReportGenerator:
                             )
                         html += "</div>"
                     html += "</div>"
-                    if not coted:
-                        html += (
-                            "<div class='mlb-k-calc' id='kc-" + cid + "' style='display:none'>"
-                            "K≥<b id='kc-k-" + cid + "'></b> · Notre prob: <b id='kc-p-" + cid + "'></b>% · "
-                            "Cote bet365: <input id='kc-i-" + cid + "' class='mlb-k-odds-input' type='number' "
-                            "step='0.01' min='1.01' placeholder='ex: 1.41' oninput=\"mlbCalcEdge('" + cid + "')\"> "
-                            "<b id='kc-e-" + cid + "'></b>"
-                            "</div>"
-                        )
+                    # Calculateur bet365 + « Enregistrer » (toujours: bet365
+                    # n'est pas dans le flux, les cotes affichees ailleurs
+                    # viennent d'autres books et ne sont qu'une reference).
+                    ct = game_data.get("commence_time", "")
+                    try:
+                        d_et = (datetime.fromisoformat(ct.replace("Z", "+00:00"))
+                                .astimezone(pytz.timezone("America/Toronto")).strftime("%Y-%m-%d"))
+                    except (ValueError, AttributeError):
+                        d_et = ""
+                    attr = lambda v: str(v).replace("'", "").replace('"', "")
+                    html += (
+                        "<div class='mlb-k-calc rec-row' id='kc-" + cid + "' style='display:none'"
+                        " data-sport='mlb' data-marche='props_k' data-joueur='" + attr(player) + "'"
+                        " data-date='" + d_et + "' data-commence_time='" + attr(ct) + "'"
+                        " data-match='" + attr(away + " @ " + home) + "'"
+                        " data-event_id='" + attr(game_data.get("event_id", "")) + "'>"
+                        "K≥<b id='kc-k-" + cid + "'></b> · Notre prob: <b id='kc-p-" + cid + "'></b>% · "
+                        "Cote bet365: <input id='kc-i-" + cid + "' class='mlb-k-odds-input rec-odds' type='number' "
+                        "step='0.01' min='1.01' placeholder='ex: 1.95' oninput=\"mlbCalcEdge('" + cid + "')\"> "
+                        "<b id='kc-e-" + cid + "' class='rec-out'></b>"
+                        " mise <input class='rec-stake' type='number' step='0.25' min='0' value='0'> u"
+                        " <button class='rec-btn' onclick='recSave(this)'>Enregistrer</button>"
+                        "</div>"
+                    )
                 # 4 notes: rolling, K% adverse, ajustement régressé vs brut,
                 # distribution des manches. Sous 4 la comparaison du chantier
                 # en cours est tronquée.
@@ -1054,6 +1114,14 @@ class ReportGenerator:
             + "<i style=\"background:var(--nfl-home)\"></i></span>"
             "</div></div>")
 
+    @staticmethod
+    def _suspect_edge() -> float:
+        try:
+            import betting_config
+            return betting_config.suspect_edge_pct()
+        except Exception:
+            return 8.0
+
     def _nfl_section(self, state) -> str:
         """
         Onglet NFL.
@@ -1083,11 +1151,13 @@ class ReportGenerator:
                 "<button class=\"nfl-st\" onclick=\"nflSub('props',this)\">"
                 "Props joueurs</button></div>"
                 "<div id=\"nfl-sub-matchs\">"
-                "<p class=\"nfl-intro\">Sans modele maison: un signal est emis "
-                "quand la meilleure cote jouable bat la probabilite no-vig de "
-                "reference d'au moins <b>" + f"{thr:g}" + "%</b>, sur au moins "
-                + str(st.get("min_books", 4)) + " books. Suivis en papier, jamais "
-                "mises automatiquement.</p>")
+                "<p class=\"nfl-intro\">Sans modele maison. Probabilite juste = "
+                "Pinnacle sans marge (methode de Shin), sinon mediane des books sharp. "
+                "Seule la cote <b>bet365</b> compte: edge = cote bet365 &times; p &minus; 1. "
+                "A miser des <b>" + f"{thr:g}" + "%</b>; au-dela de <b>"
+                + f"{self._suspect_edge():g}" + "%</b>: « A VERIFIER (prix suspect) ». "
+                "bet365 n'est pas dans le flux Odds API: lisez sa cote, saisissez-la, "
+                "puis « Enregistrer ».</p>")
 
         if not st or not games:
             return (head + "<div class=\"perf-empty\">"
@@ -1108,8 +1178,8 @@ class ReportGenerator:
             "<div class=\"nfl-hero-t\"><b>" + ("signaux" if n_sig > 1 else "signal")
             + "</b> sur " + str(len(games)) + (" matchs analyses" if len(games) > 1
                                                else " match analyse")
-            + ("" if n_sig else " — le marche est aligne, c'est un resultat et non "
-               "une panne") + "<br><span class=\"nfl-hero-s\">semaine du "
+            + ("" if n_sig else " — normal: bet365 n'est pas dans le flux, "
+               "chaque ligne se saisit a la main") + "<br><span class=\"nfl-hero-s\">semaine du "
             + str(st.get("week", "")) + " &middot; seuil " + f"{thr:g}" + "%</span></div>"
             "</div>")
 
@@ -1122,18 +1192,6 @@ class ReportGenerator:
             games, thr,
             [x for x in ((st.get("props") or {}).get("signals") or [])
              if x.get("type") == "cote"]))
-
-        # Legende: la couleur ne doit jamais porter seule une information.
-        rows.append(
-            "<div class=\"nfl-legend\">"
-            "<span><i class=\"nfl-key\" style=\"background:var(--nfl-good)\"></i>"
-            "★ signal (au-dessus du seuil)</span>"
-            "<span><i class=\"nfl-key\" style=\"background:var(--nfl-quiet-bar)\"></i>"
-            "sous le seuil</span>"
-            "<span class=\"nfl-legend-ax\">barre centree sur 0 &middot; trait = seuil "
-            + f"{thr:g}" + "% &middot; echelle &plusmn;"
-            + f"{self.NFL_EDGE_SCALE:g}" + "%</span>"
-            "</div>")
 
         jour_vu = None
         for g in sorted(games, key=lambda x: x.get("commence") or ""):
@@ -1160,47 +1218,52 @@ class ReportGenerator:
                 rows.append("<div class=\"nfl-none\">aucune cote exploitable</div></div>")
                 continue
 
+            ordre = {"nfl_ml": 0, "nfl_spread": 1, "nfl_total": 2}
             shown = ([(lab, px) for lab, px in prices.items()] if detail
                      else [(lab, px) for lab, px in prices.items()
                            if px.get("market") == "nfl_ml"])
-            shown.sort(key=lambda kv: -kv[1].get("edge_pct", 0))
-            # Un match cote sur cinq lignes de spread produit quinze lignes
-            # presque identiques, qui noient les deux qui comptent. On garde
-            # les meilleures et on annonce le reste plutot que de le cacher.
-            reste = 0
-            if len(shown) > self.NFL_MAX_ROWS:
-                garde = [kv for kv in shown if kv[0] in labels]
-                autres = [kv for kv in shown if kv[0] not in labels]
-                reste = max(len(shown) - self.NFL_MAX_ROWS, 0)
-                shown = (garde + autres)[:self.NFL_MAX_ROWS]
-                shown.sort(key=lambda kv: -kv[1].get("edge_pct", 0))
+            shown.sort(key=lambda kv: (ordre.get(kv[1].get("market"), 9),
+                                       abs((kv[1].get("prob") or 50) - 50)))
+            reste = max(len(shown) - self.NFL_MAX_ROWS, 0)
+            shown = shown[:self.NFL_MAX_ROWS]
+            ct = str(g.get("commence", ""))
+            try:
+                d_et = (datetime.fromisoformat(ct.replace("Z", "+00:00"))
+                        .astimezone(pytz.timezone("America/Toronto")).strftime("%Y-%m-%d"))
+            except (ValueError, AttributeError):
+                d_et = ""
+            match = (str(g.get("away_team", "")) + " @ " + str(g.get("home_team", ""))).replace("'", "")
 
             for lab, px in shown:
                 is_sig = lab in labels
-                edge   = px.get("edge_pct", 0)
-                fair   = (100 / px["prob"]) if px.get("prob") else 0
-                titre  = (f"{lab} — meilleur prix {px.get('odds', 0):.2f} chez "
-                          f"{px.get('book', '')}; prix juste {fair:.2f} "
-                          f"({px.get('prob', 0):.1f}%); ecart {edge:+.1f}%")
+                p      = (px.get("prob") or 0) / 100.0
+                fair   = px.get("fair_odds") or ((1 / p) if p else 0)
+                cible  = px.get("target_odds") or (round((1 + thr / 100.0) / p, 2) if p else 0)
+                statut = px.get("statut", "a_saisir")
+                badge  = {"a_miser": "★ a miser", "a_verifier": "A VERIFIER (prix suspect)"}.get(statut, "")
+                titre  = (f"{lab} — prix juste {fair:.2f} ({px.get('prob', 0):.1f}%, "
+                          f"{px.get('source', '')}); exiger {cible:.2f} chez bet365 pour +{thr:g}%")
                 rows.append(
-                    "<div class=\"nfl-row" + (" nfl-is-sig" if is_sig else "")
-                    + "\" title=\"" + titre + "\">"
-                    "<span class=\"nfl-sel\">" + ("<b>★</b> " if is_sig else "")
-                    + str(lab) + "</span>"
-                    "<span class=\"nfl-mk\">" + str(px.get("market", "")).replace("nfl_", "")
-                    + "</span>"
-                    "<span class=\"nfl-px\">" + f"{px.get('odds', 0):.2f}"
-                    + " <b>" + str(px.get("book", ""))[:11] + "</b></span>"
+                    "<div class=\"nfl-row rec-row" + (" nfl-is-sig" if is_sig else "")
+                    + "\" title=\"" + titre + "\" data-sport='nfl' data-marche='"
+                    + str(px.get("market", "")) + "' data-selection='" + str(lab).replace("'", "")
+                    + "' data-prob='" + f"{p:.4f}" + "' data-prob_marche_novig='" + f"{p:.4f}"
+                    + "' data-date='" + d_et + "' data-commence_time='" + ct
+                    + "' data-match='" + match + "' data-event_id='" + str(g.get("event_id", "")) + "'>"
+                    "<span class=\"nfl-sel\">" + ("<b>★</b> " if is_sig else "") + str(lab) + "</span>"
+                    "<span class=\"nfl-mk\">" + str(px.get("market", "")).replace("nfl_", "") + "</span>"
                     "<span class=\"nfl-fair\">juste " + f"{fair:.2f}" + "</span>"
-                    + self._nfl_bar(edge, is_sig, thr)
-                    + "<span class=\"nfl-val\">" + ("+" if edge >= 0 else "")
-                    + f"{edge:.1f}" + "%</span></div>")
+                    "<span class=\"nfl-px\">exiger <b>" + f"{cible:.2f}" + "</b></span>"
+                    "<span class=\"nfl-rec\"><input class=\"rec-odds\" type=\"number\" step=\"0.01\" "
+                    "min=\"1.01\" placeholder=\"bet365\" oninput=\"recCalc(this)\"> "
+                    "<span class=\"rec-out\">" + ("<b>" + badge + "</b>" if badge else "") + "</span> "
+                    "<input class=\"rec-stake\" type=\"number\" step=\"0.25\" min=\"0\" value=\"0\"> u "
+                    "<button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></span>"
+                    "</div>")
 
             pied = []
             if not sigs:
-                best = max((p.get("edge_pct", 0) for p in prices.values()), default=0)
-                pied.append("aucun ecart au-dessus du seuil (meilleur "
-                            + ("+" if best >= 0 else "") + f"{best:.1f}" + "%)")
+                pied.append("cote bet365 absente du flux — a saisir")
             if reste:
                 pied.append(str(reste) + " autre(s) ligne(s) moins favorable(s)")
             if not detail:
@@ -1355,11 +1418,15 @@ class ReportGenerator:
                   "<div class=\"nfl-todo-s\">Le prix indique est celui a EXIGER chez "
                   "votre book. En dessous, le pari est perdant meme si un autre book "
                   "l'offre plus cher. 1 unite = 1% du bankroll.</div>"]
-        for s, g in sorted(actions, key=lambda a: -a[0].get("edge_pct", 0)):
+        for s, g in sorted(actions, key=lambda a: -(a[0].get("edge_pct") or 0)):
             cible, mise = nfl_cible_et_mise(s, thr)
+            if s.get("statut") == "a_verifier":
+                mise = 0.0          # « A VERIFIER »: jamais a miser
             lignes.append(
                 "<div class=\"nfl-todo-r\">"
-                "<span class=\"nfl-todo-sel\">" + str(s.get("selection", "")) + "</span>"
+                "<span class=\"nfl-todo-sel\">" + str(s.get("selection", ""))
+                + (" <b style=\"color:#B45309\">A VERIFIER (prix suspect)</b>"
+                   if s.get("statut") == "a_verifier" else "") + "</span>"
                 "<span class=\"nfl-todo-g\">"
                 + (str(g.get("away_team", ""))[:32] if not g.get("home_team")
                    else str(g.get("away_team", ""))[:14] + " @ "
@@ -1546,15 +1613,64 @@ class ReportGenerator:
             "var col=edge>0?'#059669':'#DC2626';"
             "el.innerHTML='<span style=\"color:'+col+'\">K≥'+window._mlbCalcK+' · '+(edge>0?'+':'')+edge+'% edge</span>"
             "<span style=\"color:var(--m);font-size:11px;margin-left:8px\">b365 impl '+impl.toFixed(1)+'%</span>';}"
-            "function mlbCalcSel(cid,k,prob){"
+            # ── Saisie manuelle de la cote bet365 + « Enregistrer » ─────────
+            # bet365 n'est pas dans The Odds API: la cote se lit chez bet365 et
+            # se saisit ici. edge = cote x p - 1. Un .rec-row porte en data-*
+            # tout ce qu'il faut pour ecrire la ligne dans data/predictions.csv
+            # via le workflow record_prediction.yml (meme token qu'Actualiser).
+            "var REC_THR={nfl:3,mlb:3,nhl:15};var REC_SUSPECT=" + str(self._suspect_edge()) + ";"
+            "function recStatus(row,e){"
+            "if(row.dataset.marche==='props_k'&&row.dataset.cal!=='1')return['informatif — barreau non calibré','#92400E'];"
+            "if(e>REC_SUSPECT)return['À VÉRIFIER (prix suspect)','#B45309'];"
+            "if(e>=(REC_THR[row.dataset.sport]||3))return['à miser','#0F6E56'];"
+            "return['sous le seuil','#6B7280'];}"
+            "function recCalc(inp){"
+            "var row=inp.closest('.rec-row');if(!row)return;"
+            "var p=parseFloat(row.dataset.prob),o=parseFloat(inp.value);"
+            "var out=row.querySelector('.rec-out');if(!out)return;"
+            "if(!p||!o||o<=1){out.textContent='';return;}"
+            "var e=(p*o-1)*100;var st=recStatus(row,e);"
+            "out.innerHTML='<b style=\"color:'+st[1]+'\">'+(e>0?'+':'')+e.toFixed(1)+'% · '+st[0]+'</b>';}"
+            "function ghToken(){"
+            "var t=localStorage.getItem('gh_workflow_token');"
+            "if(!t){t=prompt('Token GitHub (permission workflow):\\n\\ngithub.com/settings/tokens — le token reste dans ce navigateur.');"
+            "if(!t)return null;t=t.trim();localStorage.setItem('gh_workflow_token',t);}"
+            "return t;}"
+            "async function recSave(btn){"
+            "var row=btn.closest('.rec-row');if(!row)return;"
+            "var o=parseFloat((row.querySelector('.rec-odds')||{}).value);"
+            "var mi=parseFloat((row.querySelector('.rec-stake')||{}).value||'0')||0;"
+            "if(!o||o<=1){btn.textContent='cote ?';return;}"
+            "var tk=ghToken();if(!tk){btn.textContent='✗ pas de token';return;}"
+            "var d=row.dataset;var pl={book:'bet365',cote_prise:o,mise_u:mi,prob_modele:parseFloat(d.prob)};"
+            "['sport','marche','selection','date','joueur','ligne','k','match','commence_time','prob_brute','prob_calibree','prob_marche_novig','event_id']"
+            ".forEach(function(f){var v=d[f];if(v!==undefined&&v!=='')pl[f]=v;});"
+            "pl.calibre=d.cal==='1';"
+            "btn.disabled=true;btn.textContent='⏳';"
+            "try{var r=await fetch('https://api.github.com/repos/'+GH_REPO+'/actions/workflows/record_prediction.yml/dispatches',{"
+            "method:'POST',headers:{'Authorization':'token '+tk,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},"
+            "body:JSON.stringify({ref:'main',inputs:{payload:JSON.stringify(pl)}})});"
+            "if(r.status===204){btn.textContent='✓ Enregistré';}"
+            "else if(r.status===401||r.status===403){localStorage.removeItem('gh_workflow_token');btn.textContent='✗ token refusé';btn.disabled=false;}"
+            "else{btn.textContent='✗ '+r.status;btn.disabled=false;}"
+            "}catch(e){btn.textContent='✗ réseau';btn.disabled=false;}}"
+
+            "function mlbCalcSel(cid,k,prob,cal){"
             "var el=document.getElementById('kc-'+cid);if(!el)return;"
             "el.style.display='flex';"
             "document.getElementById('kc-k-'+cid).textContent=k;"
             "document.getElementById('kc-p-'+cid).textContent=prob;"
             "document.getElementById('kc-i-'+cid).value='';"
-            "document.getElementById('kc-e-'+cid).textContent='';}"
+            "document.getElementById('kc-e-'+cid).textContent='';"
+            # Carte K: la ligne a enregistrer suit le barreau clique.
+            "if(el.classList.contains('rec-row')){"
+            "el.dataset.k=k;el.dataset.ligne=(k-0.5);el.dataset.prob=prob/100;el.dataset.cal=cal?'1':'0';"
+            "el.dataset.selection=el.dataset.joueur+' Over '+(k-0.5)+' K';"
+            "var b=el.querySelector('.rec-btn');if(b){b.disabled=false;b.textContent='Enregistrer';}}}"
 
             "function mlbCalcEdge(cid){"
+            "var kc=document.getElementById('kc-'+cid);"
+            "if(kc&&kc.classList.contains('rec-row')){recCalc(document.getElementById('kc-i-'+cid));return;}"
             "var p=parseFloat(document.getElementById('kc-p-'+cid).textContent);"
             "var o=parseFloat(document.getElementById('kc-i-'+cid).value);"
             "var el=document.getElementById('kc-e-'+cid);"
@@ -1617,7 +1733,7 @@ class ReportGenerator:
             "var h='<div class=\"sec\">MLB Moneyline / -1.5 — probabilité × cote</div>';"
             "h+='<div class=\"ml-tbl\">';"
             "h+='<div class=\"ml-tr ml-th\"><span>Équipe</span><span>Marché</span>"
-            "<span>Prob</span><span>Cote</span><span>Value</span><span>Bet</span></div>';"
+            "<span>Prob</span><span>Cote réf.</span><span>Value réf.</span><span>Exiger bet365</span></div>';"
             "rows.forEach(function(b){"
             "var v=(b.valeur_pct==null?null:b.valeur_pct);"
             "var vc=v==null?'var(--m)':(v>=8?'#0F6E56':v>=3?'#2563EB':v>=0?'#BA7517':'#DC2626');"
@@ -1628,18 +1744,37 @@ class ReportGenerator:
             "h+='<span>'+(b.probabilite||0).toFixed(1)+'%</span>';"
             "h+='<span>'+(b.cote||0).toFixed(2)+'</span>';"
             "h+='<span style=\"color:'+vc+';font-weight:700\">'+(v==null?'n/d':(v>0?'+':'')+v.toFixed(1)+'%')+'</span>';"
-            "h+='<span>'+(b.tier||'')+' '+(b.label||'')+'</span>';"
+            "var pp=(b.probabilite||0)/100;var ex=pp>0?(1.03/pp):0;"
+            "h+='<span title=\"'+(b.tier||'')+' '+(b.label||'')+' à la cote de référence\"><b>'+(ex?ex.toFixed(2):'—')+'</b> '+(b.tier||'')+'</span>';"
             "h+='</div>';"
             "h+='<div class=\"ml-why\">'+(b.raison||'')"
             "+(b.facteurs_nets!=null?' · facteurs alignés: '+(b.facteurs_nets>0?'+':'')+b.facteurs_nets:'')"
             "+'</div>';"
             "});"
             "h+='</div>';"
-            "h+='<div class=\"ml-note\">Value = probabilité × cote - 1. "
+            "h+='<div class=\"ml-note\"><b>Cote réf. = meilleure cote d\\'un AUTRE book, pas jouable</b> "
+            "(bet365 n\\'est pas dans le flux). À miser seulement si bet365 offre au moins la cote « Exiger » "
+            "(+3% d\\'espérance). Value = probabilité × cote - 1. "
             "Probabilité = mélange modèle/marché (modèle sans historique de "
             "calibration — volontairement rétréci vers le marché). "
             "Les matchs déjà commencés sont masqués.</div>';"
             "return h;}"
+            "function nhlModelLinesHTML(d){"
+            "var now=Date.now();var h='';"
+            "(d.signals||[]).forEach(function(sg){var g=sg.game||{};var ls=g.model_lines||[];var ct=g.commence_time||'';"
+            "if(!ls.length)return;try{if(new Date(ct).getTime()<=now)return;}catch(e){}"
+            "var dET='';try{dET=new Date(ct).toLocaleDateString('fr-CA',{timeZone:'America/Toronto'});}catch(e){}"
+            "var m=((g.away_team||'')+' @ '+(g.home_team||'')).replace(/'/g,'');"
+            "h+='<div class=\"nhl-ml-game\"><div class=\"nhl-ml-h\">'+m+'</div>';"
+            "ls.forEach(function(ln){var p=ln.prob||0;"
+            "h+='<div class=\"nfl-row rec-row\" data-sport=\"nhl\" data-marche=\"'+ln.marche+'\" data-selection=\"'+String(ln.selection).replace(/\"/g,'')+'\" data-prob=\"'+p.toFixed(4)+'\" data-date=\"'+dET+'\" data-commence_time=\"'+ct+'\" data-match=\"'+m+'\" data-event_id=\"'+(g.id||'')+'\">';"
+            "h+='<span class=\"nfl-sel\">'+ln.selection+'</span><span class=\"nfl-mk\">'+String(ln.marche).replace('nhl_','')+'</span>';"
+            "h+='<span class=\"nfl-fair\">'+(p*100).toFixed(1)+'% · juste '+(ln.fair_odds||0).toFixed(2)+'</span>';"
+            "h+='<span class=\"nfl-px\">exiger <b>'+(ln.min_odds||0).toFixed(2)+'</b></span>';"
+            "h+='<span class=\"nfl-rec\"><input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"bet365\" oninput=\"recCalc(this)\"> <span class=\"rec-out\"></span> <input class=\"rec-stake\" type=\"number\" step=\"0.25\" min=\"0\" value=\"0\"> u <button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></span></div>';});"
+            "h+='</div>';});"
+            "if(!h)return '';"
+            "return '<div class=\"sec\" style=\"margin-top:1.5rem\">LNH — lignes du modèle (bet365 absent du flux: saisir la cote)</div>'+h;}"
             "function renderSignalTab(d){"
             "var now=Date.now();"
             # build map: "Away @ Home" -> commence_time
@@ -1685,6 +1820,7 @@ class ReportGenerator:
             "h+='<span style=\"color:'+ec+';font-weight:700\">+'+(Math.round(ep*10)/10)+'% edge</span></div>';"
             "h+='<div class=\"edge-bar\"><div class=\"edge-bar-fill\" style=\"width:'+bw+'%;background:'+bc+'\"></div></div>';"
             "h+='</div></div>';});}"
+            "h+=nhlModelLinesHTML(d);"
             "h+='<div class=\"sec\" style=\"margin-top:1.5rem\">Tous les matchs</div>';"
             "h+='<div class=\"tbl-wrap\"><table>';"
             "h+='<thead><tr><th>Heure</th><th>Match</th><th>ML Vis/Dom</th><th>PL +/-1.5</th><th>Total O/U</th><th>Edges</th></tr></thead><tbody>';"
@@ -1829,17 +1965,22 @@ class ReportGenerator:
             "var bdr=isBest?'2px solid #0F6E56':'1px solid #E5E7EB';"
             "var prob=c.prob||0;"
             "h+='<div class=\"mlb-k-cell\" style=\"border:'+bdr+';background:'+bg+';cursor:pointer\""
-            " onclick=\"mlbCalcSel(\\''+cid+'\\','+k+','+prob+')\">';"
+            " onclick=\"mlbCalcSel(\\''+cid+'\\','+k+','+prob+','+(c.calibrated?1:0)+')\">';"
             "h+='<div class=\"mlb-k-num\">K≥'+k+'</div>';"
             "h+='<div class=\"mlb-k-prob\">'+prob+'%</div>';"
             "var pr=(c.prob_raw!=null?c.prob_raw:prob);"
             "h+='<div class=\"mlb-k-sub\">'+(c.prob_cal!=null?('brut '+pr+' · cal '+c.prob_cal):('brut · non calibré ('+(c.n_cal||0)+'/50)'))+'</div>';"
             "h+='</div>';});"
             "h+='</div>';"
-            "h+='<div class=\"mlb-k-calc\" id=\"kc-'+cid+'\" style=\"display:none\">';"
+            "var ct=gd.commence_time||'';var dET='';try{dET=new Date(ct).toLocaleDateString('fr-CA',{timeZone:'America/Toronto'});}catch(e){}"
+            "h+='<div class=\"mlb-k-calc rec-row\" id=\"kc-'+cid+'\" style=\"display:none\" data-sport=\"mlb\" data-marche=\"props_k\"'"
+            "+' data-joueur=\"'+(b.player||'').replace(/\"/g,'')+'\" data-date=\"'+dET+'\" data-commence_time=\"'+ct+'\"'"
+            "+' data-match=\"'+((gd.away_team||'')+' @ '+(gd.home_team||'')).replace(/\"/g,'')+'\" data-event_id=\"'+(gd.event_id||'')+'\">';"
             "h+='K≥<b id=\"kc-k-'+cid+'\"></b> · Notre prob: <b id=\"kc-p-'+cid+'\"></b>% · ';"
-            "h+='Cote bet365: <input id=\"kc-i-'+cid+'\" class=\"mlb-k-odds-input\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"ex: 1.95\" oninput=\"mlbCalcEdge(\\''+cid+'\\')\">';"
-            "h+=' <b id=\"kc-e-'+cid+'\"></b></div>';}"
+            "h+='Cote bet365: <input id=\"kc-i-'+cid+'\" class=\"mlb-k-odds-input rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"ex: 1.95\" oninput=\"mlbCalcEdge(\\''+cid+'\\')\">';"
+            "h+=' <b id=\"kc-e-'+cid+'\" class=\"rec-out\"></b>';"
+            "h+=' mise <input class=\"rec-stake\" type=\"number\" step=\"0.25\" min=\"0\" value=\"0\"> u';"
+            "h+=' <button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></div>';}"
             "(b.context||[]).slice(0,4).forEach(function(n){h+='<div class=\"mlb-note\">'+n+'</div>';});"
             "h+='</div>';});"
             "h+='</div>';});}"
@@ -2547,6 +2688,11 @@ class ReportGenerator:
             ".mlb-k-num{font-size:10px;font-weight:700;color:var(--m);letter-spacing:.05em}"
             ".mlb-k-prob{font-size:13px;font-weight:700;color:var(--t);margin:2px 0}"
             ".mlb-k-sub{font-size:9px;color:var(--m);line-height:1.2}"
+            ".rec-stake{width:52px;padding:2px 4px;border:1px solid var(--b);border-radius:4px}"
+            ".rec-btn{margin-left:6px;padding:3px 10px;border:1px solid #0F6E56;background:#E1F5EE;color:#0F6E56;"
+            "border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}"
+            ".rec-btn:disabled{opacity:.6;cursor:default}"
+            ".rec-row .rec-out{margin-left:6px}"
             ".mlb-info-badge{display:inline-block;margin:4px 0 6px;padding:3px 8px;border-radius:6px;"
             "background:#FEF3C7;color:#92400E;font-size:11px;font-weight:600}"
             ".mlb-k-ev{font-size:11px;font-weight:700;line-height:1.2}"
@@ -2680,6 +2826,10 @@ class ReportGenerator:
             "margin:0 4px;vertical-align:-1px}"
             ".nfl-prob-src{font-size:9px;text-transform:uppercase;letter-spacing:.04em}"
 
+            ".nfl-rec{margin-left:auto;display:flex;align-items:center;gap:4px}"
+            ".nhl-ml-game{margin:8px 0;padding:6px 10px;border:1px solid var(--b);border-radius:8px}"
+            ".nhl-ml-h{font-weight:700;font-size:13px;margin-bottom:4px}"
+            ".nfl-rec .rec-odds{width:62px;padding:2px 4px;border:1px solid var(--b);border-radius:4px}"
             ".nfl-row{display:flex;align-items:center;gap:9px;font-size:11.5px;"
             "padding:4px 0;border-top:1px solid var(--b)}"
             ".nfl-row:hover{background:rgba(127,127,127,.05)}"

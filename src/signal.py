@@ -130,9 +130,15 @@ def main():
             for s in top_games:
                 g = s["game"]
                 try:
-                    book = g.get("bookmaker", "draftkings")
-                    print(f"  Fetch props {book}: {g['away_team']} @ {g['home_team']}...")
-                    real_props = fetcher.get_nhl_player_props(g["id"], bookmaker=book)
+                    if g.get("no_allowed_odds"):
+                        # bet365 absent du flux: les props d'autres books ne
+                        # donneraient aucun edge jouable. Aucun credit depense;
+                        # le modele stat (mode synthetique) tourne quand meme.
+                        real_props = {}
+                    else:
+                        book = g.get("bookmaker") or "bet365"
+                        print(f"  Fetch props {book}: {g['away_team']} @ {g['home_team']}...")
+                        real_props = fetcher.get_nhl_player_props(g["id"], bookmaker=book)
                     n_lines = sum(len(v) for v in real_props.values()) if real_props else 0
                     print(f"    -> {n_lines} lignes props disponibles")
                     # Si props pas encore publiées (playoffs soir), fallback mode synthétique

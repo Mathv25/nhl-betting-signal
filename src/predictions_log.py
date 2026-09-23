@@ -133,6 +133,47 @@ def upsert(new_rows: list, p: str = None, now: datetime = None) -> dict:
     return stats
 
 
+# Colonnes dont chaque ecrivain est proprietaire. La fusion ne recopie que
+# celles-la: un run du signal ne peut pas effacer une cote saisie, et une
+# saisie ne peut pas effacer une fermeture.
+OWNED = {
+    "prediction": PREDICTION_FIELDS,
+    "settle": {"cote_fermeture", "fermeture_novig", "clv", "resultat"},
+}
+
+
+def merge_file(ours_path: str, base_path: str, owner: str = "prediction") -> dict:
+    """
+    Fusionne ligne par ligne `ours_path` (le CSV que ce run a produit) dans
+    `base_path` (la derniere version de main). Pour une ligne connue, seules
+    les colonnes de `owner` sont recopiees — et pour « prediction », seulement
+    si la ligne de base n'est pas gelee. Une ligne inconnue est ajoutee telle
+    quelle. Retourne {"added", "updated"}.
+    """
+    base = load(base_path)
+    index = {r.get("id"): r for r in base}
+    fields = OWNED[owner]
+    now = datetime.now(timezone.utc)
+    st = {"added": 0, "updated": 0}
+    for r in load(ours_path):
+        b = index.get(r.get("id"))
+        if b is None:
+            base.append(r)
+            index[r.get("id")] = r
+            st["added"] += 1
+            continue
+        if owner == "prediction" and (b.get("resultat") or _started(b, now)):
+            continue
+        changed = False
+        for f in fields:
+            if f in r and r[f] != b.get(f):
+                b[f] = r[f]
+                changed = True
+        st["updated"] += changed
+    save(base, base_path)
+    return st
+
+
 def to_float(v, default=None):
     try:
         if v is None or v == "":
@@ -140,3 +181,16 @@ def to_float(v, default=None):
         return float(v)
     except (TypeError, ValueError):
         return default
+
+
+if __name__ == "__main__":
+    # python3 predictions_log.py merge <ours.csv> <base.csv> [prediction|settle]
+    import sys
+    if len(sys.argv) >= 4 and sys.argv[1] == "merge":
+        owner = sys.argv[4] if len(sys.argv) > 4 else "prediction"
+        if not os.path.exists(sys.argv[2]):
+            print("rien a fusionner")
+            sys.exit(0)
+        print(merge_file(sys.argv[2], sys.argv[3], owner))
+    else:
+        print(__doc__)

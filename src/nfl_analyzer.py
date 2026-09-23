@@ -1,18 +1,31 @@
 """
 Module NFL — signaux top-down sur les marches principaux.
 
-v1 SANS modele maison. On ne pretend donc pas savoir qui va gagner: on cherche
-seulement des ecarts entre books. La probabilite de reference est celle du
-marche efficient (Pinnacle deviggee, sinon la mediane des books deviggees), et
-on signale quand un autre book offre un prix qui bat cette reference d'au moins
-NFL_MIN_EDGE pour cent.
+v2 (2026-09-23), SANS modele maison. La probabilite juste d'une issue est celle
+du marche efficient:
+  - Pinnacle devigge par la methode de Shin (config/betting.json: DEVIG_METHOD,
+    "power" en option);
+  - a defaut, la MEDIANE no-vig des books sharp (SHARP_BOOKS: circa, lowvig,
+    betonlineag — circa n'est pas dans The Odds API);
+  - sinon, pas de reference: le marche est ignore.
 
-    edge = prob_reference x meilleure_cote - 1
+Le signal se calcule UNIQUEMENT sur la cote du book ou l'on mise
+(ALLOWED_BOOKS = ["bet365"]):
 
-C'est une esperance, pas un ecart relatif de probabilites: la grandeur
-`edge_pct` du MLB (filtree entre 15 et 35%) mesure autre chose et ses seuils
-n'ont aucun sens ici. Battre une ligne efficiente de 15% n'arrive pas; 2 a 5%
-est l'ordre de grandeur reel du shopping entre books.
+    edge = cote_bet365 x p_juste - 1
+
+Les autres books ne servent qu'a construire la reference; les exchanges ne
+servent a rien. Plus de « meilleure cote parmi N books », plus de minimum de
+books: c'etait mesurer le shopping entre books, pas un pari prenable.
+
+  edge >= NFL_MIN_EDGE et <= SUSPECT_EDGE_PCT (8%)  -> « a miser »
+  edge >  SUSPECT_EDGE_PCT                           -> « A VERIFIER (prix suspect) »
+  pas de cote bet365 dans le flux                    -> « a saisir »: cote juste et
+                                                        cote minimale a exiger
+
+bet365 n'est dans aucune region de The Odds API pour la NFL (seul bet365_au
+existe, AFL/NRL): en pratique chaque ligne est « a saisir » et la cote se lit
+chez bet365, puis s'enregistre depuis le dashboard.
 
 CADENCE. Le quota Odds API sert d'abord au MLB et au NHL, qui jouent tous les
 jours. La NFL joue jeudi, dimanche et lundi: on ne paie donc des cotes que
@@ -25,6 +38,7 @@ import json
 import os
 from datetime import datetime, timedelta, timezone
 
+import betting_config
 import odds_api
 
 SPORT   = "americanfootball_nfl"
@@ -39,23 +53,6 @@ MARKET_KEYS = {"h2h": "nfl_ml", "spreads": "nfl_spread", "totals": "nfl_total"}
 def signals_path() -> str:
     return os.environ.get("NFL_SIGNALS_PATH") or os.path.join(
         _HERE, "..", "docs", "nfl_signals.json")
-
-
-def min_books() -> int:
-    """
-    Nombre minimal de books pour qu'un signal soit emis.
-
-    Une "mediane" calculee sur deux books n'est pas un consensus, c'est une
-    moyenne de deux avis. Le premier run l'a montre: sur 18 signaux, 10
-    reposaient sur 2 ou 3 books, et les matchs de decembre affichaient des
-    50.0%/50.0% — un seul book cotant les deux faces au meme prix, ce qui n'est
-    pas un marche mais un remplissage. Ces lignes lointaines produisent des
-    ecarts enormes qui n'existent pas.
-    """
-    try:
-        return int(os.environ.get("NFL_MIN_BOOKS", "") or 4)
-    except ValueError:
-        return 4
 
 
 def min_edge() -> float:
@@ -164,53 +161,68 @@ def week_label(when: datetime = None) -> str:
 
 # ── Devig ───────────────────────────────────────────────────────────────────
 
-def devig_pair(per_book: dict, side_a: str, side_b: str) -> dict:
+def reference_pair(per_book: dict, side_a: str, side_b: str, method: str = None) -> dict:
     """
-    Probabilites no-vig d'un marche a deux issues, a partir des cotes par book.
+    Probabilites justes d'un marche a deux issues + la cote chez mes books.
 
     `per_book` = {book: {issue: cote}}. Retourne
-        {side_a: prob, side_b: prob, source, best: {issue: (cote, book)}}
-    avec side_a + side_b = 1 par construction — on devigge DANS un book
-    (Pinnacle en priorite, sinon la mediane des books qui cotent les deux
-    faces), jamais entre deux books: melanger deux marges penche la
-    probabilite vers le book le plus genereux et s'attribue l'ecart comme un
-    edge.
-
-    Les prix aberrants (carnet d'echange mince, cotation perimee) sont ecartes
-    par odds_api.best_playable avant de choisir la meilleure cote.
+        {side_a: p, side_b: 1 - p, source, n_books, ref_books, mine: {issue: (cote, book)}}
+    ou {} s'il n'y a pas de reference (ni Pinnacle ni book sharp cotant les
+    deux faces). On devigge DANS un book, jamais entre deux books.
     """
-    books = [{"book": bk, "over_odds": pr.get(side_a), "under_odds": pr.get(side_b)}
-             for bk, pr in per_book.items()]
-    agg_a = odds_api.summarize_two_way([b for b in books if b["over_odds"]])
-    if not agg_a["best_over_odds"]:
-        return {}
+    cfg    = betting_config.load()
+    method = method or cfg["DEVIG_METHOD"]
 
-    p_a = agg_a["baseline_prob"] / 100.0
-    if not agg_a["n_novig"]:
-        # Aucun book ne cote les deux faces: la prob brute contient la vig, on
-        # ne peut pas produire une paire qui somme a 1 honnetement.
-        return {}
+    def p_of(book):
+        pr = per_book.get(book) or {}
+        oa, ob = pr.get(side_a), pr.get(side_b)
+        if not (oa and ob) or betting_config.is_exchange(book):
+            return None
+        d = odds_api.devig([oa, ob], method)
+        return d[0] if d else None
 
-    best, chez_moi = {}, {}
+    ref = cfg["REFERENCE_BOOK"]
+    p_a = p_of(ref)
+    if p_a is not None:
+        source, used = f"{ref} ({method})", [ref]
+    else:
+        vals = [(bk, p_of(bk)) for bk in cfg["SHARP_BOOKS"]]
+        vals = [(bk, v) for bk, v in vals if v is not None]
+        if not vals:
+            return {}
+        ordered = sorted(v for _, v in vals)
+        mid = len(ordered) // 2
+        p_a = ordered[mid] if len(ordered) % 2 else (ordered[mid - 1] + ordered[mid]) / 2
+        used = [bk for bk, _ in vals]
+        source = f"mediane sharp {method} ({', '.join(used)})"
+
+    mine = {}
     for side in (side_a, side_b):
-        prices = [(bk, pr.get(side)) for bk, pr in per_book.items() if pr.get(side)]
-        odds, book, _drop = odds_api.best_playable(prices)
-        if odds:
-            best[side] = (odds, book)
-        # Le prix chez MES books: un edge chez un book ou je n'ai pas de
-        # compte n'est pas un edge, c'est une information.
+        prices = [(bk, pr.get(side)) for bk, pr in per_book.items()
+                  if pr.get(side) and not betting_config.is_exchange(bk)]
         m_odds, m_book = odds_api.best_at_my_books(prices)
         if m_odds:
-            chez_moi[side] = (m_odds, m_book)
+            mine[side] = (m_odds, m_book)
 
     return {
-        side_a:   round(p_a, 6),
-        side_b:   round(1.0 - p_a, 6),
-        "source": agg_a["baseline_source"],
-        "n_books": agg_a["n_books"],
-        "best":   best,
-        "mine":   chez_moi,
+        side_a:      round(p_a, 6),
+        side_b:      round(1.0 - p_a, 6),
+        "source":    source,
+        "n_books":   len(used),
+        "ref_books": used,
+        "mine":      mine,
     }
+
+
+def classify(edge_pct, threshold: float) -> str:
+    """Statut d'un prix chez mes books. None = cote absente du flux."""
+    if edge_pct is None:
+        return "a_saisir"
+    if edge_pct > betting_config.suspect_edge_pct():
+        return "a_verifier"
+    if edge_pct >= threshold:
+        return "a_miser"
+    return "sous_seuil"
 
 
 def ev_pct(prob: float, odds: float) -> float:
@@ -278,7 +290,7 @@ def analyze_event(event: dict, threshold: float = None) -> dict:
     }
 
     def consider(market_key, side_a, side_b, per_book, label_a, label_b, point=None):
-        pair = devig_pair(per_book, side_a, side_b)
+        pair = reference_pair(per_book, side_a, side_b)
         if not pair:
             return
         out["markets"].append({
@@ -287,48 +299,40 @@ def analyze_event(event: dict, threshold: float = None) -> dict:
             "prob_b": round(pair[side_b] * 100, 2),
             "source": pair["source"], "n_books": pair["n_books"],
         })
+        suspect = betting_config.suspect_edge_pct()
         for side, label in ((side_a, label_a), (side_b, label_b)):
-            if side not in pair["best"]:
+            p = pair[side]
+            if p <= 0:
                 continue
-            odds, book = pair["best"][side]
-            ev = ev_pct(pair[side], odds)
             m_odds, m_book = pair["mine"].get(side, (0.0, ""))
-            m_ev  = ev_pct(pair[side], m_odds) if m_odds else None
-            out["prices"][label] = {
-                "market": MARKET_KEYS[market_key], "odds": round(odds, 3),
-                "book": book, "prob": round(pair[side] * 100, 2), "edge_pct": ev,
-                "my_odds": round(m_odds, 3) if m_odds else 0,
-                "my_book": m_book, "my_edge_pct": m_ev,
-                "stake_units": (odds_api.kelly_units(pair[side] * 100, m_odds)
-                                if m_odds else 0),
+            m_ev   = ev_pct(p, m_odds) if m_odds else None
+            statut = classify(m_ev, thr)
+            row = {
+                "market":      MARKET_KEYS[market_key],
+                "point":       point,
+                "prob":        round(p * 100, 2),
+                "fair_odds":   round(1.0 / p, 3),
+                # Ce qu'il faut exiger chez bet365: en dessous du prix juste on
+                # parie a perte, en dessous de la cible on n'a pas le seuil, et
+                # au-dessus de la cote « suspecte » le prix est a verifier.
+                "min_odds":    odds_api.min_odds_for(p * 100, 0),
+                "target_odds": odds_api.min_odds_for(p * 100, thr),
+                "suspect_odds": odds_api.min_odds_for(p * 100, suspect),
+                "my_odds":     round(m_odds, 3) if m_odds else 0,
+                "my_book":     m_book,
+                "my_edge_pct": m_ev,
+                "edge_pct":    m_ev if m_ev is not None else 0.0,
+                "statut":      statut,
+                "stake_units": (odds_api.kelly_units(p * 100, m_odds)
+                                if statut == "a_miser" else 0),
+                "source":      pair["source"],
+                "n_books":     pair["n_books"],
             }
-            # Le seuil s'applique au prix JOUABLE quand on en a un; sinon au
-            # meilleur du marche, en signalant que le pari n'est pas prenable.
-            juge = m_ev if m_ev is not None else ev
-            if juge >= thr and pair["n_books"] >= min_books():
-                out["signals"].append({
-                    "market":      MARKET_KEYS[market_key],
-                    "selection":   label,
-                    "point":       point,
-                    "prob":        round(pair[side] * 100, 2),
-                    "odds":        round(odds, 3),
-                    "book":        book,
-                    "edge_pct":    ev,
-                    "my_odds":     round(m_odds, 3) if m_odds else 0,
-                    "my_book":     m_book,
-                    "my_edge_pct": m_ev,
-                    "playable":    bool(m_odds),
-                    # Ce qu'il faut exiger chez son propre book, qui n'est pas
-                    # forcement dans le flux: en dessous du prix juste on parie
-                    # a perte, en dessous de la cible on n'a pas le seuil.
-                    "min_odds":    odds_api.min_odds_for(pair[side] * 100, 0),
-                    "target_odds": odds_api.min_odds_for(pair[side] * 100, thr),
-                    "stake_units": (odds_api.kelly_units(pair[side] * 100, m_odds)
-                                    if m_odds else 0),
-                    "fair_odds":   round(1.0 / pair[side], 3) if pair[side] > 0 else 0,
-                    "source":      pair["source"],
-                    "n_books":     pair["n_books"],
-                })
+            out["prices"][label] = row
+            if statut in ("a_miser", "a_verifier"):
+                out["signals"].append(dict(row, selection=label,
+                                           odds=row["my_odds"], book=m_book,
+                                           playable=True))
 
     # Moneyline
     if data["h2h"]:
@@ -349,7 +353,7 @@ def analyze_event(event: dict, threshold: float = None) -> dict:
         consider("totals", "Over", "Under", slot["prices"],
                  f"Over {point:g}", f"Under {point:g}", point=point)
 
-    out["signals"].sort(key=lambda s: -s["edge_pct"])
+    out["signals"].sort(key=lambda s: -(s["edge_pct"] or 0))
     return out
 
 
@@ -398,6 +402,8 @@ def log_paper_bets(games: list, week: str) -> int:
     added = 0
     for g in games:
         for sig in g.get("signals", []):
+            if sig.get("statut", "a_miser") != "a_miser":
+                continue      # « A VERIFIER »: jamais enregistre comme mise
             bet_id = f"{week}|nfl|{sig['market']}|{sig['selection']}"
             if bet_id in existing:
                 continue
@@ -408,7 +414,7 @@ def log_paper_bets(games: list, week: str) -> int:
                     odds_taken=sig["odds"], book=sig["book"], stake=1.0,
                     paper=True,
                     note=(f"top-down {sig['edge_pct']:+.1f}% vs {sig['source']} "
-                          f"({sig['n_books']} books) — {g['away_team']} @ {g['home_team']}"),
+                          f"— {g['away_team']} @ {g['home_team']}"),
                 )
                 existing.add(bet_id)
                 added += 1
@@ -432,7 +438,9 @@ def capture_closing(games: list, week: str) -> int:
     now   = {}
     for g in games:
         for label, px in (g.get("prices") or {}).items():
-            now[f"{week}|nfl|{px['market']}|{label}"] = px["odds"]
+            # Fermeture = prix JUSTE de la reference (Pinnacle Shin), pas le
+            # meilleur prix du marche: c'est contre lui que se mesure le CLV.
+            now[f"{week}|nfl|{px['market']}|{label}"] = px.get("fair_odds") or px.get("odds")
 
     n = 0
     for bet_id, odds in now.items():
@@ -522,7 +530,8 @@ def run(api_key: str = None, force: bool = False,
         "reason":       motif,
         "stale":        False,
         "min_edge":     min_edge(),
-        "min_books":    min_books(),
+        "suspect_edge": betting_config.suspect_edge_pct(),
+        "allowed_books": betting_config.allowed_books(),
         "n_games":      len(games),
         "n_signals":    n_sig,
         "games":        games,

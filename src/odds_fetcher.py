@@ -1,5 +1,5 @@
 """
-Odds Fetcher - The Odds API -> DraftKings
+Odds Fetcher - The Odds API -> ALLOWED_BOOKS (bet365), sinon matchs sans cote
 Marches: h2h (moneyline), spreads (puck line), totals + player props NHL
 """
 
@@ -15,14 +15,18 @@ FMT_ODDS  = "decimal"
 FMT_DATE  = "iso"
 MAIN_MARKETS = "h2h,spreads,totals"
 
-# Ordre de priorite: bet365 (UK) en premier car c'est la que l'utilisateur bet,
-# puis DraftKings (US) en fallback si bet365 n'a pas encore poste les cotes.
-BOOKMAKER_PRIORITY = [
-    {"key": "draftkings",   "region": "us"},
-    {"key": "fanduel",      "region": "us"},
-    {"key": "betmgm",       "region": "us"},
-    {"key": "williamhill_us", "region": "us"},
-]
+# Source des cotes pour l'edge et Kelly: UNIQUEMENT les ALLOWED_BOOKS
+# (config/betting.json, ["bet365"]). DraftKings/FanDuel ne servent plus de
+# repli: un edge contre un book ou l'on ne mise pas n'est pas un edge.
+# bet365 n'est dans aucune region de The Odds API pour la NHL: sans cote, le
+# match est garde SANS marche et le modele publie ses lignes (probabilite,
+# cote juste, cote bet365 minimale) — voir EdgeCalculator.model_lines.
+def _priority() -> list:
+    import betting_config
+    return [{"key": b, "region": "-"} for b in betting_config.allowed_books()]
+
+
+BOOKMAKER_PRIORITY = _priority()
 
 # Marches props NHL disponibles sur The Odds API
 NHL_PROP_MARKETS = [
@@ -93,10 +97,25 @@ class OddsFetcher:
                 return games
             print(f"  {book}: reponse recue mais aucun match parse.")
 
-        print("  Aucun match trouve sur tous les bookmakers.")
-        return []
+        # Aucun ALLOWED_BOOK ne cote: on garde les matchs, sans marche, pour
+        # que le modele publie ses lignes a comparer a la main chez bet365.
+        games = []
+        for event in raw:
+            games.append({
+                "id":            event["id"],
+                "home_team":     event["home_team"],
+                "away_team":     event["away_team"],
+                "commence_time": event["commence_time"],
+                "bookmaker":     "",
+                "markets":       {"player_props": []},
+                "removed_props": [],
+                "no_allowed_odds": True,
+            })
+        print(f"  Aucun book autorise ({', '.join(e['key'] for e in BOOKMAKER_PRIORITY)}) "
+              f"ne cote: {len(games)} match(s) gardes sans cote (lignes du modele seulement)")
+        return games
 
-    def get_nhl_player_props(self, event_id: str, bookmaker: str = "draftkings") -> dict:
+    def get_nhl_player_props(self, event_id: str, bookmaker: str = "bet365") -> dict:
         """Fetche les props joueurs NHL pour un match (tous les marches et tous
         les books en un seul appel), puis retient le premier book de la
         priorite qui cote reellement le match.

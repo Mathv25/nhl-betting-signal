@@ -19,9 +19,11 @@ les jours. D'ou trois garde-fous cumulatifs:
 Le total de chaque match vient du releve de slate deja fait par nfl_analyzer:
 il ne coute aucune requete supplementaire.
 
-Methode identique au module principal: probabilite no-vig par book, Pinnacle
-en reference sinon la mediane, signal quand la meilleure cote d'un autre book
-bat cette reference d'au moins NFL_PROPS_MIN_EDGE.
+Methode identique au module principal (2026-09-23): reference Pinnacle Shin,
+sinon mediane des books sharp; signal seulement quand la cote d'un ALLOWED_BOOK
+(bet365) bat cette reference d'au moins NFL_PROPS_MIN_EDGE. bet365 n'etant pas
+dans le flux Odds API, ce module ne produit en pratique aucun signal: il
+consomme des credits pour une information de reference.
 
 S'y ajoute un second type de signal propre aux props: l'ECART DE LIGNE. Quand
 un book affiche 67.5 verges et un autre 72.5, on peut prendre le Over a 67.5
@@ -118,14 +120,6 @@ def middle_breakeven(over_odds: float, under_odds: float) -> float:
     if gain <= perte:
         return 100.0
     return round(-perte / (gain - perte) * 100, 2)
-
-
-def min_books() -> int:
-    """Comme pour les marches principaux: deux books ne font pas un consensus."""
-    try:
-        return int(os.environ.get("NFL_PROPS_MIN_BOOKS", "") or 3)
-    except ValueError:
-        return 3
 
 
 def should_run(when: datetime = None) -> tuple:
@@ -266,18 +260,22 @@ def analyze_player(joueur: str, par_ligne: dict, market: str,
         key=lambda d: (d["ligne"], d["book"]))
 
     # ── Ecarts de cote, ligne par ligne ─────────────────────────────────────
+    # Meme regle que les marches principaux (2026-09-23): reference Pinnacle
+    # Shin (sinon mediane des books sharp), edge calcule sur la SEULE cote des
+    # ALLOWED_BOOKS. Un meilleur prix ailleurs n'est pas un pari prenable.
     for ligne, par_book in sorted(par_ligne.items()):
-        pair = NFL.devig_pair(
+        pair = NFL.reference_pair(
             {bk: {"Over": c.get("Over"), "Under": c.get("Under")}
              for bk, c in par_book.items()},
             "Over", "Under")
-        if not pair or pair["n_books"] < min_books():
+        if not pair:
             continue
         for side in ("Over", "Under"):
-            if side not in pair["best"]:
+            if side not in pair["mine"]:
                 continue
-            odds, book = pair["best"][side]
+            odds, book = pair["mine"][side]
             ev = NFL.ev_pct(pair[side], odds)
+            statut = NFL.classify(ev, thr)
             if ecartes is not None and thr - MARGE_TRACE <= ev < thr:
                 ecartes.append({
                     "joueur": joueur, "market": market,
@@ -287,9 +285,10 @@ def analyze_player(joueur: str, par_ligne: dict, market: str,
                     "book": book, "edge_pct": ev, "manque": round(thr - ev, 2),
                     "n_books": pair["n_books"], "source": pair["source"],
                 })
-            if ev >= thr:
+            if statut in ("a_miser", "a_verifier"):
                 sigs.append({
                     "type":      "cote",
+                    "statut":    statut,
                     "joueur":    joueur,
                     "market":    market,
                     "marche_lbl": MARKET_LABELS.get(market, market),
@@ -302,8 +301,7 @@ def analyze_player(joueur: str, par_ligne: dict, market: str,
                     "fair_odds": round(1.0 / pair[side], 3) if pair[side] > 0 else 0,
                     "min_odds":    odds_api.min_odds_for(pair[side] * 100, 0),
                     "target_odds": odds_api.min_odds_for(pair[side] * 100, thr),
-                    "my_odds":     odds_api.best_at_my_books(
-                        [(bk, c.get(side)) for bk, c in par_book.items()])[0],
+                    "my_odds":     round(odds, 3),
                     "edge_pct":  ev,
                     "source":    pair["source"],
                     "n_books":   pair["n_books"],
@@ -351,7 +349,11 @@ def analyze_player(joueur: str, par_ligne: dict, market: str,
 
     if (meilleur_over and meilleur_under
             and meilleur_under[0] - meilleur_over[0] >= min_middle()
-            and meilleur_under[2] != meilleur_over[2]):
+            and meilleur_under[2] != meilleur_over[2]
+            # Un middle se joue chez DEUX books: les deux doivent etre des
+            # books ou l'on peut miser (ALLOWED_BOOKS), sinon ce n'est rien.
+            and meilleur_over[2] in odds_api.my_books()
+            and meilleur_under[2] in odds_api.my_books()):
         lo, o_odds, o_book = meilleur_over
         hi, u_odds, u_book = meilleur_under
         sigs.append({
@@ -453,7 +455,6 @@ def run(api_key: str = None, slate: dict = None, force: bool = False,
         "stale":        False,
         "min_edge":     min_edge(),
         "min_total":    min_total(),
-        "min_books":    min_books(),
         "n_games":      len(games),
         "within_hours": within_hours,
         "n_scanned":    len(scannes),

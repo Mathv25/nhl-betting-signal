@@ -30,7 +30,7 @@ Reglages par variables d'environnement:
   ODDS_MAX_PROP_EVENTS    plafond dur d'evenements props par execution (defaut 15)
   ODDS_USAGE_PATH         fichier de suivi quotidien (defaut docs/odds_usage.json)
   ODDS_PROPS_ENABLED      "0" pour couper les appels props (defaut actif)
-  MY_BOOKS                books ou l'on peut reellement miser (defaut bet365)
+  (books jouables: config/betting.json, ALLOWED_BOOKS — plus de MY_BOOKS)
   STAKE_KELLY_FRACTION    fraction de Kelly pour la mise (defaut 0.25)
   STAKE_CAP_UNITS         plafond de mise en unites (defaut 2)
   ODDS_MAX_PRICE_RATIO    ecart maximal a la mediane des books (defaut 1.25):
@@ -82,8 +82,8 @@ def my_books() -> list:
     information. La distinction structure tout l'affichage: on montre le
     meilleur prix du marche comme reference, et a cote le prix jouable.
     """
-    raw = os.environ.get("MY_BOOKS", "bet365")
-    return [b.strip().lower() for b in raw.split(",") if b.strip()]
+    import betting_config
+    return betting_config.allowed_books()
 
 
 def best_at_my_books(prices: list) -> tuple:
@@ -326,6 +326,53 @@ def novig_two_way(over_odds: float, under_odds: float):
     if total <= 0:
         return None
     return p_o / total
+
+
+# ── Devig multi-methodes ────────────────────────────────────────────────────
+# Le multiplicatif (p_i / somme) repartit la marge au prorata: il laisse trop
+# de probabilite aux outsiders, alors que les books chargent davantage la
+# marge sur eux (biais favori-outsider). Shin modelise une part d'initie z et
+# corrige ce biais; power (p_i^k, somme = 1) est une alternative plus simple.
+
+def devig(odds: list, method: str = "shin") -> list:
+    """
+    Probabilites sans marge d'un marche a N issues, meme ordre que `odds`.
+    method: "shin" (defaut), "power" ou "multiplicative". [] si une cote
+    manque ou est invalide.
+    """
+    try:
+        pi = [1.0 / float(o) for o in odds]
+    except (TypeError, ValueError, ZeroDivisionError):
+        return []
+    if len(pi) < 2 or any(p <= 0 or p >= 1 for p in pi):
+        return []
+    booksum = sum(pi)
+    if method == "multiplicative" or booksum <= 1.0:
+        return [p / booksum for p in pi]
+    if method == "power":
+        lo, hi = 1.0, 20.0
+        for _ in range(100):
+            k = (lo + hi) / 2
+            if sum(p ** k for p in pi) > 1.0:
+                lo = k
+            else:
+                hi = k
+        k = (lo + hi) / 2
+        return [p ** k for p in pi]
+    # Shin (1993): p_i = (sqrt(z^2 + 4(1-z) pi_i^2 / S) - z) / (2(1-z)),
+    # z en [0, 1) choisi pour que la somme fasse 1.
+    def probs(z):
+        return [(( z * z + 4 * (1 - z) * p * p / booksum) ** 0.5 - z) / (2 * (1 - z)) for p in pi]
+    lo, hi = 0.0, 0.999
+    for _ in range(100):
+        z = (lo + hi) / 2
+        if sum(probs(z)) > 1.0:
+            lo = z
+        else:
+            hi = z
+    out = probs((lo + hi) / 2)
+    tot = sum(out)
+    return [p / tot for p in out]
 
 
 def ev_pct(our_prob_pct: float, odds: float) -> float:

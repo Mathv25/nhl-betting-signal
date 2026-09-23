@@ -19,7 +19,29 @@ from datetime import datetime
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 
 import odds_api           # noqa: E402
+import betting_config     # noqa: E402
 import nfl_props as P     # noqa: E402
+
+
+class AllowedBooks:
+    """Config temporaire: ALLOWED_BOOKS = `books` le temps d'un test."""
+
+    def __init__(self, *books):
+        self.books = list(books)
+
+    def __enter__(self):
+        import json
+        fd, self.path = tempfile.mkstemp(suffix=".json")
+        with os.fdopen(fd, "w") as f:
+            json.dump({"ALLOWED_BOOKS": self.books}, f)
+        os.environ["BETTING_CONFIG"] = self.path
+        betting_config.reset()
+        return self
+
+    def __exit__(self, *exc):
+        os.environ.pop("BETTING_CONFIG", None)
+        betting_config.reset()
+        os.remove(self.path)
 
 
 class FakeClient:
@@ -210,32 +232,33 @@ class TestDevigAndSignals(unittest.TestCase):
         import nfl_analyzer as NFL
         par_book = {bk: {"Over": c["Over"], "Under": c["Under"]}
                     for bk, c in joueurs["Puka Nacua"][67.5].items()}
-        pair = NFL.devig_pair(par_book, "Over", "Under")
+        pair = NFL.reference_pair(par_book, "Over", "Under")
         self.assertAlmostEqual(pair["Over"] + pair["Under"], 1.0, places=9)
-        self.assertEqual(pair["source"], "pinnacle")
+        self.assertTrue(pair["source"].startswith("pinnacle"))
 
-    def test_a_generous_book_becomes_a_signal(self):
-        # Pinnacle a 1.91/1.95 fixe la reference; un book paie 2.20 le Over.
-        lignes = {"pinnacle": (67.5, 1.91, 1.95), "draftkings": (67.5, 2.20, 1.75),
-                  "fanduel": (67.5, 1.92, 1.94)}
+    def test_a_generous_bet365_price_becomes_a_signal(self):
+        # Pinnacle a 1.91/1.95 fixe la reference; bet365 paie 2.05 le Over.
+        lignes = {"pinnacle": (67.5, 1.91, 1.95), "bet365": (67.5, 2.05, 1.75)}
         joueurs = P.parse_market(prop_payload(lignes=lignes), "player_reception_yds")
         sigs = P.analyze_player("Puka Nacua", joueurs["Puka Nacua"],
                                 "player_reception_yds", game())
         cotes = [s for s in sigs if s["type"] == "cote"]
         self.assertEqual(len(cotes), 1)
-        self.assertEqual(cotes[0]["book"], "draftkings")
+        self.assertEqual(cotes[0]["book"], "bet365")
         self.assertEqual(cotes[0]["side"], "Over")
+        self.assertEqual(cotes[0]["statut"], "a_miser")
         self.assertGreater(cotes[0]["edge_pct"], 3.0)
 
-    def test_an_aligned_market_produces_nothing(self):
-        joueurs = P.parse_market(prop_payload(), "player_reception_yds")
+    def test_a_generous_other_book_is_not_a_signal(self):
+        lignes = {"pinnacle": (67.5, 1.91, 1.95), "draftkings": (67.5, 2.20, 1.75),
+                  "fanduel": (67.5, 1.92, 1.94)}
+        joueurs = P.parse_market(prop_payload(lignes=lignes), "player_reception_yds")
         sigs = P.analyze_player("Puka Nacua", joueurs["Puka Nacua"],
                                 "player_reception_yds", game())
         self.assertEqual([s for s in sigs if s["type"] == "cote"], [])
 
-    def test_a_thin_market_is_refused(self):
-        lignes = {"pinnacle": (67.5, 1.91, 1.95), "dk": (67.5, 2.30, 1.70)}
-        joueurs = P.parse_market(prop_payload(lignes=lignes), "player_reception_yds")
+    def test_an_aligned_market_produces_nothing(self):
+        joueurs = P.parse_market(prop_payload(), "player_reception_yds")
         sigs = P.analyze_player("Puka Nacua", joueurs["Puka Nacua"],
                                 "player_reception_yds", game())
         self.assertEqual([s for s in sigs if s["type"] == "cote"], [])
@@ -255,7 +278,8 @@ class TestLineDiscrepancy(unittest.TestCase):
     def test_a_middle_between_two_books_is_detected(self):
         lignes = {"draftkings": (67.5, 1.91, 1.95), "pinnacle": (72.5, 1.90, 1.92),
                   "fanduel": (70.5, 1.90, 1.92)}
-        m = [s for s in self._sigs(lignes) if s["type"] == "ligne"]
+        with AllowedBooks("draftkings", "pinnacle"):
+            m = [s for s in self._sigs(lignes) if s["type"] == "ligne"]
         self.assertEqual(len(m), 1)
         self.assertEqual(m[0]["over"]["ligne"], 67.5)     # Over: la plus basse
         self.assertEqual(m[0]["over"]["book"], "draftkings")
@@ -292,9 +316,10 @@ class TestLineDiscrepancy(unittest.TestCase):
         for bk, pt in (("betmgm", 263.5), ("pinnacle", 263.5), ("draftkings", 262.5),
                        ("fanduel", 258.5), ("betrivers", 261.5)):
             par_ligne.setdefault(pt, {})[bk] = {"Over": 1.90, "Under": 1.92}
-        m = [s for s in P.analyze_player("Matthew Stafford", par_ligne,
-                                         "player_pass_yds", game())
-             if s["type"] == "ligne"]
+        with AllowedBooks("fanduel", "betmgm", "pinnacle"):
+            m = [s for s in P.analyze_player("Matthew Stafford", par_ligne,
+                                             "player_pass_yds", game())
+                 if s["type"] == "ligne"]
         self.assertEqual(len(m), 1)
         self.assertEqual(m[0]["fenetre"], 5.0)
         self.assertEqual(m[0]["over"]["ligne"], 258.5)
@@ -340,21 +365,31 @@ class TestMiddleEconomics(unittest.TestCase):
     def test_a_wide_enough_window_is_kept_with_its_breakeven(self):
         par_ligne = {258.5: {"fanduel": {"Over": 1.90, "Under": 1.92}},
                      263.5: {"betmgm": {"Over": 1.91, "Under": 1.90}}}
-        m = [s for s in P.analyze_player("Matthew Stafford", par_ligne,
-                                         "player_pass_yds", game())
-             if s["type"] == "ligne"]
+        with AllowedBooks("fanduel", "betmgm"):
+            m = [s for s in P.analyze_player("Matthew Stafford", par_ligne,
+                                             "player_pass_yds", game())
+                 if s["type"] == "ligne"]
         self.assertEqual(len(m), 1)
         self.assertEqual(m[0]["fenetre"], 5.0)
         self.assertGreater(m[0]["breakeven"], 0)
+
+    def test_a_middle_outside_my_books_is_dropped(self):
+        # bet365 seul: un middle fanduel/betmgm ne se joue pas.
+        par_ligne = {258.5: {"fanduel": {"Over": 1.90, "Under": 1.92}},
+                     263.5: {"betmgm": {"Over": 1.91, "Under": 1.90}}}
+        self.assertEqual([s for s in P.analyze_player(
+            "Matthew Stafford", par_ligne, "player_pass_yds", game())
+            if s["type"] == "ligne"], [])
 
     def test_the_window_threshold_is_configurable(self):
         os.environ["NFL_PROPS_MIN_MIDDLE"] = "1"
         try:
             par_ligne = {5.5: {"draftkings": {"Over": 1.90, "Under": 1.90}},
                          6.5: {"betmgm": {"Over": 1.90, "Under": 1.90}}}
-            self.assertTrue([s for s in P.analyze_player(
-                "Kyle Juszczyk", par_ligne, "player_reception_yds", game())
-                if s["type"] == "ligne"])
+            with AllowedBooks("draftkings", "betmgm"):
+                self.assertTrue([s for s in P.analyze_player(
+                    "Kyle Juszczyk", par_ligne, "player_reception_yds", game())
+                    if s["type"] == "ligne"])
         finally:
             os.environ.pop("NFL_PROPS_MIN_MIDDLE", None)
 

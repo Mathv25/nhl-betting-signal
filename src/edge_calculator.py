@@ -171,6 +171,10 @@ class EdgeCalculator:
             elif away_motiv > 1.02 and away_motiv > home_motiv:
                 context_notes.append(f"🔥 {away.split()[0]} en course playoff")
 
+        # Lignes du modele, cote ou non: c'est tout ce qu'on peut publier quand
+        # bet365 (seul book autorise) n'est pas dans le flux.
+        game["model_lines"] = self.model_lines(lh, la, home, away)
+
         if "moneyline" in mkts:
             edges += self._moneyline_edges(mkts["moneyline"], lh, la, label, home, away, context_notes)
         if "puck_line" in mkts:
@@ -187,6 +191,39 @@ class EdgeCalculator:
         edges += self._player_prop_edges(props, home, away, home_goalie, away_goalie, label)
 
         return [e for e in edges if e.get("edge_pct", 0) >= MIN_EDGE_PCT]
+
+    def model_lines(self, lh: float, la: float, home: str, away: str) -> list:
+        """
+        Probabilite du modele, cote juste et cote bet365 minimale pour chaque
+        marche principal. Seuil: MIN_EDGE_PCT (edge = (p - impl) / impl, soit
+        cote >= (1 + seuil) / p), plus le plancher MIN_ODDS_ML en moneyline.
+        """
+        thr = 1.0 + MIN_EDGE_PCT / 100.0
+        hp = self._win_prob(lh, la)
+        tot = lh + la
+        rows = [
+            ("nhl_ml", f"{home} ML", hp, MIN_ODDS_ML),
+            ("nhl_ml", f"{away} ML", 1 - hp, MIN_ODDS_ML),
+            ("nhl_puck", f"{home} -1.5", self._spread_prob(lh, la, -1.5, "home"), MIN_ODDS),
+            ("nhl_puck", f"{away} +1.5", self._spread_prob(lh, la, 1.5, "away"), MIN_ODDS),
+            ("nhl_puck", f"{away} -1.5", self._spread_prob(lh, la, -1.5, "away"), MIN_ODDS),
+            ("nhl_puck", f"{home} +1.5", self._spread_prob(lh, la, 1.5, "home"), MIN_ODDS),
+        ]
+        for line in (5.5, 6.5):
+            rows.append(("nhl_total", f"Over {line}", self._total_prob(tot, line, "over"), MIN_ODDS))
+            rows.append(("nhl_total", f"Under {line}", self._total_prob(tot, line, "under"), MIN_ODDS))
+        out = []
+        for marche, sel, p, floor in rows:
+            if p <= 0:
+                continue
+            out.append({
+                "marche":    marche,
+                "selection": sel,
+                "prob":      round(p, 4),
+                "fair_odds": round(1.0 / p, 3),
+                "min_odds":  round(max(thr / p, floor), 2),
+            })
+        return out
 
     # ── Stats hybrides ────────────────────────────────────────────────────────
 
