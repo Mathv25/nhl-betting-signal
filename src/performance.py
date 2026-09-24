@@ -121,7 +121,11 @@ def compute(rows: list) -> dict:
             sub = [r for r in rs if _group_of(r.get("marche")) == name]
             if sub:
                 groups[name] = group_stats(sub)
-        out["epoques"][ep] = {"n": len(rs), "groupes": groups}
+        versions: dict = {}
+        for r in rs:
+            v = r.get("version_modele") or "?"
+            versions[v] = versions.get(v, 0) + 1
+        out["epoques"][ep] = {"n": len(rs), "groupes": groups, "versions": versions}
     return out
 
 

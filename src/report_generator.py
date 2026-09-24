@@ -2279,6 +2279,8 @@ class ReportGenerator:
             "h+=\"<div class='trk-note'>Indicateur principal: le CLV (cote prise contre la cote juste Pinnacle a la fermeture). Le taux de reussite n'est pas affiche: sans la cote il ne dit rien.</div>\";"
             "var gj=j.groupes||{};var kj=Object.keys(gj);"
             "if(!kj.length)h+=\"<div class='trk-note'>Journal vide pour l'instant: les predictions du 23 septembre et suivantes apparaitront apres leur premier reglement.</div>\";"
+            "var vs=j.versions||{};var vk=Object.keys(vs);"
+            "if(vk.length)h+=\"<div class='trk-note'>Versions du modele dans le journal: \"+vk.map(function(v){return v+' ('+vs[v]+')';}).join(' · ')+\"</div>\";"
             "kj.forEach(function(k){h+=perfGroup(k,gj[k]);});"
             "var gh=hi.groupes||{};var kh=Object.keys(gh);"
             "if(kh.length){h+=\"<details class='pj-hist'><summary>Historique importe de results.json (\"+(hi.n||0)+\" paris selectionnes — peu fiable)</summary>\";"

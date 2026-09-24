@@ -59,8 +59,6 @@ finally:
 # Relancer mlb_k_backtest.py pour reajuster; ne pas retoucher a la main.
 K_MU_FACTOR = 0.9259
 K_NB_R      = 56.92
-# Ecrit dans data/predictions.csv (version_modele) pour separer les epoques.
-MODEL_VERSION = "k-nb-c0.926-r56.9-2026-09-23"
 
 # Bornes physiques d'un depart, en manches.
 IP_MIN = 1.0

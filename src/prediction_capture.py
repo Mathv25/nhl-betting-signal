@@ -86,7 +86,6 @@ def mlb_ml_rows(mlb_ml_analysis: list, today: str, now: datetime) -> list:
                 cote_reference=b.get("cote") or "",
                 selectionne=0 if b.get("tier") == "🔴" else 1,
                 statut="a_saisir",
-                version_modele="mlb-ml",
                 source=f"{b.get('tier', '')} {b.get('label', '')}".strip(),
             ))
     return rows
@@ -104,8 +103,7 @@ def nhl_rows(signals: list, today: str, now: datetime) -> list:
         for ln in g.get("model_lines") or []:
             rows.append(_row(
                 day, "nhl", ln["marche"], ln["selection"], ln["prob"], ct, match,
-                g.get("id", ""), statut="a_saisir", version_modele="nhl-poisson",
-                source="lignes du modele",
+                g.get("id", ""), statut="a_saisir", source="lignes du modele",
             ))
     return rows
 
@@ -129,7 +127,7 @@ def nfl_rows(nfl_state: dict, today: str, now: datetime) -> list:
             rows.append(_row(
                 day, "nfl", px.get("market", ""), label, p, ct, match, g.get("event_id", ""),
                 prob_marche_novig=round(p, 4), statut=px.get("statut", "a_saisir"),
-                version_modele="nfl-reference-shin", source=px.get("source", ""),
+                source=px.get("source", ""),
             ))
     return rows
 

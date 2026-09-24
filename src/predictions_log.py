@@ -57,6 +57,11 @@ def path() -> str:
     return os.environ.get("PREDICTIONS_PATH") or os.path.join(_HERE, "..", "data", "predictions.csv")
 
 
+def current_version() -> str:
+    import model_version
+    return model_version.MODEL_VERSION
+
+
 def make_id(date: str, sport: str, marche: str, selection: str) -> str:
     return f"{date}|{sport}|{marche}|{selection}"
 
@@ -118,6 +123,8 @@ def upsert(new_rows: list, p: str = None, now: datetime = None) -> dict:
     for nr in new_rows:
         nr = dict(nr)
         nr.setdefault("timestamp", now_iso())
+        # Chaque prediction porte la version du modele qui l'a produite.
+        nr["version_modele"] = current_version()
         rid = nr.get("id") or make_id(nr.get("date", ""), nr.get("sport", ""),
                                       nr.get("marche", ""), nr.get("selection", ""))
         nr["id"] = rid

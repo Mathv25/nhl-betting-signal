@@ -71,10 +71,11 @@ def record(payload: dict, path: str = None) -> dict:
     rows = PL.load(path)
     row = next((r for r in rows if r.get("id") == rid), None)
     if row is None:
-        row = {"id": rid, "timestamp": PL.now_iso(), "source": "saisie manuelle"}
+        row = {"id": rid, "timestamp": PL.now_iso(), "source": "saisie manuelle",
+               "version_modele": PL.current_version()}
         for k in ("date", "sport", "marche", "selection", "joueur", "ligne", "k",
                   "match", "commence_time", "event_id", "prob_brute", "prob_calibree",
-                  "prob_marche_novig", "version_modele"):
+                  "prob_marche_novig"):
             if payload.get(k) not in (None, ""):
                 row[k] = payload[k]
         row["prob_modele"] = prob

@@ -761,7 +761,6 @@ def k_ladder_rows(game: dict, starters: dict, league_k: float = None) -> list:
                 "statut":          "calibre" if c["calibrated"] else "informatif",
                 "cote_juste":      round(1.0 / prob, 3) if prob > 0 else "",
                 "mise_u":          0,
-                "version_modele":  KD.MODEL_VERSION,
                 "event_id":        game.get("event_id", ""),
                 "match":           f"{away} @ {home}",
                 "commence_time":   ct,
