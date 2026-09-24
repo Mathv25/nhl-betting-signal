@@ -99,6 +99,8 @@ def nhl_rows(signals: list, today: str, now: datetime) -> list:
         ct = g.get("commence_time", "")
         if not _future(ct, now):
             continue
+        if g.get("statut") == "en_attente":
+            continue      # gardien non confirme: pas une prediction du modele
         day = _day(ct, today)
         match = f"{g.get('away_team', '')} @ {g.get('home_team', '')}"
         for ln in g.get("model_lines") or []:

@@ -167,6 +167,25 @@ class LineupValidator:
         return active
 
     _df_cache = {}  # abbr -> goalie name from Daily Faceoff
+    _df_status = {}  # abbr -> statut Daily Faceoff (« Confirmed », « Likely », ...)
+
+    def get_starter(self, team_name):
+        """
+        (nom, confirme, statut) du gardien partant. Confirme seulement si Daily
+        Faceoff le marque « Confirmed »: le repli roster (plus de matchs joues)
+        et « Likely » ne sont jamais confirmes.
+        """
+        import nhl_goalies
+        name = self.get_probable_starter(team_name)
+        abbr = TEAM_ABBR.get(team_name, "")
+        status = LineupValidator._df_status.get(abbr, "") if abbr else ""
+        if abbr and abbr not in LineupValidator._df_cache:
+            status = ""          # nom venu du repli roster
+        elif abbr and LineupValidator._df_cache.get(abbr) != name:
+            status = ""
+        if status and not nhl_goalies.is_confirmed(status) and status.lower() not in ("likely", "unconfirmed"):
+            print(f"  [Goalies DF] statut inconnu pour {abbr}: {status!r} — traite comme non confirme")
+        return name, nhl_goalies.is_confirmed(status), status or "repli roster"
 
     def get_probable_starter(self, team_name):
         """Retourne le gardien partant confirme depuis Daily Faceoff.
@@ -238,8 +257,10 @@ class LineupValidator:
                 away_abbr = next((a for n, a in TEAM_ABBR.items() if n in away_team or away_team in n), None)
                 if home_name and home_abbr:
                     result[home_abbr] = home_name
+                    LineupValidator._df_status[home_abbr] = home_status
                 if away_name and away_abbr:
                     result[away_abbr] = away_name
+                    LineupValidator._df_status[away_abbr] = away_status
             print(f"  [Goalies DF] {len(result)} partants trouves: {result}")
         except Exception as e:
             print(f"  [Goalies DF] Erreur: {e}")

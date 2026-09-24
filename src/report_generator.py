@@ -203,7 +203,14 @@ class ReportGenerator:
             if not lines:
                 continue
             match = (g.get("away_team", "") + " @ " + g.get("home_team", "")).replace("'", "")
-            h = "<div class='nhl-ml-game'><div class='nhl-ml-h'>" + match + "</div>"
+            gl = g.get("goalies") or {}
+            gtxt = " · ".join(
+                (x.get("name") or "?") + (" ✓" if x.get("confirmed") else " (non confirmé)")
+                for x in (gl.get("away") or {}, gl.get("home") or {}))
+            wait = g.get("statut") == "en_attente"
+            h = ("<div class='nhl-ml-game" + (" nhl-wait" if wait else "") + "'><div class='nhl-ml-h'>" + match
+                 + (" <span class='mlb-info-badge'>En attente — gardien non confirmé · aucun signal</span>" if wait else "")
+                 + "</div><div class='nhl-ml-g'>Gardiens: " + gtxt + "</div>")
             for ln in lines:
                 p = ln.get("prob", 0)
                 h += ("<div class='nfl-row rec-row' data-sport='nhl' data-marche='" + ln["marche"]
@@ -221,7 +228,8 @@ class ReportGenerator:
                       "<span class='nfl-rec'><input class='rec-odds' type='number' step='0.01' min='1.01' "
                       "placeholder='bet365' oninput='recCalc(this)'> <span class='rec-out'></span> "
                       "<input class='rec-stake' type='number' step='0.05' min='0' value='0' oninput='this.dataset.manual=1'> u "
-                      "<button class='rec-btn' onclick='recSave(this)'>Enregistrer</button></span></div>")
+                      "<button class='rec-btn' onclick='recSave(this)'" + (" disabled" if wait else "")
+                      + ">Enregistrer</button></span></div>")
             blocs.append(h + "</div>")
         if not blocs:
             return ""
@@ -1633,6 +1641,7 @@ class ReportGenerator:
             # via le workflow record_prediction.yml (meme token qu'Actualiser).
             "var REC_THR={nfl:3,mlb:3,nhl:3};var REC_SUSPECT=" + str(self._suspect_edge()) + ";"
             "function recStatus(row,e){"
+            "if(row.closest('.nhl-wait'))return['en attente — gardien non confirmé','#92400E'];"
             "if(row.dataset.marche==='props_k'&&row.dataset.cal!=='1')return['informatif — barreau non calibré','#92400E'];"
             "if(e>REC_SUSPECT)return['À VÉRIFIER (prix suspect)','#B45309'];"
             "if(e>=(REC_THR[row.dataset.sport]||3))return['à miser','#0F6E56'];"
@@ -1812,13 +1821,15 @@ class ReportGenerator:
             "if(!ls.length)return;try{if(new Date(ct).getTime()<=now)return;}catch(e){}"
             "var dET='';try{dET=new Date(ct).toLocaleDateString('fr-CA',{timeZone:'America/Toronto'});}catch(e){}"
             "var m=((g.away_team||'')+' @ '+(g.home_team||'')).replace(/'/g,'');"
-            "h+='<div class=\"nhl-ml-game\"><div class=\"nhl-ml-h\">'+m+'</div>';"
+            "var gl=g.goalies||{};var wait=g.statut==='en_attente';"
+            "var gt=[gl.away||{},gl.home||{}].map(function(x){return (x.name||'?')+(x.confirmed?' ✓':' (non confirmé)');}).join(' · ');"
+            "h+='<div class=\"nhl-ml-game'+(wait?' nhl-wait':'')+'\"><div class=\"nhl-ml-h\">'+m+(wait?' <span class=\"mlb-info-badge\">En attente — gardien non confirmé · aucun signal</span>':'')+'</div><div class=\"nhl-ml-g\">Gardiens: '+gt+'</div>';"
             "ls.forEach(function(ln){var p=ln.prob||0;"
             "h+='<div class=\"nfl-row rec-row\" data-sport=\"nhl\" data-marche=\"'+ln.marche+'\" data-selection=\"'+String(ln.selection).replace(/\"/g,'')+'\" data-prob=\"'+p.toFixed(4)+'\" data-prob_modele=\"'+(ln.prob_modele||p).toFixed(4)+'\" data-prob_marche_novig=\"'+(ln.prob_marche!=null?ln.prob_marche.toFixed(4):'')+'\" data-date=\"'+dET+'\" data-commence_time=\"'+ct+'\" data-match=\"'+m+'\" data-event_id=\"'+(g.id||'')+'\">';"
             "h+='<span class=\"nfl-sel\">'+ln.selection+'</span><span class=\"nfl-mk\">'+String(ln.marche).replace('nhl_','')+'</span>';"
             "h+='<span class=\"nfl-fair\" title=\"'+(ln.blend_source||'')+'\">p_final '+(p*100).toFixed(1)+'% (modèle '+((ln.prob_modele||p)*100).toFixed(0)+'%) · plancher '+(ln.fair_odds||0).toFixed(2)+'</span>';"
             "h+='<span class=\"nfl-px\">exiger <b>'+(ln.min_odds||0).toFixed(2)+'</b></span>';"
-            "h+='<span class=\"nfl-rec\"><input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"bet365\" oninput=\"recCalc(this)\"> <span class=\"rec-out\"></span> <input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" oninput=\"this.dataset.manual=1\"> u <button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></span></div>';});"
+            "h+='<span class=\"nfl-rec\"><input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"bet365\" oninput=\"recCalc(this)\"> <span class=\"rec-out\"></span> <input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" oninput=\"this.dataset.manual=1\"> u <button class=\"rec-btn\" onclick=\"recSave(this)\"'+(wait?' disabled':'')+'>Enregistrer</button></span></div>';});"
             "h+='</div>';});"
             "if(!h)return '';"
             "return '<div class=\"sec\" style=\"margin-top:1.5rem\">LNH — lignes du modèle (bet365 absent du flux: saisir la cote)</div>'+h;}"
@@ -2929,6 +2940,7 @@ class ReportGenerator:
             ".nfl-rec{margin-left:auto;display:flex;align-items:center;gap:4px}"
             ".nhl-ml-game{margin:8px 0;padding:6px 10px;border:1px solid var(--b);border-radius:8px}"
             ".nhl-ml-h{font-weight:700;font-size:13px;margin-bottom:4px}"
+            ".nhl-ml-g{font-size:11px;color:var(--m);margin-bottom:4px}.nhl-wait .nfl-row{opacity:.55}"
             ".nfl-rec .rec-odds{width:62px;padding:2px 4px;border:1px solid var(--b);border-radius:4px}"
             ".nfl-row{display:flex;align-items:center;gap:9px;font-size:11.5px;"
             "padding:4px 0;border-top:1px solid var(--b)}"

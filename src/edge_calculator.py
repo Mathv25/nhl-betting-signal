@@ -29,10 +29,6 @@ REST_3PLUS_FACTOR = 1.025   # 3+ jours de repos: leger avantage (+2.5% scoring)
 REST_2DAY_FACTOR  = 1.005   # 2 jours de repos: quasi neutre (+0.5%)
 # B2B_FACTOR = 0.93 pour 0 jours de repos (retour immediate)
 # ── FACTEUR GARDIEN EN FORME ─────────────────────────────────────────────────
-GOALIE_HOT_FACTOR  = 0.94   # Gardien en forme: reduit lambda adverse de 6%
-GOALIE_COLD_FACTOR = 1.06   # Gardien en difficulty: augmente lambda adverse de 6%
-GOALIE_HOT_SV  = 0.928      # SV% seuil pour "en forme"
-GOALIE_COLD_SV = 0.895      # SV% seuil pour "en difficulte"
 SHRINKAGE     = 0.25
 
 MAX_EDGE_ML    = 25.0   # Releve de 15 — sinon le filtre MIN_EDGE_PCT=15 est impossible a atteindre
@@ -122,8 +118,25 @@ class EdgeCalculator:
         home_b2b = self.lineup.is_back_to_back(home, date)
         away_b2b = self.lineup.is_back_to_back(away, date)
 
-        home_goalie = self.lineup.get_probable_starter(home)
-        away_goalie = self.lineup.get_probable_starter(away)
+        # Gardien partant: variable d'entree du modele (nhl_goalies). Non
+        # confirme par Daily Faceoff -> match « en attente », aucun signal.
+        import nhl_goalies
+        if hasattr(self.lineup, "get_starter"):
+            home_goalie, home_conf, home_gst = self.lineup.get_starter(home)
+            away_goalie, away_conf, away_gst = self.lineup.get_starter(away)
+        else:                                            # pragma: no cover
+            home_goalie, home_conf, home_gst = self.lineup.get_probable_starter(home), False, "?"
+            away_goalie, away_conf, away_gst = self.lineup.get_probable_starter(away), False, "?"
+        home_gm, home_gdet = nhl_goalies.multiplier(home_goalie)
+        away_gm, away_gdet = nhl_goalies.multiplier(away_goalie)
+        game["goalies"] = {
+            "home": {"name": home_goalie, "confirmed": home_conf, "status": home_gst,
+                     "mult_adverse": home_gm, "detail": home_gdet},
+            "away": {"name": away_goalie, "confirmed": away_conf, "status": away_gst,
+                     "mult_adverse": away_gm, "detail": away_gdet},
+        }
+        en_attente = not (home_conf and away_conf)
+        game["statut"] = "en_attente" if en_attente else "pret"
 
         home_recent = self._get_recent_stats(home)
         away_recent = self._get_recent_stats(away)
@@ -137,17 +150,16 @@ class EdgeCalculator:
         home_rest = home_recent.get("days_rest", 1)
         away_rest = away_recent.get("days_rest", 1)
 
-        # Forme du gardien (SV% proxy sur 5 derniers matchs)
-        home_goalie_sv = home_recent.get("recent_sv", 0.910)
-        away_goalie_sv = away_recent.get("recent_sv", 0.910)
-
         lh, la = self._lambdas(
             home_hybrid, away_hybrid,
             home_b2b, away_b2b,
             home_motiv, away_motiv,
             home_rest, away_rest,
-            home_goalie_sv, away_goalie_sv,
+            home_goalie_mult=home_gm, away_goalie_mult=away_gm,
         )
+        # Probabilites: Dixon-Coles + filet desert + prolongation/fusillade
+        # (nhl_dixon_coles, dans model_lines et les edges).
+        game["lambdas"] = {"home": lh, "away": la}
 
         # Notes contextuelles — seulement si ecart significatif
         context_notes = []
@@ -177,6 +189,12 @@ class EdgeCalculator:
         # Lignes du modele, cote ou non: c'est tout ce qu'on peut publier quand
         # bet365 (seul book autorise) n'est pas dans le flux.
         game["model_lines"] = self.model_lines(lh, la, home, away, self._market)
+        if en_attente:
+            manque = [n for n, ok in ((home, home_conf), (away, away_conf)) if not ok]
+            print(f"  {label}: en attente — gardien non confirme ({', '.join(manque)}), aucun signal")
+            for ln in game["model_lines"]:
+                ln["statut"] = "en_attente"
+            return []
 
         if "moneyline" in mkts:
             edges += self._moneyline_edges(mkts["moneyline"], lh, la, label, home, away, context_notes)
@@ -213,19 +231,20 @@ class EdgeCalculator:
         # MIN_EDGE_PCT (15%, ecart relatif) depasserait la regle « > 8% = A
         # VERIFIER »: aucune ligne ne serait jamais a miser.
         thr = 1.0 + MANUAL_EDGE_PCT / 100.0
-        hp = self._win_prob(lh, la)
-        tot = lh + la
+        import nhl_dixon_coles as DC
+        gp = DC.game_probs(lh, la)
         rows = [
-            ("nhl_ml", f"{home} ML", hp, MIN_ODDS_ML),
-            ("nhl_ml", f"{away} ML", 1 - hp, MIN_ODDS_ML),
-            ("nhl_puck", f"{home} -1.5", self._spread_prob(lh, la, -1.5, "home"), MIN_ODDS),
-            ("nhl_puck", f"{away} +1.5", self._spread_prob(lh, la, 1.5, "away"), MIN_ODDS),
-            ("nhl_puck", f"{away} -1.5", self._spread_prob(lh, la, -1.5, "away"), MIN_ODDS),
-            ("nhl_puck", f"{home} +1.5", self._spread_prob(lh, la, 1.5, "home"), MIN_ODDS),
+            ("nhl_ml", f"{home} ML", gp["home_ml"], MIN_ODDS_ML),
+            ("nhl_ml", f"{away} ML", gp["away_ml"], MIN_ODDS_ML),
+            ("nhl_puck", f"{home} -1.5", gp["home_-1.5"], MIN_ODDS),
+            ("nhl_puck", f"{away} +1.5", gp["away_+1.5"], MIN_ODDS),
+            ("nhl_puck", f"{away} -1.5", gp["away_-1.5"], MIN_ODDS),
+            ("nhl_puck", f"{home} +1.5", gp["home_+1.5"], MIN_ODDS),
         ]
         for line in (5.5, 6.5):
-            rows.append(("nhl_total", f"Over {line}", self._total_prob(tot, line, "over"), MIN_ODDS))
-            rows.append(("nhl_total", f"Under {line}", self._total_prob(tot, line, "under"), MIN_ODDS))
+            o = gp["over"](line)
+            rows.append(("nhl_total", f"Over {line}", o, MIN_ODDS))
+            rows.append(("nhl_total", f"Under {line}", 1.0 - o, MIN_ODDS))
         out = []
         for marche, sel, p_mod, floor in rows:
             if p_mod <= 0:
@@ -364,7 +383,7 @@ class EdgeCalculator:
 
     def _lambdas(self, hs, as_, home_b2b, away_b2b, home_motiv, away_motiv,
                  home_rest: int = 1, away_rest: int = 1,
-                 home_goalie_sv: float = 0.910, away_goalie_sv: float = 0.910):
+                 home_goalie_mult: float = 1.0, away_goalie_mult: float = 1.0):
         lh_raw = (hs["gf_pg"] * HOME_FACTOR * as_["ga_pg"]) / LEAGUE_AVG_GF
         la_raw = (as_["gf_pg"] * AWAY_FACTOR * hs["ga_pg"]) / LEAGUE_AVG_GF
 
@@ -374,22 +393,11 @@ class EdgeCalculator:
         lh *= self._pp_factor(hs.get("pp_pct", 20.0), as_.get("pk_pct", 80.0))
         la *= self._pp_factor(as_.get("pp_pct", 20.0), hs.get("pk_pct", 80.0))
 
-        # ── Qualite du gardien (saison) ─────────────────────────────────────
-        league_sv = 0.910
-        lh *= (league_sv / max(as_.get("starter_sv_pct", 0.910), 0.880))
-        la *= (league_sv / max(hs.get("starter_sv_pct", 0.910), 0.880))
-
-        # ── Forme recente du gardien (5 derniers matchs) ──────────────────
-        # Si le gardien adverse est en form → reduit lambda; s'il est froid → augmente
-        if away_goalie_sv >= GOALIE_HOT_SV:
-            lh *= GOALIE_HOT_FACTOR    # gardien visiteur en forme: home score moins
-        elif away_goalie_sv <= GOALIE_COLD_SV:
-            lh *= GOALIE_COLD_FACTOR   # gardien visiteur en difficulte: home score plus
-
-        if home_goalie_sv >= GOALIE_HOT_SV:
-            la *= GOALIE_HOT_FACTOR    # gardien local en forme: visiteur score moins
-        elif home_goalie_sv <= GOALIE_COLD_SV:
-            la *= GOALIE_COLD_FACTOR   # gardien local en difficulte: visiteur score plus
+        # ── Gardien PARTANT (nhl_goalies: GSAx/60 MoneyPuck, sinon % d'arrets
+        # ajuste) ─ remplace le % d'arrets moyen de l'equipe et la « forme »
+        # des 5 derniers matchs, qui ne disaient pas qui joue ce soir.
+        lh *= away_goalie_mult      # gardien visiteur -> buts du domicile
+        la *= home_goalie_mult      # gardien local -> buts du visiteur
 
         # ── B2B (repos 0 jour) ────────────────────────────────────────────
         if home_b2b:
@@ -426,8 +434,9 @@ class EdgeCalculator:
 
     def _moneyline_edges(self, market, lh, la, label, home, away, context_notes):
         edges = []
-        hp = self._win_prob(lh, la)
-        ap = 1 - hp
+        import nhl_dixon_coles as DC
+        gp = DC.game_probs(lh, la)
+        hp, ap = gp["home_ml"], gp["away_ml"]      # 2 issues, prolongation incluse
         for side, prob in [("home", hp), ("away", ap)]:
             m = market.get(side)
             if not m: continue
@@ -455,8 +464,11 @@ class EdgeCalculator:
             m = market.get(side)
             if not m: continue
             spread = m.get("spread", -1.5 if side == "home" else 1.5)
-            prob   = self._pf(self._spread_prob(lh, la, spread, side),
-                              f"{m['team']} {float(spread):+g}", "nhl_puck")
+            import nhl_dixon_coles as DC
+            gp = DC.game_probs(lh, la)
+            key = f"{side}_{float(spread):+g}"
+            base = gp.get(key, self._spread_prob(lh, la, spread, side))
+            prob   = self._pf(base, f"{m['team']} {float(spread):+g}", "nhl_puck")
             e = self._edge(prob, m["implied_prob"] / 100, m["odds_decimal"],
                            max_edge=MAX_EDGE_PL)
             if e:
@@ -486,7 +498,9 @@ class EdgeCalculator:
             m = market.get(direction)
             if not m or not m.get("line"): continue
             line = m["line"]
-            prob = self._pf(self._total_prob(expected, line, direction),
+            import nhl_dixon_coles as DC
+            o = DC.game_probs(lh, la)["over"](line)
+            prob = self._pf(o if direction == "over" else 1.0 - o,
                             f"{direction.capitalize()} {line}", "nhl_total")
             e = self._edge(prob, m["implied_prob"] / 100, m["odds_decimal"],
                            max_edge=MAX_EDGE_TOT)
