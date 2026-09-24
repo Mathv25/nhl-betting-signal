@@ -15,7 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 
-MODEL_VERSION = "2026.09.24.2"
+MODEL_VERSION = "2026.09.24.3"
 
 CHANGELOG = [
     ("2026.09.23.1", "K: binomiale negative (c=0.926, r=56.9), calibration par barreau; "
@@ -23,11 +23,13 @@ CHANGELOG = [
     ("2026.09.24.1", "Version unique pour tous les marches (auparavant une etiquette par source)"),
     ("2026.09.24.2", "Melange modele-marche avant l'edge et la mise, w=0.3 par defaut "
                      "(MLB ML: 0.35 -> 0.30); props K et LNH melanges avec la reference no-vig"),
+    ("2026.09.24.3", "Mises: Kelly 0.25 sur p_final, 1.5% par pari, 3% par soir; seuil LNH "
+                     "saisi a la main 15% -> 3% (coherent avec « > 8% = A VERIFIER »)"),
 ]
 
 # Empreinte des parametres a la version courante. A mettre a jour AVEC la
 # version: python3 -c "import model_version as m; print(m.fingerprint())"
-FINGERPRINT = "ac2865d90f10"
+FINGERPRINT = "7917affd697f"
 
 
 def parameters() -> dict:
@@ -39,7 +41,8 @@ def parameters() -> dict:
     return {
         "k": {"mu": KD.K_MU_FACTOR, "r": KD.K_NB_R},
         "blend_w": cfg.get("BLEND_W"),
-        "nhl": {"min_edge": EC.MIN_EDGE_PCT},
+        "nhl": {"min_edge": EC.MIN_EDGE_PCT, "manual_edge": EC.MANUAL_EDGE_PCT},
+        "staking": cfg.get("STAKING"),
         "devig": cfg["DEVIG_METHOD"],
         "reference": cfg["REFERENCE_BOOK"],
     }

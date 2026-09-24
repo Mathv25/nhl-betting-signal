@@ -417,11 +417,9 @@ def _edge(prob: float, dk_implied: float = DK_IMPLIED) -> float:
 
 
 def _kelly(prob: float, dk_implied: float = DK_IMPLIED, dk_odds: float = DK_ODDS) -> float:
-    b = dk_odds - 1
-    if b <= 0:
-        return 0.0
-    k = ((b * prob / 100) - (1 - prob / 100)) / b / 4 * 100
-    return round(max(k, 0.0), 1)
+    """% du bankroll — staking.py (Kelly 0.25, plafond 1.5%)."""
+    import staking
+    return round(staking.kelly_pct(prob / 100.0, dk_odds), 1)
 
 
 class NBAPropsAnalyzer:

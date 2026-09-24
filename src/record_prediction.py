@@ -28,8 +28,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import betting_config           # noqa: E402
 import predictions_log as PL     # noqa: E402
 
-# Seuil d'edge (esperance, %) par sport pour « a miser ».
-THRESHOLDS = {"nfl": 3.0, "mlb": 3.0, "nhl": 15.0}
+# Seuil d'edge (esperance sur p_final, %) par sport pour « a miser ». La LNH
+# est passee de 15 a 3 le 2026-09-24: avec la regle « > 8% = A VERIFIER »,
+# un seuil a 15 rendait tout pari LNH impossible a miser.
+THRESHOLDS = {"nfl": 3.0, "mlb": 3.0, "nhl": 3.0}
 
 
 def _num(payload, key, lo=None, hi=None, required=False):

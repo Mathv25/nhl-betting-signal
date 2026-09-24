@@ -110,7 +110,7 @@ class TestNHLModelLines(unittest.TestCase):
         self.assertAlmostEqual(ml[0]["prob"] + ml[1]["prob"], 1.0, places=3)
         for l in lines:
             self.assertAlmostEqual(l["fair_odds"], 1 / l["prob"], places=2)
-            self.assertGreaterEqual(l["min_odds"], (1 + EC.MIN_EDGE_PCT / 100) / l["prob"] - 0.01)
+            self.assertGreaterEqual(l["min_odds"], (1 + EC.MANUAL_EDGE_PCT / 100) / l["prob"] - 0.01)
 
 
 if __name__ == "__main__":

@@ -220,7 +220,7 @@ class ReportGenerator:
                       "<span class='nfl-px'>exiger <b>" + f"{ln['min_odds']:.2f}" + "</b></span>"
                       "<span class='nfl-rec'><input class='rec-odds' type='number' step='0.01' min='1.01' "
                       "placeholder='bet365' oninput='recCalc(this)'> <span class='rec-out'></span> "
-                      "<input class='rec-stake' type='number' step='0.25' min='0' value='0'> u "
+                      "<input class='rec-stake' type='number' step='0.05' min='0' value='0' oninput='this.dataset.manual=1'> u "
                       "<button class='rec-btn' onclick='recSave(this)'>Enregistrer</button></span></div>")
             blocs.append(h + "</div>")
         if not blocs:
@@ -819,7 +819,7 @@ class ReportGenerator:
                         "Cote bet365: <input id='kc-i-" + cid + "' class='mlb-k-odds-input rec-odds' type='number' "
                         "step='0.01' min='1.01' placeholder='ex: 1.95' oninput=\"mlbCalcEdge('" + cid + "')\"> "
                         "<b id='kc-e-" + cid + "' class='rec-out'></b>"
-                        " mise <input class='rec-stake' type='number' step='0.25' min='0' value='0'> u"
+                        " mise <input class='rec-stake' type='number' step='0.05' min='0' value='0' oninput='this.dataset.manual=1'> u"
                         " <button class='rec-btn' onclick='recSave(this)'>Enregistrer</button>"
                         "</div>"
                     )
@@ -1120,6 +1120,14 @@ class ReportGenerator:
             "</div></div>")
 
     @staticmethod
+    def _staking_js() -> str:
+        try:
+            import staking
+            return json.dumps(staking.settings())
+        except Exception:
+            return json.dumps({"KELLY_FRACTION": 0.25, "MAX_BET_PCT": 1.5, "MAX_NIGHT_PCT": 3.0})
+
+    @staticmethod
     def _suspect_edge() -> float:
         try:
             import betting_config
@@ -1257,12 +1265,12 @@ class ReportGenerator:
                     + "' data-match='" + match + "' data-event_id='" + str(g.get("event_id", "")) + "'>"
                     "<span class=\"nfl-sel\">" + ("<b>★</b> " if is_sig else "") + str(lab) + "</span>"
                     "<span class=\"nfl-mk\">" + str(px.get("market", "")).replace("nfl_", "") + "</span>"
-                    "<span class=\"nfl-fair\">juste " + f"{fair:.2f}" + "</span>"
+                    "<span class=\"nfl-fair\" title=\"cote plancher: edge nul sur p_final\">plancher " + f"{fair:.2f}" + "</span>"
                     "<span class=\"nfl-px\">exiger <b>" + f"{cible:.2f}" + "</b></span>"
                     "<span class=\"nfl-rec\"><input class=\"rec-odds\" type=\"number\" step=\"0.01\" "
                     "min=\"1.01\" placeholder=\"bet365\" oninput=\"recCalc(this)\"> "
                     "<span class=\"rec-out\">" + ("<b>" + badge + "</b>" if badge else "") + "</span> "
-                    "<input class=\"rec-stake\" type=\"number\" step=\"0.25\" min=\"0\" value=\"0\"> u "
+                    "<input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" oninput=\"this.dataset.manual=1\"> u "
                     "<button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></span>"
                     "</div>")
 
@@ -1623,19 +1631,51 @@ class ReportGenerator:
             # se saisit ici. edge = cote x p - 1. Un .rec-row porte en data-*
             # tout ce qu'il faut pour ecrire la ligne dans data/predictions.csv
             # via le workflow record_prediction.yml (meme token qu'Actualiser).
-            "var REC_THR={nfl:3,mlb:3,nhl:15};var REC_SUSPECT=" + str(self._suspect_edge()) + ";"
+            "var REC_THR={nfl:3,mlb:3,nhl:3};var REC_SUSPECT=" + str(self._suspect_edge()) + ";"
             "function recStatus(row,e){"
             "if(row.dataset.marche==='props_k'&&row.dataset.cal!=='1')return['informatif — barreau non calibré','#92400E'];"
             "if(e>REC_SUSPECT)return['À VÉRIFIER (prix suspect)','#B45309'];"
             "if(e>=(REC_THR[row.dataset.sport]||3))return['à miser','#0F6E56'];"
             "return['sous le seuil','#6B7280'];}"
+            # Mises (staking.py): Kelly fractionne sur p_final, plafond par pari,
+            # plafond d'exposition par soir avec reduction proportionnelle. Les
+            # mises deja enregistrees ce soir (localStorage) comptent dans
+            # l'exposition mais ne se reduisent plus.
+            "var REC_ST=" + self._staking_js() + ";"
+            "function recKelly(p,o){if(!(o>1)||!(p>0&&p<1))return 0;var f=(p*o-1)/(o-1);if(f<=0)return 0;"
+            "return Math.min(f*REC_ST.KELLY_FRACTION*100,REC_ST.MAX_BET_PCT);}"
+            "function recNightKey(d){return 'rec_night_'+(d||'');}"
+            "function recPlaced(d){try{return JSON.parse(localStorage.getItem(recNightKey(d))||'{}');}catch(e){return {};}}"
+            "function recPlan(date){"
+            "var rows=[].slice.call(document.querySelectorAll('.rec-row')).filter(function(r){"
+            "if(r.dataset.date!==date||r.dataset.saved==='1')return false;"
+            "var o=parseFloat((r.querySelector('.rec-odds')||{}).value),p=parseFloat(r.dataset.prob);"
+            "if(!(o>1)||!p)return false;var e=(p*o-1)*100;return recStatus(r,e)[0]==='à miser';});"
+            "var placed=recPlaced(date);var already=0;for(var k in placed)already+=placed[k];"
+            "var raw=rows.map(function(r){return recKelly(parseFloat(r.dataset.prob),parseFloat(r.querySelector('.rec-odds').value));});"
+            "var tot=raw.reduce(function(a,b){return a+b;},0);var room=Math.max(REC_ST.MAX_NIGHT_PCT-already,0);"
+            "var fac=(tot>room&&tot>0)?room/tot:1;"
+            "rows.forEach(function(r,i){r.dataset.sugg=(raw[i]*fac).toFixed(2);r.dataset.fac=fac.toFixed(2);"
+            "var si=r.querySelector('.rec-stake');if(si&&si.dataset.manual!=='1')si.value=(raw[i]*fac).toFixed(2);});"
+            "return {already:already,planned:tot*fac,fac:fac,n:rows.length};}"
+            # Une saisie change le plan de TOUTE la soiree: on replanifie, puis
+            # on redessine chaque ligne du meme soir.
             "function recCalc(inp){"
             "var row=inp.closest('.rec-row');if(!row)return;"
+            "var date=row.dataset.date;var pl=recPlan(date);"
+            "[].slice.call(document.querySelectorAll('.rec-row')).forEach(function(r){"
+            "if(r.dataset.date===date)recRender(r,pl);});}"
+            "function recRender(row,pl){"
+            "var inp=row.querySelector('.rec-odds');if(!inp)return;"
             "var p=parseFloat(row.dataset.prob),o=parseFloat(inp.value);"
             "var out=row.querySelector('.rec-out');if(!out)return;"
-            "if(!p||!o||o<=1){out.textContent='';return;}"
+            "var fl=p?(1/p).toFixed(2):'—';"
+            "if(!p||!o||o<=1){out.innerHTML=(inp.value?'':'')+'<span class=\"rec-floor\">plancher '+fl+'</span>';return;}"
             "var e=(p*o-1)*100;var st=recStatus(row,e);"
-            "out.innerHTML='<b style=\"color:'+st[1]+'\">'+(e>0?'+':'')+e.toFixed(1)+'% · '+st[0]+'</b>';}"
+            "var m='';if(st[0]==='à miser'){var sg=parseFloat(row.dataset.sugg||'0');"
+            "m=' · mise '+sg.toFixed(2)+'%'+(pl.fac<1?' (réduite ×'+pl.fac.toFixed(2)+', soir '+(pl.already+pl.planned).toFixed(1)+'/'+REC_ST.MAX_NIGHT_PCT+'%)':'');}"
+            "else{var si=row.querySelector('.rec-stake');if(si&&si.dataset.manual!=='1')si.value='0';}"
+            "out.innerHTML='<b style=\"color:'+st[1]+'\">'+(e>0?'+':'')+e.toFixed(1)+'% · '+st[0]+'</b>'+m+' <span class=\"rec-floor\">plancher '+fl+'</span>';}"
             "function ghToken(){"
             "var t=localStorage.getItem('gh_workflow_token');"
             "if(!t){t=prompt('Token GitHub (permission workflow):\\n\\ngithub.com/settings/tokens — le token reste dans ce navigateur.');"
@@ -1656,7 +1696,8 @@ class ReportGenerator:
             "try{var r=await fetch('https://api.github.com/repos/'+GH_REPO+'/actions/workflows/record_prediction.yml/dispatches',{"
             "method:'POST',headers:{'Authorization':'token '+tk,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},"
             "body:JSON.stringify({ref:'main',inputs:{payload:JSON.stringify(pl)}})});"
-            "if(r.status===204){btn.textContent='✓ Enregistré';}"
+            "if(r.status===204){btn.textContent='✓ Enregistré';"
+            "if(mi>0){var pk=recPlaced(d.date);pk[d.selection]=mi;localStorage.setItem(recNightKey(d.date),JSON.stringify(pk));row.dataset.saved='1';recPlan(d.date);}}"
             "else if(r.status===401||r.status===403){localStorage.removeItem('gh_workflow_token');btn.textContent='✗ token refusé';btn.disabled=false;}"
             "else{btn.textContent='✗ '+r.status;btn.disabled=false;}"
             "}catch(e){btn.textContent='✗ réseau';btn.disabled=false;}}"
@@ -1739,7 +1780,7 @@ class ReportGenerator:
             "var h='<div class=\"sec\">MLB Moneyline / -1.5 — probabilité × cote</div>';"
             "h+='<div class=\"ml-tbl\">';"
             "h+='<div class=\"ml-tr ml-th\"><span>Équipe</span><span>Marché</span>"
-            "<span>Prob</span><span>Cote réf.</span><span>Value réf.</span><span>Exiger bet365</span></div>';"
+            "<span>Prob</span><span>Cote réf.</span><span>Value réf.</span><span>Plancher · exiger bet365</span></div>';"
             "rows.forEach(function(b){"
             "var v=(b.valeur_pct==null?null:b.valeur_pct);"
             "var vc=v==null?'var(--m)':(v>=8?'#0F6E56':v>=3?'#2563EB':v>=0?'#BA7517':'#DC2626');"
@@ -1751,7 +1792,7 @@ class ReportGenerator:
             "h+='<span>'+(b.cote||0).toFixed(2)+'</span>';"
             "h+='<span style=\"color:'+vc+';font-weight:700\">'+(v==null?'n/d':(v>0?'+':'')+v.toFixed(1)+'%')+'</span>';"
             "var pp=(b.probabilite||0)/100;var ex=pp>0?(1.03/pp):0;"
-            "h+='<span title=\"'+(b.tier||'')+' '+(b.label||'')+' à la cote de référence\"><b>'+(ex?ex.toFixed(2):'—')+'</b> '+(b.tier||'')+'</span>';"
+            "h+='<span title=\"'+(b.tier||'')+' '+(b.label||'')+' à la cote de référence\">'+(pp>0?(1/pp).toFixed(2):'—')+' · <b>'+(ex?ex.toFixed(2):'—')+'</b> '+(b.tier||'')+'</span>';"
             "h+='</div>';"
             "h+='<div class=\"ml-why\">'+(b.raison||'')"
             "+(b.facteurs_nets!=null?' · facteurs alignés: '+(b.facteurs_nets>0?'+':'')+b.facteurs_nets:'')"
@@ -1777,7 +1818,7 @@ class ReportGenerator:
             "h+='<span class=\"nfl-sel\">'+ln.selection+'</span><span class=\"nfl-mk\">'+String(ln.marche).replace('nhl_','')+'</span>';"
             "h+='<span class=\"nfl-fair\" title=\"'+(ln.blend_source||'')+'\">p_final '+(p*100).toFixed(1)+'% (modèle '+((ln.prob_modele||p)*100).toFixed(0)+'%) · plancher '+(ln.fair_odds||0).toFixed(2)+'</span>';"
             "h+='<span class=\"nfl-px\">exiger <b>'+(ln.min_odds||0).toFixed(2)+'</b></span>';"
-            "h+='<span class=\"nfl-rec\"><input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"bet365\" oninput=\"recCalc(this)\"> <span class=\"rec-out\"></span> <input class=\"rec-stake\" type=\"number\" step=\"0.25\" min=\"0\" value=\"0\"> u <button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></span></div>';});"
+            "h+='<span class=\"nfl-rec\"><input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"bet365\" oninput=\"recCalc(this)\"> <span class=\"rec-out\"></span> <input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" oninput=\"this.dataset.manual=1\"> u <button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></span></div>';});"
             "h+='</div>';});"
             "if(!h)return '';"
             "return '<div class=\"sec\" style=\"margin-top:1.5rem\">LNH — lignes du modèle (bet365 absent du flux: saisir la cote)</div>'+h;}"
@@ -1985,7 +2026,7 @@ class ReportGenerator:
             "h+='K≥<b id=\"kc-k-'+cid+'\"></b> · Notre prob: <b id=\"kc-p-'+cid+'\"></b>% · ';"
             "h+='Cote bet365: <input id=\"kc-i-'+cid+'\" class=\"mlb-k-odds-input rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"ex: 1.95\" oninput=\"mlbCalcEdge(\\''+cid+'\\')\">';"
             "h+=' <b id=\"kc-e-'+cid+'\" class=\"rec-out\"></b>';"
-            "h+=' mise <input class=\"rec-stake\" type=\"number\" step=\"0.25\" min=\"0\" value=\"0\"> u';"
+            "h+=' mise <input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" oninput=\"this.dataset.manual=1\"> u';"
             "h+=' <button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></div>';}"
             "(b.context||[]).slice(0,4).forEach(function(n){h+='<div class=\"mlb-note\">'+n+'</div>';});"
             "h+='</div>';});"
@@ -2751,7 +2792,7 @@ class ReportGenerator:
             ".rec-btn{margin-left:6px;padding:3px 10px;border:1px solid #0F6E56;background:#E1F5EE;color:#0F6E56;"
             "border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}"
             ".rec-btn:disabled{opacity:.6;cursor:default}"
-            ".rec-row .rec-out{margin-left:6px}"
+            ".rec-row .rec-out{margin-left:6px}.rec-floor{color:var(--m);font-size:11px}"
             ".mlb-info-badge{display:inline-block;margin:4px 0 6px;padding:3px 8px;border-radius:6px;"
             "background:#FEF3C7;color:#92400E;font-size:11px;font-weight:600}"
             ".mlb-k-ev{font-size:11px;font-weight:700;line-height:1.2}"

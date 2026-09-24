@@ -21,5 +21,11 @@
   "BLEND_W": {
     "_doc": "p_final = w * p_modele + (1 - w) * p_marche_novig, par marche. Estimer avec src/blend_backtest.py (200+ lignes reglees).",
     "default": 0.3
+  },
+  "STAKING": {
+    "_doc": "Mises en % du bankroll (1 unite = 1%). Kelly fractionne, plafond par pari, plafond d'exposition par soir (reduction proportionnelle au-dela).",
+    "KELLY_FRACTION": 0.25,
+    "MAX_BET_PCT": 1.5,
+    "MAX_NIGHT_PCT": 3.0
   }
 }

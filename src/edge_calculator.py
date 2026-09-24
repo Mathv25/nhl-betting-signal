@@ -13,6 +13,7 @@ import requests
 from typing import Optional
 from nhl_stats import TeamStats, PlayerStats, LineupValidator
 
+MANUAL_EDGE_PCT = 3.0   # lignes du modele a saisir chez bet365 (voir model_lines)
 MIN_EDGE_PCT  = 15.0  # Monte a 15 — on ne garde que la tranche edge>=15 (52% WR, seule profitable)
 MIN_ODDS      = 1.25  # Props/spreads: lignes naturellement basses
 MIN_ODDS_ML   = 1.70  # Moneyline: gros favoris < 1.70 = marché trop efficient
@@ -32,7 +33,6 @@ GOALIE_HOT_FACTOR  = 0.94   # Gardien en forme: reduit lambda adverse de 6%
 GOALIE_COLD_FACTOR = 1.06   # Gardien en difficulty: augmente lambda adverse de 6%
 GOALIE_HOT_SV  = 0.928      # SV% seuil pour "en forme"
 GOALIE_COLD_SV = 0.895      # SV% seuil pour "en difficulte"
-KELLY_DIVISOR = 4
 SHRINKAGE     = 0.25
 
 MAX_EDGE_ML    = 25.0   # Releve de 15 — sinon le filtre MIN_EDGE_PCT=15 est impossible a atteindre
@@ -209,7 +209,10 @@ class EdgeCalculator:
         """
         import blend
         market = market or {}
-        thr = 1.0 + MIN_EDGE_PCT / 100.0
+        # Cote a exiger chez bet365: +3% d'esperance sur p_final (comme NFL/MLB).
+        # MIN_EDGE_PCT (15%, ecart relatif) depasserait la regle « > 8% = A
+        # VERIFIER »: aucune ligne ne serait jamais a miser.
+        thr = 1.0 + MANUAL_EDGE_PCT / 100.0
         hp = self._win_prob(lh, la)
         tot = lh + la
         rows = [
@@ -676,16 +679,10 @@ class EdgeCalculator:
         if b <= 0:
             return None
 
-        if b365_odds < 1.5:
-            vig_adj = 1.0
-        elif b365_odds < 2.0:
-            vig_adj = 0.98
-        else:
-            vig_adj = 0.96
-
-        kelly_full = ((b * our_prob) - (1 - our_prob)) / b * vig_adj
-        kelly      = round(max(kelly_full / KELLY_DIVISOR * 100, 0), 2)
-        kelly      = min(kelly, 15.0)
+        # staking.py: Kelly 0.25 sur p_final, plafond 1.5% (l'ancien plafond
+        # etait 15% du bankroll, et un « ajustement de vig » ad hoc).
+        import staking
+        kelly = staking.kelly_pct(our_prob, b365_odds)
 
         verdict = (
             "🔥 Forte valeur"      if edge_pct >= 8 else

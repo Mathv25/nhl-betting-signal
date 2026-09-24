@@ -272,10 +272,9 @@ def _poisson_over(lam, line):
 
 
 def _kelly(our_prob_pct, implied, odds):
-    b = odds - 1
-    if b <= 0: return 0.0
-    k = ((b * our_prob_pct / 100) - (1 - our_prob_pct / 100)) / b / 4 * 100
-    return round(max(k, 0), 1)
+    """% du bankroll — staking.py (Kelly 0.25, plafond 1.5%)."""
+    import staking
+    return round(staking.kelly_pct(our_prob_pct / 100.0, odds), 1)
 
 
 def _edge(our_pct, implied_pct):

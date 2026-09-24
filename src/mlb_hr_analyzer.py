@@ -250,7 +250,8 @@ def analyze_hr_props(game: dict, batter_props: list, pitcher_name: str) -> list:
         b    = (dk_odds - 1) if dk_odds > 0 else 2.57
         p    = our_prob
         q    = 1 - p
-        kelly = max(0, (b * p - q) / b) * 25  # 1/4 Kelly
+        import staking
+        kelly = staking.kelly_pct(p, b + 1)  # staking.py: Kelly 0.25, plafond 1.5%
 
         context = []
         if angle1_ok and recent_desc:

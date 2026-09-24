@@ -383,6 +383,15 @@ def main():
         "odds_api":         odds_api.get_client(api_key).status(),
     }
 
+    # ── 8a. Mises: Kelly 0.25, 1.5% par pari, 3% par soir (staking.py) ──────
+    try:
+        import staking
+        _n = staking.apply_to_signal(output)
+        if _n:
+            print(f"\nMises: {_n} pari(s) a miser, plafond du soir applique")
+    except Exception as e:
+        print(f"  [Mises] erreur: {e}")
+
     # ── 8b. Journal des predictions + Performance ────────────────────────────
     # Toutes les predictions d'avant-match, misees ou non (data/predictions.csv),
     # puis docs/performance.json pour l'onglet Performance.

@@ -31,8 +31,7 @@ Reglages par variables d'environnement:
   ODDS_USAGE_PATH         fichier de suivi quotidien (defaut docs/odds_usage.json)
   ODDS_PROPS_ENABLED      "0" pour couper les appels props (defaut actif)
   (books jouables: config/betting.json, ALLOWED_BOOKS — plus de MY_BOOKS)
-  STAKE_KELLY_FRACTION    fraction de Kelly pour la mise (defaut 0.25)
-  STAKE_CAP_UNITS         plafond de mise en unites (defaut 2)
+  (mises: config/betting.json, STAKING — voir staking.py)
   ODDS_MAX_PRICE_RATIO    ecart maximal a la mediane des books (defaut 1.25):
                           au-dela, le prix est juge injouable et ignore
   ODDS_PROPS_HOURS_ET     fenetre horaire ET ou les props sont payees
@@ -135,18 +134,18 @@ def kelly_units(prob: float, odds: float, fraction: float = None,
     petit, et c'est la bonne taille pour un edge de cette nature. Un edge de
     4% ne justifie pas une grosse mise, c'est justement ce que Kelly dit.
     """
-    fraction = fraction if fraction is not None else _env_float("STAKE_KELLY_FRACTION", 0.25)
-    cap      = cap if cap is not None else _env_float("STAKE_CAP_UNITS", 2.0)
+    # Depuis 2026-09-24: staking.py (Kelly 0.25, plafond 1.5% par pari).
+    import staking
     try:
-        p, o = float(prob) / 100.0, float(odds)
+        p = float(prob) / 100.0
     except (TypeError, ValueError):
         return 0.0
-    if o <= 1.0 or not (0 < p < 1):
-        return 0.0
-    f = (p * o - 1.0) / (o - 1.0)
-    if f <= 0:
-        return 0.0
-    return round(min(f * fraction * 100.0, cap), 2)
+    if fraction is None and cap is None:
+        return staking.kelly_pct(p, odds)
+    s = staking.settings()
+    raw = staking.kelly_pct(p, odds) / s["KELLY_FRACTION"] if s["KELLY_FRACTION"] else 0.0
+    f = raw * (fraction if fraction is not None else s["KELLY_FRACTION"])
+    return round(min(f, cap if cap is not None else s["MAX_BET_PCT"]), 2)
 
 
 def _env_float(name: str, default: float) -> float:
