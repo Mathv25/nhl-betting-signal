@@ -514,6 +514,10 @@ def _k_curve(model: dict) -> list:
             "prob_cal":   round(100.0 * i["prob_cal"], 1) if i["prob_cal"] is not None else None,
             "calibrated": i["calibrated"],
             "n_cal":      i["n_cal"],
+            # p_final = p tant qu'aucun prix de marche n'est attache
+            # (_attach_odds_to_curve): voir blend.py.
+            "prob_final": round(100.0 * i["prob"], 1),
+            "blend_source": "modele seul (pas de marche)",
         })
     return out
 
@@ -573,14 +577,24 @@ def _attach_odds_to_curve(curve: list, dk_lines: list) -> int:
         if odds <= 1.0:
             continue
         market_prob = m.get("over_implied") or 0
+        # Melange modele-marche seulement contre une reference SANS marge:
+        # une prob brute (vig incluse) tirerait p_final vers le haut.
+        src = m.get("baseline_source", "")
+        novig = market_prob if (market_prob and src and not src.startswith("brute")) else None
+        import blend
+        pf, bsrc = blend.p_final(rung["prob"] / 100.0,
+                                 novig / 100.0 if novig else None, KCAL.MARKET)
+        pf_pct = round(100.0 * pf, 1)
         rung.update({
             "best_odds":       round(odds, 3),
             "best_book":       m.get("over_book", ""),
             "market_prob":     round(market_prob, 2),
-            "baseline_source": m.get("baseline_source", ""),
+            "baseline_source": src,
             "n_books":         m.get("n_books", 0),
-            "ev_pct":          odds_api.ev_pct(rung["prob"], odds),
-            "edge_pct":        _edge(rung["prob"], market_prob) if market_prob else 0,
+            "prob_final":      pf_pct,
+            "blend_source":    bsrc,
+            "ev_pct":          odds_api.ev_pct(pf_pct, odds),
+            "edge_pct":        _edge(pf_pct, market_prob) if market_prob else 0,
         })
         n += 1
     return n
@@ -646,10 +660,13 @@ def _best_dk_edge(model: dict, dk_lines: list) -> dict | None:
         dk_odds = c.get("over_odds", 0)
         if line is None or dk_impl <= 0 or dk_odds <= 0:
             continue
-        prob = _k_prob_over(model, line)
+        src  = c.get("baseline_source", "")
+        import blend
+        novig = dk_impl if (src and not src.startswith("brute")) else None
+        prob = round(100.0 * blend.p_final(_k_prob_over(model, line) / 100.0,
+                                           novig / 100.0 if novig else None, KCAL.MARKET)[0], 1)
         edge = _edge(prob, dk_impl)
         if best is None or edge > best["edge_pct"]:
-            src  = c.get("baseline_source", "")
             best = {
                 "line":       line,
                 "our_prob":   prob,
@@ -756,6 +773,7 @@ def k_ladder_rows(game: dict, starters: dict, league_k: float = None) -> list:
                 "ligne":           k - 0.5,
                 "k":               k,
                 "prob_modele":     round(prob, 4),
+                "prob_finale":     round(c.get("prob_final", c["prob"]) / 100.0, 4),
                 "prob_brute":      round(c["prob_raw"] / 100.0, 4),
                 "prob_calibree":   round(c["prob_cal"] / 100.0, 4) if c["prob_cal"] is not None else "",
                 "statut":          "calibre" if c["calibrated"] else "informatif",

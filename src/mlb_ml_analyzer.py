@@ -33,9 +33,11 @@ import odds_api
 
 # ── Paramètres du modèle ────────────────────────────────────────────────────
 
-# Poids accordé au modèle vs au marché. 0.35 = conservateur, assumé.
-# À RELEVER seulement quand le backtest montre que le modèle bat la fermeture.
-W_MODEL = 0.35
+# Poids accordé au modèle vs au marché: config/betting.json, BLEND_W (défaut
+# 0.3, passé de 0.35 le 2026-09-24). Estimé par blend_backtest.py dès 200+
+# prédictions réglées. Voir blend.py.
+import betting_config as _bc
+W_MODEL = _bc.blend_w("mlb_ml")
 
 # Élasticité OPS → runs. Les runs varient à peu près comme OPS^1.8.
 OPS_ELASTICITY = 1.8
@@ -410,15 +412,13 @@ def market_probs(odds_entry: dict, home: str, away: str) -> tuple:
     return p_home, p_away, "meilleures cotes (multi-books)"
 
 
-def blend_with_market(p_model: float, p_market: float) -> float:
+def blend_with_market(p_model: float, p_market: float, marche: str = "mlb_ml") -> float:
     """
-    Rétrécissement vers le marché. Le marché MLB moneyline est très efficace;
-    un modèle sans historique de calibration ne devrait pas s'en écarter
-    librement. Si le marché est indisponible, on rétrécit vers 50%.
+    p_final = w × modèle + (1 − w) × marché no-vig (blend.py). Sans marché:
+    rétrécissement vers 50% pour la moneyline.
     """
-    if p_market is None:
-        return 0.5 + W_MODEL * (p_model - 0.5)
-    return W_MODEL * p_model + (1 - W_MODEL) * p_market
+    import blend
+    return blend.p_final(p_model, p_market, marche)[0]
 
 
 def value_pct(prob: float, odds: float) -> float:
@@ -770,7 +770,7 @@ def analyze_game(game: dict, odds_entry: dict = None, date_str: str = None) -> d
         # dévigage à deux voies propre: on estime la probabilité du marché
         # depuis le seul prix offert, en retirant une marge typique.
         p_mkt_rl = 1.0 / (rl_odds * (1.0 + ASSUMED_VIG))
-        p_rl = blend_with_market(fav_p_rl, p_mkt_rl)
+        p_rl = blend_with_market(fav_p_rl, p_mkt_rl, "mlb_rl")
         v_rl = value_pct(p_rl, rl_odds)
         cls = classify_run_line(p_rl, rl_odds, v_rl, abs(run_diff), fav_al)
         out["bets"].append({

@@ -91,8 +91,11 @@ class TestAttachOddsToCurve(unittest.TestCase):
                   "over_book": "pinnacle", "baseline_source": "pinnacle", "n_books": 3}]
         n = MPA._attach_odds_to_curve(self.curve, lines)
         self.assertEqual(n, 1)
-        self.assertEqual(self.curve[0]["ev_pct"], 15.5)      # 55% x 2.10 - 1
-        self.assertEqual(self.curve[0]["edge_pct"], 14.6)    # (55-48)/48
+        # p_final = 0.3 x 55% + 0.7 x 48% = 50.1% (blend.py): l'EV et l'edge
+        # se calculent sur p_final, plus sur la probabilite du modele seule.
+        self.assertEqual(self.curve[0]["prob_final"], 50.1)
+        self.assertEqual(self.curve[0]["ev_pct"], 5.21)      # 50.1% x 2.10 - 1
+        self.assertEqual(self.curve[0]["edge_pct"], 4.4)     # (50.1-48)/48
         self.assertEqual(self.curve[0]["best_book"], "pinnacle")
         self.assertNotIn("best_odds", self.curve[1])
 

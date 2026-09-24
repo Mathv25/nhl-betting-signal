@@ -36,6 +36,32 @@ NHL_PROP_MARKETS = [
 ]
 
 
+def market_novig(event: dict) -> dict:
+    """
+    Probabilites de reference sans marge (Pinnacle Shin, sinon mediane sharp)
+    des marches que publie le modele LNH, tirees de la reponse deja payee:
+    {"<Equipe> ML": p, "<Equipe> -1.5": p, "Over 5.5": p, ...}.
+    Sert au melange modele-marche (blend.py) — aucun credit supplementaire.
+    """
+    from market_reference import reference_pair, per_book_from_event
+    home, away = event.get("home_team", ""), event.get("away_team", "")
+    out = {}
+    pr = reference_pair(per_book_from_event(event, "h2h"), home, away)
+    if pr:
+        out[f"{home} ML"], out[f"{away} ML"] = pr[home], pr[away]
+    sp = per_book_from_event(event, "spreads", 1.5)
+    for fav, dog in ((home, away), (away, home)):
+        a, b = f"{fav} -1.5", f"{dog} +1.5"
+        pr = reference_pair(sp, a, b)
+        if pr:
+            out[a], out[b] = pr[a], pr[b]
+    for line in (5.5, 6.5):
+        pr = reference_pair(per_book_from_event(event, "totals", line), "Over", "Under")
+        if pr:
+            out[f"Over {line}"], out[f"Under {line}"] = pr["Over"], pr["Under"]
+    return {k: round(v, 4) for k, v in out.items()}
+
+
 class OddsFetcher:
 
     def __init__(self, api_key: str):
@@ -90,6 +116,7 @@ class OddsFetcher:
                 if game:
                     game["markets"]["player_props"] = []
                     game["removed_props"] = []
+                    game["market_novig"] = market_novig(event)
                     games.append(game)
 
             if games:
@@ -110,6 +137,7 @@ class OddsFetcher:
                 "markets":       {"player_props": []},
                 "removed_props": [],
                 "no_allowed_odds": True,
+                "market_novig":  market_novig(event),
             })
         print(f"  Aucun book autorise ({', '.join(e['key'] for e in BOOKMAKER_PRIORITY)}) "
               f"ne cote: {len(games)} match(s) gardes sans cote (lignes du modele seulement)")

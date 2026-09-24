@@ -91,6 +91,11 @@ def group_stats(rows: list) -> dict:
         "n": len(both),
         "modele": (sum((PL.to_float(r["prob_modele"]) - y[id(r)]) ** 2 for r in both) / len(both)) if both else None,
         "marche": (sum((PL.to_float(r["prob_marche_novig"]) - y[id(r)]) ** 2 for r in both) / len(both)) if both else None,
+        # p_final (melange), sur les memes lignes quand elle est journalisee.
+        "finale": (sum((PL.to_float(r.get("prob_finale")) - y[id(r)]) ** 2 for r in both
+                       if PL.to_float(r.get("prob_finale")) is not None)
+                   / max(1, sum(1 for r in both if PL.to_float(r.get("prob_finale")) is not None)))
+                  if any(PL.to_float(r.get("prob_finale")) is not None for r in both) else None,
         "n_modele_seul": len([r for r in resolved if PL.to_float(r.get("prob_modele")) is not None]),
     }
     alone = [r for r in resolved if PL.to_float(r.get("prob_modele")) is not None]

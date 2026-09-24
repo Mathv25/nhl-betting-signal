@@ -208,11 +208,15 @@ class ReportGenerator:
                 p = ln.get("prob", 0)
                 h += ("<div class='nfl-row rec-row' data-sport='nhl' data-marche='" + ln["marche"]
                       + "' data-selection='" + ln["selection"].replace("'", "") + "' data-prob='"
-                      + f"{p:.4f}" + "' data-date='" + d_et + "' data-commence_time='" + ct
+                      + f"{p:.4f}" + "' data-prob_modele='" + f"{ln.get('prob_modele', p):.4f}"
+                      + "' data-prob_marche_novig='" + (f"{ln['prob_marche']:.4f}" if ln.get("prob_marche") else "")
+                      + "' data-date='" + d_et + "' data-commence_time='" + ct
                       + "' data-match='" + match + "' data-event_id='" + str(g.get("id", "")) + "'>"
                       "<span class='nfl-sel'>" + ln["selection"] + "</span>"
                       "<span class='nfl-mk'>" + ln["marche"].replace("nhl_", "") + "</span>"
-                      "<span class='nfl-fair'>" + f"{p * 100:.1f}" + "% · juste " + f"{ln['fair_odds']:.2f}" + "</span>"
+                      "<span class='nfl-fair' title='" + str(ln.get("blend_source", "")) + "'>p_final "
+                      + f"{p * 100:.1f}" + "% (modèle " + f"{ln.get('prob_modele', p) * 100:.0f}" + "%) · plancher "
+                      + f"{ln['fair_odds']:.2f}" + "</span>"
                       "<span class='nfl-px'>exiger <b>" + f"{ln['min_odds']:.2f}" + "</b></span>"
                       "<span class='nfl-rec'><input class='rec-odds' type='number' step='0.01' min='1.01' "
                       "placeholder='bet365' oninput='recCalc(this)'> <span class='rec-out'></span> "
@@ -777,7 +781,8 @@ class ReportGenerator:
                                else ("brut · non calibré (" + str(kc.get("n_cal", 0)) + "/50)"))
                         html += (
                             "<div class='mlb-k-cell' style='border:" + kc_bdr + ";background:" + kc_bg
-                            + ";cursor:pointer' onclick=\"mlbCalcSel('" + cid + "'," + str(k) + "," + str(prob)
+                            + ";cursor:pointer' onclick=\"mlbCalcSel('" + cid + "'," + str(k) + ","
+                            + str(kc.get("prob_final", prob))
                             + "," + ("1" if kc.get("calibrated") else "0") + ")\">"
                             "<div class='mlb-k-num'>K≥" + str(k) + "</div>"
                             "<div class='mlb-k-prob'>" + str(prob) + "%</div>"
@@ -1642,7 +1647,8 @@ class ReportGenerator:
             "var mi=parseFloat((row.querySelector('.rec-stake')||{}).value||'0')||0;"
             "if(!o||o<=1){btn.textContent='cote ?';return;}"
             "var tk=ghToken();if(!tk){btn.textContent='✗ pas de token';return;}"
-            "var d=row.dataset;var pl={book:'bet365',cote_prise:o,mise_u:mi,prob_modele:parseFloat(d.prob)};"
+            "var d=row.dataset;var pl={book:'bet365',cote_prise:o,mise_u:mi,prob_finale:parseFloat(d.prob),"
+            "prob_modele:parseFloat(d.prob_modele||d.prob)};"
             "['sport','marche','selection','date','joueur','ligne','k','match','commence_time','prob_brute','prob_calibree','prob_marche_novig','event_id']"
             ".forEach(function(f){var v=d[f];if(v!==undefined&&v!=='')pl[f]=v;});"
             "pl.calibre=d.cal==='1';"
@@ -1767,9 +1773,9 @@ class ReportGenerator:
             "var m=((g.away_team||'')+' @ '+(g.home_team||'')).replace(/'/g,'');"
             "h+='<div class=\"nhl-ml-game\"><div class=\"nhl-ml-h\">'+m+'</div>';"
             "ls.forEach(function(ln){var p=ln.prob||0;"
-            "h+='<div class=\"nfl-row rec-row\" data-sport=\"nhl\" data-marche=\"'+ln.marche+'\" data-selection=\"'+String(ln.selection).replace(/\"/g,'')+'\" data-prob=\"'+p.toFixed(4)+'\" data-date=\"'+dET+'\" data-commence_time=\"'+ct+'\" data-match=\"'+m+'\" data-event_id=\"'+(g.id||'')+'\">';"
+            "h+='<div class=\"nfl-row rec-row\" data-sport=\"nhl\" data-marche=\"'+ln.marche+'\" data-selection=\"'+String(ln.selection).replace(/\"/g,'')+'\" data-prob=\"'+p.toFixed(4)+'\" data-prob_modele=\"'+(ln.prob_modele||p).toFixed(4)+'\" data-prob_marche_novig=\"'+(ln.prob_marche!=null?ln.prob_marche.toFixed(4):'')+'\" data-date=\"'+dET+'\" data-commence_time=\"'+ct+'\" data-match=\"'+m+'\" data-event_id=\"'+(g.id||'')+'\">';"
             "h+='<span class=\"nfl-sel\">'+ln.selection+'</span><span class=\"nfl-mk\">'+String(ln.marche).replace('nhl_','')+'</span>';"
-            "h+='<span class=\"nfl-fair\">'+(p*100).toFixed(1)+'% · juste '+(ln.fair_odds||0).toFixed(2)+'</span>';"
+            "h+='<span class=\"nfl-fair\" title=\"'+(ln.blend_source||'')+'\">p_final '+(p*100).toFixed(1)+'% (modèle '+((ln.prob_modele||p)*100).toFixed(0)+'%) · plancher '+(ln.fair_odds||0).toFixed(2)+'</span>';"
             "h+='<span class=\"nfl-px\">exiger <b>'+(ln.min_odds||0).toFixed(2)+'</b></span>';"
             "h+='<span class=\"nfl-rec\"><input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"bet365\" oninput=\"recCalc(this)\"> <span class=\"rec-out\"></span> <input class=\"rec-stake\" type=\"number\" step=\"0.25\" min=\"0\" value=\"0\"> u <button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></span></div>';});"
             "h+='</div>';});"
@@ -1965,7 +1971,7 @@ class ReportGenerator:
             "var bdr=isBest?'2px solid #0F6E56':'1px solid #E5E7EB';"
             "var prob=c.prob||0;"
             "h+='<div class=\"mlb-k-cell\" style=\"border:'+bdr+';background:'+bg+';cursor:pointer\""
-            " onclick=\"mlbCalcSel(\\''+cid+'\\','+k+','+prob+','+(c.calibrated?1:0)+')\">';"
+            " onclick=\"mlbCalcSel(\\''+cid+'\\','+k+','+(c.prob_final!=null?c.prob_final:prob)+','+(c.calibrated?1:0)+')\">';"
             "h+='<div class=\"mlb-k-num\">K≥'+k+'</div>';"
             "h+='<div class=\"mlb-k-prob\">'+prob+'%</div>';"
             "var pr=(c.prob_raw!=null?c.prob_raw:prob);"
@@ -2264,7 +2270,7 @@ class ReportGenerator:
             "h+=_tile('CLV moyen (bet365)',_pc(c.mean,2),c.n?('IC 95% '+_pc(c.ci_low,1)+' a '+_pc(c.ci_high,1)+' · n='+c.n):'aucune cote prise fermee');"
             "h+=_tile('CLV papier (autre book)',_pc(cr.median,2)+' <span class=\"pj-sub\">med.</span>',cr.n?('moy. '+_pc(cr.mean,1)+' · IC '+_pc(cr.ci_low,1)+' a '+_pc(cr.ci_high,1)+' · n='+cr.n):'—');"
             "h+=_tile('ROI (mises reelles)',_pc(r.roi,1),r.n?(r.n+' paris · '+(r.profit_u||0).toFixed(2)+'u / '+(r.mise_u||0).toFixed(2)+'u'):'aucune mise reglee');"
-            "h+=_tile('Brier modele / marche',(b.modele!=null?b.modele.toFixed(4):'—')+' / '+(b.marche!=null?b.marche.toFixed(4):'—'),"
+            "h+=_tile('Brier modele / p_final / marche',(b.modele!=null?b.modele.toFixed(4):'—')+' / '+(b.finale!=null?b.finale.toFixed(4):'—')+' / '+(b.marche!=null?b.marche.toFixed(4):'—'),"
             "b.n?('memes '+b.n+' predictions · plus bas = mieux'):(b.modele_toutes!=null?('modele seul '+b.modele_toutes.toFixed(4)+' · pas de prob marche'):'—'));"
             "h+='</div>';"
             "var cal=g.calibration||[];"

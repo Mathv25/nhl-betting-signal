@@ -76,12 +76,13 @@ def mlb_ml_rows(mlb_ml_analysis: list, today: str, now: datetime) -> list:
             else:
                 marche, sel = "mlb_rl", f"{team} -1.5"
                 p_mkt = (b.get("prob_marche") or 0) / 100.0 or None
-            p = (b.get("probabilite") or 0) / 100.0
-            if p <= 0:
+            p = (b.get("probabilite") or 0) / 100.0          # p_final (melange)
+            p_mod = (b.get("prob_modele") or 0) / 100.0      # modele seul
+            if p <= 0 or p_mod <= 0:
                 continue
             rows.append(_row(
-                day, "mlb", marche, sel, p, ct, match, g.get("event_id", ""),
-                prob_brute=round((b.get("prob_modele") or 0) / 100.0, 4),
+                day, "mlb", marche, sel, p_mod, ct, match, g.get("event_id", ""),
+                prob_finale=round(p, 4), cote_juste=round(1.0 / p, 3),
                 prob_marche_novig=round(p_mkt, 4) if p_mkt else "",
                 cote_reference=b.get("cote") or "",
                 selectionne=0 if b.get("tier") == "🔴" else 1,
@@ -102,8 +103,11 @@ def nhl_rows(signals: list, today: str, now: datetime) -> list:
         match = f"{g.get('away_team', '')} @ {g.get('home_team', '')}"
         for ln in g.get("model_lines") or []:
             rows.append(_row(
-                day, "nhl", ln["marche"], ln["selection"], ln["prob"], ct, match,
-                g.get("id", ""), statut="a_saisir", source="lignes du modele",
+                day, "nhl", ln["marche"], ln["selection"], ln.get("prob_modele", ln["prob"]),
+                ct, match, g.get("id", ""), statut="a_saisir",
+                prob_finale=ln["prob"], cote_juste=ln.get("fair_odds", ""),
+                prob_marche_novig=ln.get("prob_marche") or "",
+                source=ln.get("blend_source", "lignes du modele"),
             ))
     return rows
 
@@ -126,7 +130,8 @@ def nfl_rows(nfl_state: dict, today: str, now: datetime) -> list:
             # Pas de modele maison en NFL: la prediction EST la reference.
             rows.append(_row(
                 day, "nfl", px.get("market", ""), label, p, ct, match, g.get("event_id", ""),
-                prob_marche_novig=round(p, 4), statut=px.get("statut", "a_saisir"),
+                prob_marche_novig=round(p, 4), prob_finale=round(p, 4),
+                statut=px.get("statut", "a_saisir"),
                 source=px.get("source", ""),
             ))
     return rows

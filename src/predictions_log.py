@@ -41,6 +41,9 @@ COLUMNS = [
     # jouable), si la prediction a ete retenue par le modele, et le CLV de ce
     # prix de reference (« CLV papier »), distinct du CLV reel sur cote_prise.
     "cote_reference", "book_reference", "selectionne", "clv_reference",
+    # p_final = w * p_modele + (1 - w) * p_marche_novig (blend.py): c'est sur
+    # elle que se calculent l'edge et la mise.
+    "prob_finale",
 ]
 
 # Champs que la prediction suivante (meme id, avant le match) a le droit de
@@ -49,7 +52,7 @@ PREDICTION_FIELDS = {
     "timestamp", "prob_modele", "prob_marche_novig", "edge", "prob_brute",
     "prob_calibree", "statut", "cote_juste", "version_modele", "ligne",
     "commence_time", "event_id", "match", "source",
-    "cote_reference", "book_reference", "selectionne",
+    "cote_reference", "book_reference", "selectionne", "prob_finale",
 }
 
 

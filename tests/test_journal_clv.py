@@ -170,12 +170,15 @@ class TestCapture(unittest.TestCase):
     def test_started_games_are_not_logged(self):
         g_live = {"commence": (NOW - timedelta(hours=1)).isoformat(), "home_team": "H", "away_team": "A",
                   "event_id": "x", "prob_marche": {}, "bets": [{"marche": "moneyline", "equipe": "H",
-                                                                 "probabilite": 26.9, "cote": 10.0, "tier": "🟢"}]}
+                                                                 "probabilite": 26.9, "prob_modele": 57.2, "cote": 10.0, "tier": "🟢"}]}
         g_pre = dict(g_live, commence=(NOW + timedelta(hours=1)).isoformat(), event_id="y")
         rows = PC.mlb_ml_rows([g_live, g_pre], "2026-09-23", NOW)
         self.assertEqual([r["event_id"] for r in rows], ["y"])
         self.assertEqual(rows[0]["cote_reference"], 10.0)
         self.assertEqual(rows[0]["selectionne"], 1)
+        # modele seul dans prob_modele, melange dans prob_finale
+        self.assertEqual(rows[0]["prob_modele"], 0.572)
+        self.assertEqual(rows[0]["prob_finale"], 0.269)
 
     def test_stale_nfl_state_is_not_relogged(self):
         st = {"stale": True, "games": [{"commence": (NOW + timedelta(days=2)).isoformat(),

@@ -12,6 +12,7 @@ le prix ne vient pas d'un de ces books n'est qu'une information.
   EXCHANGES         jamais utilises, ni comme prix ni comme reference
   DEVIG_METHOD      "shin" (defaut), "power" ou "multiplicative"
   SUSPECT_EDGE_PCT  au-dela, « A VERIFIER (prix suspect) », jamais « a miser »
+  BLEND_W           poids du modele par marche dans p_final (defaut 0.3)
 """
 from __future__ import annotations
 
@@ -27,6 +28,7 @@ DEFAULTS = {
     "EXCHANGES":        ["smarkets", "matchbook", "betfair_ex_uk", "betfair_ex_eu", "betfair_ex_au"],
     "DEVIG_METHOD":     "shin",
     "SUSPECT_EDGE_PCT": 8.0,
+    "BLEND_W":          {"default": 0.3},
 }
 
 _cache = None
@@ -68,3 +70,10 @@ def is_exchange(book: str) -> bool:
 
 def suspect_edge_pct() -> float:
     return float(load()["SUSPECT_EDGE_PCT"])
+
+
+def blend_w(marche: str) -> float:
+    """Poids du modele pour `marche` (ex. "mlb_ml", "props_k"), sinon le defaut."""
+    w = load().get("BLEND_W") or {}
+    v = w.get(marche, w.get("default", 0.3))
+    return min(max(float(v), 0.0), 1.0)

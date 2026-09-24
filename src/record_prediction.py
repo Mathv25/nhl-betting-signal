@@ -57,7 +57,8 @@ def record(payload: dict, path: str = None) -> dict:
     for key in ("sport", "marche", "selection", "date"):
         if not str(payload.get(key, "")).strip():
             raise ValueError(f"champ requis manquant: {key}")
-    prob = _num(payload, "prob_modele", 0.0, 1.0, required=True)
+    # L'edge se calcule sur p_final (blend.py); p_modele seul en repli.
+    prob = _num(payload, "prob_finale", 0.0, 1.0) or _num(payload, "prob_modele", 0.0, 1.0, required=True)
     odds = _num(payload, "cote_prise", 1.01, 1000.0, required=True)
     stake = _num(payload, "mise_u", 0.0, 100.0) or 0.0
     book = (payload.get("book") or betting_config.allowed_books()[0]).lower()
@@ -78,7 +79,8 @@ def record(payload: dict, path: str = None) -> dict:
                   "prob_marche_novig"):
             if payload.get(k) not in (None, ""):
                 row[k] = payload[k]
-        row["prob_modele"] = prob
+        row["prob_modele"] = _num(payload, "prob_modele", 0.0, 1.0) or prob
+        row["prob_finale"] = prob
         rows.append(row)
     elif row.get("resultat"):
         raise ValueError(f"prediction deja reglee ({row['resultat']}): {rid}")

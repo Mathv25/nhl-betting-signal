@@ -1,9 +1,25 @@
 {
   "_doc": "Reglages des books. ALLOWED_BOOKS = seuls books ou un signal peut etre « a miser ». Les autres ne servent qu'a construire la reference. Lu par src/betting_config.py.",
-  "ALLOWED_BOOKS": ["bet365"],
+  "ALLOWED_BOOKS": [
+    "bet365"
+  ],
   "REFERENCE_BOOK": "pinnacle",
-  "SHARP_BOOKS": ["circa", "lowvig", "betonlineag"],
-  "EXCHANGES": ["smarkets", "matchbook", "betfair_ex_uk", "betfair_ex_eu", "betfair_ex_au"],
+  "SHARP_BOOKS": [
+    "circa",
+    "lowvig",
+    "betonlineag"
+  ],
+  "EXCHANGES": [
+    "smarkets",
+    "matchbook",
+    "betfair_ex_uk",
+    "betfair_ex_eu",
+    "betfair_ex_au"
+  ],
   "DEVIG_METHOD": "shin",
-  "SUSPECT_EDGE_PCT": 8.0
+  "SUSPECT_EDGE_PCT": 8.0,
+  "BLEND_W": {
+    "_doc": "p_final = w * p_modele + (1 - w) * p_marche_novig, par marche. Estimer avec src/blend_backtest.py (200+ lignes reglees).",
+    "default": 0.3
+  }
 }
