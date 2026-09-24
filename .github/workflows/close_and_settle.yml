@@ -53,6 +53,9 @@ jobs:
             esac
           elif [ "$CRON" = "0 15 * * *" ]; then
             python3 close_and_settle.py --settle
+            # Poids du melange modele-marche: reestime chaque jour; la config
+            # et MODEL_VERSION ne changent que si le walk-forward bat le w actuel.
+            python3 blend_backtest.py --apply
           else
             python3 close_and_settle.py --close
           fi
@@ -65,8 +68,8 @@ jobs:
           # ecrase par un rebase.
           [ -f data/predictions.csv ] && cp data/predictions.csv /tmp/pred_settle.csv
           git checkout -- data/predictions.csv 2>/dev/null || true
-          git add docs/performance.json
-          git diff --staged --quiet || git commit -m "Performance $(date +'%Y-%m-%d %H:%M')"
+          git add docs/performance.json docs/blend_backtest.json config/betting.json src/model_version.py 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "Performance / melange $(date +'%Y-%m-%d %H:%M')"
           git pull --rebase -X theirs origin main || (git rebase --abort && git pull --ff-only origin main)
           if [ -f /tmp/pred_settle.csv ]; then
             python3 src/predictions_log.py merge /tmp/pred_settle.csv data/predictions.csv settle

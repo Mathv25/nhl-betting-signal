@@ -115,8 +115,15 @@ class TestWalkForward(unittest.TestCase):
         self.assertEqual(wf["w_dernier"], BB.best_w([(pm, pk, y) for d, pm, pk, y in items if d == "2026-07-01"]))
 
     def test_apply_writes_the_config_only_when_better(self):
+        import model_version
         PL.save(synthetic(3000, 0.8, seed=5))
-        rep = BB.run(apply=True)
+        orig = model_version.bump
+        model_version.bump = lambda reason, today=None: "test"   # ne pas reecrire le vrai fichier
+        try:
+            rep = BB.run(apply=True)
+        finally:
+            model_version.bump = orig
+        self.assertEqual(rep["version"], "test", "un w applique incremente la version")
         self.assertIn("mlb_ml", rep.get("applique", {}))
         betting_config.reset()
         self.assertAlmostEqual(betting_config.blend_w("mlb_ml"), rep["applique"]["mlb_ml"])

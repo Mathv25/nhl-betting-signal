@@ -119,6 +119,11 @@ def run(apply: bool = False) -> dict:
             f.write("\n")
         betting_config.reset()
         report["applique"] = new_w
+        # Un poids qui change est un changement de modele: nouvelle version.
+        import model_version
+        report["version"] = model_version.bump(
+            "Melange: BLEND_W mis a jour par blend_backtest.py (walk-forward) — "
+            + ", ".join(f"{m}={w:g}" for m, w in sorted(new_w.items())))
     return report
 
 
@@ -138,4 +143,4 @@ if __name__ == "__main__":
                      f"{e.get('logloss_w_config', float('nan')):.4f}")
         print(f"{m:12} n={e['n']:5} w_config={e['w_config']:.2f} {e['statut']}{extra}")
     if rep.get("applique"):
-        print("BLEND_W mis a jour:", rep["applique"], "— incrementer MODEL_VERSION")
+        print("BLEND_W mis a jour:", rep["applique"], "— MODEL_VERSION", rep.get("version"))

@@ -59,3 +59,30 @@ def parameters() -> dict:
 def fingerprint() -> str:
     blob = json.dumps(parameters(), sort_keys=True, default=str).encode()
     return hashlib.sha256(blob).hexdigest()[:12]
+
+
+def bump(reason: str, today=None) -> str:
+    """
+    Incremente MODEL_VERSION, ajoute `reason` au CHANGELOG et met FINGERPRINT a
+    jour, en reecrivant ce fichier. Utilise par les changements automatiques
+    (blend_backtest.py --apply dans le workflow quotidien).
+    """
+    import datetime as _dt
+    import os
+    import re
+    day = (today or _dt.date.today()).strftime("%Y.%m.%d")
+    n = 1
+    if MODEL_VERSION.startswith(day + "."):
+        n = int(MODEL_VERSION.rsplit(".", 1)[1]) + 1
+    new = f"{day}.{n}"
+    path = os.path.abspath(__file__)
+    with open(path, encoding="utf-8") as f:
+        src = f.read()
+    src = src.replace(f'MODEL_VERSION = "{MODEL_VERSION}"', f'MODEL_VERSION = "{new}"', 1)
+    last = src.rfind("\n]\n", 0, src.index("# Empreinte des parametres"))
+    entry = f"\n    ({new!r}, {reason!r}),"
+    src = src[:last] + entry + src[last:]
+    src = re.sub(r'FINGERPRINT = "[0-9a-f]+"', f'FINGERPRINT = "{fingerprint()}"', src, count=1)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(src)
+    return new

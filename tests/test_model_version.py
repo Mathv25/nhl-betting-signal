@@ -48,3 +48,25 @@ class TestModelVersion(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestBump(unittest.TestCase):
+
+    def test_bump_rewrites_version_changelog_and_fingerprint(self):
+        import datetime, importlib.util, shutil
+        src = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src", "model_version.py")
+        d = tempfile.mkdtemp()
+        dst = os.path.join(d, "model_version_copy.py")
+        shutil.copy(src, dst)
+        spec = importlib.util.spec_from_file_location("mv_copy", dst)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        new = mod.bump("essai", today=datetime.date(2031, 1, 2))
+        self.assertEqual(new, "2031.01.02.1")
+        spec2 = importlib.util.spec_from_file_location("mv_copy2", dst)
+        mod2 = importlib.util.module_from_spec(spec2)
+        spec2.loader.exec_module(mod2)
+        self.assertEqual(mod2.MODEL_VERSION, "2031.01.02.1")
+        self.assertEqual(mod2.CHANGELOG[-1], ("2031.01.02.1", "essai"))
+        self.assertEqual(mod2.FINGERPRINT, mod2.fingerprint())
+        self.assertEqual(mod2.bump("encore", today=datetime.date(2031, 1, 2)), "2031.01.02.2")
