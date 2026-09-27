@@ -15,7 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 
-MODEL_VERSION = "2026.09.24.4"
+MODEL_VERSION = "2026.09.27.1"
 
 CHANGELOG = [
     ("2026.09.23.1", "K: binomiale negative (c=0.926, r=56.9), calibration par barreau; "
@@ -28,6 +28,9 @@ CHANGELOG = [
     ("2026.09.24.4", "LNH: Dixon-Coles + filet desert + prolongation/fusillade (parametres "
                      "nhl_dc_fit.py), gardien partant (GSAx/60) en entree, « en attente » "
                      "sans gardien confirme"),
+    ("2026.09.27.1", "NFL: prix juste des props a la ligne de reference (Pinnacle Shin) pour "
+                     "la saisie bet365, borne prudente si la ligne bet365 differe; cotes "
+                     "boostees (produit des jambes, meme match = informatif)"),
 ]
 
 # Empreinte des parametres a la version courante. A mettre a jour AVEC la

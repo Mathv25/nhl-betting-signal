@@ -1170,7 +1170,9 @@ class ReportGenerator:
                 "<button class=\"nfl-st active\" onclick=\"nflSub('matchs',this)\">"
                 "Matchs</button>"
                 "<button class=\"nfl-st\" onclick=\"nflSub('props',this)\">"
-                "Props joueurs</button></div>"
+                "Props joueurs</button>"
+                "<button class=\"nfl-st\" onclick=\"nflSub('boost',this)\">"
+                "Cotes boostees</button></div>"
                 "<div id=\"nfl-sub-matchs\">"
                 "<p class=\"nfl-intro\">Sans modele maison. Probabilite juste = "
                 "Pinnacle sans marge (methode de Shin), sinon mediane des books sharp. "
@@ -1296,7 +1298,10 @@ class ReportGenerator:
         rows.append("</div>")                       # fin du sous-onglet matchs
         rows.append("<div id=\"nfl-sub-props\" style=\"display:none\">")
         rows.append(self._nfl_props_section(st.get("props")))
-        rows.append("</div></div>")                 # fin props, fin nfl-wrap
+        rows.append("</div>")                       # fin props
+        rows.append("<div id=\"nfl-sub-boost\" style=\"display:none\">")
+        rows.append(self._nfl_boost_section(st))
+        rows.append("</div></div>")                 # fin boosts, fin nfl-wrap
         return "".join(rows)
 
     def _nfl_props_section(self, props) -> str:
@@ -1336,7 +1341,13 @@ class ReportGenerator:
             + ("<br>Releve date — " + str(st.get("reason", "")) if st.get("stale") else "")
             + "</div>")
 
+        lines = st.get("lines") or []
+        if lines:
+            out.append(self._nfl_prop_lines(lines, float(st.get("min_edge", 3) or 3)))
+
         if not sigs:
+            if lines:
+                return "".join(out)
             return "".join(out) + (
                 "<div class=\"perf-empty\"><div class=\"perf-empty-icon\">✓</div>"
                 "<div class=\"perf-empty-title\">Aucun signal</div>"
@@ -1381,6 +1392,160 @@ class ReportGenerator:
                     + "</div>")
 
         return "".join(out)
+
+    @staticmethod
+    def _et_day(ct: str) -> str:
+        """Jour ET (AAAA-MM-JJ) d'un coup d'envoi: la cle du « soir » des mises."""
+        try:
+            return (datetime.fromisoformat(str(ct).replace("Z", "+00:00"))
+                    .astimezone(pytz.timezone("America/Toronto")).strftime("%Y-%m-%d"))
+        except (ValueError, AttributeError):
+            return ""
+
+    def _nfl_prop_lines(self, lines: list, thr: float) -> str:
+        """
+        Prix juste de chaque prop scannee, avec la saisie bet365.
+
+        bet365 n'est pas dans le flux: on ne peut rien signaler d'office. La
+        ligne se lit chez bet365 (cote ET ligne, qui peut differer de
+        Pinnacle), se saisit ici, et la page calcule l'edge. Si la ligne bet365
+        est plus facile que la reference (Over plus bas, Under plus haut), la
+        probabilite de reference est un plancher et l'edge l'est aussi; plus
+        difficile, on ne sait pas convertir sans modele de distribution des
+        verges: « non comparable », pas de mise (propBound, miroir de
+        nfl_props.bound_prob).
+        """
+        from html import escape
+
+        def a(v):
+            return escape(str(v), quote=True)
+
+        out = ["<div class=\"nfl-day\">prix juste des props &middot; "
+               + str(len(lines)) + "</div>"
+               "<p class=\"nfl-intro\">Lisez chez bet365 la <b>ligne</b> et la <b>cote</b>, "
+               "choisissez Over/Under et saisissez-les. Ligne bet365 plus facile que "
+               "Pinnacle (Over plus bas, Under plus haut): l'edge affiche est un "
+               "<b>minimum</b>. Plus difficile: non comparable, on ne mise pas. "
+               "A miser des <b>" + f"{thr:g}" + "%</b>. Joueur inactif = pari annule "
+               "chez bet365.</p>"]
+        par_match: dict = {}
+        for ln in lines:
+            par_match.setdefault((ln.get("commence", ""), ln.get("game", "")), []).append(ln)
+        for (ct, game), grp in sorted(par_match.items()):
+            out.append("<details class=\"nfl-pl-game\"" + (" open" if self._nfl_imminent(ct) else "")
+                       + "><summary><b>" + escape(game) + "</b> <span class=\"nfl-kick\" data-kick=\""
+                       + a(ct) + "\">—</span> &middot; " + str(len(grp)) + " props</summary>")
+            for ln in grp:
+                L = ln["ligne"]
+                sel = f"{ln['joueur']} Over {L:g}"
+                out.append(
+                    "<div class=\"nfl-row rec-row nfl-pl\" data-sport=\"nfl\""
+                    " data-marche=\"" + a(ln.get("marche", "")) + "\""
+                    " data-joueur=\"" + a(ln["joueur"]) + "\""
+                    " data-refs=\"" + a(json.dumps(ln.get("refs") or [])) + "\""
+                    " data-selection=\"" + a(sel) + "\" data-ligne=\"" + f"{L:g}" + "\""
+                    " data-prob=\"" + f"{ln['p_over']:.4f}" + "\""
+                    " data-prob_marche_novig=\"" + f"{ln['p_over']:.4f}" + "\""
+                    " data-date=\"" + self._et_day(ct) + "\" data-commence_time=\"" + a(ct) + "\""
+                    " data-match=\"" + a(game) + "\" data-event_id=\"" + a(ln.get("event_id", "")) + "\">"
+                    "<span class=\"nfl-sel\">" + escape(ln["joueur"]) + "</span>"
+                    "<span class=\"nfl-mk\">" + escape(ln.get("marche_lbl", "")) + "</span>"
+                    "<span class=\"nfl-fair\" title=\"" + a(ln.get("source", "")) + "\">ref <b>"
+                    + f"{L:g}" + "</b> O " + f"{ln['p_over'] * 100:.0f}" + "% / U "
+                    + f"{ln['p_under'] * 100:.0f}" + "%</span>"
+                    "<span class=\"nfl-px\">exiger O <b>" + f"{ln['target_over']:.2f}"
+                    + "</b> U <b>" + f"{ln['target_under']:.2f}" + "</b></span>"
+                    "<span class=\"nfl-rec\">"
+                    "<select class=\"pl-side\" onchange=\"propUpd(this)\"><option>Over</option>"
+                    "<option>Under</option></select>"
+                    "<input class=\"pl-line\" type=\"number\" step=\"0.5\" value=\"" + f"{L:g}"
+                    + "\" title=\"ligne bet365\" oninput=\"propUpd(this)\">"
+                    "<input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" "
+                    "placeholder=\"bet365\" oninput=\"propUpd(this)\"> "
+                    "<span class=\"rec-out\"></span> "
+                    "<input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" "
+                    "oninput=\"this.dataset.manual=1\"> u "
+                    "<button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></span>"
+                    "</div>")
+            out.append("</details>")
+        return "".join(out)
+
+    def _nfl_boost_legs(self, st: dict) -> dict:
+        """
+        Catalogue des jambes qu'un boost peut combiner: chaque issue des
+        marches principaux et chaque prop a sa ligne de reference, avec sa
+        probabilite juste. Cle = libelle affiche dans la liste de choix.
+        """
+        legs = {}
+        for g in st.get("games") or []:
+            match = f"{g.get('away_team', '')} @ {g.get('home_team', '')}"
+            for lab, px in (g.get("prices") or {}).items():
+                p = (px.get("prob") or 0) / 100.0
+                if 0 < p < 1:
+                    legs[f"{lab} ({match})"] = {
+                        "selection": lab, "marche": px.get("market", ""), "p": round(p, 4),
+                        "match": match, "commence_time": g.get("commence", ""),
+                        "event_id": g.get("event_id", "")}
+        for ln in (st.get("props") or {}).get("lines") or []:
+            for side, p in (("Over", ln.get("p_over")), ("Under", ln.get("p_under"))):
+                if not p or not (0 < p < 1):
+                    continue
+                sel = f"{ln['joueur']} {side} {ln['ligne']:g}"
+                legs[f"{sel} {ln.get('marche_lbl', '')}"] = {
+                    "selection": sel, "marche": ln.get("marche", ""), "p": round(p, 4),
+                    "match": ln.get("game", ""), "commence_time": ln.get("commence", ""),
+                    "event_id": ln.get("event_id", ""), "joueur": ln["joueur"],
+                    "ligne": ln["ligne"]}
+        return legs
+
+    def _nfl_boost_section(self, st: dict) -> str:
+        """
+        Cotes boostees bet365. Un boost relevant la cote d'une issue au-dessus
+        de son prix juste est l'un des rares paris +EV possibles chez un book a
+        forte marge. On choisit les jambes dans le catalogue (prix juste
+        Pinnacle Shin), on saisit la cote boostee, la page calcule l'edge.
+
+        Jambes de matchs DIFFERENTS: independantes, p = produit, edge exact.
+        Jambes d'un MEME match: correlees (Bills gagnent + Allen 250 verges ne
+        sont pas independants); le produit n'est qu'une indication, statut
+        « informatif », jamais a miser. Pas de regle « > 8% = a verifier » ici:
+        un boost est par construction au-dessus du prix juste.
+        """
+        from html import escape
+        legs = self._nfl_boost_legs(st)
+        thr = float(st.get("min_edge", 3) or 3)
+        if not legs:
+            return ("<div class=\"perf-empty\"><div class=\"perf-empty-icon\">🚀</div>"
+                    "<div class=\"perf-empty-title\">Aucune cote de reference</div>"
+                    "<div class=\"perf-empty-sub\">Le catalogue des jambes vient du releve "
+                    "NFL (mardi, vendredi, dimanche matin).</div></div>")
+        opts = "".join("<option value=\"" + escape(k, quote=True) + "\">" for k in sorted(legs))
+        leg_in = "".join(
+            "<input class=\"bo-leg\" list=\"nfl-legs\" placeholder=\"jambe " + str(i + 1)
+            + (" (facultatif)" if i else "") + "\" oninput=\"boostUpd(this)\">"
+            for i in range(4))
+        return (
+            "<p class=\"nfl-intro\">Choisissez les jambes du boost bet365 (tapez un nom "
+            "d'equipe ou de joueur), puis saisissez la cote <b>boostee</b>. "
+            "edge = cote boostee &times; p &minus; 1, p = produit des probabilites justes "
+            "(Pinnacle sans marge). A miser des <b>" + f"{thr:g}" + "%</b>. Jambes d'un "
+            "<b>meme match</b>: correlees, le produit n'est qu'une indication — informatif, "
+            "pas de mise. Une jambe absente du catalogue (TD, receptions...) ne peut pas "
+            "etre evaluee. bet365 plafonne souvent la mise d'un boost: ajustez-la.</p>"
+            "<datalist id=\"nfl-legs\">" + opts + "</datalist>"
+            "<script>var NFL_LEGS=" + json.dumps(legs, ensure_ascii=False).replace("</", "<\\/") + ";</script>"
+            "<div class=\"rec-row nfl-boost\" data-sport=\"nfl\" data-marche=\"nfl_boost\" "
+            "data-prob=\"\" data-date=\"\">"
+            "<div class=\"bo-legs\">" + leg_in + "</div>"
+            "<div class=\"bo-info\"></div>"
+            "<div class=\"nfl-rec\">cote boostee "
+            "<input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" "
+            "placeholder=\"bet365\" oninput=\"boostUpd(this)\"> "
+            "<span class=\"rec-out\"></span> "
+            "<input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" "
+            "oninput=\"this.dataset.manual=1\"> u "
+            "<button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></div>"
+            "</div>")
 
     def _nfl_books(self, books) -> str:
         """Ligne et prix chez chaque book: c'est la moitie de l'information."""
@@ -1643,6 +1808,10 @@ class ReportGenerator:
             "function recStatus(row,e){"
             "if(row.closest('.nhl-wait'))return['en attente — gardien non confirmé','#92400E'];"
             "if(row.dataset.marche==='props_k'&&row.dataset.cal!=='1')return['informatif — barreau non calibré','#92400E'];"
+            # Boost: jambes d'un meme match = correlees, jamais a miser; pas de
+            # « prix suspect » (un boost est au-dessus du juste par construction).
+            "if(row.dataset.marche==='nfl_boost'){if(row.dataset.correle==='1')return['informatif — jambes corrélées (même match)','#92400E'];"
+            "return e>=(REC_THR.nfl||3)?['à miser','#0F6E56']:['sous le seuil','#6B7280'];}"
             "if(e>REC_SUSPECT)return['À VÉRIFIER (prix suspect)','#B45309'];"
             "if(e>=(REC_THR[row.dataset.sport]||3))return['à miser','#0F6E56'];"
             "return['sous le seuil','#6B7280'];}"
@@ -1678,6 +1847,7 @@ class ReportGenerator:
             "var inp=row.querySelector('.rec-odds');if(!inp)return;"
             "var p=parseFloat(row.dataset.prob),o=parseFloat(inp.value);"
             "var out=row.querySelector('.rec-out');if(!out)return;"
+            "if(row.dataset.nc){out.innerHTML='<b style=\"color:#92400E\">'+row.dataset.nc+'</b>';return;}"
             "var fl=p?(1/p).toFixed(2):'—';"
             "if(!p||!o||o<=1){out.innerHTML=(inp.value?'':'')+'<span class=\"rec-floor\">plancher '+fl+'</span>';return;}"
             "var e=(p*o-1)*100;var st=recStatus(row,e);"
@@ -1695,10 +1865,11 @@ class ReportGenerator:
             "var o=parseFloat((row.querySelector('.rec-odds')||{}).value);"
             "var mi=parseFloat((row.querySelector('.rec-stake')||{}).value||'0')||0;"
             "if(!o||o<=1){btn.textContent='cote ?';return;}"
+            "if(row.dataset.nc||!(parseFloat(row.dataset.prob)>0)){btn.textContent='non évaluable';return;}"
             "var tk=ghToken();if(!tk){btn.textContent='✗ pas de token';return;}"
             "var d=row.dataset;var pl={book:'bet365',cote_prise:o,mise_u:mi,prob_finale:parseFloat(d.prob),"
             "prob_modele:parseFloat(d.prob_modele||d.prob)};"
-            "['sport','marche','selection','date','joueur','ligne','k','match','commence_time','prob_brute','prob_calibree','prob_marche_novig','event_id']"
+            "['sport','marche','selection','date','joueur','ligne','k','match','commence_time','prob_brute','prob_calibree','prob_marche_novig','event_id','legs','correle']"
             ".forEach(function(f){var v=d[f];if(v!==undefined&&v!=='')pl[f]=v;});"
             "pl.calibre=d.cal==='1';"
             "btn.disabled=true;btn.textContent='⏳';"
@@ -1710,6 +1881,48 @@ class ReportGenerator:
             "else if(r.status===401||r.status===403){localStorage.removeItem('gh_workflow_token');btn.textContent='✗ token refusé';btn.disabled=false;}"
             "else{btn.textContent='✗ '+r.status;btn.disabled=false;}"
             "}catch(e){btn.textContent='✗ réseau';btn.disabled=false;}}"
+
+            # ── Props NFL: la ligne bet365 peut differer de la reference ───
+            # Miroir de nfl_props.bound_prob: Over a L -> plus petite ligne de
+            # reference >= L; Under a L -> plus grande <= L. Sinon non comparable.
+            "function propBound(refs,side,L){var c;"
+            "if(side==='Over'){c=refs.filter(function(r){return r.ligne>=L-1e-9;});"
+            "if(!c.length)return null;c.sort(function(a,b){return a.ligne-b.ligne;});return c[0].p_over;}"
+            "c=refs.filter(function(r){return r.ligne<=L+1e-9;});"
+            "if(!c.length)return null;c.sort(function(a,b){return b.ligne-a.ligne;});return Math.round((1-c[0].p_over)*1e4)/1e4;}"
+            "function propUpd(el){var row=el.closest('.rec-row');if(!row)return;"
+            "var refs=[];try{refs=JSON.parse(row.dataset.refs||'[]');}catch(e){}"
+            "var side=row.querySelector('.pl-side').value,L=parseFloat(row.querySelector('.pl-line').value);"
+            "var p=isNaN(L)?null:propBound(refs,side,L);"
+            "var exact=refs.some(function(r){return Math.abs(r.ligne-L)<1e-9;});"
+            "row.dataset.selection=row.dataset.joueur+' '+side+' '+L;row.dataset.ligne=L;"
+            "if(p===null){row.dataset.prob='';row.dataset.prob_marche_novig='';"
+            "row.dataset.nc='ligne '+L+' plus difficile que la référence — non comparable, pas de mise';}"
+            "else{delete row.dataset.nc;row.dataset.prob=p;row.dataset.prob_marche_novig=exact?p:'';}"
+            "var b=row.querySelector('.rec-btn');if(b&&!row.dataset.saved){b.disabled=false;b.textContent='Enregistrer';}"
+            "recCalc(row.querySelector('.rec-odds'));}"
+            # ── Cotes boostees: p = produit des jambes (matchs differents) ──
+            "function boostUpd(el){var row=el.closest('.rec-row');if(!row)return;"
+            "var legs=[],bad=[];[].slice.call(row.querySelectorAll('.bo-leg')).forEach(function(i){"
+            "var v=i.value.trim();if(!v)return;var l=(typeof NFL_LEGS!=='undefined')&&NFL_LEGS[v];"
+            "if(l)legs.push(l);else bad.push(v);});"
+            "var info=row.querySelector('.bo-info');"
+            "if(!legs.length||bad.length){row.dataset.prob='';row.dataset.nc=bad.length?'jambe hors catalogue — non évaluable':'choisissez au moins une jambe';"
+            "info.textContent=bad.length?('inconnue: '+bad.join(', ')):'';recCalc(row.querySelector('.rec-odds'));return;}"
+            "delete row.dataset.nc;"
+            "var p=legs.reduce(function(a,l){return a*l.p;},1);var ms={};var cor=false;"
+            "legs.forEach(function(l){if(ms[l.match])cor=true;ms[l.match]=1;});"
+            "var cts=legs.map(function(l){return l.commence_time;}).sort();"
+            "row.dataset.prob=Math.round(p*1e4)/1e4;row.dataset.correle=cor?'1':'0';"
+            "row.dataset.selection='Boost: '+legs.map(function(l){return l.selection;}).join(' + ');"
+            "row.dataset.match=Object.keys(ms).join(' | ');row.dataset.commence_time=cts[cts.length-1];"
+            "row.dataset.event_id=legs.length===1?legs[0].event_id:'';"
+            "var d0=new Date(cts[0]);row.dataset.date=isNaN(d0)?'':d0.toLocaleDateString('en-CA',{timeZone:'America/Toronto'});"
+            "row.dataset.legs=JSON.stringify(legs);"
+            "info.innerHTML=legs.length+' jambe(s) · p juste <b>'+(p*100).toFixed(1)+'%</b> · cote juste <b>'+(1/p).toFixed(2)+'</b> · exiger <b>'+((1+(REC_THR.nfl||3)/100)/p).toFixed(2)+'</b>'"
+            "+(cor?' · <b style=\"color:#92400E\">même match: corrélées, indication seulement</b>':'');"
+            "var b=row.querySelector('.rec-btn');if(b){b.disabled=false;b.textContent='Enregistrer';}delete row.dataset.saved;"
+            "recCalc(row.querySelector('.rec-odds'));}"
 
             "function mlbCalcSel(cid,k,prob,cal){"
             "var el=document.getElementById('kc-'+cid);if(!el)return;"
@@ -2266,7 +2479,7 @@ class ReportGenerator:
             "document.addEventListener('DOMContentLoaded',nflKickoffs);"
 
             "function nflSub(which,btn){"
-            "['matchs','props'].forEach(function(k){"
+            "['matchs','props','boost'].forEach(function(k){"
             "var el=document.getElementById('nfl-sub-'+k);"
             "if(el)el.style.display=(k===which?'block':'none');});"
             "document.querySelectorAll('.nfl-st').forEach(function(b){"
@@ -2854,6 +3067,15 @@ class ReportGenerator:
             ".nfl-quota{font-size:11px;color:var(--m);background:var(--bg);border-radius:8px;"
             "padding:8px 11px;margin-bottom:1rem;line-height:1.5}"
             ".nfl-quota b{color:var(--t)}"
+            ".nfl-pl-game{margin:6px 0;border:1px solid var(--b);border-radius:8px;padding:4px 10px}"
+            ".nfl-pl-game summary{cursor:pointer;font-size:12.5px;padding:3px 0}"
+            ".nfl-pl .pl-side{font-size:11px;padding:1px 2px;border:1px solid var(--b);border-radius:4px;background:var(--s);color:var(--t)}"
+            ".nfl-pl .pl-line{width:56px;padding:2px 4px;border:1px solid var(--b);border-radius:4px}"
+            ".nfl-boost{border:1px solid var(--b);border-radius:10px;padding:10px 12px;margin:8px 0}"
+            ".bo-legs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;margin-bottom:6px}"
+            ".bo-leg{padding:5px 7px;border:1px solid var(--b);border-radius:6px;font-size:12px;background:var(--s);color:var(--t)}"
+            ".bo-info{font-size:12px;color:var(--m);margin:4px 0 8px}"
+            ".nfl-boost .nfl-rec{margin-left:0;flex-wrap:wrap;font-size:12px}"
             ".nfl-prop{border:1px solid var(--b);border-radius:10px;padding:10px 12px;"
             "margin-bottom:.5rem;background:var(--s)}"
             ".nfl-prop-h{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}"

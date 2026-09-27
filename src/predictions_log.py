@@ -44,6 +44,9 @@ COLUMNS = [
     # p_final = w * p_modele + (1 - w) * p_marche_novig (blend.py): c'est sur
     # elle que se calculent l'edge et la mise.
     "prob_finale",
+    # Cote boostee NFL: jambes en JSON [{marche, selection, match,
+    # commence_time, event_id, p}]. Le reglement se fait jambe par jambe.
+    "legs",
 ]
 
 # Champs que la prediction suivante (meme id, avant le match) a le droit de

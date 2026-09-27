@@ -379,6 +379,83 @@ def analyze_player(joueur: str, par_ligne: dict, market: str,
     return sigs
 
 
+# ── Lignes de reference, pour la saisie bet365 ──────────────────────────────
+#
+# bet365 n'est pas dans le flux: analyze_player ne peut donc rien signaler.
+# Ce qu'on peut faire, c'est publier le prix JUSTE de chaque prop (Pinnacle
+# Shin, sinon mediane sharp) pour que la page compare la cote bet365 saisie.
+#
+# bet365 n'affiche pas toujours la meme ligne que Pinnacle. Sans modele de
+# distribution des verges, on ne sait pas convertir 67.5 en 64.5 — mais on sait
+# BORNER: P(X > 64.5) >= P(X > 67.5). Un Over a une ligne plus basse (ou un
+# Under a une ligne plus haute) que la reference a donc AU MOINS la
+# probabilite de la reference; l'edge calcule dessus est un plancher. Dans
+# l'autre sens on ne sait rien dire: la ligne est « non comparable ».
+
+def reference_lines(joueur: str, par_ligne: dict, market: str, game: dict) -> dict:
+    """
+    Prix juste d'une prop a chaque ligne ou la reference existe, ou {} si
+    aucune. `ligne` = ligne principale (la plus proche de 50/50), celle
+    affichee; `refs` = toutes, pour borner une ligne bet365 differente.
+    """
+    refs = []
+    for ligne, par_book in sorted(par_ligne.items()):
+        pair = NFL.reference_pair(
+            {bk: {"Over": c.get("Over"), "Under": c.get("Under")}
+             for bk, c in par_book.items()},
+            "Over", "Under")
+        if not pair or not (0.0 < pair["Over"] < 1.0):
+            continue
+        refs.append({"ligne": ligne, "p_over": round(pair["Over"], 4),
+                     "p_under": round(pair["Under"], 4),
+                     "source": pair["source"], "n_books": pair["n_books"]})
+    if not refs:
+        return {}
+    main = min(refs, key=lambda r: abs(r["p_over"] - 0.5))
+    thr = min_edge()
+    return {
+        "joueur":     joueur,
+        "market":     market,
+        "marche":     "nfl_prop_" + market.replace("player_", ""),
+        "marche_lbl": MARKET_LABELS.get(market, market),
+        "ligne":      main["ligne"],
+        "p_over":     main["p_over"],
+        "p_under":    main["p_under"],
+        "target_over":  odds_api.min_odds_for(main["p_over"] * 100, thr),
+        "target_under": odds_api.min_odds_for(main["p_under"] * 100, thr),
+        "source":     main["source"],
+        "n_books":    main["n_books"],
+        "refs":       [{"ligne": r["ligne"], "p_over": r["p_over"]} for r in refs],
+        "game":       f"{game.get('away_team', '')} @ {game.get('home_team', '')}",
+        "commence":   game.get("commence", ""),
+        "event_id":   game.get("event_id", ""),
+    }
+
+
+def bound_prob(refs: list, side: str, line: float):
+    """
+    Probabilite PLANCHER d'un Over/Under a la ligne `line` de bet365, tiree des
+    lignes de reference. None si aucune reference ne permet de borner.
+
+      Over  a L: plus petite ligne de reference R >= L  ->  p_over(R)
+      Under a L: plus grande ligne de reference R <= L  ->  1 - p_over(R)
+
+    A ligne egale, c'est la probabilite exacte. Miroir de propBound() dans la
+    page: les deux doivent rester identiques.
+    """
+    try:
+        line = float(line)
+    except (TypeError, ValueError):
+        return None
+    if side == "Over":
+        c = [r for r in refs or [] if r["ligne"] >= line - 1e-9]
+        return min(c, key=lambda r: r["ligne"])["p_over"] if c else None
+    if side == "Under":
+        c = [r for r in refs or [] if r["ligne"] <= line + 1e-9]
+        return round(1.0 - max(c, key=lambda r: r["ligne"])["p_over"], 4) if c else None
+    return None
+
+
 # ── Execution ───────────────────────────────────────────────────────────────
 
 def fetch_market(client, event_id: str, market: str) -> dict:
@@ -423,7 +500,7 @@ def run(api_key: str = None, slate: dict = None, force: bool = False,
     print(f"  [Props NFL] {len(games)} match(s) au-dessus de {min_total():g} points, "
           f"{budget}/{max_requests()} requete(s) restantes cette semaine")
 
-    signaux, scannes, demandes, ecartes = [], [], 0, []
+    signaux, scannes, demandes, ecartes, lignes = [], [], 0, [], []
     # Marche par marche plutot que match par match: si le budget s'epuise, il
     # reste couvert en priorite le marche le plus haut de la liste sur tous les
     # matchs, plutot qu'un seul match couvert sur trois marches.
@@ -442,6 +519,9 @@ def run(api_key: str = None, slate: dict = None, force: bool = False,
             for joueur, par_ligne in joueurs.items():
                 signaux.extend(analyze_player(joueur, par_ligne, market, g,
                                               ecartes=ecartes))
+                ref = reference_lines(joueur, par_ligne, market, g)
+                if ref:
+                    lignes.append(ref)
         if demandes >= budget:
             print(f"  [Props NFL] plafond hebdomadaire atteint apres {market}")
             break
@@ -470,6 +550,11 @@ def run(api_key: str = None, slate: dict = None, force: bool = False,
         # Props passees pres du seuil: permet de repondre a "pourquoi X n'est
         # plus signale" au lieu de laisser le silence.
         "near_misses":  sorted(ecartes, key=lambda e: e["manque"])[:15],
+        # Prix juste de chaque prop scannee: c'est ce que la page compare a la
+        # cote bet365 saisie a la main (seul book jouable, absent du flux).
+        "lines":        sorted(lignes, key=lambda r: (r["commence"], r["game"],
+                                                       r["market"], r["joueur"])),
+        "n_lines":      len(lignes),
     }
 
     try:

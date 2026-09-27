@@ -238,6 +238,114 @@ def nfl_scores(day: str) -> list:
 
 SCORES = {"mlb": mlb_scores, "nhl": nhl_scores, "nfl": nfl_scores}
 
+# Props NFL: marche du journal -> (categorie ESPN, cle de la stat).
+NFL_PROP_STATS = {
+    "nfl_prop_reception_yds": ("receiving", "receivingYards"),
+    "nfl_prop_rush_yds":      ("rushing", "rushingYards"),
+    "nfl_prop_pass_yds":      ("passing", "passingYards"),
+}
+_box_cache: dict = {}
+
+
+def nfl_box(match: str, commence_time: str):
+    """
+    Feuille de match ESPN (gratuite) d'un match NFL termine:
+    {"stats": {(categorie, joueur_norm): {cle: valeur}}, "joueurs": set(joueur_norm)},
+    ou None si le match n'est pas termine ou introuvable.
+    """
+    key = (match, commence_time)
+    if key in _box_cache:
+        return _box_cache[key]
+    away, home = _teams(match)
+    start = _dt(commence_time)
+    days = {(start + timedelta(days=d)).strftime("%Y%m%d") for d in (-1, 0)} if start else set()
+    ev_id = None
+    for day in sorted(days):
+        d = _get_json("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
+                      {"dates": day}) or {}
+        for ev in d.get("events", []):
+            comp = (ev.get("competitions") or [{}])[0]
+            sides = {c.get("homeAway"): c.get("team", {}).get("displayName", "")
+                     for c in comp.get("competitors", [])}
+            if (_norm(sides.get("home")) == _norm(home) and _norm(sides.get("away")) == _norm(away)
+                    and comp.get("status", {}).get("type", {}).get("completed")):
+                ev_id = ev.get("id")
+    res = None
+    if ev_id:
+        s = _get_json("https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary",
+                      {"event": ev_id}) or {}
+        stats, joueurs = {}, set()
+        for team in (s.get("boxscore") or {}).get("players") or []:
+            for cat in team.get("statistics") or []:
+                keys = cat.get("keys") or []
+                for a in cat.get("athletes") or []:
+                    nm = _norm((a.get("athlete") or {}).get("displayName", ""))
+                    joueurs.add(nm)
+                    stats[(cat.get("name"), nm)] = dict(zip(keys, a.get("stats") or []))
+        res = {"stats": stats, "joueurs": joueurs} if joueurs else None
+    _box_cache[key] = res
+    return res
+
+
+def settle_nfl_prop(row: dict):
+    """
+    W/L/P d'une prop de verges NFL, VOID si le joueur n'a pas joue, None si
+    inconnu (match pas fini ou feuille absente).
+
+    ESPN ne liste dans une categorie que les joueurs qui y ont une stat: un
+    receveur a 0 reception n'est pas dans « receiving ». S'il apparait
+    ailleurs sur la feuille, il a joue: 0 verge. Absent partout: il n'a pas
+    joue, et bet365 annule la prop.
+    """
+    cat, stat = NFL_PROP_STATS[row["marche"]]
+    box = nfl_box(row.get("match", ""), row.get("commence_time", ""))
+    if box is None:
+        return None
+    sel = row.get("selection", "")
+    m = re.match(r"^(.*) (Over|Under) ([\d.]+)$", sel)
+    if not m:
+        return None
+    joueur, side, line = _norm(m.group(1)), m.group(2), float(m.group(3))
+    if joueur not in box["joueurs"]:
+        return "VOID"
+    val = _f((box["stats"].get((cat, joueur)) or {}).get(stat)) or 0.0
+    if val == line:
+        return "P"
+    return "W" if (val > line) == (side == "Over") else "L"
+
+
+def settle_leg(leg: dict):
+    """Resultat d'une jambe de boost (meme logique qu'une prediction simple)."""
+    row = {"sport": "nfl", "marche": leg.get("marche", ""), "selection": leg.get("selection", ""),
+           "match": leg.get("match", ""), "commence_time": leg.get("commence_time", ""),
+           "date": (leg.get("commence_time") or "")[:10]}
+    if row["marche"] in NFL_PROP_STATS:
+        return settle_nfl_prop(row)
+    g = _game_result(row)
+    return settle_game_row(row, g) if g else None
+
+
+def settle_boost(row: dict):
+    """
+    Un boost gagne si toutes ses jambes gagnent. Une jambe perdue suffit a le
+    perdre. Une jambe nulle ou annulee: bet365 recalcule a la cote NON boostee
+    des jambes restantes, qu'on ne connait pas — VOID, exclu des statistiques
+    plutot que regle a un prix invente.
+    """
+    import json
+    try:
+        legs = json.loads(row.get("legs") or "[]")
+    except ValueError:
+        return None
+    if not legs:
+        return None
+    res = [settle_leg(l) for l in legs]
+    if "L" in res:
+        return "L"
+    if None in res:
+        return None
+    return "W" if all(r == "W" for r in res) else "VOID"
+
 
 def _game_result(row: dict):
     away, home = _teams(row.get("match", ""))
@@ -336,6 +444,10 @@ def settle(rows: list, now: datetime = None) -> int:
                     # Match termine et le lanceur n'a pas ete partant: nul.
                     # Sans score final publie, on attend (retard de l'API).
                     res = "VOID"
+        elif r.get("marche") == "nfl_boost":
+            res = settle_boost(r)
+        elif r.get("marche") in NFL_PROP_STATS:
+            res = settle_nfl_prop(r)
         else:
             g = _game_result(r)
             if g:

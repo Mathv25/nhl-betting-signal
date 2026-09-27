@@ -13,6 +13,7 @@ ce script avec la saisie en JSON dans la variable d'environnement PAYLOAD
 La ligne existante (meme id: date|sport|marche|selection) est completee;
 sinon une ligne est creee. Le statut est recalcule ici, pas cru sur parole:
   - props K sur un barreau non calibre -> « informatif », quelle que soit la cote;
+  - boost NFL a jambes d'un meme match  -> « informatif » (correlees);
   - edge > SUSPECT_EDGE_PCT (8%)       -> « a_verifier »;
   - edge >= seuil du sport              -> « a_miser »;
   - sinon                               -> « sous_seuil ».
@@ -48,6 +49,13 @@ def _num(payload, key, lo=None, hi=None, required=False):
 def status_for(payload: dict, edge_pct: float) -> str:
     if payload.get("marche") == "props_k" and str(payload.get("calibre", "")).lower() not in ("1", "true"):
         return "informatif"
+    if payload.get("marche") == "nfl_boost":
+        # Jambes d'un meme match: correlees, le produit des p n'est qu'une
+        # indication. Pas de « prix suspect »: un boost est au-dessus du juste
+        # par construction.
+        if str(payload.get("correle", "")).lower() in ("1", "true"):
+            return "informatif"
+        return "a_miser" if edge_pct >= THRESHOLDS["nfl"] else "sous_seuil"
     if edge_pct > betting_config.suspect_edge_pct():
         return "a_verifier"
     if edge_pct >= THRESHOLDS.get(payload.get("sport", ""), 3.0):
@@ -78,7 +86,7 @@ def record(payload: dict, path: str = None) -> dict:
                "version_modele": PL.current_version()}
         for k in ("date", "sport", "marche", "selection", "joueur", "ligne", "k",
                   "match", "commence_time", "event_id", "prob_brute", "prob_calibree",
-                  "prob_marche_novig"):
+                  "prob_marche_novig", "legs"):
             if payload.get(k) not in (None, ""):
                 row[k] = payload[k]
         row["prob_modele"] = _num(payload, "prob_modele", 0.0, 1.0) or prob

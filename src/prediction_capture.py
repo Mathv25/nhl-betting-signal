@@ -139,6 +139,30 @@ def nfl_rows(nfl_state: dict, today: str, now: datetime) -> list:
     return rows
 
 
+def nfl_prop_rows(nfl_state: dict, today: str, now: datetime) -> list:
+    """Props NFL a leur ligne de reference, les deux cotes (prix juste, a saisir)."""
+    props = (nfl_state or {}).get("props") or {}
+    if props.get("stale"):
+        return []
+    rows = []
+    for ln in props.get("lines") or []:
+        ct = ln.get("commence", "")
+        if not _future(ct, now):
+            continue
+        day = _day(ct, today)
+        for side, p in (("Over", ln.get("p_over")), ("Under", ln.get("p_under"))):
+            if not p or not (0 < p < 1):
+                continue
+            rows.append(_row(
+                day, "nfl", ln.get("marche", ""), f"{ln['joueur']} {side} {ln['ligne']:g}",
+                p, ct, ln.get("game", ""), ln.get("event_id", ""),
+                joueur=ln["joueur"], ligne=ln["ligne"],
+                prob_marche_novig=round(p, 4), prob_finale=round(p, 4),
+                statut="a_saisir", source=ln.get("source", ""),
+            ))
+    return rows
+
+
 def k_selected_rows(mlb_analysis: list, today: str, now: datetime) -> list:
     """Marque le barreau recommande de chaque carte K (selectionne=1)."""
     rows = []
@@ -169,6 +193,7 @@ def log_all(output: dict, now: datetime = None) -> dict:
     rows = (mlb_ml_rows(output.get("mlb_ml_analysis"), today, now)
             + nhl_rows(output.get("signals"), today, now)
             + nfl_rows(output.get("nfl_analysis"), today, now)
+            + nfl_prop_rows(output.get("nfl_analysis"), today, now)
             + k_selected_rows(output.get("mlb_analysis"), today, now))
     if not rows:
         return {"added": 0, "updated": 0, "frozen": 0}
