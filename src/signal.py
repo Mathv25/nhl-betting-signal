@@ -3,7 +3,7 @@ NHL Betting Signal - Script principal
 Bookmaker: bet365
 """
 import json, os, sys, time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import pytz
 from env_file import load_env
 import odds_api
@@ -318,9 +318,22 @@ def main():
     mlb_analysis = dedupe_mlb_cards(mlb_analysis)
 
     # ── 6. Vérification: au moins un sport a du contenu ───────────────────────
-    has_content = games or nba_games or mlb_games
+    # La NFL compte aussi: un lundi soir sans NHL ni MLB (fin de saison MLB,
+    # 2026-09-28) laissait la page figee a l'etat du dimanche, sans l'Eagles @
+    # Bears du soir. On lit le dernier etat NFL connu: zero credit.
+    def _nfl_upcoming() -> bool:
+        try:
+            for g in (nfl_analyzer.load_signals().get("games") or []):
+                ct = g.get("commence", "")
+                if ct and datetime.fromisoformat(ct.replace("Z", "+00:00")) > datetime.now(timezone.utc) - timedelta(hours=4):
+                    return True
+        except Exception as e:
+            print(f"  [NFL] etat illisible: {e}")
+        return False
+
+    has_content = games or nba_games or mlb_games or _nfl_upcoming()
     if not has_content:
-        print("\nAucun match NHL/NBA/MLB aujourd'hui. Signal existant conserve.")
+        print("\nAucun match NHL/NBA/MLB/NFL aujourd'hui. Signal existant conserve.")
         sys.exit(0)
 
     # ── 7. Value bets NHL ─────────────────────────────────────────────────────
