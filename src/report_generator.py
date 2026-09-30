@@ -242,7 +242,9 @@ class ReportGenerator:
 
     def _bet_cards(self, value_bets):
         if not value_bets:
-            return "<p class=\"no-bets\">Aucun bet avec edge superieur a 5% aujourd'hui.</p>"
+            return ("<p class=\"no-bets\">Aucun pari detecte automatiquement: bet365 n'est pas dans le flux. "
+                    "<b>Les picks se font plus bas</b>, dans « LNH — lignes du modele »: saisissez la cote "
+                    "bet365, la ligne passe « a miser » si elle depasse la cote a exiger.</p>")
         cards = ""
         for b in value_bets:
             ep  = b.get("edge_pct", 0)
@@ -2188,7 +2190,7 @@ class ReportGenerator:
             # Les paris de match MLB en premier: c'est ce qu'on vient chercher.
             "h+=mlTableHTML(d);"
             "h+='<div class=\"sec\">Bets recommandes - Edge minimum 5%</div>';"
-            "if(!vb.length){h+='<p class=\"no-bets\">Aucun bet avec edge superieur a 5% aujourd\\'hui.</p>';}"
+            "if(!vb.length){h+='<p class=\"no-bets\">Aucun pari détecté automatiquement: bet365 n\\'est pas dans le flux. <b>Les picks se font plus bas</b>, dans « LNH — lignes du modèle »: saisissez la cote bet365.</p>';}"
             "else{vb.forEach(function(b){"
             "var ep=b.edge_pct||0;"
             "var ec=ep>=8?'var(--g)':ep>=5?'var(--a)':'var(--r2)';"
