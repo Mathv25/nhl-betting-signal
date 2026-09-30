@@ -74,6 +74,9 @@ jobs:
           # septembre avec docs/nfl_signals.json, un mardi, jour de
           # releve NFL: trois runs perdus a l'etape git.
           git add docs/
+          # Cache des donnees SOG (nhl_sog_data): sans lui, chaque run relirait
+          # tous les play-by-play de la saison.
+          git add data/nhl_sog/ 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Signal refresh $(date +'%Y-%m-%d %H:%M')"
           # Si l'arbre n'est pas propre ici, le rebase echouera avec un message
           # qui ne dit pas QUEL fichier bloque. On l'affiche.

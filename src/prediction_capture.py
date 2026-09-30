@@ -163,6 +163,37 @@ def nfl_prop_rows(nfl_state: dict, today: str, now: datetime) -> list:
     return rows
 
 
+def nhl_sog_rows(sog_state: dict, today: str, now: datetime) -> list:
+    """
+    Tirs au but LNH: chaque joueur de l'univers a sa ligne principale (le .5
+    le plus proche de lambda), les deux cotes. Misee ou non: c'est la base de
+    la calibration en direct, comme les barreaux K.
+    """
+    st = sog_state or {}
+    rows = []
+    for x in st.get("joueurs") or []:
+        ct = x.get("commence", "")
+        if not _future(ct, now):
+            continue
+        lam = float(x.get("lam") or 0)
+        L = round(lam - 0.5) + 0.5
+        po = (x.get("p_over") or {}).get(f"{L:g}")
+        if po is None:
+            continue
+        day = _day(ct, today)
+        for side, p in (("Over", po), ("Under", 1 - po)):
+            if not (0 < p < 1):
+                continue
+            rows.append(_row(
+                day, "nhl", "nhl_sog", f"{x['joueur']} {side} {L:g} SOG", p, ct,
+                x.get("match", ""), x.get("event_id", ""),
+                joueur=x["joueur"], ligne=L, player_id=x.get("playerId", ""),
+                prob_finale=round(p, 4), statut="informatif" if not st.get("valide") else "a_saisir",
+                source=f"SOG lambda {lam:.2f} ({st.get('distribution', '')})",
+            ))
+    return rows
+
+
 def k_selected_rows(mlb_analysis: list, today: str, now: datetime) -> list:
     """Marque le barreau recommande de chaque carte K (selectionne=1)."""
     rows = []
@@ -194,6 +225,7 @@ def log_all(output: dict, now: datetime = None) -> dict:
             + nhl_rows(output.get("signals"), today, now)
             + nfl_rows(output.get("nfl_analysis"), today, now)
             + nfl_prop_rows(output.get("nfl_analysis"), today, now)
+            + nhl_sog_rows(output.get("nhl_sog"), today, now)
             + k_selected_rows(output.get("mlb_analysis"), today, now))
     if not rows:
         return {"added": 0, "updated": 0, "frozen": 0}

@@ -314,6 +314,110 @@ def settle_nfl_prop(row: dict):
     return "W" if (val > line) == (side == "Over") else "L"
 
 
+_nhl_box: dict = {}
+
+
+def settle_nhl_sog(row: dict):
+    """
+    W/L d'un pari de tirs au but LNH par la feuille de match (API LNH, gratuite).
+    Joueur absent de la feuille = VOID (bet365 annule). Match pas fini = None.
+    """
+    gid, pid = row.get("event_id"), row.get("player_id")
+    if not gid or not pid:
+        return None
+    if gid not in _nhl_box:
+        _nhl_box[gid] = _get_json(f"https://api-web.nhle.com/v1/gamecenter/{gid}/boxscore")
+    box = _nhl_box[gid] or {}
+    if box.get("gameState") not in ("OFF", "FINAL"):
+        return None
+    sog = None
+    for side in ("homeTeam", "awayTeam"):
+        t = (box.get("playerByGameStats") or {}).get(side) or {}
+        for grp in ("forwards", "defense"):
+            for p in t.get(grp) or []:
+                if str(p.get("playerId")) == str(int(float(pid))):
+                    sog = p.get("sog") or 0
+    if sog is None:
+        return "VOID"
+    m = re.search(r" (Over|Under) ([\d.]+) SOG$", row.get("selection", ""))
+    if not m:
+        return None
+    line = float(m.group(2))
+    if sog == line:
+        return "P"
+    return "W" if (sog > line) == (m.group(1) == "Over") else "L"
+
+
+def close_sog(rows: list, now: datetime = None, client=None) -> int:
+    """
+    Cote de fermeture des paris de tirs REELLEMENT saisis (cote_prise), dans les
+    CLOSE_WINDOW_MIN minutes avant le match. bet365 n'est pas dans le flux:
+    fermeture = prix juste de reference a la MEME ligne (Pinnacle Shin, sinon
+    mediane sharp, sinon mediane no-vig des books US). 2 credits par match
+    (1 marche x regions us,eu), seulement pour les matchs avec un pari saisi.
+    """
+    import market_reference as MR
+    now = now or datetime.now(timezone.utc)
+    horizon = now + timedelta(minutes=CLOSE_WINDOW_MIN)
+    todo = [r for r in rows if r.get("marche") == "nhl_sog" and r.get("cote_prise")
+            and not r.get("cote_fermeture")
+            and (_dt(r.get("commence_time")) or now) > now
+            and (_dt(r.get("commence_time")) or horizon + timedelta(1)) <= horizon]
+    if not todo:
+        return 0
+    client = client or odds_api.get_client(os.environ.get("ODDS_API_KEY", ""))
+    events = client.get("sports/icehockey_nhl/events", {}, cost=0) or []
+    n = 0
+    by_match = {}
+    for r in todo:
+        by_match.setdefault(r.get("match", ""), []).append(r)
+    for match, rs in by_match.items():
+        ev = _find_event(events, dict(rs[0], match=_abbr_to_names(match, events, rs[0])))
+        if not ev:
+            continue
+        data = client.get(f"sports/icehockey_nhl/events/{ev['id']}/odds", {
+            "regions": "us,eu", "markets": "player_shots_on_goal", "oddsFormat": "decimal"}, cost=2) or {}
+        for r in rs:
+            m = re.search(r"^(.*) (Over|Under) ([\d.]+) SOG$", r.get("selection", ""))
+            if not m:
+                continue
+            who, side, line = _norm(m.group(1)), m.group(2), float(m.group(3))
+            per_book = {}
+            for bm in data.get("bookmakers", []):
+                for mk in bm.get("markets", []):
+                    for oc in mk.get("outcomes", []):
+                        if _norm(oc.get("description")) == who and oc.get("point") is not None \
+                                and abs(float(oc["point"]) - line) < 1e-6:
+                            per_book.setdefault(bm["key"], {})[oc["name"]] = oc["price"]
+            pair = MR.reference_pair(per_book, "Over", "Under")
+            if not pair:
+                ps = sorted(d[0] for d in (odds_api.devig([v.get("Over"), v.get("Under")], "shin")
+                                           for v in per_book.values() if v.get("Over") and v.get("Under")) if d)
+                if not ps:
+                    continue
+                p_over = ps[len(ps) // 2]
+            else:
+                p_over = pair["Over"]
+            p = p_over if side == "Over" else 1 - p_over
+            r["fermeture_novig"] = round(p, 4)
+            r["cote_fermeture"] = round(1 / p, 3)
+            fill_clv(r)
+            n += 1
+    print(f"  [Fermeture SOG] {n}/{len(todo)} pari(s) de tirs ferme(s)")
+    return n
+
+
+def _abbr_to_names(match: str, events: list, row: dict) -> str:
+    """'MTL @ TOR' -> 'Montreal Canadiens @ Toronto Maple Leafs' via l'evenement le plus proche."""
+    import nhl_stats
+    try:
+        inv = {v: k for k, v in getattr(nhl_stats, "TEAM_ABBR", {}).items()}
+    except Exception:
+        inv = {}
+    a, _, h = match.partition(" @ ")
+    return f"{inv.get(a.strip(), a.strip())} @ {inv.get(h.strip(), h.strip())}"
+
+
 def settle_leg(leg: dict):
     """Resultat d'une jambe de boost (meme logique qu'une prediction simple)."""
     row = {"sport": "nfl", "marche": leg.get("marche", ""), "selection": leg.get("selection", ""),
@@ -444,6 +548,8 @@ def settle(rows: list, now: datetime = None) -> int:
                     # Match termine et le lanceur n'a pas ete partant: nul.
                     # Sans score final publie, on attend (retard de l'API).
                     res = "VOID"
+        elif r.get("marche") == "nhl_sog":
+            res = settle_nhl_sog(r)
         elif r.get("marche") == "nfl_boost":
             res = settle_boost(r)
         elif r.get("marche") in NFL_PROP_STATS:
@@ -475,6 +581,10 @@ def main(argv=None):
     n = 0
     if a.close or both:
         n += close(rows)
+        try:
+            n += close_sog(rows)
+        except Exception as e:
+            print(f"  [Fermeture SOG] erreur: {e}")
     if a.settle or both:
         n += settle(rows)
     if not n:

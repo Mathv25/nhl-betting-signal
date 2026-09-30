@@ -15,7 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 
-MODEL_VERSION = "2026.09.27.1"
+MODEL_VERSION = "2026.09.30.1"
 
 CHANGELOG = [
     ("2026.09.23.1", "K: binomiale negative (c=0.926, r=56.9), calibration par barreau; "
@@ -31,11 +31,12 @@ CHANGELOG = [
     ("2026.09.27.1", "NFL: prix juste des props a la ligne de reference (Pinnacle Shin) pour "
                      "la saisie bet365, borne prudente si la ligne bet365 differe; cotes "
                      "boostees (produit des jambes, meme match = informatif)"),
+    ('2026.09.30.1', 'SOG LNH: module tirs au but (iCF 5v5/PP x TOI, adversaire, conversion, binomiale negative r=19.95), backtest 2025-26 non concluant -> informatif'),
 ]
 
 # Empreinte des parametres a la version courante. A mettre a jour AVEC la
 # version: python3 -c "import model_version as m; print(m.fingerprint())"
-FINGERPRINT = "6507998040c7"
+FINGERPRINT = "490594f92507"
 
 
 def parameters() -> dict:
@@ -54,9 +55,26 @@ def parameters() -> dict:
                    "ot_home": DC.OT_HOME, "ot_k": DC.OT_K, "so_home": DC.SO_HOME,
                    "reg_share": DC.REG_SHARE, "ga60": DC.LEAGUE_GA60,
                    "gsax_shrink": DC.GSAX_SHRINK_S},
+        "sog": _sog_params(),
         "devig": cfg["DEVIG_METHOD"],
         "reference": cfg["REFERENCE_BOOK"],
     }
+
+
+def _sog_params() -> dict:
+    """Module SOG: constantes du modele + parametres ajustes (docs/nhl_sog_params.json)."""
+    import os
+    import nhl_sog_model as S
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs",
+                               "nhl_sog_params.json"), encoding="utf-8") as f:
+            prm = json.load(f)
+    except Exception:
+        prm = {}
+    return {"w": S.W_SEASON, "last": S.LAST_N, "toi": S.TOI_WINDOW, "prior": S.PRIOR_GAMES,
+            "pp_prior": S.PP_PRIOR_MIN, "conv_prior": S.CONV_PRIOR_ATTEMPTS,
+            "univers": [S.MIN_SOG_PG, S.MIN_ICF_PG, S.MIN_GP],
+            "fit": {k: prm.get(k) for k in ("contexte", "nb_r", "distribution", "valide", "seuils")}}
 
 
 def fingerprint() -> str:

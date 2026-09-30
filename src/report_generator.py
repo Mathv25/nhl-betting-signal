@@ -97,6 +97,9 @@ class ReportGenerator:
             "<div id=\"tab-props\" style=\"display:none\">",
             props_html if props_html else "<p class=\"no-bets\">Analyse joueurs disponible apres le prochain run.</p>",
             "</div>",
+            "<div id=\"tab-sog\" style=\"display:none\">",
+            self._sog_section(data.get("nhl_sog")),
+            "</div>",
             "<div id=\"tab-nba\" style=\"display:none\">",
             nba_html,
             "</div>",
@@ -132,6 +135,7 @@ class ReportGenerator:
             "<div class=\"tabs\">"
             "<button class=\"tab active\" onclick=\"showTab('tab-signal',this)\">Signal</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-props',this)\">Props NHL</button>"
+            "<button class=\"tab\" onclick=\"showTab('tab-sog',this)\">SOG</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-nba',this)\">NBA</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-mlb',this)\">MLB</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-nfl',this)\">NFL</button>"
@@ -1547,6 +1551,92 @@ class ReportGenerator:
             "<button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></div>"
             "</div>")
 
+    def _sog_section(self, st) -> str:
+        """
+        Onglet « SOG » — tirs au but LNH, joueurs a gros volume (nhl_sog_live).
+
+        La page ne connait pas la cote bet365: on saisit la cote Over et/ou
+        Under a la ligne choisie. Les deux: marge retiree (proportionnelle).
+        Une seule: marge estimee (affichee). edge = p_modele - p_implicite.
+        « A MISER » exige edge >= min_edge ET p_modele >= min_prob, un
+        alignement confirme, et un modele valide par le backtest; sinon
+        « PASSER » avec la raison. Mise: Kelly (staking.py) via REC_ST.
+        """
+        from html import escape
+        st = st or {}
+        rows = st.get("joueurs") or []
+        seuils = st.get("seuils") or {}
+        me, mp = float(seuils.get("min_edge", 0.04)), float(seuils.get("min_prob", 0.58))
+        marge = float(st.get("marge_estimee", 0.07))
+        valide = bool(st.get("valide"))
+
+        def a(v):
+            return escape(str(v), quote=True)
+
+        head = ("<div class=\"sec\">🎯 SOG — tirs au but LNH</div>"
+                "<p class=\"nfl-intro\">Joueurs a au moins <b>" + f"{(st.get('univers') or {}).get('min_sog_pg', 3):g}"
+                + "</b> tirs et <b>" + f"{(st.get('univers') or {}).get('min_icf_pg', 5.5):g}"
+                + "</b> tentatives par match. Saisissez la cote bet365 Over et/ou Under a la ligne "
+                "choisie. Les deux: marge retiree. Une seule: marge estimee a <b>"
+                + f"{marge * 100:.0f}" + "%</b>. <b>A MISER</b> si edge &ge; " + f"{me * 100:.0f}"
+                + " points et probabilite &ge; " + f"{mp * 100:.0f}" + "%, alignement confirme.</p>")
+        if not valide:
+            head += ("<div class=\"nfl-stale\"><b>INFORMATIF</b> — " + escape(str(st.get("verdict", "backtest absent")))
+                     + ". Aucun pari n'est « A MISER » tant que le backtest ne valide pas le modele.</div>")
+        if not rows:
+            return head + ("<div class=\"perf-empty\"><div class=\"perf-empty-icon\">🎯</div>"
+                           "<div class=\"perf-empty-title\">Aucun joueur dans l'univers ce soir</div>"
+                           "<div class=\"perf-empty-sub\">" + escape(str(st.get("date", ""))) + " &middot; "
+                           + str(st.get("n_matchs", 0)) + " match(s)</div></div>")
+
+        out = [head,
+               "<label class=\"sog-flt\"><input type=\"checkbox\" onchange=\"sogFilter(this.checked)\"> "
+               "petites cotes seulement (1.50 a 2.00)</label>",
+               "<div class=\"sog-wrap\"><table class=\"sog-t\"><thead><tr>"
+               "<th>Joueur</th><th>Match</th><th>&lambda;</th><th>Ligne</th><th>Over</th><th>Under</th>"
+               "<th>Cote juste</th><th>P modele</th><th>Edge</th><th>Mise</th><th></th><th></th>"
+               "</tr></thead><tbody id=\"sog-body\">"]
+        for x in rows:
+            lam = float(x.get("lam", 0))
+            lines = sorted(x.get("p_over", {}), key=float)
+            default = min(lines, key=lambda L: abs(float(L) - (round(lam - 0.5) + 0.5))) if lines else "2.5"
+            opts = "".join("<option" + (" selected" if L == default else "") + ">" + L + "</option>" for L in lines)
+            al = x.get("alignement", "absent")
+            al_badge = {"confirme": "✓", "incertain": "?", "absent": "✗"}.get(al, "?")
+            info = " &middot; ".join(v for v in [
+                (x.get("trio") or "").upper(), (x.get("vague_pp") or "").upper(),
+                escape(str(x.get("source_alignement", "")))] if v)
+            flags = (x.get("detail") or {}).get("flags") or []
+            out.append(
+                "<tr class=\"rec-row sog-row\" data-sport=\"nhl\" data-marche=\"nhl_sog\""
+                " data-joueur=\"" + a(x["joueur"]) + "\" data-match=\"" + a(x.get("match", "")) + "\""
+                " data-date=\"" + self._et_day(x.get("commence", "")) + "\""
+                " data-commence_time=\"" + a(x.get("commence", "")) + "\""
+                " data-event_id=\"" + a(x.get("event_id", "")) + "\""
+                " data-pover=\"" + a(json.dumps(x.get("p_over", {}))) + "\""
+                " data-lam=\"" + f"{lam:.3f}" + "\" data-alignement=\"" + a(al) + "\""
+                " data-valide=\"" + ("1" if valide else "0") + "\" data-prob=\"\">"
+                "<td><b>" + escape(x["joueur"]) + "</b> <span class=\"sog-al sog-al-" + a(al) + "\" title=\"alignement "
+                + a(al) + "\">" + al_badge + "</span><div class=\"sog-sub\">" + escape(x.get("team", "")) + " "
+                + escape(x.get("pos", "")) + (" &middot; " + info if info else "")
+                + " &middot; " + f"{x.get('sog_pg', 0):.1f}" + " tirs/m"
+                + ("".join("<br>⚠ " + escape(f) for f in flags)) + "</div></td>"
+                "<td>" + escape(x.get("match", "")) + "</td>"
+                "<td>" + f"{lam:.2f}" + "</td>"
+                "<td><select class=\"sog-line\" onchange=\"sogUpd(this)\">" + opts + "</select></td>"
+                "<td><input class=\"sog-o\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"—\" oninput=\"sogUpd(this)\"></td>"
+                "<td><input class=\"sog-u\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"—\" oninput=\"sogUpd(this)\"></td>"
+                "<td class=\"sog-fair\"></td><td class=\"sog-p\"></td><td class=\"sog-e\"></td>"
+                "<td><input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" oninput=\"this.dataset.manual=1\"> u"
+                "<input class=\"rec-odds\" type=\"hidden\"></td>"
+                "<td class=\"rec-out sog-badge\"></td>"
+                "<td><button class=\"rec-btn\" onclick=\"recSave(this)\" disabled>Enregistrer</button></td>"
+                "</tr>")
+        out.append("</tbody></table></div>"
+                   "<script>var SOG_CFG={me:" + f"{me}" + ",mp:" + f"{mp}" + ",marge:" + f"{marge}" + "};"
+                   "document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.sog-row').forEach(function(r){sogUpd(r.querySelector('.sog-line'));});});</script>")
+        return "".join(out)
+
     def _nfl_books(self, books) -> str:
         """Ligne et prix chez chaque book: c'est la moitie de l'information."""
         if not books:
@@ -1810,6 +1900,8 @@ class ReportGenerator:
             "if(row.dataset.marche==='props_k'&&row.dataset.cal!=='1')return['informatif — barreau non calibré','#92400E'];"
             # Boost: jambes d'un meme match = correlees, jamais a miser; pas de
             # « prix suspect » (un boost est au-dessus du juste par construction).
+            # SOG: statut calcule par sogUpd (edge en points de probabilite).
+            "if(row.dataset.marche==='nhl_sog')return row.dataset.sogst==='1'?['à miser','#0F6E56']:[row.dataset.sogwhy||'passer','#6B7280'];"
             "if(row.dataset.marche==='nfl_boost'){if(row.dataset.correle==='1')return['informatif — jambes corrélées (même match)','#92400E'];"
             "return e>=(REC_THR.nfl||3)?['à miser','#0F6E56']:['sous le seuil','#6B7280'];}"
             "if(e>REC_SUSPECT)return['À VÉRIFIER (prix suspect)','#B45309'];"
@@ -1869,7 +1961,7 @@ class ReportGenerator:
             "var tk=ghToken();if(!tk){btn.textContent='✗ pas de token';return;}"
             "var d=row.dataset;var pl={book:'bet365',cote_prise:o,mise_u:mi,prob_finale:parseFloat(d.prob),"
             "prob_modele:parseFloat(d.prob_modele||d.prob)};"
-            "['sport','marche','selection','date','joueur','ligne','k','match','commence_time','prob_brute','prob_calibree','prob_marche_novig','event_id','legs','correle']"
+            "['sport','marche','selection','date','joueur','ligne','k','match','commence_time','prob_brute','prob_calibree','prob_marche_novig','event_id','legs','correle','valide','alignement','devig']"
             ".forEach(function(f){var v=d[f];if(v!==undefined&&v!=='')pl[f]=v;});"
             "pl.calibre=d.cal==='1';"
             "btn.disabled=true;btn.textContent='⏳';"
@@ -1923,6 +2015,39 @@ class ReportGenerator:
             "+(cor?' · <b style=\"color:#92400E\">même match: corrélées, indication seulement</b>':'');"
             "var b=row.querySelector('.rec-btn');if(b){b.disabled=false;b.textContent='Enregistrer';}delete row.dataset.saved;"
             "recCalc(row.querySelector('.rec-odds'));}"
+
+            # ── SOG: saisie Over/Under bet365, devig ou marge estimee ──────
+            "function sogUpd(el){var row=el.closest('.sog-row');if(!row)return;"
+            "var L=row.querySelector('.sog-line').value,po=JSON.parse(row.dataset.pover||'{}')[L];"
+            "var o=parseFloat(row.querySelector('.sog-o').value),u=parseFloat(row.querySelector('.sog-u').value);"
+            "var hasO=o>1,hasU=u>1,io=hasO?1/o:null,iu=hasU?1/u:null,pio=null,piu=null;"
+            "if(hasO&&hasU){pio=io/(io+iu);piu=iu/(io+iu);}else{if(hasO)pio=io/(1+SOG_CFG.marge);if(hasU)piu=iu/(1+SOG_CFG.marge);}"
+            "var c=[];if(hasO)c.push({s:'Over',p:po,pi:pio,o:o});if(hasU)c.push({s:'Under',p:1-po,pi:piu,o:u});"
+            "c.forEach(function(x){x.e=x.p-x.pi;});c.sort(function(a,b){return b.e-a.e;});var b=c[0];"
+            "var fav=po>=0.5?{s:'Over',p:po}:{s:'Under',p:1-po};"
+            "row.querySelector('.sog-fair').textContent=(b?b.s[0]+' ':fav.s[0]+' ')+(1/(b?b.p:fav.p)).toFixed(2);"
+            "row.querySelector('.sog-p').textContent=((b?b.p:fav.p)*100).toFixed(0)+'% '+(b?b.s:fav.s);"
+            "var btn=row.querySelector('.rec-btn');"
+            "if(!b){row.dataset.prob='';row.dataset.edge='';row.querySelector('.sog-e').textContent='';row.querySelector('.rec-odds').value='';"
+            "row.dataset.sogst='0';row.querySelector('.sog-badge').innerHTML='';btn.disabled=true;sogSort();return;}"
+            "var why='';if(row.dataset.valide!=='1')why='informatif — backtest';else if(row.dataset.alignement!=='confirme')why='passer — alignement '+row.dataset.alignement;"
+            "else if(b.e<SOG_CFG.me)why='passer — edge';else if(b.p<SOG_CFG.mp)why='passer — proba < '+(SOG_CFG.mp*100).toFixed(0)+'%';"
+            "row.dataset.sogst=why?'0':'1';row.dataset.sogwhy=why;"
+            "row.dataset.prob=b.p.toFixed(4);row.dataset.prob_marche_novig=b.pi.toFixed(4);row.dataset.edge=b.e.toFixed(4);"
+            "row.dataset.ligne=L;row.dataset.selection=row.dataset.joueur+' '+b.s+' '+L+' SOG';"
+            "row.dataset.devig=(hasO&&hasU)?'1':'0';row.querySelector('.rec-odds').value=b.o;"
+            "row.querySelector('.sog-e').innerHTML='<b style=\"color:'+(b.e>0?'#0F6E56':'#B91C1C')+'\">'+(b.e>0?'+':'')+(b.e*100).toFixed(1)+'</b>'+((hasO&&hasU)?'':' <i title=\"marge estimée\">~</i>');"
+            "btn.disabled=false;btn.textContent='Enregistrer';"
+            "recCalc(row.querySelector('.rec-odds'));"
+            "row.querySelector('.sog-badge').innerHTML=why?'<span class=\"sog-pass\">'+why+'</span>':'<span class=\"sog-go\">À MISER</span> '+(parseFloat(row.dataset.sugg||'0')).toFixed(2)+'%';"
+            "sogSort();}"
+            "function sogSort(){var tb=document.getElementById('sog-body');if(!tb)return;"
+            "var rs=[].slice.call(tb.querySelectorAll('.sog-row'));"
+            "rs.sort(function(a,b){var ea=a.dataset.edge===''||a.dataset.edge===undefined?-9:parseFloat(a.dataset.edge),eb=b.dataset.edge===''||b.dataset.edge===undefined?-9:parseFloat(b.dataset.edge);"
+            "if(ea!==eb)return eb-ea;return parseFloat(b.dataset.lam)-parseFloat(a.dataset.lam);});rs.forEach(function(r){tb.appendChild(r);});}"
+            "var SOG_SMALL=false;function sogFilter(on){SOG_SMALL=on;document.querySelectorAll('.sog-row').forEach(function(r){"
+            "var o=parseFloat(r.querySelector('.rec-odds').value);if(!(o>1)){var t=r.querySelector('.sog-fair').textContent.split(' ');o=parseFloat(t[t.length-1]);}"
+            "r.style.display=(!on||(o>=1.5&&o<=2.0))?'':'none';});}"
 
             "function mlbCalcSel(cid,k,prob,cal){"
             "var el=document.getElementById('kc-'+cid);if(!el)return;"
@@ -3067,6 +3192,15 @@ class ReportGenerator:
             ".nfl-quota{font-size:11px;color:var(--m);background:var(--bg);border-radius:8px;"
             "padding:8px 11px;margin-bottom:1rem;line-height:1.5}"
             ".nfl-quota b{color:var(--t)}"
+            ".sog-wrap{overflow-x:auto}.sog-t{width:100%;border-collapse:collapse;font-size:12px}"
+            ".sog-t th{text-align:left;font-weight:600;color:var(--m);padding:5px 6px;border-bottom:1px solid var(--b);white-space:nowrap}"
+            ".sog-t td{padding:5px 6px;border-bottom:1px solid var(--b);vertical-align:top}"
+            ".sog-t input{width:58px;padding:2px 4px;border:1px solid var(--b);border-radius:4px;background:var(--s);color:var(--t)}"
+            ".sog-t select{font-size:12px;border:1px solid var(--b);border-radius:4px;background:var(--s);color:var(--t)}"
+            ".sog-sub{font-size:10.5px;color:var(--m)}.sog-al{font-size:11px;font-weight:700}"
+            ".sog-al-confirme{color:#059669}.sog-al-incertain{color:#D97706}.sog-al-absent{color:#DC2626}"
+            ".sog-go{background:#D1FAE5;color:#065F46;font-weight:700;padding:2px 6px;border-radius:6px;white-space:nowrap}"
+            ".sog-pass{color:var(--m);font-size:11px}.sog-flt{font-size:12px;color:var(--m);display:block;margin:6px 0}"
             ".nfl-pl-game{margin:6px 0;border:1px solid var(--b);border-radius:8px;padding:4px 10px}"
             ".nfl-pl-game summary{cursor:pointer;font-size:12.5px;padding:3px 0}"
             ".nfl-pl .pl-side{font-size:11px;padding:1px 2px;border:1px solid var(--b);border-radius:4px;background:var(--s);color:var(--t)}"

@@ -1,0 +1,414 @@
+{
+ "saison_test": "2025-26",
+ "saison_ajustement": "2024-25",
+ "univers": {
+  "min_sog_pg": 3.0,
+  "min_icf_pg": 5.5,
+  "min_gp": 10
+ },
+ "n_joueur_matchs": 2031,
+ "n_joueurs": 59,
+ "contexte": {
+  "home": {
+   "0": 0.952,
+   "1": 1.0057
+  },
+  "b2b_me": {
+   "0": 0.97,
+   "1": 1.0265
+  },
+  "b2b_opp": {
+   "0": 0.9843,
+   "1": 0.9472
+  },
+  "pace_beta": -0.1855
+ },
+ "nb_r": 19.95,
+ "variance_sur_moyenne_2024_25": {
+  "n": 66,
+  "mediane": 1.12,
+  "p10": 0.86,
+  "p90": 1.41
+ },
+ "logloss": {
+  "poisson": 0.5906,
+  "binomiale_negative": 0.59,
+  "naif_poisson_moyenne": 0.5945
+ },
+ "distribution": "nb",
+ "biais_lambda": 1.025,
+ "calibration": [
+  {
+   "tranche": "50-55%",
+   "n": 909,
+   "p_moy": 52.6,
+   "reel": 55.9
+  },
+  {
+   "tranche": "55-60%",
+   "n": 1060,
+   "p_moy": 57.6,
+   "reel": 58.4
+  },
+  {
+   "tranche": "60-65%",
+   "n": 1109,
+   "p_moy": 62.6,
+   "reel": 63.2
+  },
+  {
+   "tranche": "65-70%",
+   "n": 926,
+   "p_moy": 67.5,
+   "reel": 64.5
+  },
+  {
+   "tranche": "70-75%",
+   "n": 981,
+   "p_moy": 72.6,
+   "reel": 72.0
+  },
+  {
+   "tranche": "75-80%",
+   "n": 1380,
+   "p_moy": 77.7,
+   "reel": 79.3
+  },
+  {
+   "tranche": "80-85%",
+   "n": 1240,
+   "p_moy": 82.3,
+   "reel": 80.2
+  },
+  {
+   "tranche": "85-90%",
+   "n": 470,
+   "p_moy": 86.9,
+   "reel": 85.3
+  },
+  {
+   "tranche": "90-95%",
+   "n": 49,
+   "p_moy": 91.1,
+   "reel": 89.8
+  }
+ ],
+ "seuils": {
+  "min_edge": 0.04,
+  "min_prob": 0.58
+ },
+ "proxy_A": {
+  "description": "ligne .5 la plus proche de la moyenne, 1.87/1.87",
+  "global": {
+   "n": 1424,
+   "win_pct": 62.1,
+   "roi_pct": 16.1,
+   "units": 229.1,
+   "max_dd_u": 10.26,
+   "avg_odds": 1.87,
+   "avg_p": 65.6
+  },
+  "par_ligne": {
+   "2.5": {
+    "n": 19,
+    "win_pct": 36.8,
+    "roi_pct": -31.1,
+    "units": -5.9,
+    "max_dd_u": 8.39,
+    "avg_odds": 1.87,
+    "avg_p": 62.5
+   },
+   "3.5": {
+    "n": 1220,
+    "win_pct": 62.2,
+    "roi_pct": 16.3,
+    "units": 199.3,
+    "max_dd_u": 10.26,
+    "avg_odds": 1.87,
+    "avg_p": 65.2
+   },
+   "4.5": {
+    "n": 184,
+    "win_pct": 63.6,
+    "roi_pct": 18.9,
+    "units": 34.8,
+    "max_dd_u": 4.0,
+    "avg_odds": 1.87,
+    "avg_p": 68.4
+   },
+   "5.5": {
+    "n": 1,
+    "win_pct": 100.0,
+    "roi_pct": 87.0,
+    "units": 0.9,
+    "max_dd_u": 0.0,
+    "avg_odds": 1.87,
+    "avg_p": 82.0
+   }
+  },
+  "par_cote_side": {
+   "Over": {
+    "n": 16,
+    "win_pct": 56.2,
+    "roi_pct": 5.2,
+    "units": 0.8,
+    "max_dd_u": 3.26,
+    "avg_odds": 1.87,
+    "avg_p": 61.2
+   },
+   "Under": {
+    "n": 1408,
+    "win_pct": 62.1,
+    "roi_pct": 16.2,
+    "units": 228.3,
+    "max_dd_u": 10.26,
+    "avg_odds": 1.87,
+    "avg_p": 65.6
+   }
+  },
+  "calibration_paris": [
+   {
+    "tranche": "55-60%",
+    "n": 189,
+    "p_moy": 59.0,
+    "reel": 58.2
+   },
+   {
+    "tranche": "60-65%",
+    "n": 548,
+    "p_moy": 62.6,
+    "reel": 61.9
+   },
+   {
+    "tranche": "65-70%",
+    "n": 409,
+    "p_moy": 67.4,
+    "reel": 60.9
+   },
+   {
+    "tranche": "70-75%",
+    "n": 215,
+    "p_moy": 72.2,
+    "reel": 65.6
+   },
+   {
+    "tranche": "75-80%",
+    "n": 58,
+    "p_moy": 77.0,
+    "reel": 70.7
+   },
+   {
+    "tranche": "80-85%",
+    "n": 5,
+    "p_moy": 82.1,
+    "reel": 80.0
+   }
+  ]
+ },
+ "proxy_B": {
+  "description": "book naif Poisson(moyenne), marge 7%, lignes 1.5-4.5",
+  "global": {
+   "n": 1318,
+   "win_pct": 62.5,
+   "roi_pct": 3.5,
+   "units": 45.6,
+   "max_dd_u": 21.28,
+   "avg_odds": 1.67,
+   "avg_p": 66.8
+  },
+  "par_ligne": {
+   "2.5": {
+    "n": 79,
+    "win_pct": 57.0,
+    "roi_pct": -1.1,
+    "units": -0.8,
+    "max_dd_u": 8.83,
+    "avg_odds": 1.75,
+    "avg_p": 67.0
+   },
+   "3.5": {
+    "n": 1005,
+    "win_pct": 61.5,
+    "roi_pct": 2.9,
+    "units": 29.3,
+    "max_dd_u": 16.51,
+    "avg_odds": 1.69,
+    "avg_p": 66.1
+   },
+   "4.5": {
+    "n": 234,
+    "win_pct": 68.8,
+    "roi_pct": 7.3,
+    "units": 17.1,
+    "max_dd_u": 6.94,
+    "avg_odds": 1.57,
+    "avg_p": 69.9
+   }
+  },
+  "par_side": {
+   "Over": {
+    "n": 60,
+    "win_pct": 58.3,
+    "roi_pct": -10.0,
+    "units": -6.0,
+    "max_dd_u": 11.81,
+    "avg_odds": 1.55,
+    "avg_p": 68.6
+   },
+   "Under": {
+    "n": 1258,
+    "win_pct": 62.7,
+    "roi_pct": 4.1,
+    "units": 51.6,
+    "max_dd_u": 18.87,
+    "avg_odds": 1.68,
+    "avg_p": 66.7
+   }
+  },
+  "par_tranche_cote": {
+   "1.01-1.50": {
+    "n": 267,
+    "win_pct": 71.2,
+    "roi_pct": 2.5,
+    "units": 6.7,
+    "max_dd_u": 9.92,
+    "avg_odds": 1.44,
+    "avg_p": 72.0
+   },
+   "1.50-1.65": {
+    "n": 422,
+    "win_pct": 60.4,
+    "roi_pct": -4.9,
+    "units": -20.5,
+    "max_dd_u": 26.26,
+    "avg_odds": 1.58,
+    "avg_p": 68.2
+   },
+   "1.65-1.80": {
+    "n": 362,
+    "win_pct": 63.8,
+    "roi_pct": 9.4,
+    "units": 33.9,
+    "max_dd_u": 6.96,
+    "avg_odds": 1.72,
+    "avg_p": 64.5
+   },
+   "1.80-2.00": {
+    "n": 191,
+    "win_pct": 56.0,
+    "roi_pct": 5.4,
+    "units": 10.2,
+    "max_dd_u": 6.65,
+    "avg_odds": 1.88,
+    "avg_p": 63.0
+   },
+   "2.00-2.50": {
+    "n": 67,
+    "win_pct": 53.7,
+    "roi_pct": 16.2,
+    "units": 10.9,
+    "max_dd_u": 8.93,
+    "avg_odds": 2.18,
+    "avg_p": 61.7
+   },
+   "2.50+": {
+    "n": 9,
+    "win_pct": 55.6,
+    "roi_pct": 48.3,
+    "units": 4.3,
+    "max_dd_u": 2.0,
+    "avg_odds": 2.72,
+    "avg_p": 59.6
+   }
+  },
+  "calibration_paris": [
+   {
+    "tranche": "55-60%",
+    "n": 120,
+    "p_moy": 59.1,
+    "reel": 60.0
+   },
+   {
+    "tranche": "60-65%",
+    "n": 402,
+    "p_moy": 62.6,
+    "reel": 59.5
+   },
+   {
+    "tranche": "65-70%",
+    "n": 413,
+    "p_moy": 67.6,
+    "reel": 61.3
+   },
+   {
+    "tranche": "70-75%",
+    "n": 348,
+    "p_moy": 72.5,
+    "reel": 67.8
+   },
+   {
+    "tranche": "75-80%",
+    "n": 35,
+    "p_moy": 76.1,
+    "reel": 68.6
+   }
+  ]
+ },
+ "verdict_detail": [
+  {
+   "critere": "calibration 55-80% a 3 pts (tranches n>=300)",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "critere": "log-loss meilleure que le naif (Poisson sur la moyenne)",
+   "ok": true,
+   "detail": {
+    "modele": 0.59,
+    "naif": 0.5945
+   }
+  },
+  {
+   "critere": "ROI proxy A > 0 sur 200+ paris (borne haute)",
+   "ok": true,
+   "detail": {
+    "n": 1424,
+    "win_pct": 62.1,
+    "roi_pct": 16.1,
+    "units": 229.1,
+    "max_dd_u": 10.26,
+    "avg_odds": 1.87,
+    "avg_p": 65.6
+   }
+  },
+  {
+   "critere": "paris: reussite >= proba moyenne - 3 pts",
+   "ok": false,
+   "detail": {
+    "reussite": 62.1,
+    "proba": 65.6
+   }
+  }
+ ],
+ "valide": false,
+ "parametres_direct": {
+  "contexte": {
+   "home": {
+    "0": 0.9209,
+    "1": 1.0
+   },
+   "b2b_me": {
+    "0": 0.9702,
+    "1": 0.9067
+   },
+   "b2b_opp": {
+    "0": 0.9541,
+    "1": 0.9898
+   },
+   "pace_beta": -0.3515
+  },
+  "nb_r": 19.95,
+  "distribution": "nb",
+  "ajuste_sur": "2025-26"
+ }
+}

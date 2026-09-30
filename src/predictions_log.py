@@ -47,6 +47,9 @@ COLUMNS = [
     # Cote boostee NFL: jambes en JSON [{marche, selection, match,
     # commence_time, event_id, p}]. Le reglement se fait jambe par jambe.
     "legs",
+    # Tirs au but LNH: identifiant LNH du joueur (la feuille de match abrege
+    # les noms, « A. Matthews »), et l'edge en points de probabilite.
+    "player_id",
 ]
 
 # Champs que la prediction suivante (meme id, avant le match) a le droit de

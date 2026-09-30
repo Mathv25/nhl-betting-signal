@@ -46,9 +46,38 @@ def _num(payload, key, lo=None, hi=None, required=False):
     return v
 
 
+def sog_status(payload: dict) -> str:
+    """
+    Tirs au but LNH (nhl_sog_live): edge en POINTS de probabilite,
+    p_modele - p_implicite (apres retrait de la marge, ou marge estimee).
+    « a_miser » si edge >= min_edge ET p_modele >= min_prob (seuils du
+    backtest, docs/nhl_sog_params.json), modele valide, alignement confirme.
+    Pas de regle « prix suspect »: a 4-6 points d'ecart, l'esperance depasse
+    souvent 8% sur ces cotes, c'est l'objet meme du module.
+    """
+    if str(payload.get("valide", "")).lower() not in ("1", "true"):
+        return "informatif"
+    if payload.get("alignement") not in (None, "", "confirme"):
+        return "informatif"
+    p = PL.to_float(payload.get("prob_finale"))
+    pi = PL.to_float(payload.get("prob_marche_novig"))
+    if p is None or pi is None:
+        return "informatif"
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs",
+                               "nhl_sog_params.json"), encoding="utf-8") as f:
+            seuils = json.load(f).get("seuils") or {}
+    except Exception:
+        seuils = {}
+    me, mp = float(seuils.get("min_edge", 0.04)), float(seuils.get("min_prob", 0.58))
+    return "a_miser" if (p - pi >= me and p >= mp) else "sous_seuil"
+
+
 def status_for(payload: dict, edge_pct: float) -> str:
     if payload.get("marche") == "props_k" and str(payload.get("calibre", "")).lower() not in ("1", "true"):
         return "informatif"
+    if payload.get("marche") == "nhl_sog":
+        return sog_status(payload)
     if payload.get("marche") == "nfl_boost":
         # Jambes d'un meme match: correlees, le produit des p n'est qu'une
         # indication. Pas de « prix suspect »: un boost est au-dessus du juste
@@ -86,7 +115,7 @@ def record(payload: dict, path: str = None) -> dict:
                "version_modele": PL.current_version()}
         for k in ("date", "sport", "marche", "selection", "joueur", "ligne", "k",
                   "match", "commence_time", "event_id", "prob_brute", "prob_calibree",
-                  "prob_marche_novig", "legs"):
+                  "prob_marche_novig", "legs", "player_id"):
             if payload.get(k) not in (None, ""):
                 row[k] = payload[k]
         row["prob_modele"] = _num(payload, "prob_modele", 0.0, 1.0) or prob

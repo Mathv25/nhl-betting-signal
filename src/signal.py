@@ -375,6 +375,21 @@ def main():
         print(f"  [NFL] erreur: {e}")
         nfl_analysis = nfl_analyzer.load_signals()
 
+    # ── 7c. SOG LNH (tirs au but, joueurs a gros volume) ──────────────────────
+    # Donnees gratuites (API LNH) et zero credit Odds API: bet365 se saisit
+    # dans la page. « Informatif » tant que le backtest ne valide pas.
+    print("\nSOG LNH...")
+    try:
+        import nhl_sog_live
+        nhl_sog = nhl_sog_live.run()
+    except Exception as e:
+        print(f"  [SOG] erreur: {e}")
+        try:
+            import nhl_sog_live
+            nhl_sog = nhl_sog_live.load_state()
+        except Exception:
+            nhl_sog = {}
+
     # ── 8. Output ─────────────────────────────────────────────────────────────
     output = {
         "generated_at":     datetime.now(timezone.utc).isoformat(),
@@ -390,6 +405,7 @@ def main():
         "mlb_ml_analysis":  mlb_ml_analysis,
         "power_analysis":   power_analysis,
         "nfl_analysis":     nfl_analysis,
+        "nhl_sog":          nhl_sog,
         # Etat du quota The Odds API. Sans ca, une cle epuisee se traduit par un
         # rapport sans cotes qui a l'air normal: on croit que le marche est
         # muet alors que c'est l'API qui ne repond plus.
