@@ -192,7 +192,7 @@ class ReportGenerator:
         probabilite, cote juste, cote minimale, saisie et « Enregistrer ».
         """
         now = datetime.now(pytz.utc)
-        blocs = []
+        blocs, resume = [], []
         for sg in signals or []:
             g = sg.get("game") or {}
             lines = g.get("model_lines") or []
@@ -215,6 +215,11 @@ class ReportGenerator:
             h = ("<div class='nhl-ml-game" + (" nhl-wait" if wait else "") + "'><div class='nhl-ml-h'>" + match
                  + (" <span class='mlb-info-badge'>En attente — gardien non confirmé · aucun signal</span>" if wait else "")
                  + "</div><div class='nhl-ml-g'>Gardiens: " + gtxt + "</div>")
+            vd = g.get("verdict") or {}
+            if vd:
+                h += self._nhl_verdict_html(vd)
+                resume.append("<div class='nhl-vd-row nhl-vd-" + vd.get("decision", "") + "'><b>"
+                              + match + "</b> — " + vd.get("titre", "") + "</div>")
             for ln in lines:
                 p = ln.get("prob", 0)
                 h += ("<div class='nfl-row rec-row' data-sport='nhl' data-marche='" + ln["marche"]
@@ -237,13 +242,21 @@ class ReportGenerator:
             blocs.append(h + "</div>")
         if not blocs:
             return ""
-        return ("<div class='sec' style='margin-top:1.5rem'>LNH — lignes du modèle "
+        top = ("<div class='sec' style='margin-top:1.5rem'>LNH — verdict du soir</div>"
+               "<div class='nhl-vd-box'>" + "".join(resume) + "</div>") if resume else ""
+        return (top + "<div class='sec' style='margin-top:1.5rem'>LNH — lignes du modèle "
                 "(bet365 absent du flux: saisir la cote)</div>" + "".join(blocs))
+
+    @staticmethod
+    def _nhl_verdict_html(vd: dict) -> str:
+        return ("<div class='nhl-vd nhl-vd-" + vd.get("decision", "") + "'><div class='nhl-vd-t'>"
+                + vd.get("titre", "") + "</div><ul>"
+                + "".join("<li>" + r + "</li>" for r in vd.get("raisons") or []) + "</ul></div>")
 
     def _bet_cards(self, value_bets):
         if not value_bets:
             return ("<p class=\"no-bets\">Aucun pari detecte automatiquement: bet365 n'est pas dans le flux. "
-                    "<b>Les picks se font plus bas</b>, dans « LNH — lignes du modele »: saisissez la cote "
+                    "<b>Voir plus bas « LNH — verdict du soir »</b> (un pick ou « passer » par match), puis « LNH — lignes du modele »: saisissez la cote "
                     "bet365, la ligne passe « a miser » si elle depasse la cote a exiger.</p>")
         cards = ""
         for b in value_bets:
@@ -2161,7 +2174,7 @@ class ReportGenerator:
             "Les matchs déjà commencés sont masqués.</div>';"
             "return h;}"
             "function nhlModelLinesHTML(d){"
-            "var now=Date.now();var h='';"
+            "var now=Date.now();var h='';var rs='';"
             "(d.signals||[]).forEach(function(sg){var g=sg.game||{};var ls=g.model_lines||[];var ct=g.commence_time||'';"
             "if(!ls.length)return;try{if(new Date(ct).getTime()<=now)return;}catch(e){}"
             "var dET='';try{dET=new Date(ct).toLocaleDateString('fr-CA',{timeZone:'America/Toronto'});}catch(e){}"
@@ -2169,6 +2182,8 @@ class ReportGenerator:
             "var gl=g.goalies||{};var wait=g.statut==='en_attente';"
             "var gt=[gl.away||{},gl.home||{}].map(function(x){return (x.name||'?')+(x.confirmed?' ✓':' (non confirmé)');}).join(' · ');"
             "h+='<div class=\"nhl-ml-game'+(wait?' nhl-wait':'')+'\"><div class=\"nhl-ml-h\">'+m+(wait?' <span class=\"mlb-info-badge\">En attente — gardien non confirmé · aucun signal</span>':'')+'</div><div class=\"nhl-ml-g\">Gardiens: '+gt+'</div>';"
+            "var vd=g.verdict;if(vd){h+='<div class=\"nhl-vd nhl-vd-'+(vd.decision||'')+'\"><div class=\"nhl-vd-t\">'+(vd.titre||'')+'</div><ul>'+(vd.raisons||[]).map(function(r){return '<li>'+r+'</li>';}).join('')+'</ul></div>';"
+            "rs+='<div class=\"nhl-vd-row nhl-vd-'+(vd.decision||'')+'\"><b>'+m+'</b> — '+(vd.titre||'')+'</div>';}"
             "ls.forEach(function(ln){var p=ln.prob||0;"
             "h+='<div class=\"nfl-row rec-row\" data-sport=\"nhl\" data-marche=\"'+ln.marche+'\" data-selection=\"'+String(ln.selection).replace(/\"/g,'')+'\" data-prob=\"'+p.toFixed(4)+'\" data-prob_modele=\"'+(ln.prob_modele||p).toFixed(4)+'\" data-prob_marche_novig=\"'+(ln.prob_marche!=null?ln.prob_marche.toFixed(4):'')+'\" data-date=\"'+dET+'\" data-commence_time=\"'+ct+'\" data-match=\"'+m+'\" data-event_id=\"'+(g.id||'')+'\">';"
             "h+='<span class=\"nfl-sel\">'+ln.selection+'</span><span class=\"nfl-mk\">'+String(ln.marche).replace('nhl_','')+'</span>';"
@@ -2177,7 +2192,8 @@ class ReportGenerator:
             "h+='<span class=\"nfl-rec\"><input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" placeholder=\"bet365\" oninput=\"recCalc(this)\"> <span class=\"rec-out\"></span> <input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" oninput=\"this.dataset.manual=1\"> u <button class=\"rec-btn\" onclick=\"recSave(this)\"'+(wait?' disabled':'')+'>Enregistrer</button></span></div>';});"
             "h+='</div>';});"
             "if(!h)return '';"
-            "return '<div class=\"sec\" style=\"margin-top:1.5rem\">LNH — lignes du modèle (bet365 absent du flux: saisir la cote)</div>'+h;}"
+            "var top=rs?'<div class=\"sec\" style=\"margin-top:1.5rem\">LNH — verdict du soir</div><div class=\"nhl-vd-box\">'+rs+'</div>':'';"
+            "return top+'<div class=\"sec\" style=\"margin-top:1.5rem\">LNH — lignes du modèle (bet365 absent du flux: saisir la cote)</div>'+h;}"
             "function renderSignalTab(d){"
             "var now=Date.now();"
             # build map: "Away @ Home" -> commence_time
@@ -3304,6 +3320,11 @@ class ReportGenerator:
             ".nhl-ml-game{margin:8px 0;padding:6px 10px;border:1px solid var(--b);border-radius:8px}"
             ".nhl-ml-h{font-weight:700;font-size:13px;margin-bottom:4px}"
             ".nhl-ml-g{font-size:11px;color:var(--m);margin-bottom:4px}.nhl-wait .nfl-row{opacity:.55}"
+            ".nhl-vd{margin:4px 0 8px;padding:6px 10px;border-radius:6px;border-left:4px solid #9CA3AF;background:var(--s,#F9FAFB);font-size:12px}"
+            ".nhl-vd ul{margin:4px 0 0 16px;padding:0}.nhl-vd li{margin:1px 0;color:var(--m)}.nhl-vd-t{font-weight:700}"
+            ".nhl-vd-regarder{border-left-color:#10B981}.nhl-vd-passer{border-left-color:#EF4444}.nhl-vd-attente{border-left-color:#F59E0B}"
+            ".nhl-vd-box{margin:6px 0 4px}.nhl-vd-row{font-size:12px;padding:4px 8px;margin:3px 0;border-left:4px solid #9CA3AF;border-radius:4px}"
+            ".nhl-vd-row.nhl-vd-regarder{border-left-color:#10B981}.nhl-vd-row.nhl-vd-passer{border-left-color:#EF4444}.nhl-vd-row.nhl-vd-attente{border-left-color:#F59E0B}"
             ".nfl-rec .rec-odds{width:62px;padding:2px 4px;border:1px solid var(--b);border-radius:4px}"
             ".nfl-row{display:flex;align-items:center;gap:9px;font-size:11.5px;"
             "padding:4px 0;border-top:1px solid var(--b)}"

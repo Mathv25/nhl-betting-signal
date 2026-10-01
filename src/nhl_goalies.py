@@ -26,6 +26,11 @@ import nhl_dixon_coles as DC
 MONEYPUCK = "https://moneypuck.com/moneypuck/playerData/seasonSummary/{y}/regular/goalies.csv"
 NHL_STATS = "https://api.nhle.com/stats/rest/en/goalie/summary"
 SV_SHRINK_SHOTS = 1000.0
+# Gardien quasi absent des 2 dernieres saisons (ex. Devon Levi, 2026-10-01:
+# 0 tir -> traite comme moyen alors qu'il etait a .899/.872): on remonte
+# jusqu'a 2 saisons de plus tant qu'il a moins de LOOKBACK_MIN_ICE de glace.
+LOOKBACK_MIN_ICE = 10 * 3600.0
+LOOKBACK_EXTRA = 2
 
 _mp_cache: dict = {}
 _sv_cache: dict = {}
@@ -69,14 +74,18 @@ def gsax(name: str, today: date = None):
     key = _norm(name)
     xg = g = ice = 0.0
     found = []
-    for y in _season_start_years(today):
+    ys = _season_start_years(today)
+    older = [ys[0] - i for i in range(1, LOOKBACK_EXTRA + 1)]
+    for y in ys + older:
+        if y in older and ice >= LOOKBACK_MIN_ICE:
+            break
         row = _moneypuck(y).get(key)
         if row:
             xg, g, ice = xg + row["xg"], g + row["g"], ice + row["ice"]
             found.append(str(y))
     if not found:
         return None
-    return xg - g, ice, "MoneyPuck " + "+".join(found)
+    return xg - g, ice, "MoneyPuck " + "+".join(sorted(found))
 
 
 def _sv_summary(season_id: str) -> dict:
@@ -100,8 +109,11 @@ def _sv_summary(season_id: str) -> dict:
 def sv_multiplier(name: str, today: date = None):
     """Repli: multiplicateur par % d'arrets retreci vers la ligue, ou None."""
     ys = _season_start_years(today)
+    older = [ys[0] - i for i in range(1, LOOKBACK_EXTRA + 1)]
     saves = shots = lg_saves = lg_shots = 0.0
-    for y in ys:
+    for y in ys + older:
+        if y in older and shots >= LOOKBACK_MIN_ICE / 120:   # ~30 tirs/60 min
+            break
         tab = _sv_summary(f"{y}{y + 1}")
         lg_saves += sum(v["saves"] for v in tab.values())
         lg_shots += sum(v["shots"] for v in tab.values())

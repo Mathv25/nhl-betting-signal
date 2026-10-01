@@ -189,6 +189,8 @@ class EdgeCalculator:
         # Lignes du modele, cote ou non: c'est tout ce qu'on peut publier quand
         # bet365 (seul book autorise) n'est pas dans le flux.
         game["model_lines"] = self.model_lines(lh, la, home, away, self._market)
+        import nhl_verdict
+        game["verdict"] = nhl_verdict.verdict(game)
         if en_attente:
             manque = [n for n, ok in ((home, home_conf), (away, away_conf)) if not ok]
             print(f"  {label}: en attente — gardien non confirme ({', '.join(manque)}), aucun signal")
