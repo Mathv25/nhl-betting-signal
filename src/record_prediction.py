@@ -14,6 +14,9 @@ La ligne existante (meme id: date|sport|marche|selection) est completee;
 sinon une ligne est creee. Le statut est recalcule ici, pas cru sur parole:
   - props K sur un barreau non calibre -> « informatif », quelle que soit la cote;
   - boost NFL a jambes d'un meme match  -> « informatif » (correlees);
+  - prop NFL a ligne ajustee (onglet NFL, champ ligne_reference): regles de
+    nfl_prop_model (edge >= 3 %, p >= 55 %, cote 1.60-2.10, > 12 % = a
+    verifier; tranche non validee = informatif);
   - edge > SUSPECT_EDGE_PCT (8%)       -> « a_verifier »;
   - edge >= seuil du sport              -> « a_miser »;
   - sinon                               -> « sous_seuil ».
@@ -28,6 +31,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import betting_config           # noqa: E402
 import predictions_log as PL     # noqa: E402
+import nfl_prop_model as NPM     # noqa: E402
 
 # Seuil d'edge (esperance sur p_final, %) par sport pour « a miser ». La LNH
 # est passee de 15 a 3 le 2026-09-24: avec la regle « > 8% = A VERIFIER »,
@@ -78,6 +82,11 @@ def status_for(payload: dict, edge_pct: float) -> str:
         return "informatif"
     if payload.get("marche") == "nhl_sog":
         return sog_status(payload)
+    if str(payload.get("marche", "")).startswith("nfl_prop_") and payload.get("ligne_reference") not in (None, ""):
+        if str(payload.get("valide", "")).lower() not in ("1", "true"):
+            return "informatif"
+        p, odds = PL.to_float(payload.get("prob_finale")), PL.to_float(payload.get("cote_prise"))
+        return NPM.prop_status(p, odds)
     if payload.get("marche") == "nfl_boost":
         # Jambes d'un meme match: correlees, le produit des p n'est qu'une
         # indication. Pas de « prix suspect »: un boost est au-dessus du juste
@@ -92,7 +101,31 @@ def status_for(payload: dict, edge_pct: float) -> str:
     return "sous_seuil"
 
 
+def record_closing(payload: dict, path: str = None) -> dict:
+    """
+    Fermeture saisie a la main (onglet NFL, « Suivi »): cote bet365 a la MEME
+    ligne juste avant le coup d'envoi. CLV = cote prise / cote fermeture - 1.
+    Le flux Odds API n'a pas bet365 et un releve Pinnacle de fermeture des
+    props couterait des requetes: c'est la mesure disponible sans quota.
+    """
+    rid = str(payload.get("id", "")).strip()
+    close = _num(payload, "cote_fermeture", 1.01, 1000.0, required=True)
+    rows = PL.load(path)
+    row = next((r for r in rows if r.get("id") == rid), None)
+    if row is None:
+        raise ValueError(f"prediction introuvable: {rid}")
+    taken = PL.to_float(row.get("cote_prise"))
+    if not taken:
+        raise ValueError(f"aucune cote prise pour {rid}")
+    row["cote_fermeture"] = close
+    row["clv"] = round(taken / close - 1.0, 4)
+    PL.save(rows, path)
+    return row
+
+
 def record(payload: dict, path: str = None) -> dict:
+    if payload.get("action") == "fermeture":
+        return record_closing(payload, path)
     for key in ("sport", "marche", "selection", "date"):
         if not str(payload.get(key, "")).strip():
             raise ValueError(f"champ requis manquant: {key}")
@@ -111,11 +144,13 @@ def record(payload: dict, path: str = None) -> dict:
     rows = PL.load(path)
     row = next((r for r in rows if r.get("id") == rid), None)
     if row is None:
-        row = {"id": rid, "timestamp": PL.now_iso(), "source": "saisie manuelle",
+        src = {"props": "saisie manuelle · props", "boost": "saisie manuelle · boost"}.get(
+            payload.get("src"), "saisie manuelle")
+        row = {"id": rid, "timestamp": PL.now_iso(), "source": src,
                "version_modele": PL.current_version()}
         for k in ("date", "sport", "marche", "selection", "joueur", "ligne", "k",
                   "match", "commence_time", "event_id", "prob_brute", "prob_calibree",
-                  "prob_marche_novig", "legs", "player_id"):
+                  "prob_marche_novig", "legs", "player_id", "ligne_reference"):
             if payload.get(k) not in (None, ""):
                 row[k] = payload[k]
         row["prob_modele"] = _num(payload, "prob_modele", 0.0, 1.0) or prob
@@ -138,5 +173,9 @@ if __name__ == "__main__":
     except (ValueError, json.JSONDecodeError) as e:
         print(f"Refuse: {e}")
         sys.exit(1)
+    if payload.get("action") == "fermeture":
+        print(f"Fermeture: {row['selection']} — prise {row['cote_prise']}, fermeture "
+              f"{row['cote_fermeture']} → CLV {row['clv'] * 100:+.1f}%")
+        sys.exit(0)
     print(f"Enregistre: {row['selection']} @ {row['cote_prise']} ({row['book']}) — "
           f"edge {row['edge']:+.1f}% → {row['statut']}, mise {row['mise_u']} u")

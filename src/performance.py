@@ -116,6 +116,45 @@ def group_stats(rows: list) -> dict:
             "calibration": deciles}
 
 
+NFL_SOURCES = [("Props (ligne ajustee)", lambda m: m.startswith("nfl_prop_")),
+               ("Boosts", lambda m: m == "nfl_boost"),
+               ("Lignes principales", lambda m: m in ("nfl_ml", "nfl_spread", "nfl_total"))]
+
+
+def nfl_sources(rows: list) -> dict:
+    """
+    Onglet NFL: paris reels (cote prise chez bet365) par source. Le CLV est
+    l'indicateur principal; le taux de reussite est donne ici a cote du ROI
+    parce que les cotes NFL retenues sont serrees (1.60-2.10).
+    """
+    out = {}
+    taken = [r for r in rows if (r.get("sport") == "nfl" and PL.to_float(r.get("cote_prise")))]
+    for name, test in NFL_SOURCES:
+        sub = [r for r in taken if test(r.get("marche") or "")]
+        if not sub:
+            continue
+        wl = [r for r in sub if r.get("resultat") in ("W", "L")]
+        clv = [PL.to_float(r["clv"]) for r in sub if PL.to_float(r.get("clv")) is not None]
+        staked = [r for r in sub if (PL.to_float(r.get("mise_u")) or 0) > 0
+                  and r.get("resultat") in ("W", "L", "P")]
+        stake = sum(PL.to_float(r["mise_u"]) for r in staked)
+        out[name] = {
+            "n": len(sub), "n_regles": len(wl),
+            "taux_reussite": (sum(1 for r in wl if r["resultat"] == "W") / len(wl)) if wl else None,
+            "clv_moyen": (sum(clv) / len(clv)) if clv else None, "n_clv": len(clv),
+            "roi": (sum(_profit(r) for r in staked) / stake) if stake else None,
+        }
+    return out
+
+
+def nfl_open(rows: list) -> list:
+    """Paris NFL pris et pas encore regles: saisie de la fermeture (CLV)."""
+    return [{"id": r["id"], "selection": r.get("selection", ""), "cote_prise": PL.to_float(r["cote_prise"]),
+             "date": r.get("date", ""), "clv": PL.to_float(r.get("clv"))}
+            for r in rows if r.get("sport") == "nfl" and PL.to_float(r.get("cote_prise"))
+            and not r.get("resultat")]
+
+
 def compute(rows: list) -> dict:
     epochs = {"journal": [r for r in rows if r.get("version_modele") != HIST],
               "historique": [r for r in rows if r.get("version_modele") == HIST]}
@@ -131,6 +170,9 @@ def compute(rows: list) -> dict:
             v = r.get("version_modele") or "?"
             versions[v] = versions.get(v, 0) + 1
         out["epoques"][ep] = {"n": len(rs), "groupes": groups, "versions": versions}
+    journal = epochs["journal"]
+    out["nfl_sources"] = nfl_sources(journal)
+    out["nfl_ouverts"] = nfl_open(journal)
     return out
 
 

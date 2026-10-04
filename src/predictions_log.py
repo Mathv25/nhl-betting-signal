@@ -50,6 +50,9 @@ COLUMNS = [
     # Tirs au but LNH: identifiant LNH du joueur (la feuille de match abrege
     # les noms, « A. Matthews »), et l'edge en points de probabilite.
     "player_id",
+    # Props NFL a ligne ajustee: ligne Pinnacle au moment du pari (la ligne
+    # bet365 jouee est dans « ligne »).
+    "ligne_reference",
 ]
 
 # Champs que la prediction suivante (meme id, avant le match) a le droit de
