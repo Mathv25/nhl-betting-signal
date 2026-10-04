@@ -1,0 +1,354 @@
+{
+ "meta": {
+  "generated_at": "2026-10-04T15:15:34.920822+00:00",
+  "source": "nflverse stats_player_week (REG)",
+  "saisons": [
+   2023,
+   2024,
+   2025
+  ],
+  "min_matchs": 6,
+  "mediane": "mediane des autres matchs du joueur dans la saison",
+  "validation": "plis par saison, erreur moyenne a 0.9x/1.1x <= 3 pts",
+  "calibration": [
+   2023,
+   2024
+  ],
+  "test": 2025,
+  "seuils": [
+   0.8,
+   0.9,
+   1.1,
+   1.2
+  ]
+ },
+ "markets": {
+  "nfl_prop_pass_yds": {
+   "label": "verges de passe",
+   "n_train": 996,
+   "n_test": 490,
+   "lignes": [
+    {
+     "tranche": "0-230",
+     "seuil": 0.8,
+     "n": 288,
+     "p_predite": 0.7722,
+     "freq_observee": 0.7535,
+     "ecart": -0.0188,
+     "ic95": 0.0498
+    },
+    {
+     "tranche": "0-230",
+     "seuil": 0.9,
+     "n": 288,
+     "p_predite": 0.6932,
+     "freq_observee": 0.6771,
+     "ecart": -0.0161,
+     "ic95": 0.054
+    },
+    {
+     "tranche": "0-230",
+     "seuil": 1.1,
+     "n": 288,
+     "p_predite": 0.4899,
+     "freq_observee": 0.4618,
+     "ecart": -0.0281,
+     "ic95": 0.0576
+    },
+    {
+     "tranche": "0-230",
+     "seuil": 1.2,
+     "n": 288,
+     "p_predite": 0.3763,
+     "freq_observee": 0.3299,
+     "ecart": -0.0464,
+     "ic95": 0.0543
+    },
+    {
+     "tranche": "230+",
+     "seuil": 0.8,
+     "n": 202,
+     "p_predite": 0.6768,
+     "freq_observee": 0.703,
+     "ecart": 0.0261,
+     "ic95": 0.063
+    },
+    {
+     "tranche": "230+",
+     "seuil": 0.9,
+     "n": 202,
+     "p_predite": 0.5435,
+     "freq_observee": 0.5792,
+     "ecart": 0.0357,
+     "ic95": 0.0681
+    },
+    {
+     "tranche": "230+",
+     "seuil": 1.1,
+     "n": 202,
+     "p_predite": 0.297,
+     "freq_observee": 0.2921,
+     "ecart": -0.005,
+     "ic95": 0.0627
+    },
+    {
+     "tranche": "230+",
+     "seuil": 1.2,
+     "n": 202,
+     "p_predite": 0.1951,
+     "freq_observee": 0.198,
+     "ecart": 0.0029,
+     "ic95": 0.055
+    }
+   ],
+   "ecart_max": 0.0464,
+   "hors_ic95": 0,
+   "tranches": [
+    {
+     "tranche": "0-230",
+     "n": 803,
+     "erreur_cv": 0.0226,
+     "valide": true
+    },
+    {
+     "tranche": "230+",
+     "n": 683,
+     "erreur_cv": 0.0194,
+     "valide": true
+    }
+   ]
+  },
+  "nfl_prop_reception_yds": {
+   "label": "verges de reception",
+   "n_train": 8032,
+   "n_test": 3951,
+   "lignes": [
+    {
+     "tranche": "0-25",
+     "seuil": 0.8,
+     "n": 2428,
+     "p_predite": 0.55,
+     "freq_observee": 0.554,
+     "ecart": 0.004,
+     "ic95": 0.0198
+    },
+    {
+     "tranche": "0-25",
+     "seuil": 0.9,
+     "n": 2428,
+     "p_predite": 0.5241,
+     "freq_observee": 0.5272,
+     "ecart": 0.003,
+     "ic95": 0.0199
+    },
+    {
+     "tranche": "0-25",
+     "seuil": 1.1,
+     "n": 2428,
+     "p_predite": 0.475,
+     "freq_observee": 0.4839,
+     "ecart": 0.0089,
+     "ic95": 0.0199
+    },
+    {
+     "tranche": "0-25",
+     "seuil": 1.2,
+     "n": 2428,
+     "p_predite": 0.455,
+     "freq_observee": 0.4576,
+     "ecart": 0.0026,
+     "ic95": 0.0198
+    },
+    {
+     "tranche": "25-50",
+     "seuil": 0.8,
+     "n": 1055,
+     "p_predite": 0.5672,
+     "freq_observee": 0.582,
+     "ecart": 0.0148,
+     "ic95": 0.0298
+    },
+    {
+     "tranche": "25-50",
+     "seuil": 0.9,
+     "n": 1055,
+     "p_predite": 0.5125,
+     "freq_observee": 0.5299,
+     "ecart": 0.0173,
+     "ic95": 0.0301
+    },
+    {
+     "tranche": "25-50",
+     "seuil": 1.1,
+     "n": 1055,
+     "p_predite": 0.4081,
+     "freq_observee": 0.4275,
+     "ecart": 0.0193,
+     "ic95": 0.0299
+    },
+    {
+     "tranche": "25-50",
+     "seuil": 1.2,
+     "n": 1055,
+     "p_predite": 0.3672,
+     "freq_observee": 0.3839,
+     "ecart": 0.0167,
+     "ic95": 0.0293
+    },
+    {
+     "tranche": "50+",
+     "seuil": 0.8,
+     "n": 468,
+     "p_predite": 0.597,
+     "freq_observee": 0.5363,
+     "ecart": -0.0607,
+     "ic95": 0.0452
+    },
+    {
+     "tranche": "50+",
+     "seuil": 0.9,
+     "n": 468,
+     "p_predite": 0.5208,
+     "freq_observee": 0.485,
+     "ecart": -0.0358,
+     "ic95": 0.0453
+    },
+    {
+     "tranche": "50+",
+     "seuil": 1.1,
+     "n": 468,
+     "p_predite": 0.395,
+     "freq_observee": 0.344,
+     "ecart": -0.051,
+     "ic95": 0.043
+    },
+    {
+     "tranche": "50+",
+     "seuil": 1.2,
+     "n": 468,
+     "p_predite": 0.3276,
+     "freq_observee": 0.2949,
+     "ecart": -0.0327,
+     "ic95": 0.0413
+    }
+   ],
+   "ecart_max": 0.0607,
+   "hors_ic95": 2,
+   "tranches": [
+    {
+     "tranche": "0-25",
+     "n": 7092,
+     "erreur_cv": 0.0129,
+     "valide": true
+    },
+    {
+     "tranche": "25-50",
+     "n": 3177,
+     "erreur_cv": 0.0278,
+     "valide": true
+    },
+    {
+     "tranche": "50+",
+     "n": 1714,
+     "erreur_cv": 0.0275,
+     "valide": true
+    }
+   ]
+  },
+  "nfl_prop_rush_yds": {
+   "label": "verges au sol",
+   "n_train": 3280,
+   "n_test": 1590,
+   "lignes": [
+    {
+     "tranche": "0-40",
+     "seuil": 0.8,
+     "n": 1084,
+     "p_predite": 0.585,
+     "freq_observee": 0.5886,
+     "ecart": 0.0036,
+     "ic95": 0.0293
+    },
+    {
+     "tranche": "0-40",
+     "seuil": 0.9,
+     "n": 1084,
+     "p_predite": 0.5522,
+     "freq_observee": 0.5424,
+     "ecart": -0.0098,
+     "ic95": 0.0297
+    },
+    {
+     "tranche": "0-40",
+     "seuil": 1.1,
+     "n": 1084,
+     "p_predite": 0.4786,
+     "freq_observee": 0.4594,
+     "ecart": -0.0191,
+     "ic95": 0.0297
+    },
+    {
+     "tranche": "0-40",
+     "seuil": 1.2,
+     "n": 1084,
+     "p_predite": 0.44,
+     "freq_observee": 0.4188,
+     "ecart": -0.0212,
+     "ic95": 0.0294
+    },
+    {
+     "tranche": "40+",
+     "seuil": 0.8,
+     "n": 506,
+     "p_predite": 0.5973,
+     "freq_observee": 0.6047,
+     "ecart": 0.0075,
+     "ic95": 0.0426
+    },
+    {
+     "tranche": "40+",
+     "seuil": 0.9,
+     "n": 506,
+     "p_predite": 0.5359,
+     "freq_observee": 0.5474,
+     "ecart": 0.0115,
+     "ic95": 0.0434
+    },
+    {
+     "tranche": "40+",
+     "seuil": 1.1,
+     "n": 506,
+     "p_predite": 0.3955,
+     "freq_observee": 0.419,
+     "ecart": 0.0234,
+     "ic95": 0.043
+    },
+    {
+     "tranche": "40+",
+     "seuil": 1.2,
+     "n": 506,
+     "p_predite": 0.3427,
+     "freq_observee": 0.3557,
+     "ecart": 0.0131,
+     "ic95": 0.0417
+    }
+   ],
+   "ecart_max": 0.0234,
+   "hors_ic95": 0,
+   "tranches": [
+    {
+     "tranche": "0-40",
+     "n": 3318,
+     "erreur_cv": 0.0109,
+     "valide": true
+    },
+    {
+     "tranche": "40+",
+     "n": 1552,
+     "erreur_cv": 0.0129,
+     "valide": true
+    }
+   ]
+  }
+ }
+}
