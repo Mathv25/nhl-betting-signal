@@ -1087,64 +1087,6 @@ class ReportGenerator:
     NFL_EDGE_SCALE = 10.0
     # Au-dela, les variantes de spread d'un meme match se repetent sans rien
     # apprendre et repoussent les matchs suivants hors de l'ecran.
-    NFL_MAX_ROWS = 8
-
-    def _nfl_bar(self, edge: float, is_signal: bool, threshold: float) -> str:
-        """
-        Barre divergente centree sur zero: la DIRECTION porte le signe, la
-        couleur ne fait que confirmer. Un lecteur daltonien lit le sens sans
-        la couleur, ce qui est la raison d'etre de cette forme.
-
-        Un trait marque le seuil: sans lui, "+2.1%" ne dit pas au lecteur s'il
-        est proche ou loin de declencher un signal.
-        """
-        e   = max(min(edge, self.NFL_EDGE_SCALE), -self.NFL_EDGE_SCALE)
-        half = 50.0 / self.NFL_EDGE_SCALE
-        if e >= 0:
-            left, width, radius = 50.0, e * half, "0 3px 3px 0"
-        else:
-            left, width, radius = 50.0 + e * half, -e * half, "3px 0 0 3px"
-        colour = "var(--nfl-good)" if is_signal else "var(--nfl-quiet-bar)"
-        thr = 50.0 + min(threshold, self.NFL_EDGE_SCALE) * half
-        return (
-            "<span class=\"nfl-track\">"
-            "<span class=\"nfl-zero\"></span>"
-            "<span class=\"nfl-thr\" style=\"left:" + f"{thr:.1f}" + "%\"></span>"
-            "<span class=\"nfl-fill\" style=\"left:" + f"{left:.1f}" + "%;width:"
-            + f"{max(width, 0.6):.1f}" + "%;background:" + colour
-            + ";border-radius:" + radius + "\"></span>"
-            "</span>")
-
-    def _nfl_prob_bar(self, g: dict) -> str:
-        """
-        Repartition de la probabilite no-vig entre les deux equipes: une barre
-        100% a deux segments, etiquetes directement. La forme dit d'un coup
-        d'oeil qui est favori et de combien — ce qu'une colonne de pourcentages
-        oblige a reconstituer mentalement.
-        """
-        ml = next((m for m in (g.get("markets") or []) if m.get("market") == "nfl_ml"), None)
-        if not ml:
-            return ""
-        home, away = g.get("home_team", ""), g.get("away_team", "")
-        p_home, p_away = ml.get("prob_a", 0), ml.get("prob_b", 0)
-        hn = home.split()[-1] if home else "?"
-        an = away.split()[-1] if away else "?"
-        titre = (f"{an} {p_away:.1f}% / {hn} {p_home:.1f}% — probabilites sans la "
-                 f"marge, reference {ml.get('source', '?')} sur {ml.get('n_books', 0)} books")
-        return (
-            "<div class=\"nfl-prob\" title=\"" + titre + "\">"
-            "<div class=\"nfl-prob-bar\">"
-            "<span style=\"width:" + f"{p_away:.1f}" + "%;background:var(--nfl-away)\"></span>"
-            "<span style=\"width:" + f"{p_home:.1f}" + "%;background:var(--nfl-home)\"></span>"
-            "</div>"
-            "<div class=\"nfl-prob-lab\">"
-            "<span><i style=\"background:var(--nfl-away)\"></i>" + an + " <b>"
-            + f"{p_away:.0f}" + "%</b></span>"
-            "<span class=\"nfl-prob-src\">" + str(ml.get("source", ""))[:22]
-            + " &middot; " + str(ml.get("n_books", 0)) + " books</span>"
-            "<span><b>" + f"{p_home:.0f}" + "%</b> " + hn
-            + "<i style=\"background:var(--nfl-home)\"></i></span>"
-            "</div></div>")
 
     @staticmethod
     def _staking_js() -> str:
@@ -1163,254 +1105,9 @@ class ReportGenerator:
             return 8.0
 
     def _nfl_section(self, state) -> str:
-        """
-        Onglet NFL.
-
-        TOUS les matchs de la semaine sont affiches, pas seulement ceux qui
-        produisent un signal: la lecture "pas d'ecart ici" est une information,
-        une ligne absente n'en est pas une.
-
-        Deux formes portent l'essentiel. Une barre 100% a deux segments donne
-        la probabilite de chaque equipe sans la marge. Une barre divergente
-        centree sur zero, avec un trait au seuil, situe chaque prix par rapport
-        au prix juste — le signe se lit a la direction, pas a la couleur.
-        """
-        st = state or {}
-        games = st.get("games") or []
-        n_sig = st.get("n_signals", 0)
-        thr   = float(st.get("min_edge", 3) or 3)
-
-        # `.sec` est un LIBELLE d'une ligne dans ce dashboard (flex, majuscules,
-        # trait de separation), pas un conteneur: l'englober autour de la
-        # section mettait tout le contenu en colonnes cote a cote.
-        head = ("<div class=\"sec\">🏈 NFL — ecarts entre books</div>"
-                "<div class=\"nfl-wrap\">"
-                "<div class=\"nfl-subtabs\">"
-                "<button class=\"nfl-st active\" onclick=\"nflSub('matchs',this)\">"
-                "Matchs</button>"
-                "<button class=\"nfl-st\" onclick=\"nflSub('props',this)\">"
-                "Props joueurs</button>"
-                "<button class=\"nfl-st\" onclick=\"nflSub('boost',this)\">"
-                "Cotes boostees</button></div>"
-                "<div id=\"nfl-sub-matchs\">"
-                "<p class=\"nfl-intro\">Sans modele maison. Probabilite juste = "
-                "Pinnacle sans marge (methode de Shin), sinon mediane des books sharp. "
-                "Seule la cote <b>bet365</b> compte: edge = cote bet365 &times; p &minus; 1. "
-                "A miser des <b>" + f"{thr:g}" + "%</b>; au-dela de <b>"
-                + f"{self._suspect_edge():g}" + "%</b>: « A VERIFIER (prix suspect) ». "
-                "bet365 n'est pas dans le flux Odds API: lisez sa cote, saisissez-la, "
-                "puis « Enregistrer ».</p>")
-
-        if not st or not games:
-            return (head + "<div class=\"perf-empty\">"
-                    "<div class=\"perf-empty-icon\">🏈</div>"
-                    "<div class=\"perf-empty-title\">Aucun match cette semaine</div>"
-                    "<div class=\"perf-empty-sub\">Cotes relevees le mardi, le vendredi "
-                    "et le dimanche matin.</div></div></div>")
-
-        rows = [head]
-        if st.get("stale"):
-            rows.append("<div class=\"nfl-stale\">Cotes relevees plus tot — "
-                        + str(st.get("reason", "")) + ". Les prix ont pu bouger.</div>")
-
-        rows.append(
-            "<div class=\"nfl-hero\">"
-            "<div class=\"nfl-hero-n\" style=\"color:"
-            + ("var(--nfl-good)" if n_sig else "var(--m)") + "\">" + str(n_sig) + "</div>"
-            "<div class=\"nfl-hero-t\"><b>" + ("signaux" if n_sig > 1 else "signal")
-            + "</b> sur " + str(len(games)) + (" matchs analyses" if len(games) > 1
-                                               else " match analyse")
-            + ("" if n_sig else " — normal: bet365 n'est pas dans le flux, "
-               "chaque ligne se saisit a la main") + "<br><span class=\"nfl-hero-s\">semaine du "
-            + str(st.get("week", "")) + " &middot; seuil " + f"{thr:g}" + "%</span></div>"
-            "</div>")
-
-        # Bloc d'action. Le reste de l'onglet explique POURQUOI; celui-ci dit
-        # QUOI FAIRE. bet365 n'est dans aucune region du flux Odds API, donc on
-        # ne peut pas comparer son prix: on donne la cote a exiger chez soi et
-        # la mise correspondante. Un signal dont on ne sait rien dire de
-        # concret n'a rien a faire en tete de page.
-        rows.append(self._nfl_todo(
-            games, thr,
-            [x for x in ((st.get("props") or {}).get("signals") or [])
-             if x.get("type") == "cote"]))
-
-        jour_vu = None
-        for g in sorted(games, key=lambda x: x.get("commence") or ""):
-            sigs   = g.get("signals") or []
-            prices = g.get("prices") or {}
-            labels = {s["selection"] for s in sigs}
-            detail = bool(sigs) or self._nfl_imminent(g.get("commence"))
-
-            jour = self._nfl_day(g.get("commence"))
-            if jour != jour_vu:
-                rows.append("<div class=\"nfl-day\">" + jour + "</div>")
-                jour_vu = jour
-
-            rows.append("<div class=\"nfl-game" + ("" if sigs else " nfl-quiet") + "\">")
-            rows.append("<div class=\"nfl-game-h\">"
-                        "<span class=\"nfl-teams\">" + str(g.get("away_team", ""))
-                        + " <span class=\"nfl-at\">@</span> " + str(g.get("home_team", ""))
-                        + "</span>"
-                        "<span class=\"nfl-kick\" data-kick=\""
-                        + str(g.get("commence", "")) + "\">—</span></div>")
-            rows.append(self._nfl_prob_bar(g))
-
-            if not prices:
-                rows.append("<div class=\"nfl-none\">aucune cote exploitable</div></div>")
-                continue
-
-            ordre = {"nfl_ml": 0, "nfl_spread": 1, "nfl_total": 2}
-            shown = ([(lab, px) for lab, px in prices.items()] if detail
-                     else [(lab, px) for lab, px in prices.items()
-                           if px.get("market") == "nfl_ml"])
-            shown.sort(key=lambda kv: (ordre.get(kv[1].get("market"), 9),
-                                       abs((kv[1].get("prob") or 50) - 50)))
-            reste = max(len(shown) - self.NFL_MAX_ROWS, 0)
-            shown = shown[:self.NFL_MAX_ROWS]
-            ct = str(g.get("commence", ""))
-            try:
-                d_et = (datetime.fromisoformat(ct.replace("Z", "+00:00"))
-                        .astimezone(pytz.timezone("America/Toronto")).strftime("%Y-%m-%d"))
-            except (ValueError, AttributeError):
-                d_et = ""
-            match = (str(g.get("away_team", "")) + " @ " + str(g.get("home_team", ""))).replace("'", "")
-
-            for lab, px in shown:
-                is_sig = lab in labels
-                p      = (px.get("prob") or 0) / 100.0
-                fair   = px.get("fair_odds") or ((1 / p) if p else 0)
-                cible  = px.get("target_odds") or (round((1 + thr / 100.0) / p, 2) if p else 0)
-                statut = px.get("statut", "a_saisir")
-                badge  = {"a_miser": "★ a miser", "a_verifier": "A VERIFIER (prix suspect)"}.get(statut, "")
-                titre  = (f"{lab} — prix juste {fair:.2f} ({px.get('prob', 0):.1f}%, "
-                          f"{px.get('source', '')}); exiger {cible:.2f} chez bet365 pour +{thr:g}%")
-                rows.append(
-                    "<div class=\"nfl-row rec-row" + (" nfl-is-sig" if is_sig else "")
-                    + "\" title=\"" + titre + "\" data-sport='nfl' data-marche='"
-                    + str(px.get("market", "")) + "' data-selection='" + str(lab).replace("'", "")
-                    + "' data-prob='" + f"{p:.4f}" + "' data-prob_marche_novig='" + f"{p:.4f}"
-                    + "' data-date='" + d_et + "' data-commence_time='" + ct
-                    + "' data-match='" + match + "' data-event_id='" + str(g.get("event_id", "")) + "'>"
-                    "<span class=\"nfl-sel\">" + ("<b>★</b> " if is_sig else "") + str(lab) + "</span>"
-                    "<span class=\"nfl-mk\">" + str(px.get("market", "")).replace("nfl_", "") + "</span>"
-                    "<span class=\"nfl-fair\" title=\"cote plancher: edge nul sur p_final\">plancher " + f"{fair:.2f}" + "</span>"
-                    "<span class=\"nfl-px\">exiger <b>" + f"{cible:.2f}" + "</b></span>"
-                    "<span class=\"nfl-rec\"><input class=\"rec-odds\" type=\"number\" step=\"0.01\" "
-                    "min=\"1.01\" placeholder=\"bet365\" oninput=\"recCalc(this)\"> "
-                    "<span class=\"rec-out\">" + ("<b>" + badge + "</b>" if badge else "") + "</span> "
-                    "<input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" oninput=\"this.dataset.manual=1\"> u "
-                    "<button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></span>"
-                    "</div>")
-
-            pied = []
-            if not sigs:
-                pied.append("cote bet365 absente du flux — a saisir")
-            if reste:
-                pied.append(str(reste) + " autre(s) ligne(s) moins favorable(s)")
-            if not detail:
-                pied.append("moneyline seulement")
-            if pied:
-                rows.append("<div class=\"nfl-none\">" + " &middot; ".join(pied) + "</div>")
-            rows.append("</div>")
-
-        rows.append("</div>")                       # fin du sous-onglet matchs
-        rows.append("<div id=\"nfl-sub-props\" style=\"display:none\">")
-        rows.append(self._nfl_props_section(st.get("props")))
-        rows.append("</div>")                       # fin props
-        rows.append("<div id=\"nfl-sub-boost\" style=\"display:none\">")
-        rows.append(self._nfl_boost_section(st))
-        rows.append("</div></div>")                 # fin boosts, fin nfl-wrap
-        return "".join(rows)
-
-    def _nfl_props_section(self, props) -> str:
-        """
-        Sous-onglet des props joueurs.
-
-        Deux natures de signal cohabitent et ne se lisent pas pareil:
-        un ECART DE COTE se juge sur son esperance, un ECART DE LIGNE sur la
-        largeur de la fenetre qu'il ouvre — un middle de 5 verges n'a pas
-        d'esperance affichable, il a une fenetre. Les deux sont donc presentes
-        separement plutot que meles dans une colonne "edge" qui vaudrait zero
-        pour la moitie des lignes.
-        """
-        st = props or {}
-        sigs = st.get("signals") or []
-        cotes = [s for s in sigs if s.get("type") == "cote"]
-        lignes = [s for s in sigs if s.get("type") == "ligne"]
-
-        if not st:
-            return ("<div class=\"perf-empty\"><div class=\"perf-empty-icon\">📋</div>"
-                    "<div class=\"perf-empty-title\">Props pas encore relevees</div>"
-                    "<div class=\"perf-empty-sub\">Un seul releve par semaine, le "
-                    "dimanche matin: les lignes d'ouverture sont trop larges pour "
-                    "qu'un ecart y veuille dire quelque chose.</div></div>")
-
-        out = ["<p class=\"nfl-intro\">Seuls les matchs dont le total depasse "
-               + f"{st.get('min_total', 47):g}" + " points sont scannes — le volume de "
-               "verges s'y concentre, et une requete par match et par marche se paie "
-               "sur le meme quota que le MLB.</p>"]
-
-        out.append(
-            "<div class=\"nfl-quota\">"
-            "<b>" + str(st.get("requests_week", 0)) + "</b>/"
-            + str(st.get("max_requests", 40)) + " requetes utilisees cette semaine "
-            "&middot; " + str(st.get("n_scanned", 0)) + " match(s) scanne(s) sur "
-            + str(st.get("n_games", 0)) + " retenu(s)"
-            + ("<br>Releve date — " + str(st.get("reason", "")) if st.get("stale") else "")
-            + "</div>")
-
-        lines = st.get("lines") or []
-        if lines:
-            out.append(self._nfl_prop_lines(lines, float(st.get("min_edge", 3) or 3)))
-
-        if not sigs:
-            if lines:
-                return "".join(out)
-            return "".join(out) + (
-                "<div class=\"perf-empty\"><div class=\"perf-empty-icon\">✓</div>"
-                "<div class=\"perf-empty-title\">Aucun signal</div>"
-                "<div class=\"perf-empty-sub\">Les books sont alignes sur les props "
-                "scannees. C'est un resultat, pas une panne.</div></div>")
-
-        if cotes:
-            out.append("<div class=\"nfl-day\">ecarts de cote &middot; "
-                       + str(len(cotes)) + "</div>")
-            for s in cotes:
-                out.append(self._nfl_prop_row(s))
-
-        if lignes:
-            out.append("<div class=\"nfl-day\">ecarts de ligne (middles) &middot; "
-                       + str(len(lignes)) + "</div>")
-            out.append("<p class=\"nfl-intro\">Le taux indique est celui qu'il faut "
-                       "atteindre pour que le middle soit rentable, calcule sur les "
-                       "deux prix. La frequence reelle a laquelle le resultat tombe "
-                       "dans la fenetre demanderait un modele de distribution des "
-                       "verges qu'on n'a pas: c'est a vous de juger.</p>")
-            for s in lignes:
-                o, u = s.get("over", {}), s.get("under", {})
-                out.append(
-                    "<div class=\"nfl-prop\">"
-                    "<div class=\"nfl-prop-h\"><span class=\"nfl-prop-j\">"
-                    + str(s.get("joueur", "")) + "</span>"
-                    "<span class=\"nfl-mk\">" + str(s.get("marche_lbl", "")) + "</span>"
-                    "<span class=\"nfl-prop-g\">" + str(s.get("game", "")) + "</span></div>"
-                    "<div class=\"nfl-mid\">"
-                    "<span>Over <b>" + f"{o.get('ligne', 0):g}" + "</b> @ "
-                    + f"{o.get('odds', 0):.2f}" + " <i>" + str(o.get("book", ""))[:11]
-                    + "</i></span>"
-                    "<span class=\"nfl-mid-win\">fenetre <b>"
-                    + f"{s.get('fenetre', 0):g}" + "</b> verges</span>"
-                    + ("" if not s.get("breakeven") else
-                       "<span class=\"nfl-mid-be\">rentable au-dela de <b>"
-                       + f"{s['breakeven']:.1f}" + "%</b> de reussite</span>")
-                    + "<span>Under <b>" + f"{u.get('ligne', 0):g}" + "</b> @ "
-                    + f"{u.get('odds', 0):.2f}" + " <i>" + str(u.get("book", ""))[:11]
-                    + "</i></span></div>"
-                    + self._nfl_books(s.get("books"))
-                    + "</div>")
-
-        return "".join(out)
+        """Onglet NFL — voir nfl_tab.py (props a ligne ajustee, boosts, liste A MISER)."""
+        import nfl_tab
+        return nfl_tab.render(state)
 
     @staticmethod
     def _et_day(ct: str) -> str:
@@ -1420,151 +1117,6 @@ class ReportGenerator:
                     .astimezone(pytz.timezone("America/Toronto")).strftime("%Y-%m-%d"))
         except (ValueError, AttributeError):
             return ""
-
-    def _nfl_prop_lines(self, lines: list, thr: float) -> str:
-        """
-        Prix juste de chaque prop scannee, avec la saisie bet365.
-
-        bet365 n'est pas dans le flux: on ne peut rien signaler d'office. La
-        ligne se lit chez bet365 (cote ET ligne, qui peut differer de
-        Pinnacle), se saisit ici, et la page calcule l'edge. Si la ligne bet365
-        est plus facile que la reference (Over plus bas, Under plus haut), la
-        probabilite de reference est un plancher et l'edge l'est aussi; plus
-        difficile, on ne sait pas convertir sans modele de distribution des
-        verges: « non comparable », pas de mise (propBound, miroir de
-        nfl_props.bound_prob).
-        """
-        from html import escape
-
-        def a(v):
-            return escape(str(v), quote=True)
-
-        out = ["<div class=\"nfl-day\">prix juste des props &middot; "
-               + str(len(lines)) + "</div>"
-               "<p class=\"nfl-intro\">Lisez chez bet365 la <b>ligne</b> et la <b>cote</b>, "
-               "choisissez Over/Under et saisissez-les. Ligne bet365 plus facile que "
-               "Pinnacle (Over plus bas, Under plus haut): l'edge affiche est un "
-               "<b>minimum</b>. Plus difficile: non comparable, on ne mise pas. "
-               "A miser des <b>" + f"{thr:g}" + "%</b>. Joueur inactif = pari annule "
-               "chez bet365.</p>"]
-        par_match: dict = {}
-        for ln in lines:
-            par_match.setdefault((ln.get("commence", ""), ln.get("game", "")), []).append(ln)
-        for (ct, game), grp in sorted(par_match.items()):
-            out.append("<details class=\"nfl-pl-game\"" + (" open" if self._nfl_imminent(ct) else "")
-                       + "><summary><b>" + escape(game) + "</b> <span class=\"nfl-kick\" data-kick=\""
-                       + a(ct) + "\">—</span> &middot; " + str(len(grp)) + " props</summary>")
-            for ln in grp:
-                L = ln["ligne"]
-                sel = f"{ln['joueur']} Over {L:g}"
-                out.append(
-                    "<div class=\"nfl-row rec-row nfl-pl\" data-sport=\"nfl\""
-                    " data-marche=\"" + a(ln.get("marche", "")) + "\""
-                    " data-joueur=\"" + a(ln["joueur"]) + "\""
-                    " data-refs=\"" + a(json.dumps(ln.get("refs") or [])) + "\""
-                    " data-selection=\"" + a(sel) + "\" data-ligne=\"" + f"{L:g}" + "\""
-                    " data-prob=\"" + f"{ln['p_over']:.4f}" + "\""
-                    " data-prob_marche_novig=\"" + f"{ln['p_over']:.4f}" + "\""
-                    " data-date=\"" + self._et_day(ct) + "\" data-commence_time=\"" + a(ct) + "\""
-                    " data-match=\"" + a(game) + "\" data-event_id=\"" + a(ln.get("event_id", "")) + "\">"
-                    "<span class=\"nfl-sel\">" + escape(ln["joueur"]) + "</span>"
-                    "<span class=\"nfl-mk\">" + escape(ln.get("marche_lbl", "")) + "</span>"
-                    "<span class=\"nfl-fair\" title=\"" + a(ln.get("source", "")) + "\">ref <b>"
-                    + f"{L:g}" + "</b> O " + f"{ln['p_over'] * 100:.0f}" + "% / U "
-                    + f"{ln['p_under'] * 100:.0f}" + "%</span>"
-                    "<span class=\"nfl-px\">exiger O <b>" + f"{ln['target_over']:.2f}"
-                    + "</b> U <b>" + f"{ln['target_under']:.2f}" + "</b></span>"
-                    "<span class=\"nfl-rec\">"
-                    "<select class=\"pl-side\" onchange=\"propUpd(this)\"><option>Over</option>"
-                    "<option>Under</option></select>"
-                    "<input class=\"pl-line\" type=\"number\" step=\"0.5\" value=\"" + f"{L:g}"
-                    + "\" title=\"ligne bet365\" oninput=\"propUpd(this)\">"
-                    "<input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" "
-                    "placeholder=\"bet365\" oninput=\"propUpd(this)\"> "
-                    "<span class=\"rec-out\"></span> "
-                    "<input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" "
-                    "oninput=\"this.dataset.manual=1\"> u "
-                    "<button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></span>"
-                    "</div>")
-            out.append("</details>")
-        return "".join(out)
-
-    def _nfl_boost_legs(self, st: dict) -> dict:
-        """
-        Catalogue des jambes qu'un boost peut combiner: chaque issue des
-        marches principaux et chaque prop a sa ligne de reference, avec sa
-        probabilite juste. Cle = libelle affiche dans la liste de choix.
-        """
-        legs = {}
-        for g in st.get("games") or []:
-            match = f"{g.get('away_team', '')} @ {g.get('home_team', '')}"
-            for lab, px in (g.get("prices") or {}).items():
-                p = (px.get("prob") or 0) / 100.0
-                if 0 < p < 1:
-                    legs[f"{lab} ({match})"] = {
-                        "selection": lab, "marche": px.get("market", ""), "p": round(p, 4),
-                        "match": match, "commence_time": g.get("commence", ""),
-                        "event_id": g.get("event_id", "")}
-        for ln in (st.get("props") or {}).get("lines") or []:
-            for side, p in (("Over", ln.get("p_over")), ("Under", ln.get("p_under"))):
-                if not p or not (0 < p < 1):
-                    continue
-                sel = f"{ln['joueur']} {side} {ln['ligne']:g}"
-                legs[f"{sel} {ln.get('marche_lbl', '')}"] = {
-                    "selection": sel, "marche": ln.get("marche", ""), "p": round(p, 4),
-                    "match": ln.get("game", ""), "commence_time": ln.get("commence", ""),
-                    "event_id": ln.get("event_id", ""), "joueur": ln["joueur"],
-                    "ligne": ln["ligne"]}
-        return legs
-
-    def _nfl_boost_section(self, st: dict) -> str:
-        """
-        Cotes boostees bet365. Un boost relevant la cote d'une issue au-dessus
-        de son prix juste est l'un des rares paris +EV possibles chez un book a
-        forte marge. On choisit les jambes dans le catalogue (prix juste
-        Pinnacle Shin), on saisit la cote boostee, la page calcule l'edge.
-
-        Jambes de matchs DIFFERENTS: independantes, p = produit, edge exact.
-        Jambes d'un MEME match: correlees (Bills gagnent + Allen 250 verges ne
-        sont pas independants); le produit n'est qu'une indication, statut
-        « informatif », jamais a miser. Pas de regle « > 8% = a verifier » ici:
-        un boost est par construction au-dessus du prix juste.
-        """
-        from html import escape
-        legs = self._nfl_boost_legs(st)
-        thr = float(st.get("min_edge", 3) or 3)
-        if not legs:
-            return ("<div class=\"perf-empty\"><div class=\"perf-empty-icon\">🚀</div>"
-                    "<div class=\"perf-empty-title\">Aucune cote de reference</div>"
-                    "<div class=\"perf-empty-sub\">Le catalogue des jambes vient du releve "
-                    "NFL (mardi, vendredi, dimanche matin).</div></div>")
-        opts = "".join("<option value=\"" + escape(k, quote=True) + "\">" for k in sorted(legs))
-        leg_in = "".join(
-            "<input class=\"bo-leg\" list=\"nfl-legs\" placeholder=\"jambe " + str(i + 1)
-            + (" (facultatif)" if i else "") + "\" oninput=\"boostUpd(this)\">"
-            for i in range(4))
-        return (
-            "<p class=\"nfl-intro\">Choisissez les jambes du boost bet365 (tapez un nom "
-            "d'equipe ou de joueur), puis saisissez la cote <b>boostee</b>. "
-            "edge = cote boostee &times; p &minus; 1, p = produit des probabilites justes "
-            "(Pinnacle sans marge). A miser des <b>" + f"{thr:g}" + "%</b>. Jambes d'un "
-            "<b>meme match</b>: correlees, le produit n'est qu'une indication — informatif, "
-            "pas de mise. Une jambe absente du catalogue (TD, receptions...) ne peut pas "
-            "etre evaluee. bet365 plafonne souvent la mise d'un boost: ajustez-la.</p>"
-            "<datalist id=\"nfl-legs\">" + opts + "</datalist>"
-            "<script>var NFL_LEGS=" + json.dumps(legs, ensure_ascii=False).replace("</", "<\\/") + ";</script>"
-            "<div class=\"rec-row nfl-boost\" data-sport=\"nfl\" data-marche=\"nfl_boost\" "
-            "data-prob=\"\" data-date=\"\">"
-            "<div class=\"bo-legs\">" + leg_in + "</div>"
-            "<div class=\"bo-info\"></div>"
-            "<div class=\"nfl-rec\">cote boostee "
-            "<input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" "
-            "placeholder=\"bet365\" oninput=\"boostUpd(this)\"> "
-            "<span class=\"rec-out\"></span> "
-            "<input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" "
-            "oninput=\"this.dataset.manual=1\"> u "
-            "<button class=\"rec-btn\" onclick=\"recSave(this)\">Enregistrer</button></div>"
-            "</div>")
 
     def _sog_section(self, st) -> str:
         """
@@ -1651,109 +1203,6 @@ class ReportGenerator:
                    "<script>var SOG_CFG={me:" + f"{me}" + ",mp:" + f"{mp}" + ",marge:" + f"{marge}" + "};"
                    "document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.sog-row').forEach(function(r){sogUpd(r.querySelector('.sog-line'));});});</script>")
         return "".join(out)
-
-    def _nfl_books(self, books) -> str:
-        """Ligne et prix chez chaque book: c'est la moitie de l'information."""
-        if not books:
-            return ""
-        cells = "".join(
-            "<span class=\"nfl-bk\"><i>" + str(b.get("book", ""))[:11] + "</i>"
-            + f"{b.get('ligne', 0):g}"
-            + ("" if not b.get("over") else " <em>" + f"{b['over']:.2f}" + "</em>")
-            + "</span>"
-            for b in books)
-        return "<div class=\"nfl-bks\">" + cells + "</div>"
-
-    def _nfl_prop_row(self, s: dict) -> str:
-        edge = s.get("edge_pct", 0)
-        return (
-            "<div class=\"nfl-prop\">"
-            "<div class=\"nfl-prop-h\">"
-            "<span class=\"nfl-prop-j\">★ " + str(s.get("joueur", "")) + "</span>"
-            "<span class=\"nfl-mk\">" + str(s.get("marche_lbl", "")) + "</span>"
-            "<span class=\"nfl-prop-g\">" + str(s.get("game", "")) + "</span>"
-            "<span class=\"nfl-prop-e\" style=\"color:var(--nfl-good)\">+"
-            + f"{edge:.1f}" + "%</span></div>"
-            "<div class=\"nfl-prop-d\">"
-            "<b>" + str(s.get("side", "")) + " " + f"{s.get('ligne', 0):g}" + "</b>"
-            " &middot; " + f"{s.get('odds', 0):.2f}" + " chez <b>"
-            + str(s.get("book", "")) + "</b>"
-            " &middot; juste " + f"{s.get('fair_odds', 0):.2f}"
-            + " (" + f"{s.get('prob', 0):.1f}" + "% no-vig, "
-            + str(s.get("source", "")) + ", " + str(s.get("n_books", 0)) + " books)"
-            "</div>" + self._nfl_books(s.get("books")) + "</div>")
-
-    def _nfl_todo(self, games: list, thr: float, props_cotes: list = ()) -> str:
-        """
-        "Qu'est-ce que je mise, et combien ?" — la seule question a laquelle le
-        reste de la page ne repondait pas.
-
-        Pour chaque signal: la cote MINIMALE a exiger chez son book (en dessous
-        on parie a perte, quel que soit l'edge affiche ailleurs) et la mise en
-        unites si on l'obtient. Une unite = 1% du bankroll.
-        """
-        actions = []
-        for g in games:
-            for s in g.get("signals") or []:
-                actions.append((s, g))
-        # Les props comptent autant: le seul pari d'un soir de semaine peut
-        # etre une prop, et le bloc d'action l'ignorait.
-        for s in props_cotes:
-            actions.append((s, {"away_team": s.get("game", ""), "home_team": ""}))
-        if not actions:
-            return ""
-
-        lignes = ["<div class=\"nfl-todo\">"
-                  "<div class=\"nfl-todo-t\">A miser &middot; " + str(len(actions))
-                  + "</div>"
-                  "<div class=\"nfl-todo-s\">Le prix indique est celui a EXIGER chez "
-                  "votre book. En dessous, le pari est perdant meme si un autre book "
-                  "l'offre plus cher. 1 unite = 1% du bankroll.</div>"]
-        for s, g in sorted(actions, key=lambda a: -(a[0].get("edge_pct") or 0)):
-            cible, mise = nfl_cible_et_mise(s, thr)
-            if s.get("statut") == "a_verifier":
-                mise = 0.0          # « A VERIFIER »: jamais a miser
-            lignes.append(
-                "<div class=\"nfl-todo-r\">"
-                "<span class=\"nfl-todo-sel\">" + str(s.get("selection", ""))
-                + (" <b style=\"color:#B45309\">A VERIFIER (prix suspect)</b>"
-                   if s.get("statut") == "a_verifier" else "") + "</span>"
-                "<span class=\"nfl-todo-g\">"
-                + (str(g.get("away_team", ""))[:32] if not g.get("home_team")
-                   else str(g.get("away_team", ""))[:14] + " @ "
-                        + str(g.get("home_team", ""))[:14]) + "</span>"
-                "<span class=\"nfl-todo-o\">exiger <b>" + f"{cible:.2f}" + "</b> ou mieux</span>"
-                "<span class=\"nfl-todo-m\"><b>" + f"{mise:.2f}" + "</b> u</span>"
-                "</div>")
-        lignes.append("<div class=\"nfl-todo-f\">Meilleur prix vu sur le marche a titre "
-                      "de reference dans la liste ci-dessous — pas forcement disponible "
-                      "chez vous.</div></div>")
-        return "".join(lignes)
-
-    @staticmethod
-    def _nfl_day(commence: str) -> str:
-        """Libelle du jour, pour grouper: 16 matchs a la file ne se lisent pas."""
-        jours = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
-        mois  = ["janv.", "fevr.", "mars", "avril", "mai", "juin", "juil.",
-                 "aout", "sept.", "oct.", "nov.", "dec."]
-        try:
-            d = datetime.fromisoformat(commence.replace("Z", "+00:00")).astimezone(
-                pytz.timezone("America/Toronto"))
-        except (ValueError, AttributeError):
-            return "date inconnue"
-        return f"{jours[d.weekday()]} {d.day} {mois[d.month - 1]}"
-
-    @staticmethod
-    def _nfl_imminent(commence: str, hours: int = 24) -> bool:
-        """Le match commence-t-il bientot ? Ceux-la sont deplies en entier."""
-        if not commence:
-            return False
-        try:
-            k = datetime.fromisoformat(commence.replace("Z", "+00:00"))
-        except ValueError:
-            return False
-        delta = (k - datetime.now(pytz.utc)).total_seconds()
-        return -3 * 3600 <= delta <= hours * 3600
 
     def _disclaimer(self, gen_display, odds_state=None):
         """
@@ -1911,6 +1360,8 @@ class ReportGenerator:
             # via le workflow record_prediction.yml (meme token qu'Actualiser).
             "var REC_THR={nfl:3,mlb:3,nhl:3};var REC_SUSPECT=" + str(self._suspect_edge()) + ";"
             "function recStatus(row,e){"
+            # Onglet NFL (nfl_tab.py): ses propres regles (p >= 55 %, cote 1.60-2.10...).
+            "if(row.dataset.nfx==='1'&&typeof nfxStatus==='function')return nfxStatus(row,e);"
             "if(row.closest('.nhl-wait'))return['en attente — gardien non confirmé','#92400E'];"
             "if(row.dataset.marche==='props_k'&&row.dataset.cal!=='1')return['informatif — barreau non calibré','#92400E'];"
             # Boost: jambes d'un meme match = correlees, jamais a miser; pas de
@@ -1937,7 +1388,8 @@ class ReportGenerator:
             "var o=parseFloat((r.querySelector('.rec-odds')||{}).value),p=parseFloat(r.dataset.prob);"
             "if(!(o>1)||!p)return false;var e=(p*o-1)*100;return recStatus(r,e)[0]==='à miser';});"
             "var placed=recPlaced(date);var already=0;for(var k in placed)already+=placed[k];"
-            "var raw=rows.map(function(r){return recKelly(parseFloat(r.dataset.prob),parseFloat(r.querySelector('.rec-odds').value));});"
+            "var raw=rows.map(function(r){var p=parseFloat(r.dataset.prob),o=parseFloat(r.querySelector('.rec-odds').value);"
+            "return (r.dataset.nfx==='1'&&typeof nfxKelly==='function')?nfxKelly(p,o):recKelly(p,o);});"
             "var tot=raw.reduce(function(a,b){return a+b;},0);var room=Math.max(REC_ST.MAX_NIGHT_PCT-already,0);"
             "var fac=(tot>room&&tot>0)?room/tot:1;"
             "rows.forEach(function(r,i){r.dataset.sugg=(raw[i]*fac).toFixed(2);r.dataset.fac=fac.toFixed(2);"
@@ -1976,7 +1428,7 @@ class ReportGenerator:
             "var tk=ghToken();if(!tk){btn.textContent='✗ pas de token';return;}"
             "var d=row.dataset;var pl={book:'bet365',cote_prise:o,mise_u:mi,prob_finale:parseFloat(d.prob),"
             "prob_modele:parseFloat(d.prob_modele||d.prob)};"
-            "['sport','marche','selection','date','joueur','ligne','k','match','commence_time','prob_brute','prob_calibree','prob_marche_novig','event_id','legs','correle','valide','alignement','devig']"
+            "['sport','marche','selection','date','joueur','ligne','k','match','commence_time','prob_brute','prob_calibree','prob_marche_novig','event_id','legs','correle','valide','alignement','devig','ligne_reference','src']"
             ".forEach(function(f){var v=d[f];if(v!==undefined&&v!=='')pl[f]=v;});"
             "pl.calibre=d.cal==='1';"
             "btn.disabled=true;btn.textContent='⏳';"
@@ -2701,6 +2153,7 @@ class ReportGenerator:
             "var vs=j.versions||{};var vk=Object.keys(vs);"
             "if(vk.length)h+=\"<div class='trk-note'>Versions du modele dans le journal: \"+vk.map(function(v){return v+' ('+vs[v]+')';}).join(' · ')+\"</div>\";"
             "kj.forEach(function(k){h+=perfGroup(k,gj[k]);});"
+            "if(typeof nfxPerf==='function')h+=nfxPerf(p);"
             "var gh=hi.groupes||{};var kh=Object.keys(gh);"
             "if(kh.length){h+=\"<details class='pj-hist'><summary>Historique importe de results.json (\"+(hi.n||0)+\" paris selectionnes — peu fiable)</summary>\";"
             "h+=\"<div class='trk-note'>Versions de modele melangees, paris selectionnes seulement, prix de reference parfois releves en cours de match (cotes aberrantes): lire la mediane du CLV papier, pas la moyenne.</div>\";"

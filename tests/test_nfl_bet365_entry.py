@@ -195,9 +195,8 @@ class TestCaptureAndPage(unittest.TestCase):
     def test_page_renders_prop_entry_and_boost_builder(self):
         from report_generator import ReportGenerator
         html = ReportGenerator()._nfl_section(STATE)
-        self.assertIn("propUpd(this)", html)
+        self.assertIn("nfxPropUpd(this)", html)
         self.assertIn("Ja&#x27;Marr Chase", html)          # apostrophe echappee
-        self.assertIn("nfl-sub-boost", html)
         self.assertIn('data-marche="nfl_boost"', html)
         legs = json.loads(html.split("var NFL_LEGS=", 1)[1].split(";</script>", 1)[0])
         self.assertIn("Cincinnati Bengals ML (Cincinnati Bengals @ Pittsburgh Steelers)", legs)

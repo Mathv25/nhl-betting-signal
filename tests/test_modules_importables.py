@@ -77,44 +77,21 @@ class TestDashboardSeGenere(unittest.TestCase):
         self.assertIn("</html>", html)
         self.assertIn("tab-nfl", html)
 
-    def test_rendu_avec_props_nfl(self):
-        """Le chemin des props, celui-la meme qui avait casse."""
+    def test_rendu_onglet_nfl(self):
+        """L'onglet NFL (nfl_tab) se rend avec et sans props."""
         from report_generator import ReportGenerator
         rg = ReportGenerator()
-        etat = {
-            "week": "2026-09-08", "stale": False, "min_edge": 3.0, "min_total": 47.0,
-            "requests_week": 9, "max_requests": 40, "n_scanned": 1, "n_games": 1,
-            "n_signals": 2,
-            "signals": [
-                {"type": "cote", "joueur": "Matthew Stafford",
-                 "market": "player_rush_yds", "marche_lbl": "verges au sol",
-                 "selection": "Matthew Stafford Over 0.5", "side": "Over", "ligne": 0.5,
-                 "prob": 41.0, "odds": 2.54, "book": "fanduel", "fair_odds": 2.44,
-                 "edge_pct": 4.2, "source": "pinnacle", "n_books": 4,
-                 "game": "SF @ LAR", "books": [{"book": "fanduel", "ligne": 0.5,
-                                                "over": 2.54, "under": 1.5}]},
-                {"type": "ligne", "joueur": "Brock Purdy",
-                 "market": "player_pass_yds", "marche_lbl": "verges de passe",
-                 "selection": "Brock Purdy middle 238.5-245.5", "fenetre": 7.0,
-                 "breakeven": 6.8, "edge_pct": 0.0,
-                 "over": {"ligne": 238.5, "odds": 1.90, "book": "draftkings"},
-                 "under": {"ligne": 245.5, "odds": 1.87, "book": "fanatics"},
-                 "game": "SF @ LAR", "books": [{"book": "draftkings", "ligne": 238.5,
-                                                "over": 1.90, "under": 1.88}]},
-            ],
-        }
-        html = rg._nfl_props_section(etat)
-        self.assertIn("Matthew Stafford", html)
-        self.assertIn("Brock Purdy", html)
-        self.assertIn("6.8", html)          # rentabilite exigee du middle
+        line = {"joueur": "Puka Nacua", "market": "player_reception_yds",
+                "marche": "nfl_prop_reception_yds", "marche_lbl": "verges de reception",
+                "ligne": 80.5, "p_over": 0.5, "p_under": 0.5, "refs": [],
+                "game": "SF @ LAR", "commence": "2099-09-27T17:00:00Z", "event_id": "e1"}
+        html = rg._nfl_section({"week": "2026-09-08", "games": [],
+                                "props": {"lines": [line]}})
+        self.assertIn("Puka Nacua", html)
+        self.assertIn("À MISER", html)
         self.assertNotIn("None", html)
-
-    def test_rendu_props_vide(self):
-        from report_generator import ReportGenerator
-        html = ReportGenerator()._nfl_props_section(
-            {"week": "2026-09-08", "signals": [], "n_signals": 0,
-             "requests_week": 0, "max_requests": 40, "n_scanned": 0, "n_games": 0})
-        self.assertIn("Aucun signal", html)
+        vide = rg._nfl_section({"week": "2026-09-08", "games": [], "props": {}})
+        self.assertIn("Aucune prop Pinnacle exploitable", vide)
 
 
 if __name__ == "__main__":
