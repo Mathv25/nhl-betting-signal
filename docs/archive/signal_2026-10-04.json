@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-10-05T18:15:55.644752+00:00",
-  "date": "2026-10-05",
+  "generated_at": "2026-10-04T13:44:52.255252+00:00",
+  "date": "2026-10-04",
   "bookmaker": "bet365",
-  "total_games": 4,
+  "total_games": 5,
   "total_value_bets": 0,
   "signals": [
     {
       "game": {
-        "id": "d400aaff4870fbb91e584f1c8a8f05bf",
-        "home_team": "Tampa Bay Lightning",
-        "away_team": "Philadelphia Flyers",
-        "commence_time": "2026-10-05T23:10:00Z",
+        "id": "d10f933c7fb656c7cfd1c98df4a650f8",
+        "home_team": "Detroit Red Wings",
+        "away_team": "Winnipeg Jets",
+        "commence_time": "2026-10-04T17:10:00Z",
         "bookmaker": "",
         "markets": {
           "player_props": []
@@ -18,169 +18,623 @@
         "removed_props": [],
         "no_allowed_odds": true,
         "market_novig": {
-          "Tampa Bay Lightning ML": 0.6712,
-          "Philadelphia Flyers ML": 0.3288,
-          "Tampa Bay Lightning -1.5": 0.4436,
-          "Philadelphia Flyers +1.5": 0.5564,
-          "Over 5.5": 0.5385,
-          "Under 5.5": 0.4615
+          "Detroit Red Wings ML": 0.5026,
+          "Winnipeg Jets ML": 0.4974,
+          "Detroit Red Wings -1.5": 0.2821,
+          "Winnipeg Jets +1.5": 0.7179,
+          "Over 5.5": 0.5264,
+          "Under 5.5": 0.4736
         },
         "goalies": {
           "home": {
-            "name": "Andrei Vasilevskiy",
+            "name": "John Gibson",
             "confirmed": false,
-            "status": "Likely",
-            "mult_adverse": 0.9035,
-            "detail": "MoneyPuck 2025+2026: GSAx +24.8 en 59 h"
+            "status": "repli roster",
+            "mult_adverse": 0.9468,
+            "detail": "MoneyPuck 2025+2026: GSAx +12.8 en 54 h"
           },
           "away": {
-            "name": "Dan Vladar",
-            "confirmed": true,
-            "status": "Confirmed",
-            "mult_adverse": 0.9524,
-            "detail": "MoneyPuck 2025+2026: GSAx +11.0 en 51 h"
+            "name": "Stuart Skinner",
+            "confirmed": false,
+            "status": "repli roster",
+            "mult_adverse": 0.9672,
+            "detail": "MoneyPuck 2025+2026: GSAx +7.5 en 50 h"
           }
         },
         "statut": "en_attente",
         "lambdas": {
-          "home": 3.2006,
-          "away": 1.8967
+          "home": 2.7384,
+          "away": 2.3781
         },
         "model_lines": [
           {
             "marche": "nhl_ml",
-            "selection": "Tampa Bay Lightning ML",
-            "prob_modele": 0.708,
-            "prob_marche": 0.6712,
-            "prob": 0.6822,
+            "selection": "Detroit Red Wings ML",
+            "prob_modele": 0.5615,
+            "prob_marche": 0.5026,
+            "prob": 0.5203,
             "blend_source": "melange w=0.3",
-            "fair_odds": 1.466,
+            "fair_odds": 1.922,
+            "min_odds": 1.98,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_ml",
+            "selection": "Winnipeg Jets ML",
+            "prob_modele": 0.4385,
+            "prob_marche": 0.4974,
+            "prob": 0.4797,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 2.084,
+            "min_odds": 2.15,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Detroit Red Wings -1.5",
+            "prob_modele": 0.3715,
+            "prob_marche": 0.2821,
+            "prob": 0.3089,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 3.237,
+            "min_odds": 3.33,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Winnipeg Jets +1.5",
+            "prob_modele": 0.6285,
+            "prob_marche": 0.7179,
+            "prob": 0.6911,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.447,
+            "min_odds": 1.49,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Winnipeg Jets -1.5",
+            "prob_modele": 0.266,
+            "prob_marche": null,
+            "prob": 0.266,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 3.759,
+            "min_odds": 3.87,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Detroit Red Wings +1.5",
+            "prob_modele": 0.734,
+            "prob_marche": null,
+            "prob": 0.734,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 1.362,
+            "min_odds": 1.4,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Over 5.5",
+            "prob_modele": 0.3847,
+            "prob_marche": 0.5264,
+            "prob": 0.4839,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 2.067,
+            "min_odds": 2.13,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Under 5.5",
+            "prob_modele": 0.6153,
+            "prob_marche": 0.4736,
+            "prob": 0.5161,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.938,
+            "min_odds": 2.0,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Over 6.5",
+            "prob_modele": 0.2811,
+            "prob_marche": null,
+            "prob": 0.2811,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 3.558,
+            "min_odds": 3.66,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Under 6.5",
+            "prob_modele": 0.7189,
+            "prob_marche": null,
+            "prob": 0.7189,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 1.391,
+            "min_odds": 1.43,
+            "statut": "en_attente"
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "game": {
+        "id": "5393b504ffa70a2603259b2df414007f",
+        "home_team": "New York Rangers",
+        "away_team": "Utah Mammoth",
+        "commence_time": "2026-10-04T22:10:00Z",
+        "bookmaker": "",
+        "markets": {
+          "player_props": []
+        },
+        "removed_props": [],
+        "no_allowed_odds": true,
+        "market_novig": {
+          "New York Rangers ML": 0.5378,
+          "Utah Mammoth ML": 0.4622,
+          "New York Rangers -1.5": 0.3113,
+          "Utah Mammoth +1.5": 0.6887,
+          "Over 5.5": 0.516,
+          "Under 5.5": 0.484
+        },
+        "goalies": {
+          "home": {
+            "name": "Igor Shesterkin",
+            "confirmed": false,
+            "status": "repli roster",
+            "mult_adverse": 0.9007,
+            "detail": "MoneyPuck 2025+2026: GSAx +23.5 en 52 h"
+          },
+          "away": {
+            "name": "Karel Vejmelka",
+            "confirmed": false,
+            "status": "repli roster",
+            "mult_adverse": 0.9678,
+            "detail": "MoneyPuck 2025+2026: GSAx +8.6 en 63 h"
+          }
+        },
+        "statut": "en_attente",
+        "lambdas": {
+          "home": 2.7559,
+          "away": 2.4724
+        },
+        "model_lines": [
+          {
+            "marche": "nhl_ml",
+            "selection": "New York Rangers ML",
+            "prob_modele": 0.5485,
+            "prob_marche": 0.5378,
+            "prob": 0.541,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.848,
+            "min_odds": 1.9,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_ml",
+            "selection": "Utah Mammoth ML",
+            "prob_modele": 0.4515,
+            "prob_marche": 0.4622,
+            "prob": 0.459,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 2.179,
+            "min_odds": 2.24,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "New York Rangers -1.5",
+            "prob_modele": 0.3611,
+            "prob_marche": 0.3113,
+            "prob": 0.3263,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 3.065,
+            "min_odds": 3.16,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Utah Mammoth +1.5",
+            "prob_modele": 0.6389,
+            "prob_marche": 0.6887,
+            "prob": 0.6737,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.484,
+            "min_odds": 1.53,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Utah Mammoth -1.5",
+            "prob_modele": 0.2787,
+            "prob_marche": null,
+            "prob": 0.2787,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 3.588,
+            "min_odds": 3.7,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "New York Rangers +1.5",
+            "prob_modele": 0.7213,
+            "prob_marche": null,
+            "prob": 0.7213,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 1.386,
+            "min_odds": 1.43,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Over 5.5",
+            "prob_modele": 0.403,
+            "prob_marche": 0.516,
+            "prob": 0.4821,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 2.074,
+            "min_odds": 2.14,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Under 5.5",
+            "prob_modele": 0.597,
+            "prob_marche": 0.484,
+            "prob": 0.5179,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.931,
+            "min_odds": 1.99,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Over 6.5",
+            "prob_modele": 0.2978,
+            "prob_marche": null,
+            "prob": 0.2978,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 3.358,
+            "min_odds": 3.46,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Under 6.5",
+            "prob_modele": 0.7022,
+            "prob_marche": null,
+            "prob": 0.7022,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 1.424,
+            "min_odds": 1.47,
+            "statut": "en_attente"
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "game": {
+        "id": "6cac1fc86136075a23655625562fd8dc",
+        "home_team": "Anaheim Ducks",
+        "away_team": "Florida Panthers",
+        "commence_time": "2026-10-05T00:10:00Z",
+        "bookmaker": "",
+        "markets": {
+          "player_props": []
+        },
+        "removed_props": [],
+        "no_allowed_odds": true,
+        "market_novig": {
+          "Anaheim Ducks ML": 0.4442,
+          "Florida Panthers ML": 0.5558,
+          "Florida Panthers -1.5": 0.3258,
+          "Anaheim Ducks +1.5": 0.6742,
+          "Over 6.5": 0.5119,
+          "Under 6.5": 0.4881
+        },
+        "goalies": {
+          "home": {
+            "name": "Lukas Dostal",
+            "confirmed": false,
+            "status": "repli roster",
+            "mult_adverse": 1.0111,
+            "detail": "MoneyPuck 2025+2026: GSAx -2.7 en 55 h"
+          },
+          "away": {
+            "name": "Jacob Markstrom",
+            "confirmed": false,
+            "status": "repli roster",
+            "mult_adverse": 1.0448,
+            "detail": "MoneyPuck 2025+2026: GSAx -9.4 en 43 h"
+          }
+        },
+        "statut": "en_attente",
+        "lambdas": {
+          "home": 2.6035,
+          "away": 3.9977
+        },
+        "model_lines": [
+          {
+            "marche": "nhl_ml",
+            "selection": "Anaheim Ducks ML",
+            "prob_modele": 0.307,
+            "prob_marche": 0.4442,
+            "prob": 0.403,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 2.481,
+            "min_odds": 2.56,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_ml",
+            "selection": "Florida Panthers ML",
+            "prob_modele": 0.693,
+            "prob_marche": 0.5558,
+            "prob": 0.597,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.675,
+            "min_odds": 1.73,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Anaheim Ducks -1.5",
+            "prob_modele": 0.1753,
+            "prob_marche": null,
+            "prob": 0.1753,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 5.705,
+            "min_odds": 5.88,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Florida Panthers +1.5",
+            "prob_modele": 0.8247,
+            "prob_marche": null,
+            "prob": 0.8247,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 1.213,
+            "min_odds": 1.25,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Florida Panthers -1.5",
+            "prob_modele": 0.5353,
+            "prob_marche": 0.3258,
+            "prob": 0.3887,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 2.573,
+            "min_odds": 2.65,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Anaheim Ducks +1.5",
+            "prob_modele": 0.4647,
+            "prob_marche": 0.6742,
+            "prob": 0.6113,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.636,
+            "min_odds": 1.68,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Over 5.5",
+            "prob_modele": 0.6075,
+            "prob_marche": null,
+            "prob": 0.6075,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 1.646,
+            "min_odds": 1.7,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Under 5.5",
+            "prob_modele": 0.3925,
+            "prob_marche": null,
+            "prob": 0.3925,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 2.548,
+            "min_odds": 2.62,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Over 6.5",
+            "prob_modele": 0.4951,
+            "prob_marche": 0.5119,
+            "prob": 0.5069,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.973,
+            "min_odds": 2.03,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_total",
+            "selection": "Under 6.5",
+            "prob_modele": 0.5049,
+            "prob_marche": 0.4881,
+            "prob": 0.4931,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 2.028,
+            "min_odds": 2.09,
+            "statut": "en_attente"
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "game": {
+        "id": "d90c875a1c75ed65db6e3dc2f4a1afcc",
+        "home_team": "Seattle Kraken",
+        "away_team": "Calgary Flames",
+        "commence_time": "2026-10-05T00:10:00Z",
+        "bookmaker": "",
+        "markets": {
+          "player_props": []
+        },
+        "removed_props": [],
+        "no_allowed_odds": true,
+        "market_novig": {
+          "Seattle Kraken ML": 0.583,
+          "Calgary Flames ML": 0.417,
+          "Seattle Kraken -1.5": 0.3485,
+          "Calgary Flames +1.5": 0.6515,
+          "Over 5.5": 0.5211,
+          "Under 5.5": 0.4789
+        },
+        "goalies": {
+          "home": {
+            "name": "Joey Daccord",
+            "confirmed": false,
+            "status": "repli roster",
+            "mult_adverse": 1.0214,
+            "detail": "MoneyPuck 2025+2026: GSAx -4.6 en 46 h"
+          },
+          "away": {
+            "name": "Dustin Wolf",
+            "confirmed": false,
+            "status": "repli roster",
+            "mult_adverse": 1.0169,
+            "detail": "MoneyPuck 2025+2026: GSAx -4.1 en 53 h"
+          }
+        },
+        "statut": "en_attente",
+        "lambdas": {
+          "home": 3.825,
+          "away": 2.2077
+        },
+        "model_lines": [
+          {
+            "marche": "nhl_ml",
+            "selection": "Seattle Kraken ML",
+            "prob_modele": 0.7344,
+            "prob_marche": 0.583,
+            "prob": 0.6284,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.591,
             "min_odds": 1.7,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_ml",
-            "selection": "Philadelphia Flyers ML",
-            "prob_modele": 0.292,
-            "prob_marche": 0.3288,
-            "prob": 0.3178,
+            "selection": "Calgary Flames ML",
+            "prob_modele": 0.2656,
+            "prob_marche": 0.417,
+            "prob": 0.3716,
             "blend_source": "melange w=0.3",
-            "fair_odds": 3.147,
-            "min_odds": 3.24,
+            "fair_odds": 2.691,
+            "min_odds": 2.77,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_puck",
-            "selection": "Tampa Bay Lightning -1.5",
-            "prob_modele": 0.5234,
-            "prob_marche": 0.4436,
-            "prob": 0.4675,
+            "selection": "Seattle Kraken -1.5",
+            "prob_modele": 0.57,
+            "prob_marche": 0.3485,
+            "prob": 0.415,
             "blend_source": "melange w=0.3",
-            "fair_odds": 2.139,
-            "min_odds": 2.2,
+            "fair_odds": 2.41,
+            "min_odds": 2.48,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_puck",
-            "selection": "Philadelphia Flyers +1.5",
-            "prob_modele": 0.4766,
-            "prob_marche": 0.5564,
-            "prob": 0.5325,
+            "selection": "Calgary Flames +1.5",
+            "prob_modele": 0.43,
+            "prob_marche": 0.6515,
+            "prob": 0.585,
             "blend_source": "melange w=0.3",
-            "fair_odds": 1.878,
-            "min_odds": 1.93,
+            "fair_odds": 1.709,
+            "min_odds": 1.76,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_puck",
-            "selection": "Philadelphia Flyers -1.5",
-            "prob_modele": 0.1524,
+            "selection": "Calgary Flames -1.5",
+            "prob_modele": 0.1432,
             "prob_marche": null,
-            "prob": 0.1524,
+            "prob": 0.1432,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 6.56,
-            "min_odds": 6.76,
+            "fair_odds": 6.982,
+            "min_odds": 7.19,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_puck",
-            "selection": "Tampa Bay Lightning +1.5",
-            "prob_modele": 0.8476,
+            "selection": "Seattle Kraken +1.5",
+            "prob_modele": 0.8568,
             "prob_marche": null,
-            "prob": 0.8476,
+            "prob": 0.8568,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.18,
+            "fair_odds": 1.167,
             "min_odds": 1.25,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Over 5.5",
-            "prob_modele": 0.3756,
-            "prob_marche": 0.5385,
-            "prob": 0.4896,
+            "prob_modele": 0.5224,
+            "prob_marche": 0.5211,
+            "prob": 0.5215,
             "blend_source": "melange w=0.3",
-            "fair_odds": 2.042,
-            "min_odds": 2.1,
+            "fair_odds": 1.918,
+            "min_odds": 1.98,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Under 5.5",
-            "prob_modele": 0.6244,
-            "prob_marche": 0.4615,
-            "prob": 0.5104,
+            "prob_modele": 0.4776,
+            "prob_marche": 0.4789,
+            "prob": 0.4785,
             "blend_source": "melange w=0.3",
-            "fair_odds": 1.959,
-            "min_odds": 2.02,
+            "fair_odds": 2.09,
+            "min_odds": 2.15,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Over 6.5",
-            "prob_modele": 0.2679,
+            "prob_modele": 0.4053,
             "prob_marche": null,
-            "prob": 0.2679,
+            "prob": 0.4053,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 3.733,
-            "min_odds": 3.85,
+            "fair_odds": 2.467,
+            "min_odds": 2.54,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Under 6.5",
-            "prob_modele": 0.7321,
+            "prob_modele": 0.5947,
             "prob_marche": null,
-            "prob": 0.7321,
+            "prob": 0.5947,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.366,
-            "min_odds": 1.41,
+            "fair_odds": 1.682,
+            "min_odds": 1.73,
             "statut": "en_attente"
           }
-        ],
-        "verdict": {
-          "decision": "attente",
-          "titre": "Provisoire (gardien non confirmé: Andrei Vasilevskiy) — Passer, sauf si bet365 offre ≥ 2.26 sur Tampa Bay Lightning -1.5 (prix normal ≈ 2.16)",
-          "selection": "Tampa Bay Lightning -1.5",
-          "marche": "nhl_puck",
-          "exiger": 2.26,
-          "attendu": 2.16,
-          "prob": 0.4556,
-          "raisons": [
-            "Tampa Bay Lightning -1.5 (puck line): modèle 52 % vs marché 44 % (écart +8 pts) → retenu 45.6 %",
-            "Début de saison: forces d'équipe de l'an passé (au backtest, moins bonnes qu'un simple taux domicile) — poids du modèle réduit",
-            "Gardiens: Dan Vladar (MoneyPuck 2025+2026: GSAx +11.0 en 51 h) · Andrei Vasilevskiy (MoneyPuck 2025+2026: GSAx +24.8 en 59 h)"
-          ]
-        }
+        ]
       },
       "edges": []
     },
     {
       "game": {
-        "id": "65b60049b3c77a94c346f74d8b897e4b",
-        "home_team": "Boston Bruins",
-        "away_team": "Ottawa Senators",
-        "commence_time": "2026-10-05T23:40:00Z",
+        "id": "8f3354586afd82f29d465e8634c3d905",
+        "home_team": "Vancouver Canucks",
+        "away_team": "Vegas Golden Knights",
+        "commence_time": "2026-10-05T01:10:00Z",
         "bookmaker": "",
         "markets": {
           "player_props": []
@@ -188,471 +642,144 @@
         "removed_props": [],
         "no_allowed_odds": true,
         "market_novig": {
-          "Boston Bruins ML": 0.4803,
-          "Ottawa Senators ML": 0.5197,
-          "Ottawa Senators -1.5": 0.2915,
-          "Boston Bruins +1.5": 0.7085,
-          "Over 5.5": 0.5093,
-          "Under 5.5": 0.4907
+          "Vancouver Canucks ML": 0.2996,
+          "Vegas Golden Knights ML": 0.7004,
+          "Vegas Golden Knights -1.5": 0.4748,
+          "Vancouver Canucks +1.5": 0.5252
         },
         "goalies": {
           "home": {
-            "name": "Jeremy Swayman",
-            "confirmed": true,
-            "status": "Confirmed",
-            "mult_adverse": 0.8737,
-            "detail": "MoneyPuck 2025+2026: GSAx +31.3 en 56 h"
+            "name": "Kevin Lankinen",
+            "confirmed": false,
+            "status": "repli roster",
+            "mult_adverse": 1.1238,
+            "detail": "MoneyPuck 2025+2026: GSAx -26.4 en 45 h"
           },
           "away": {
-            "name": "Linus Ullmark",
-            "confirmed": true,
-            "status": "Confirmed",
-            "mult_adverse": 1.0514,
-            "detail": "MoneyPuck 2025+2026: GSAx -11.7 en 49 h"
+            "name": "Carter Hart",
+            "confirmed": false,
+            "status": "repli roster",
+            "mult_adverse": 1.041,
+            "detail": "MoneyPuck 2025+2026: GSAx -5.5 en 19 h"
           }
         },
-        "statut": "pret",
+        "statut": "en_attente",
         "lambdas": {
-          "home": 3.5537,
-          "away": 1.9184
+          "home": 3.2693,
+          "away": 3.9919
         },
         "model_lines": [
           {
             "marche": "nhl_ml",
-            "selection": "Boston Bruins ML",
-            "prob_modele": 0.7467,
-            "prob_marche": 0.4803,
-            "prob": 0.5602,
+            "selection": "Vancouver Canucks ML",
+            "prob_modele": 0.4028,
+            "prob_marche": 0.2996,
+            "prob": 0.3306,
             "blend_source": "melange w=0.3",
-            "fair_odds": 1.785,
-            "min_odds": 1.84
+            "fair_odds": 3.025,
+            "min_odds": 3.12,
+            "statut": "en_attente"
           },
           {
             "marche": "nhl_ml",
-            "selection": "Ottawa Senators ML",
-            "prob_modele": 0.2533,
-            "prob_marche": 0.5197,
-            "prob": 0.4398,
+            "selection": "Vegas Golden Knights ML",
+            "prob_modele": 0.5972,
+            "prob_marche": 0.7004,
+            "prob": 0.6694,
             "blend_source": "melange w=0.3",
-            "fair_odds": 2.274,
-            "min_odds": 2.34
+            "fair_odds": 1.494,
+            "min_odds": 1.7,
+            "statut": "en_attente"
           },
           {
             "marche": "nhl_puck",
-            "selection": "Boston Bruins -1.5",
-            "prob_modele": 0.5755,
+            "selection": "Vancouver Canucks -1.5",
+            "prob_modele": 0.2574,
             "prob_marche": null,
-            "prob": 0.5755,
+            "prob": 0.2574,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.738,
-            "min_odds": 1.79
+            "fair_odds": 3.885,
+            "min_odds": 4.0,
+            "statut": "en_attente"
           },
           {
             "marche": "nhl_puck",
-            "selection": "Ottawa Senators +1.5",
-            "prob_modele": 0.4245,
+            "selection": "Vegas Golden Knights +1.5",
+            "prob_modele": 0.7426,
             "prob_marche": null,
-            "prob": 0.4245,
+            "prob": 0.7426,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 2.356,
-            "min_odds": 2.43
+            "fair_odds": 1.347,
+            "min_odds": 1.39,
+            "statut": "en_attente"
           },
           {
             "marche": "nhl_puck",
-            "selection": "Ottawa Senators -1.5",
-            "prob_modele": 0.1295,
-            "prob_marche": 0.2915,
-            "prob": 0.2429,
+            "selection": "Vegas Golden Knights -1.5",
+            "prob_modele": 0.4413,
+            "prob_marche": 0.4748,
+            "prob": 0.4648,
             "blend_source": "melange w=0.3",
-            "fair_odds": 4.117,
-            "min_odds": 4.24
+            "fair_odds": 2.152,
+            "min_odds": 2.22,
+            "statut": "en_attente"
           },
           {
             "marche": "nhl_puck",
-            "selection": "Boston Bruins +1.5",
-            "prob_modele": 0.8705,
-            "prob_marche": 0.7085,
-            "prob": 0.7571,
+            "selection": "Vancouver Canucks +1.5",
+            "prob_modele": 0.5587,
+            "prob_marche": 0.5252,
+            "prob": 0.5352,
             "blend_source": "melange w=0.3",
-            "fair_odds": 1.321,
-            "min_odds": 1.36
+            "fair_odds": 1.868,
+            "min_odds": 1.92,
+            "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Over 5.5",
-            "prob_modele": 0.4333,
-            "prob_marche": 0.5093,
-            "prob": 0.4865,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.055,
-            "min_odds": 2.12
+            "prob_modele": 0.6951,
+            "prob_marche": null,
+            "prob": 0.6951,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 1.439,
+            "min_odds": 1.48,
+            "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Under 5.5",
-            "prob_modele": 0.5667,
-            "prob_marche": 0.4907,
-            "prob": 0.5135,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.947,
-            "min_odds": 2.01
+            "prob_modele": 0.3049,
+            "prob_marche": null,
+            "prob": 0.3049,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 3.28,
+            "min_odds": 3.38,
+            "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Over 6.5",
-            "prob_modele": 0.3183,
+            "prob_modele": 0.5945,
             "prob_marche": null,
-            "prob": 0.3183,
+            "prob": 0.5945,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 3.142,
-            "min_odds": 3.24
+            "fair_odds": 1.682,
+            "min_odds": 1.73,
+            "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Under 6.5",
-            "prob_modele": 0.6817,
+            "prob_modele": 0.4055,
             "prob_marche": null,
-            "prob": 0.6817,
+            "prob": 0.4055,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.467,
-            "min_odds": 1.51
+            "fair_odds": 2.466,
+            "min_odds": 2.54,
+            "statut": "en_attente"
           }
-        ],
-        "verdict": {
-          "decision": "passer",
-          "titre": "Passer, sauf si bet365 offre ≥ 2.06 sur Boston Bruins ML (prix normal ≈ 1.99)",
-          "selection": "Boston Bruins ML",
-          "marche": "nhl_ml",
-          "exiger": 2.06,
-          "attendu": 1.99,
-          "prob": 0.5003,
-          "raisons": [
-            "Boston Bruins ML (ML): modèle 75 % vs marché 48 % (écart +27 pts) → retenu 50.0 %",
-            "Écart de 27 pts: le marché a probablement une info que le modèle n'a pas — poids du modèle réduit",
-            "Début de saison: forces d'équipe de l'an passé (au backtest, moins bonnes qu'un simple taux domicile) — poids du modèle réduit",
-            "Gardiens: Linus Ullmark (MoneyPuck 2025+2026: GSAx -11.7 en 49 h) · Jeremy Swayman (MoneyPuck 2025+2026: GSAx +31.3 en 56 h)"
-          ]
-        }
-      },
-      "edges": []
-    },
-    {
-      "game": {
-        "id": "3da179dc46d7f7a5f06637fcd97ce367",
-        "home_team": "Pittsburgh Penguins",
-        "away_team": "Winnipeg Jets",
-        "commence_time": "2026-10-05T23:40:00Z",
-        "bookmaker": "",
-        "markets": {
-          "player_props": []
-        },
-        "removed_props": [],
-        "no_allowed_odds": true,
-        "market_novig": {
-          "Pittsburgh Penguins ML": 0.6247,
-          "Winnipeg Jets ML": 0.3753,
-          "Pittsburgh Penguins -1.5": 0.398,
-          "Winnipeg Jets +1.5": 0.602,
-          "Over 6.5": 0.4894,
-          "Under 6.5": 0.5106
-        },
-        "goalies": {
-          "home": {
-            "name": "Sergei Murashov",
-            "confirmed": true,
-            "status": "Confirmed",
-            "mult_adverse": 1.0388,
-            "detail": "MoneyPuck 2025: GSAx -3.5 en 5 h"
-          },
-          "away": {
-            "name": "Clay Stevenson",
-            "confirmed": true,
-            "status": "Confirmed",
-            "mult_adverse": 0.9791,
-            "detail": "MoneyPuck 2024+2025: GSAx +1.9 en 5 h"
-          }
-        },
-        "statut": "pret",
-        "lambdas": {
-          "home": 3.6108,
-          "away": 2.7385
-        },
-        "model_lines": [
-          {
-            "marche": "nhl_ml",
-            "selection": "Pittsburgh Penguins ML",
-            "prob_modele": 0.6294,
-            "prob_marche": 0.6247,
-            "prob": 0.6261,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.597,
-            "min_odds": 1.7
-          },
-          {
-            "marche": "nhl_ml",
-            "selection": "Winnipeg Jets ML",
-            "prob_modele": 0.3706,
-            "prob_marche": 0.3753,
-            "prob": 0.3739,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.675,
-            "min_odds": 2.75
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Pittsburgh Penguins -1.5",
-            "prob_modele": 0.4588,
-            "prob_marche": 0.398,
-            "prob": 0.4162,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.403,
-            "min_odds": 2.47
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Winnipeg Jets +1.5",
-            "prob_modele": 0.5412,
-            "prob_marche": 0.602,
-            "prob": 0.5838,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.713,
-            "min_odds": 1.76
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Winnipeg Jets -1.5",
-            "prob_modele": 0.2257,
-            "prob_marche": null,
-            "prob": 0.2257,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 4.431,
-            "min_odds": 4.56
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Pittsburgh Penguins +1.5",
-            "prob_modele": 0.7743,
-            "prob_marche": null,
-            "prob": 0.7743,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.291,
-            "min_odds": 1.33
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Over 5.5",
-            "prob_modele": 0.5744,
-            "prob_marche": null,
-            "prob": 0.5744,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.741,
-            "min_odds": 1.79
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Under 5.5",
-            "prob_modele": 0.4256,
-            "prob_marche": null,
-            "prob": 0.4256,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 2.35,
-            "min_odds": 2.42
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Over 6.5",
-            "prob_modele": 0.4633,
-            "prob_marche": 0.4894,
-            "prob": 0.4816,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.077,
-            "min_odds": 2.14
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Under 6.5",
-            "prob_modele": 0.5367,
-            "prob_marche": 0.5106,
-            "prob": 0.5184,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.929,
-            "min_odds": 1.99
-          }
-        ],
-        "verdict": {
-          "decision": "passer",
-          "titre": "Passer, sauf si bet365 offre ≥ 2.53 sur Pittsburgh Penguins -1.5 (prix normal ≈ 2.40)",
-          "selection": "Pittsburgh Penguins -1.5",
-          "marche": "nhl_puck",
-          "exiger": 2.53,
-          "attendu": 2.4,
-          "prob": 0.4071,
-          "raisons": [
-            "Pittsburgh Penguins -1.5 (puck line): modèle 46 % vs marché 40 % (écart +6 pts) → retenu 40.7 %",
-            "Début de saison: forces d'équipe de l'an passé (au backtest, moins bonnes qu'un simple taux domicile) — poids du modèle réduit",
-            "Gardiens: Clay Stevenson (MoneyPuck 2024+2025: GSAx +1.9 en 5 h) · Sergei Murashov (MoneyPuck 2025: GSAx -3.5 en 5 h)"
-          ]
-        }
-      },
-      "edges": []
-    },
-    {
-      "game": {
-        "id": "db6ecbc6d2657c39084510cf3e94f510",
-        "home_team": "Dallas Stars",
-        "away_team": "San Jose Sharks",
-        "commence_time": "2026-10-06T00:10:00Z",
-        "bookmaker": "",
-        "markets": {
-          "player_props": []
-        },
-        "removed_props": [],
-        "no_allowed_odds": true,
-        "market_novig": {
-          "Dallas Stars ML": 0.6486,
-          "San Jose Sharks ML": 0.3514,
-          "Dallas Stars -1.5": 0.4088,
-          "San Jose Sharks +1.5": 0.5912,
-          "Over 6.5": 0.4801,
-          "Under 6.5": 0.5199
-        },
-        "goalies": {
-          "home": {
-            "name": "Jake Oettinger",
-            "confirmed": true,
-            "status": "Confirmed",
-            "mult_adverse": 0.9747,
-            "detail": "MoneyPuck 2025+2026: GSAx +6.1 en 54 h"
-          },
-          "away": {
-            "name": "Yaroslav Askarov",
-            "confirmed": true,
-            "status": "Confirmed",
-            "mult_adverse": 1.0839,
-            "detail": "MoneyPuck 2025+2026: GSAx -18.0 en 45 h"
-          }
-        },
-        "statut": "pret",
-        "lambdas": {
-          "home": 2.6816,
-          "away": 2.3695
-        },
-        "model_lines": [
-          {
-            "marche": "nhl_ml",
-            "selection": "Dallas Stars ML",
-            "prob_modele": 0.554,
-            "prob_marche": 0.6486,
-            "prob": 0.6202,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.612,
-            "min_odds": 1.7
-          },
-          {
-            "marche": "nhl_ml",
-            "selection": "San Jose Sharks ML",
-            "prob_modele": 0.446,
-            "prob_marche": 0.3514,
-            "prob": 0.3798,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.633,
-            "min_odds": 2.71
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Dallas Stars -1.5",
-            "prob_modele": 0.3632,
-            "prob_marche": 0.4088,
-            "prob": 0.3951,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.531,
-            "min_odds": 2.61
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "San Jose Sharks +1.5",
-            "prob_modele": 0.6368,
-            "prob_marche": 0.5912,
-            "prob": 0.6049,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.653,
-            "min_odds": 1.7
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "San Jose Sharks -1.5",
-            "prob_modele": 0.2713,
-            "prob_marche": null,
-            "prob": 0.2713,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 3.686,
-            "min_odds": 3.8
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Dallas Stars +1.5",
-            "prob_modele": 0.7287,
-            "prob_marche": null,
-            "prob": 0.7287,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.372,
-            "min_odds": 1.41
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Over 5.5",
-            "prob_modele": 0.3743,
-            "prob_marche": null,
-            "prob": 0.3743,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 2.671,
-            "min_odds": 2.75
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Under 5.5",
-            "prob_modele": 0.6257,
-            "prob_marche": null,
-            "prob": 0.6257,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.598,
-            "min_odds": 1.65
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Over 6.5",
-            "prob_modele": 0.2718,
-            "prob_marche": 0.4801,
-            "prob": 0.4176,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.395,
-            "min_odds": 2.47
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Under 6.5",
-            "prob_modele": 0.7282,
-            "prob_marche": 0.5199,
-            "prob": 0.5824,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.717,
-            "min_odds": 1.77
-          }
-        ],
-        "verdict": {
-          "decision": "passer",
-          "titre": "Passer, sauf si bet365 offre ≥ 2.82 sur San Jose Sharks ML (prix normal ≈ 2.72)",
-          "selection": "San Jose Sharks ML",
-          "marche": "nhl_ml",
-          "exiger": 2.82,
-          "attendu": 2.72,
-          "prob": 0.3656,
-          "raisons": [
-            "San Jose Sharks ML (ML): modèle 45 % vs marché 35 % (écart +9 pts) → retenu 36.6 %",
-            "Début de saison: forces d'équipe de l'an passé (au backtest, moins bonnes qu'un simple taux domicile) — poids du modèle réduit",
-            "Gardiens: Yaroslav Askarov (MoneyPuck 2025+2026: GSAx -18.0 en 45 h) · Jake Oettinger (MoneyPuck 2025+2026: GSAx +6.1 en 54 h)"
-          ]
-        }
+        ]
       },
       "edges": []
     }
@@ -660,369 +787,252 @@
   "value_bets": [],
   "props_analysis": [],
   "nba_analysis": [],
-  "mlb_analysis": [],
-  "mlb_ml_analysis": [
+  "mlb_analysis": [
     {
-      "game_pk": 849834,
-      "event_id": "ccd487a87bb73145e3f12dd3a765ad47",
-      "home_team": "Cleveland Guardians",
-      "away_team": "Chicago White Sox",
-      "venue": "Progressive Field",
-      "park_factor": 1.0,
-      "commence": "2026-10-05T21:00:00Z",
-      "starters": {
-        "home": {
-          "nom": "Gavin Williams",
-          "main": "R",
-          "fip": 3.593,
-          "fip_eff": 3.122,
-          "k_bb_pct": 0.2296,
-          "whip": 1.11,
-          "ip_par_depart": 5.7,
-          "forme": {
-            "games": 5,
-            "fip": 2.022,
-            "k_bb_pct": 0.2807,
-            "ip_per_gs": 5.67
-          }
-        },
-        "away": {
-          "nom": "Anthony Kay",
-          "main": "L",
-          "fip": 4.565,
-          "fip_eff": 4.509,
-          "k_bb_pct": 0.1153,
-          "whip": 1.37,
-          "ip_par_depart": 4.91,
-          "forme": {
-            "games": 5,
-            "fip": 4.379,
-            "k_bb_pct": 0.0909,
-            "ip_per_gs": 4.27
-          }
-        }
-      },
-      "runs_attendus": {
-        "home": 5.101,
-        "away": 4.07
-      },
-      "run_diff": 1.031,
-      "bullpens": {
-        "home": {
-          "fip": 3.696,
-          "fip_fatigue": 3.946,
-          "usage": {
-            "days": 3,
-            "games": 1,
-            "rel_ip": 4.7,
-            "rel_ip_per_g": 4.67,
-            "rel_pitches": 62,
-            "arms_used": 5,
-            "by_pitcher": {
-              "Daniel Espino": [
-                "2026-10-03"
-              ],
-              "Erik Sabrowski": [
-                "2026-10-03"
-              ],
-              "Hunter Gaddis": [
-                "2026-10-03"
-              ],
-              "Tim Herrin": [
-                "2026-10-03"
-              ],
-              "Cade Smith": [
-                "2026-10-03"
-              ]
-            },
-            "closer": "Cade Smith",
-            "closer_days_used": 1,
-            "closer_used_b2b": false
-          }
-        },
-        "away": {
-          "fip": 4.094,
-          "fip_fatigue": 4.544,
-          "usage": {
-            "days": 3,
-            "games": 1,
-            "rel_ip": 6.3,
-            "rel_ip_per_g": 6.33,
-            "rel_pitches": 87,
-            "arms_used": 4,
-            "by_pitcher": {
-              "Bryan Hudson": [
-                "2026-10-03"
-              ],
-              "Jordan Hicks": [
-                "2026-10-03"
-              ],
-              "Anthony Kay": [
-                "2026-10-03"
-              ],
-              "Grant Taylor": [
-                "2026-10-03"
-              ]
-            },
-            "closer": "Grant Taylor",
-            "closer_days_used": 1,
-            "closer_used_b2b": false
-          }
-        }
-      },
-      "offense": {
-        "home": {
-          "vs_hand": "L",
-          "ops": 0.675,
-          "slg": 0.361,
-          "avg": 0.23,
-          "obp": 0.314,
-          "iso": 0.131,
-          "k_pct": 0.2125,
-          "bb_pct": 0.0991,
-          "hr": 46,
-          "pa": 1948,
-          "ops_index": 0.9486
-        },
-        "away": {
-          "vs_hand": "R",
-          "ops": 0.716,
-          "slg": 0.399,
-          "avg": 0.235,
-          "obp": 0.317,
-          "iso": 0.164,
-          "k_pct": 0.2406,
-          "bb_pct": 0.0936,
-          "hr": 143,
-          "pa": 4369,
-          "ops_index": 0.9911
-        }
-      },
-      "prob_modele": {
-        "home_ml": 0.5958,
-        "away_ml": 0.4042,
-        "home_rl": 0.4456,
-        "away_rl": 0.2666
-      },
-      "facteurs": {
-        "home": {
-          "facteurs": [
-            {
-              "nom": "Lanceur partant",
-              "pour": true,
-              "ampleur": 1.39,
-              "detail": "FIP 3.12 vs 4.51"
-            },
-            {
-              "nom": "K-BB% partant",
-              "pour": true,
-              "ampleur": 11.4,
-              "detail": "23.0% vs 11.5%"
-            },
-            {
-              "nom": "Offense vs la main",
-              "pour": false,
-              "ampleur": 4.2,
-              "detail": "OPS idx 0.949 vs 0.991"
-            },
-            {
-              "nom": "Puissance (ISO)",
-              "pour": false,
-              "ampleur": 0.033,
-              "detail": "ISO 0.131 vs 0.164"
-            },
-            {
-              "nom": "Bullpen",
-              "pour": true,
-              "ampleur": 0.6,
-              "detail": "FIP 3.95 vs 4.54"
-            }
-          ],
-          "pour": 3,
-          "contre": 2,
-          "net": 1
-        },
-        "away": {
-          "facteurs": [
-            {
-              "nom": "Lanceur partant",
-              "pour": false,
-              "ampleur": 1.39,
-              "detail": "FIP 4.51 vs 3.12"
-            },
-            {
-              "nom": "K-BB% partant",
-              "pour": false,
-              "ampleur": 11.4,
-              "detail": "11.5% vs 23.0%"
-            },
-            {
-              "nom": "Offense vs la main",
-              "pour": true,
-              "ampleur": 4.2,
-              "detail": "OPS idx 0.991 vs 0.949"
-            },
-            {
-              "nom": "Puissance (ISO)",
-              "pour": true,
-              "ampleur": 0.033,
-              "detail": "ISO 0.164 vs 0.131"
-            },
-            {
-              "nom": "Bullpen",
-              "pour": false,
-              "ampleur": 0.6,
-              "detail": "FIP 4.54 vs 3.95"
-            }
-          ],
-          "pour": 2,
-          "contre": 3,
-          "net": -1
-        }
-      },
+      "event_id": "6da40e91a31110e51e84ba5671996deb",
+      "home_team": "Milwaukee Brewers",
+      "away_team": "San Diego Padres",
       "bets": [
         {
-          "marche": "run_line_-1.5",
-          "equipe": "Cleveland Guardians",
-          "probabilite": 39.7,
-          "prob_modele": 44.6,
-          "prob_marche": 37.7,
-          "cote": 2.54,
-          "valeur_pct": 0.9,
-          "cote_equitable": 2.52,
-          "facteurs_nets": 1,
-          "run_diff": 1.031,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "valeur +0.9% sous le seuil 5.0% du -1.5"
-        },
-        {
-          "marche": "moneyline",
-          "equipe": "Chicago White Sox",
-          "probabilite": 41.4,
-          "prob_modele": 40.4,
-          "cote": 2.39,
-          "valeur_pct": -1.1,
-          "cote_equitable": 2.42,
-          "facteurs_nets": -1,
-          "no_brainer": false,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "prix trop court: 41% à 2.39 = -1.1%"
-        },
-        {
-          "marche": "moneyline",
-          "equipe": "Cleveland Guardians",
-          "probabilite": 58.6,
-          "prob_modele": 59.6,
-          "cote": 1.68,
-          "valeur_pct": -1.5,
-          "cote_equitable": 1.71,
-          "facteurs_nets": 1,
-          "no_brainer": false,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "prix trop court: 59% à 1.68 = -1.5%"
+          "player": "Michael King",
+          "team": "San Diego Padres",
+          "opponent": "Milwaukee Brewers",
+          "player_type": "pitcher",
+          "statut": "informatif",
+          "a_miser_possible": false,
+          "our_prob_raw": 50.0,
+          "our_prob_cal": null,
+          "n_cal": 48,
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.27,
+          "adj_proj": 4.7,
+          "adj_proj_raw": 5.31,
+          "adj_mult": 0.8923,
+          "adj_mult_raw": 1.0077,
+          "opp_k_rate": 22.3,
+          "opp_k_source": "saison vs RHP",
+          "league_k_rate": 22.1,
+          "ip_mean": 5.911,
+          "k_rate_per_ip": 0.7951,
+          "k_std": 2.2557,
+          "k_model": "binomiale negative (r=56.92) · manches empirique 15 departs",
+          "park_factor": 0.96,
+          "our_prob": 50.0,
+          "edge_pct": 0,
+          "kelly": 0,
+          "min_odds": 2.0,
+          "est_odds": 0,
+          "dk_implied": 0,
+          "dk_implied_basis": "",
+          "dk_book": "",
+          "k_curve": [
+            {
+              "line": 2.5,
+              "k_exact": 3,
+              "prob": 83.7,
+              "prob_raw": 83.7,
+              "prob_cal": null,
+              "calibrated": false,
+              "n_cal": 48,
+              "prob_final": 83.7,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 3.5,
+              "k_exact": 4,
+              "prob": 68.0,
+              "prob_raw": 68.0,
+              "prob_cal": null,
+              "calibrated": false,
+              "n_cal": 48,
+              "prob_final": 68.0,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 4.5,
+              "k_exact": 5,
+              "prob": 50.0,
+              "prob_raw": 50.0,
+              "prob_cal": null,
+              "calibrated": false,
+              "n_cal": 48,
+              "prob_final": 50.0,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 5.5,
+              "k_exact": 6,
+              "prob": 33.4,
+              "prob_raw": 33.4,
+              "prob_cal": null,
+              "calibrated": false,
+              "n_cal": 48,
+              "prob_final": 33.4,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 6.5,
+              "k_exact": 7,
+              "prob": 20.2,
+              "prob_raw": 20.2,
+              "prob_cal": null,
+              "calibrated": false,
+              "n_cal": 48,
+              "prob_final": 20.2,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 7.5,
+              "k_exact": 8,
+              "prob": 11.2,
+              "prob_raw": 11.2,
+              "prob_cal": null,
+              "calibrated": false,
+              "n_cal": 48,
+              "prob_final": 11.2,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 8.5,
+              "k_exact": 9,
+              "prob": 5.7,
+              "prob_raw": 5.7,
+              "prob_cal": null,
+              "calibrated": false,
+              "n_cal": 48,
+              "prob_final": 5.7,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 9.5,
+              "k_exact": 10,
+              "prob": 2.7,
+              "prob_raw": 2.7,
+              "prob_cal": null,
+              "calibrated": false,
+              "n_cal": 48,
+              "prob_final": 2.7,
+              "blend_source": "modele seul (pas de marche)"
+            }
+          ],
+          "odds_rungs": 0,
+          "context": [
+            "Rolling 5dep: 5.4K · Saison: 4.97K · Blend: 5.27K",
+            "Ajustement régressé x0.892 → 4.7K (brut x1.008 → 5.31K)",
+            "Manches: 5.911 IP moy (binomiale negative (r=56.92) · manches empirique 15 departs) · 0.80 K/manche · σK 2.26 (Poisson simple: 2.17)",
+            "Terrain: Favorable lanceurs (PF 0.96)"
+          ]
         }
       ],
-      "prob_marche": {
-        "home_ml": 0.5823,
-        "away_ml": 0.4177,
-        "source": "mediane no-vig (11 books)"
-      },
-      "prob_finale": {
-        "home_ml": 0.5864,
-        "away_ml": 0.4136
-      }
-    },
+      "commence_time": "2026-10-04T20:00:00Z"
+    }
+  ],
+  "mlb_ml_analysis": [
     {
-      "game_pk": 849839,
-      "event_id": "4be245ad03895bcafcdc42d7d926b675",
-      "home_team": "Tampa Bay Rays",
-      "away_team": "New York Yankees",
-      "venue": "Tropicana Field",
-      "park_factor": 1.0,
-      "commence": "2026-10-06T00:00:00Z",
+      "game_pk": 849825,
+      "event_id": "6da40e91a31110e51e84ba5671996deb",
+      "home_team": "Milwaukee Brewers",
+      "away_team": "San Diego Padres",
+      "venue": "American Family Field",
+      "park_factor": 0.99,
+      "commence": "2026-10-04T20:00:00Z",
       "starters": {
         "home": {
-          "nom": "Freddy Peralta",
+          "nom": "Logan Henderson",
           "main": "R",
-          "fip": 4.256,
-          "fip_eff": 3.875,
-          "k_bb_pct": 0.1284,
-          "whip": 1.33,
-          "ip_par_depart": 5.27,
+          "fip": 3.564,
+          "fip_eff": 3.474,
+          "k_bb_pct": 0.2127,
+          "whip": 0.84,
+          "ip_par_depart": 5.42,
           "forme": {
             "games": 5,
-            "fip": 2.986,
-            "k_bb_pct": 0.1284,
-            "ip_per_gs": 5.6
+            "fip": 3.265,
+            "k_bb_pct": 0.243,
+            "ip_per_gs": 5.8
           }
         },
         "away": {
-          "nom": "Cam Schlittler",
+          "nom": "Michael King",
           "main": "R",
-          "fip": 2.827,
-          "fip_eff": 2.617,
-          "k_bb_pct": 0.2296,
-          "whip": 0.92,
-          "ip_par_depart": 5.8,
+          "fip": 4.138,
+          "fip_eff": 4.0,
+          "k_bb_pct": 0.1202,
+          "whip": 1.18,
+          "ip_par_depart": 5.72,
           "forme": {
             "games": 5,
-            "fip": 2.126,
-            "k_bb_pct": 0.2818,
-            "ip_per_gs": 6.0
+            "fip": 3.679,
+            "k_bb_pct": 0.1157,
+            "ip_per_gs": 5.8
           }
         }
       },
       "runs_attendus": {
-        "home": 4.14,
-        "away": 4.71
+        "home": 5.263,
+        "away": 4.458
       },
-      "run_diff": -0.57,
+      "run_diff": 0.805,
       "bullpens": {
         "home": {
-          "fip": 4.348,
-          "fip_fatigue": 4.348,
+          "fip": 3.695,
+          "fip_fatigue": 4.145,
           "usage": {
             "days": 3,
             "games": 1,
-            "rel_ip": 1.0,
-            "rel_ip_per_g": 1.0,
-            "rel_pitches": 14,
-            "arms_used": 1,
+            "rel_ip": 5.0,
+            "rel_ip_per_g": 5.0,
+            "rel_pitches": 87,
+            "arms_used": 5,
             "by_pitcher": {
-              "Bryan Baker": [
+              "Antonio Senzatela": [
+                "2026-10-03"
+              ],
+              "Aaron Ashby": [
+                "2026-10-03"
+              ],
+              "Abner Uribe": [
+                "2026-10-03"
+              ],
+              "DL Hall": [
+                "2026-10-03"
+              ],
+              "Trevor Megill": [
                 "2026-10-03"
               ]
             },
-            "closer": "Bryan Baker",
+            "closer": "Trevor Megill",
             "closer_days_used": 1,
             "closer_used_b2b": false
           }
         },
         "away": {
-          "fip": 3.912,
-          "fip_fatigue": 3.912,
+          "fip": 3.629,
+          "fip_fatigue": 4.079,
           "usage": {
             "days": 3,
             "games": 1,
-            "rel_ip": 3.0,
-            "rel_ip_per_g": 3.0,
-            "rel_pitches": 46,
-            "arms_used": 3,
+            "rel_ip": 5.3,
+            "rel_ip_per_g": 5.33,
+            "rel_pitches": 81,
+            "arms_used": 4,
             "by_pitcher": {
-              "Ryan Weathers": [
+              "Bradgley Rodriguez": [
                 "2026-10-03"
               ],
-              "Paul Blackburn": [
+              "Yuki Matsui": [
                 "2026-10-03"
               ],
-              "Brent Headrick": [
+              "Jason Adam": [
+                "2026-10-03"
+              ],
+              "Adrian Morejon": [
                 "2026-10-03"
               ]
             },
-            "closer": "David Bednar",
+            "closer": "Mason Miller",
             "closer_days_used": 0,
             "closer_used_b2b": false
           }
@@ -1031,166 +1041,142 @@
       "offense": {
         "home": {
           "vs_hand": "R",
-          "ops": 0.752,
-          "slg": 0.42,
-          "avg": 0.263,
-          "obp": 0.332,
-          "iso": 0.157,
-          "k_pct": 0.1909,
-          "bb_pct": 0.0866,
-          "hr": 133,
-          "pa": 4134,
-          "ops_index": 1.041
+          "ops": 0.759,
+          "slg": 0.413,
+          "avg": 0.264,
+          "obp": 0.346,
+          "iso": 0.149,
+          "k_pct": 0.2231,
+          "bb_pct": 0.1079,
+          "hr": 114,
+          "pa": 4374,
+          "ops_index": 1.0507
         },
         "away": {
           "vs_hand": "R",
-          "ops": 0.714,
-          "slg": 0.405,
-          "avg": 0.229,
-          "obp": 0.309,
-          "iso": 0.176,
-          "k_pct": 0.2484,
-          "bb_pct": 0.0984,
-          "hr": 157,
-          "pa": 4034,
-          "ops_index": 0.9884
+          "ops": 0.722,
+          "slg": 0.401,
+          "avg": 0.243,
+          "obp": 0.321,
+          "iso": 0.158,
+          "k_pct": 0.2154,
+          "bb_pct": 0.0944,
+          "hr": 144,
+          "pa": 4544,
+          "ops_index": 0.9994
         }
       },
       "prob_modele": {
-        "home_ml": 0.4457,
-        "away_ml": 0.5543,
-        "home_rl": 0.3,
-        "away_rl": 0.4009
+        "home_ml": 0.5728,
+        "away_ml": 0.4272,
+        "home_rl": 0.4276,
+        "away_rl": 0.291
       },
       "facteurs": {
         "home": {
           "facteurs": [
             {
               "nom": "Lanceur partant",
-              "pour": false,
-              "ampleur": 1.26,
-              "detail": "FIP 3.88 vs 2.62"
+              "pour": true,
+              "ampleur": 0.53,
+              "detail": "FIP 3.47 vs 4.00"
             },
             {
               "nom": "K-BB% partant",
-              "pour": false,
-              "ampleur": 10.1,
-              "detail": "12.8% vs 23.0%"
+              "pour": true,
+              "ampleur": 9.2,
+              "detail": "21.3% vs 12.0%"
             },
             {
               "nom": "Offense vs la main",
               "pour": true,
-              "ampleur": 5.3,
-              "detail": "OPS idx 1.041 vs 0.988"
-            },
-            {
-              "nom": "Puissance (ISO)",
-              "pour": false,
-              "ampleur": 0.019,
-              "detail": "ISO 0.157 vs 0.176"
-            },
-            {
-              "nom": "Bullpen",
-              "pour": false,
-              "ampleur": 0.44,
-              "detail": "FIP 4.35 vs 3.91"
+              "ampleur": 5.1,
+              "detail": "OPS idx 1.051 vs 0.999"
             }
           ],
-          "pour": 1,
-          "contre": 4,
-          "net": -3
+          "pour": 3,
+          "contre": 0,
+          "net": 3
         },
         "away": {
           "facteurs": [
             {
               "nom": "Lanceur partant",
-              "pour": true,
-              "ampleur": 1.26,
-              "detail": "FIP 2.62 vs 3.88"
+              "pour": false,
+              "ampleur": 0.53,
+              "detail": "FIP 4.00 vs 3.47"
             },
             {
               "nom": "K-BB% partant",
-              "pour": true,
-              "ampleur": 10.1,
-              "detail": "23.0% vs 12.8%"
+              "pour": false,
+              "ampleur": 9.2,
+              "detail": "12.0% vs 21.3%"
             },
             {
               "nom": "Offense vs la main",
               "pour": false,
-              "ampleur": 5.3,
-              "detail": "OPS idx 0.988 vs 1.041"
-            },
-            {
-              "nom": "Puissance (ISO)",
-              "pour": true,
-              "ampleur": 0.019,
-              "detail": "ISO 0.176 vs 0.157"
-            },
-            {
-              "nom": "Bullpen",
-              "pour": true,
-              "ampleur": 0.44,
-              "detail": "FIP 3.91 vs 4.35"
+              "ampleur": 5.1,
+              "detail": "OPS idx 0.999 vs 1.051"
             }
           ],
-          "pour": 4,
-          "contre": 1,
-          "net": 3
+          "pour": 0,
+          "contre": 3,
+          "net": -3
         }
       },
       "bets": [
         {
+          "marche": "run_line_-1.5",
+          "equipe": "Milwaukee Brewers",
+          "probabilite": 38.1,
+          "prob_modele": 42.8,
+          "prob_marche": 36.1,
+          "cote": 2.65,
+          "valeur_pct": 1.0,
+          "cote_equitable": 2.62,
+          "facteurs_nets": 3,
+          "run_diff": 0.805,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "valeur +1.0% sous le seuil 5.0% du -1.5"
+        },
+        {
           "marche": "moneyline",
-          "equipe": "New York Yankees",
-          "probabilite": 54.0,
-          "prob_modele": 55.4,
-          "cote": 1.83,
-          "valeur_pct": -1.3,
-          "cote_equitable": 1.85,
+          "equipe": "Milwaukee Brewers",
+          "probabilite": 56.4,
+          "prob_modele": 57.3,
+          "cote": 1.77,
+          "valeur_pct": -0.2,
+          "cote_equitable": 1.77,
           "facteurs_nets": 3,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 54% à 1.83 = -1.3%"
-        },
-        {
-          "marche": "run_line_-1.5",
-          "equipe": "New York Yankees",
-          "probabilite": 38.4,
-          "prob_modele": 40.1,
-          "prob_marche": 37.7,
-          "cote": 2.54,
-          "valeur_pct": -2.5,
-          "cote_equitable": 2.6,
-          "facteurs_nets": 3,
-          "run_diff": 0.57,
-          "tier": "🔴",
-          "label": "passe",
-          "raison": "valeur -2.5% sous le seuil 5.0% du -1.5"
+          "raison": "prix trop court: 56% à 1.77 = -0.2%"
         },
         {
           "marche": "moneyline",
-          "equipe": "Tampa Bay Rays",
-          "probabilite": 46.0,
-          "prob_modele": 44.6,
-          "cote": 2.1,
-          "valeur_pct": -3.3,
-          "cote_equitable": 2.17,
+          "equipe": "San Diego Padres",
+          "probabilite": 43.6,
+          "prob_modele": 42.7,
+          "cote": 2.22,
+          "valeur_pct": -3.2,
+          "cote_equitable": 2.29,
           "facteurs_nets": -3,
           "no_brainer": false,
           "tier": "🔴",
           "label": "passe",
-          "raison": "prix trop court: 46% à 2.10 = -3.3%"
+          "raison": "prix trop court: 44% à 2.22 = -3.2%"
         }
       ],
       "prob_marche": {
-        "home_ml": 0.4668,
-        "away_ml": 0.5332,
+        "home_ml": 0.5604,
+        "away_ml": 0.4396,
         "source": "mediane no-vig (11 books)"
       },
       "prob_finale": {
-        "home_ml": 0.4605,
-        "away_ml": 0.5395
+        "home_ml": 0.5641,
+        "away_ml": 0.4359
       }
     }
   ],
@@ -1199,8 +1185,8 @@
     "week": "2026-09-29",
     "window_id": "2026-10-04|dimanche-matin",
     "generated_at": "2026-10-04T13:44:40.860776+00:00",
-    "reason": "hors fenetre NFL (Monday 14h ET)",
-    "stale": true,
+    "reason": "dimanche matin — lignes finales et cotes de fermeture",
+    "stale": false,
     "min_edge": 3.0,
     "suspect_edge": 8.0,
     "allowed_books": [
@@ -3733,7 +3719,7 @@
       "week": "2026-09-29",
       "generated_at": "2026-10-04T13:44:43.552037+00:00",
       "reason": "dimanche matin — lignes mures",
-      "stale": true,
+      "stale": false,
       "min_edge": 3.0,
       "min_total": 47.0,
       "n_games": 6,
@@ -6627,8 +6613,8 @@
     }
   },
   "nhl_sog": {
-    "generated_at": "2026-10-05T18:15:55.612884+00:00",
-    "date": "2026-10-05",
+    "generated_at": "2026-10-04T13:44:52.225138+00:00",
+    "date": "2026-10-04",
     "saison": "20262027",
     "valide": false,
     "verdict": "non valide — contre le marche (300 matchs 2025-26): poids optimal du modele w=0, paris 136 a 54.4% pour 64.5% annonces, ROI -7.0%",
@@ -6644,237 +6630,146 @@
       "min_icf_pg": 5.5,
       "min_gp": 10
     },
-    "n_matchs": 4,
+    "n_matchs": 5,
     "joueurs": [
       {
-        "playerId": 8479542,
-        "joueur": "Brandon Hagel",
+        "playerId": 8483445,
+        "joueur": "Cutter Gauthier",
         "pos": "F",
-        "team": "TBL",
-        "opp": "PHI",
+        "team": "ANA",
+        "opp": "FLA",
         "home": 1,
-        "match": "PHI @ TBL",
-        "commence": "2026-10-05T23:00:00Z",
-        "event_id": 2026020040,
-        "lam": 3.5932,
+        "match": "FLA @ ANA",
+        "commence": "2026-10-05T00:00:00Z",
+        "event_id": 2026020037,
+        "lam": 3.3915,
         "p_over": {
-          "1.5": 0.8514,
-          "2.5": 0.6725,
-          "3.5": 0.4728,
-          "4.5": 0.298,
-          "5.5": 0.1701
-        },
-        "alignement": "confirme",
-        "trio": "f2",
-        "vague_pp": "pp1",
-        "source_alignement": "Gabby Shirley",
-        "maj_alignement": "2026-10-04T17:10:23.716Z",
-        "gp": 32,
-        "gp_saison": 2,
-        "sog_pg": 3.22,
-        "icf_pg": 6.5,
-        "detail": {
-          "lam_base": 3.794,
-          "r5": 19.229,
-          "rpp": 20.851,
-          "toi5_min": 15.517,
-          "toipp_min": 4.764,
-          "conv": 0.47,
-          "f_adv5": 1.084,
-          "f_advpp": 1.101,
-          "other": 0.859,
-          "home": 1,
-          "b2b_me": 0,
-          "b2b_opp": 0,
-          "pace": 0.937,
-          "f_ctx": 0.947,
-          "flags": [
-            "TOI avantage +141% (3 derniers)"
-          ]
-        }
-      },
-      {
-        "playerId": 8480027,
-        "joueur": "Jason Robertson",
-        "pos": "F",
-        "team": "DAL",
-        "opp": "SJS",
-        "home": 1,
-        "match": "SJS @ DAL",
-        "commence": "2026-10-06T00:00:00Z",
-        "event_id": 2026020043,
-        "lam": 3.289,
-        "p_over": {
-          "1.5": 0.8179,
-          "2.5": 0.6186,
-          "3.5": 0.4121,
-          "4.5": 0.2445,
-          "5.5": 0.1309
+          "1.5": 0.8299,
+          "2.5": 0.6375,
+          "3.5": 0.4329,
+          "4.5": 0.2623,
+          "5.5": 0.1436
         },
         "alignement": "confirme",
         "trio": "f1",
         "vague_pp": "pp1",
-        "source_alignement": "Owen Newkirk",
-        "maj_alignement": "2026-10-05T15:39:25.218Z",
-        "gp": 32,
-        "gp_saison": 2,
-        "sog_pg": 3.34,
-        "icf_pg": 6.72,
+        "source_alignement": "Derek Lee",
+        "maj_alignement": "2026-10-03T01:40:15.227Z",
+        "gp": 31,
+        "gp_saison": 1,
+        "sog_pg": 3.81,
+        "icf_pg": 7.58,
         "detail": {
-          "lam_base": 3.511,
-          "r5": 15.906,
-          "rpp": 23.52,
-          "toi5_min": 15.124,
-          "toipp_min": 4.417,
-          "conv": 0.531,
-          "f_adv5": 1.012,
-          "f_advpp": 1.127,
-          "other": 0.598,
+          "lam_base": 3.594,
+          "r5": 21.932,
+          "rpp": 37.61,
+          "toi5_min": 12.255,
+          "toipp_min": 3.26,
+          "conv": 0.503,
+          "f_adv5": 0.931,
+          "f_advpp": 1.135,
+          "other": 0.658,
           "home": 1,
           "b2b_me": 0,
           "b2b_opp": 0,
-          "pace": 0.966,
-          "f_ctx": 0.937,
+          "pace": 0.947,
+          "f_ctx": 0.944,
+          "flags": [
+            "TOI avantage +40% (3 derniers)"
+          ]
+        }
+      },
+      {
+        "playerId": 8479337,
+        "joueur": "Alex DeBrincat",
+        "pos": "F",
+        "team": "DET",
+        "opp": "WPG",
+        "home": 1,
+        "match": "WPG @ DET",
+        "commence": "2026-10-04T17:00:00Z",
+        "event_id": 2026020035,
+        "lam": 3.1751,
+        "p_over": {
+          "1.5": 0.8036,
+          "2.5": 0.5967,
+          "3.5": 0.3888,
+          "4.5": 0.225,
+          "5.5": 0.1173
+        },
+        "alignement": "confirme",
+        "trio": "f1",
+        "vague_pp": "pp1",
+        "source_alignement": "Ansar Khan",
+        "maj_alignement": "2026-10-04T02:05:34.503Z",
+        "gp": 31,
+        "gp_saison": 1,
+        "sog_pg": 3.39,
+        "icf_pg": 7.0,
+        "detail": {
+          "lam_base": 3.364,
+          "r5": 18.478,
+          "rpp": 31.898,
+          "toi5_min": 16.319,
+          "toipp_min": 2.262,
+          "conv": 0.486,
+          "f_adv5": 1.025,
+          "f_advpp": 1.002,
+          "other": 0.561,
+          "home": 1,
+          "b2b_me": 0,
+          "b2b_opp": 0,
+          "pace": 0.946,
+          "f_ctx": 0.944,
           "flags": []
         }
       },
       {
-        "playerId": 8477956,
-        "joueur": "David Pastrnak",
+        "playerId": 8480801,
+        "joueur": "Brady Tkachuk",
         "pos": "F",
-        "team": "BOS",
-        "opp": "OTT",
-        "home": 1,
-        "match": "OTT @ BOS",
-        "commence": "2026-10-05T23:30:00Z",
-        "event_id": 2026020041,
-        "lam": 3.28,
-        "p_over": {
-          "1.5": 0.8168,
-          "2.5": 0.6169,
-          "3.5": 0.4103,
-          "4.5": 0.243,
-          "5.5": 0.1298
-        },
-        "alignement": "confirme",
-        "trio": "f1",
-        "vague_pp": "pp1",
-        "source_alignement": "Belle Fraser",
-        "maj_alignement": "2026-10-03T23:41:19.791Z",
-        "gp": 33,
-        "gp_saison": 3,
-        "sog_pg": 3.27,
-        "icf_pg": 6.7,
-        "detail": {
-          "lam_base": 3.457,
-          "r5": 19.75,
-          "rpp": 22.334,
-          "toi5_min": 17.16,
-          "toipp_min": 1.9,
-          "conv": 0.478,
-          "f_adv5": 1.01,
-          "f_advpp": 1.046,
-          "other": 0.792,
-          "home": 1,
-          "b2b_me": 0,
-          "b2b_opp": 0,
-          "pace": 0.932,
-          "f_ctx": 0.949,
-          "flags": [
-            "TOI avantage +38% (3 derniers)"
-          ]
-        }
-      },
-      {
-        "playerId": 8476453,
-        "joueur": "Nikita Kucherov",
-        "pos": "F",
-        "team": "TBL",
-        "opp": "PHI",
-        "home": 1,
-        "match": "PHI @ TBL",
-        "commence": "2026-10-05T23:00:00Z",
-        "event_id": 2026020040,
-        "lam": 3.025,
-        "p_over": {
-          "1.5": 0.7831,
-          "2.5": 0.5664,
-          "3.5": 0.3576,
-          "4.5": 0.1999,
-          "5.5": 0.1005
-        },
-        "alignement": "confirme",
-        "trio": "f1",
-        "vague_pp": "pp1",
-        "source_alignement": "Gabby Shirley",
-        "maj_alignement": "2026-10-04T17:10:23.716Z",
-        "gp": 32,
-        "gp_saison": 2,
-        "sog_pg": 3.25,
-        "icf_pg": 6.97,
-        "detail": {
-          "lam_base": 3.194,
-          "r5": 17.04,
-          "rpp": 19.941,
-          "toi5_min": 16.207,
-          "toipp_min": 4.855,
-          "conv": 0.423,
-          "f_adv5": 1.084,
-          "f_advpp": 1.101,
-          "other": 0.776,
-          "home": 1,
-          "b2b_me": 0,
-          "b2b_opp": 0,
-          "pace": 0.937,
-          "f_ctx": 0.947,
-          "flags": [
-            "TOI avantage +71% (3 derniers)"
-          ]
-        }
-      },
-      {
-        "playerId": 8484801,
-        "joueur": "Macklin Celebrini",
-        "pos": "F",
-        "team": "SJS",
-        "opp": "DAL",
+        "team": "FLA",
+        "opp": "ANA",
         "home": 0,
-        "match": "SJS @ DAL",
-        "commence": "2026-10-06T00:00:00Z",
-        "event_id": 2026020043,
-        "lam": 2.8634,
+        "match": "FLA @ ANA",
+        "commence": "2026-10-05T00:00:00Z",
+        "event_id": 2026020037,
+        "lam": 3.0095,
         "p_over": {
-          "1.5": 0.7587,
-          "2.5": 0.532,
-          "3.5": 0.3238,
-          "4.5": 0.1739,
-          "5.5": 0.0838
+          "1.5": 0.7808,
+          "2.5": 0.5632,
+          "3.5": 0.3544,
+          "4.5": 0.1974,
+          "5.5": 0.0988
         },
         "alignement": "confirme",
         "trio": "f1",
         "vague_pp": "pp1",
-        "source_alignement": "Max Miller",
-        "maj_alignement": "2026-10-04T01:38:36.494Z",
+        "source_alignement": "Jameson Olive",
+        "maj_alignement": "2026-10-03T21:26:00.427Z",
         "gp": 32,
         "gp_saison": 2,
-        "sog_pg": 3.69,
-        "icf_pg": 6.69,
+        "sog_pg": 3.28,
+        "icf_pg": 5.75,
         "detail": {
-          "lam_base": 3.319,
-          "r5": 13.076,
-          "rpp": 32.756,
-          "toi5_min": 17.281,
-          "toipp_min": 2.702,
-          "conv": 0.542,
-          "f_adv5": 0.983,
-          "f_advpp": 1.04,
-          "other": 0.89,
+          "lam_base": 3.463,
+          "r5": 17.341,
+          "rpp": 26.546,
+          "toi5_min": 13.007,
+          "toipp_min": 3.086,
+          "conv": 0.591,
+          "f_adv5": 1.015,
+          "f_advpp": 1.006,
+          "other": 0.667,
           "home": 0,
           "b2b_me": 0,
           "b2b_opp": 0,
-          "pace": 0.966,
-          "f_ctx": 0.863,
-          "flags": []
+          "pace": 0.947,
+          "f_ctx": 0.869,
+          "flags": [
+            "TOI egalite -24% (3 derniers)",
+            "TOI avantage +43% (3 derniers)"
+          ]
         }
       },
       {
@@ -6882,60 +6777,105 @@
         "joueur": "Kyle Connor",
         "pos": "F",
         "team": "WPG",
-        "opp": "PIT",
+        "opp": "DET",
         "home": 0,
-        "match": "WPG @ PIT",
-        "commence": "2026-10-05T23:30:00Z",
-        "event_id": 2026020042,
-        "lam": 2.5148,
+        "match": "WPG @ DET",
+        "commence": "2026-10-04T17:00:00Z",
+        "event_id": 2026020035,
+        "lam": 2.8726,
         "p_over": {
-          "1.5": 0.6973,
-          "2.5": 0.4521,
-          "3.5": 0.2513,
-          "4.5": 0.1223,
-          "5.5": 0.0532
+          "1.5": 0.7602,
+          "2.5": 0.534,
+          "3.5": 0.3258,
+          "4.5": 0.1754,
+          "5.5": 0.0847
         },
         "alignement": "confirme",
         "trio": "f1",
         "vague_pp": "pp1",
-        "source_alignement": "Last Game (2026-10-04)",
-        "maj_alignement": "2026-10-05T13:53:22.263Z",
-        "gp": 32,
-        "gp_saison": 2,
-        "sog_pg": 3.75,
-        "icf_pg": 7.06,
+        "source_alignement": "Last Game (2026-10-02)",
+        "maj_alignement": "2026-10-03T15:02:43.758Z",
+        "gp": 31,
+        "gp_saison": 1,
+        "sog_pg": 3.71,
+        "icf_pg": 6.94,
         "detail": {
-          "lam_base": 3.221,
-          "r5": 15.41,
-          "rpp": 23.516,
-          "toi5_min": 14.352,
-          "toipp_min": 3.719,
-          "conv": 0.552,
-          "f_adv5": 0.981,
-          "f_advpp": 0.98,
+          "lam_base": 3.304,
+          "r5": 15.173,
+          "rpp": 22.78,
+          "toi5_min": 15.1,
+          "toipp_min": 3.612,
+          "conv": 0.558,
+          "f_adv5": 0.966,
+          "f_advpp": 1.049,
           "other": 0.793,
           "home": 0,
-          "b2b_me": 1,
+          "b2b_me": 0,
           "b2b_opp": 0,
-          "pace": 1.059,
-          "f_ctx": 0.781,
+          "pace": 0.946,
+          "f_ctx": 0.869,
+          "flags": []
+        }
+      },
+      {
+        "playerId": 8478403,
+        "joueur": "Jack Eichel",
+        "pos": "F",
+        "team": "VGK",
+        "opp": "VAN",
+        "home": 0,
+        "match": "VGK @ VAN",
+        "commence": "2026-10-05T01:00:00Z",
+        "event_id": 2026020039,
+        "lam": 2.8002,
+        "p_over": {
+          "1.5": 0.7485,
+          "2.5": 0.5181,
+          "3.5": 0.3106,
+          "4.5": 0.1641,
+          "5.5": 0.0777
+        },
+        "alignement": "confirme",
+        "trio": "f1",
+        "vague_pp": "pp1",
+        "source_alignement": "Hannah Kirkell",
+        "maj_alignement": "2026-10-03T01:38:23.890Z",
+        "gp": 32,
+        "gp_saison": 2,
+        "sog_pg": 3.06,
+        "icf_pg": 6.12,
+        "detail": {
+          "lam_base": 3.351,
+          "r5": 15.608,
+          "rpp": 19.762,
+          "toi5_min": 15.533,
+          "toipp_min": 3.433,
+          "conv": 0.546,
+          "f_adv5": 1.026,
+          "f_advpp": 1.021,
+          "other": 0.838,
+          "home": 0,
+          "b2b_me": 0,
+          "b2b_opp": 1,
+          "pace": 1.175,
+          "f_ctx": 0.836,
           "flags": []
         }
       }
     ]
   },
   "odds_api": {
-    "remaining": 19846,
-    "used": 154,
-    "calls": 8,
+    "remaining": 19869,
+    "used": 131,
+    "calls": 23,
     "cache_hits": 0,
-    "credits_spent": 23,
+    "credits_spent": 74,
     "refused": 0,
-    "day_budget": 734,
-    "spent_today": 14,
-    "est_spent": 131,
-    "cost_factor": 0.176,
-    "prop_credits": 51.20705381574947,
+    "day_budget": 708,
+    "spent_today": 54,
+    "est_spent": 200,
+    "cost_factor": 0.37,
+    "prop_credits": 0,
     "regions": "us,eu,uk",
     "cache_ttl_s": 1800,
     "healthy": true,
