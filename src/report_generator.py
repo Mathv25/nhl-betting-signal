@@ -1588,7 +1588,9 @@ class ReportGenerator:
             "try{return new Date(g.commence).getTime()>now;}catch(e){return true;}});"
             "var rows=[];"
             "mlg.forEach(function(g){(g.bets||[]).forEach(function(b){"
-            "if(b.tier==='\\ud83d\\udd34')return;"          # exclure les 🔴
+            # Plus d'exclusion des 🔴 (2026-10-05): le tier se calcule contre la
+            # cote d'un AUTRE book, pas bet365. Cacher la ligne cachait aussi la
+            # cote bet365 a exiger, la seule information utile.
             "rows.push(b);});});"
             "if(!rows.length)return '';"
             "var rank={'\\ud83d\\udd25':0,'\\ud83d\\udc8e':1,'\\ud83d\\udfe2':2,'\\ud83d\\udfe1':3};"
@@ -1623,6 +1625,7 @@ class ReportGenerator:
             "(+3% d\\'espérance). Value = probabilité × cote - 1. "
             "Probabilité = mélange modèle/marché (modèle sans historique de "
             "calibration — volontairement rétréci vers le marché). "
+            "Le tier (🔴 compris) se lit contre la cote de référence, pas contre bet365: toutes les lignes restent affichées. "
             "Les matchs déjà commencés sont masqués.</div>';"
             "return h;}"
             "function nhlModelLinesHTML(d){"
