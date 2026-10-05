@@ -951,7 +951,20 @@ class MLBPropsAnalyzer:
         # ── LANCEURS ─────────────────────────────────────────────────────────
         cfg_k = next(c for c in STAT_CONFIGS if c["key"] == "strikeouts")
         for team, opp in [(home, away), (away, home)]:
-            for pitcher in _TEAM_PITCHERS.get(team, []):
+            # Candidats: le dict statique de l'equipe + le partant officiel du
+            # jour (API MLB). Sans ce dernier, un partant absent du dict (rappele,
+            # echange — Peralta chez les Rays, Schlittler, Kay le 2026-10-05)
+            # n'avait jamais de carte, alors que son echelle K etait journalisee.
+            candidats = list(_TEAM_PITCHERS.get(team, []))
+            try:
+                _api_starter = get_starter_for_team(team, opp, _mlb_starters) if _mlb_starters else None
+            except Exception:
+                _api_starter = None
+            if _api_starter and not any(
+                    c.lower().split()[-1] == _api_starter.lower().split()[-1]
+                    and c.lower()[0] == _api_starter.lower()[0] for c in candidats):
+                candidats.insert(0, _api_starter)
+            for pitcher in candidats:
                 if pitcher in seen:
                     continue
                 seen.add(pitcher)

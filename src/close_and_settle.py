@@ -502,6 +502,9 @@ def settle_game_row(row: dict, g: dict):
 _k_cache: dict = {}
 
 
+POSTSEASON_AND_REGULAR = "R,F,D,L,W"   # saison, wild card, division, LCS, Serie mondiale
+
+
 def pitcher_ks(name: str, day: str):
     """(K, partant?) du lanceur ce jour-la via l'API MLB, ou None si inconnu."""
     key = (name, day)
@@ -513,7 +516,11 @@ def pitcher_ks(name: str, day: str):
         pid = _search_player_id(name)
         if pid:
             d = _get_json(f"https://statsapi.mlb.com/api/v1/people/{pid}/stats",
-                          {"stats": "gameLog", "group": "pitching", "season": day[:4]}) or {}
+                          {"stats": "gameLog", "group": "pitching", "season": day[:4],
+                           # Sans gameType, l'API ne renvoie que la saison
+                           # reguliere: tout depart en series etait regle VOID
+                           # (2026-09-29 a 10-01, 112 barreaux perdus).
+                           "gameType": POSTSEASON_AND_REGULAR}) or {}
             splits = (d.get("stats") or [{}])[0].get("splits", [])
             games = [s for s in splits if s.get("date") == day]
             if games:
