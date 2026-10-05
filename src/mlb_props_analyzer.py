@@ -1097,9 +1097,13 @@ class MLBPropsAnalyzer:
                         # appel-ci sautait la calibration: on comparait une prob
                         # brute à une prob implicite calibrée)
                         our_prob_at_line = _k_prob_over(kmodel, closest["line"])
+                        # Plus de skip (2026-10-05): l'utilisateur ne mise que chez
+                        # bet365, absent du flux. Le prix d'un autre book n'est
+                        # qu'une reference: on le signale, la carte reste.
                         if dk_over_impl > our_prob_at_line + 5:
-                            print(f"    [MLB Skip] {pitcher}: DK impl {dk_over_impl:.1f}% > notre prob {our_prob_at_line:.1f}% sur Over {closest['line']} → marché surprice")
-                            continue
+                            print(f"    [MLB Ref]  {pitcher}: marche {dk_over_impl:.1f}% > notre prob {our_prob_at_line:.1f}% sur Over {closest['line']}")
+                            context.append(f"Marché de référence plus haut que le modèle sur Over {closest['line']:g} "
+                                           f"({dk_over_impl:.0f}% vs {our_prob_at_line:.0f}%) — prudence")
 
                 # ── Ligne recommandée + edge réel vs cotes DK ───────────────────
                 curve = _k_curve(kmodel)
@@ -1113,13 +1117,17 @@ class MLBPropsAnalyzer:
                     print(f"    [MLB EV]    {pitcher}: {ev_str}")
 
                 dk_best = _best_dk_edge(kmodel, dk_lines) if use_real else None
+                # Filtre d'edge contre un AUTRE book retire (2026-10-05): il
+                # supprimait la carte, donc la cote bet365 a exiger, des que le
+                # livre de reference n'offrait pas 15-35 % — soit presque tous
+                # les jours. Hors de cette fenetre, la carte passe en projection
+                # (ligne + cote bet365 a exiger), comme sans cotes.
+                if dk_best is not None and not (MIN_EDGE <= dk_best["edge_pct"] <= MAX_EDGE
+                                                and dk_best["est_odds"] >= MIN_ODDS):
+                    print(f"    [MLB Ref]  {pitcher}: edge réf. {dk_best['edge_pct']:.1f}% @ {dk_best['est_odds']:.2f} "
+                          f"hors fenêtre — carte en projection, cote bet365 à exiger")
+                    dk_best = None
                 if dk_best is not None:
-                    if not (MIN_EDGE <= dk_best["edge_pct"] <= MAX_EDGE):
-                        print(f"    [MLB Skip] {pitcher}: edge réel {dk_best['edge_pct']:.1f}% hors [{MIN_EDGE},{MAX_EDGE}] (pas de valeur fiable)")
-                        continue
-                    if dk_best["est_odds"] < MIN_ODDS:
-                        print(f"    [MLB Skip] {pitcher}: cote {dk_best['est_odds']:.2f} < plancher {MIN_ODDS} (ROI négatif mesuré sous 1.85)")
-                        continue
                     rec_line, our_prob = dk_best["line"], dk_best["our_prob"]
                     edge_pct, kelly_v  = dk_best["edge_pct"], dk_best["kelly"]
                     est_odds_v, dk_impl_v = dk_best["est_odds"], dk_best["dk_implied"]
