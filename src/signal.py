@@ -438,6 +438,20 @@ def main():
     ai_analysis = run_analysis(output)
     output["ai_analysis"] = ai_analysis
 
+    # ── 10. Validation avant publication (publish_check) ─────────────────────
+    # Chaque section contre les calendriers officiels du jour: donnees d'un
+    # autre jour retirees, matchs manquants listes. La page affiche le bilan.
+    try:
+        import publish_check
+        output["validation"] = publish_check.validate(output)
+        print("\nValidation:", "tout est la" if output["validation"]["ok"] else "ERREURS")
+        for sec in output["validation"]["sections"]:
+            for e in sec["erreurs"]:
+                print(f"  [{sec['nom']}] {e}")
+    except Exception as e:
+        output["validation"] = {"ok": False, "sections": [{"nom": "Validation", "erreurs": [f"validateur en erreur: {e}"],
+                                                            "avertissements": [], "detail": ""}]}
+
     os.makedirs("../docs", exist_ok=True)
     with open("../docs/signal.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2, default=str)

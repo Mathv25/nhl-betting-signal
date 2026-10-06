@@ -53,6 +53,17 @@ jobs:
         run: |
           cd src
           python signal.py
+          # Validation avant publication (publish_check.py): si une section ne
+          # correspond pas aux calendriers officiels du jour, on regenere une
+          # fois (API momentanement muette). Le bilan est publie dans tous
+          # les cas: la page affiche en rouge ce qui manque, jamais les
+          # donnees d'un autre jour.
+          if ! python publish_check.py --check; then
+            echo "Validation en echec: nouvelle generation"
+            sleep 30
+            python signal.py
+            python publish_check.py --check || echo "Toujours en echec: publie avec le bilan d'erreurs"
+          fi
       - name: Sauvegarder bets du signal courant comme pending
         run: |
           cd src && python backtester.py --save-pending

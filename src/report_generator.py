@@ -1275,11 +1275,12 @@ class ReportGenerator:
             "if(r.ok){"
             "var d=await r.json();"
             "if(!avant||d.generated_at!==avant){"
-            "gSignal=d;renderAll(d);"
-            "if(typeof loadPerf==='function'){try{loadPerf();}catch(e){}}"
-            "refreshSetState(btn,'\u2713 Mis a jour','#0F6E56');"
-            "btn.disabled=false;"
-            "setTimeout(function(){refreshSetState(btn,orig);},6000);"
+            # Rechargement COMPLET (2026-10-06): renderAll ne redessinait pas
+            # les onglets rendus cote serveur (SOG, NFL) — la page montrait les
+            # SOG de la veille sous la date du jour. signal.json et index.html
+            # sont deployes ensemble; ?t= contourne le cache Pages.
+            "refreshSetState(btn,'\u2713 Publie — rechargement','#0F6E56');"
+            "setTimeout(function(){location.replace(location.pathname+'?t='+Date.now()+location.hash);},1500);"
             "return;}}"
             "}catch(e){}"
             "refreshSetState(btn,'\u23f3 Generation... '+mm+':'+(ss<10?'0':'')+ss);"
@@ -1574,6 +1575,23 @@ class ReportGenerator:
             "stale.style.display='block';"
             "}else{stale.style.display='none';}}"
             "catch(e){}"
+            # Bilan de la validation avant publication (publish_check.py):
+            # vert = chaque section correspond au calendrier du jour; rouge =
+            # la liste exacte de ce qui manque ou a ete retire.
+            "var vb=document.getElementById('valid-bar');"
+            "if(!vb){vb=document.createElement('div');vb.id='valid-bar';"
+            "vb.style.cssText='padding:8px 14px;font-size:12px;margin-bottom:1rem;border-radius:8px;';"
+            "var wr=document.querySelector('.wrap');if(wr)wr.insertBefore(vb,wr.firstChild);}"
+            "var v=d.validation;"
+            "if(!v){vb.style.display='none';}else{vb.style.display='block';"
+            "var secs=v.sections||[];var errs=[],warns=[];"
+            "secs.forEach(function(x){(x.erreurs||[]).forEach(function(e){errs.push(x.nom+': '+e);});(x.avertissements||[]).forEach(function(e){warns.push(x.nom+': '+e);});});"
+            "var det=secs.filter(function(x){return x.detail;}).map(function(x){return x.nom+' '+x.detail;}).join(' · ');"
+            "var hr='';try{hr=new Date(v.verifie_a).toLocaleTimeString('fr-CA',{timeZone:'America/Toronto',hour:'2-digit',minute:'2-digit'});}catch(e){}"
+            "if(v.ok){vb.style.background='#ECFDF5';vb.style.borderLeft='4px solid #10B981';vb.style.color='#065F46';"
+            "vb.innerHTML='<b>✓ Tout validé</b> à '+hr+' ET contre les calendriers officiels du jour — '+det+(warns.length?'<br><span style=\"color:#92400E\">'+warns.join(' · ')+'</span>':'');}"
+            "else{vb.style.background='#FEF2F2';vb.style.borderLeft='4px solid #DC2626';vb.style.color='#991B1B';"
+            "vb.innerHTML='<b>✗ Validation en échec</b> ('+hr+' ET) — '+errs.join(' · ')+(det?'<br>'+det:'');}}"
             "}"
 
             # ── Signal tab ───────────────────────────────────────────────────
@@ -2378,6 +2396,9 @@ class ReportGenerator:
             # le HTML statique des onglets ne le contient pas. Sans cette
             # injection, il n'apparaissait qu'apres un clic sur Actualiser.
             "(function(){function go(){try{var s=window._SIGNAL||{};"
+            # Bandeaux « signal d'un autre jour » et bilan de validation: avant
+            # le 2026-10-06 ils n'apparaissaient qu'apres un Actualiser.
+            "try{renderHeaderGrid(s);}catch(e){}"
             "var mlh=mlTableHTML(s);"
             "if(mlh){['tab-signal','tab-mlb'].forEach(function(id){"
             "var t=document.getElementById(id);if(t)t.insertAdjacentHTML('afterbegin',mlh);});}"
