@@ -1,0 +1,45 @@
+name: Lite NHL — actualiser les cotes
+
+# Declenche par « Actualiser les cotes » de docs/lite/. Pas de cron: les
+# credits Odds API ne partent que sur demande (~3 + 1 par match).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lite-write
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests==2.31.0
+      - name: Cotes Pinnacle (une seule fois)
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          python3 lite/nhl_lite.py
+          cp docs/lite/data.json /tmp/lite_data.json
+      - name: Commiter et pousser
+        run: |
+          git config --global user.name "NHL Bot"
+          git config --global user.email "bot@nhl.local"
+          # On ne rappelle pas l'API a chaque essai: on recopie le fichier deja produit.
+          for essai in 1 2 3; do
+            git fetch origin main && git reset --hard origin/main
+            mkdir -p docs/lite && cp /tmp/lite_data.json docs/lite/data.json
+            git add docs/lite/data.json
+            git diff --staged --quiet && exit 0
+            git commit -m "Lite NHL cotes $(date +'%Y-%m-%d %H:%M')"
+            git push origin HEAD:main && exit 0
+            echo "push refuse (essai $essai), on recommence sur le dernier main"
+            sleep 5
+          done
+          exit 1

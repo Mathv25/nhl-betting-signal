@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>NHL lite — Pinnacle vs bet365</title>
+<style>
+:root{--bg:#fff;--fg:#1a1a1a;--mut:#6b6b6b;--line:#e3e3e3;--card:#f6f6f4;--ok:#0F6E56;--no:#A32D2D;--acc:#1f5fbf}
+@media (prefers-color-scheme:dark){:root{--bg:#121212;--fg:#ececec;--mut:#9a9a9a;--line:#2c2c2c;--card:#1c1c1c;--ok:#3fbf94;--no:#e06666;--acc:#6aa0f0}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.4 -apple-system,system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+header{padding:12px 14px 6px}
+h1{font-size:18px;margin:0 0 4px}
+.meta{color:var(--mut);font-size:12px}
+button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:6px 10px}
+button:disabled{opacity:.6}
+#refreshBtn{margin-top:8px;width:100%}
+nav{display:flex;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:2}
+nav button{flex:1;border:0;border-radius:0;background:none;padding:10px 4px;border-bottom:2px solid transparent}
+nav button.on{border-bottom-color:var(--acc);font-weight:600}
+main{padding:8px 10px 40px}
+.filters{display:flex;gap:14px;padding:6px 4px 10px;font-size:14px}
+.game{margin:14px 4px 4px;font-weight:600;font-size:13px;color:var(--mut)}
+.row{background:var(--card);border-radius:10px;padding:9px 10px;margin:6px 0}
+.sel{font-weight:600}
+.nums{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--mut);margin:3px 0 6px}
+.nums b{color:var(--fg)}
+.act{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.act input{font:inherit;width:78px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+.act input.stake{width:56px}
+.v{font-weight:700;font-size:13px;min-width:74px}
+.v.go{color:var(--ok)}.v.no{color:var(--no)}
+.empty{color:var(--mut);padding:20px 4px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:5px 4px;border-bottom:1px solid var(--line);text-align:left}
+.kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:6px 0 12px}
+.kpi div{background:var(--card);border-radius:10px;padding:8px 10px}
+.kpi span{display:block;font-size:12px;color:var(--mut)}
+.win{color:var(--ok)}.loss{color:var(--no)}
+@media (min-width:700px){main{max-width:760px;margin:0 auto}.kpi{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<h1>NHL lite</h1>
+<div class="meta" id="meta">Chargement…</div>
+<button id="refreshBtn" onclick="refreshData()">↻ Actualiser les cotes</button>
+</header>
+<nav>
+<button data-tab="sog" class="on">Tirs (SOG)</button>
+<button data-tab="main">ML · PL · Totaux</button>
+<button data-tab="log">Journal</button>
+</nav>
+<main>
+<section id="tab-sog">
+<div class="filters">
+<label><input type="checkbox" id="fP" checked> p ≥ 55 %</label>
+<label><input type="checkbox" id="fL"> lignes 2.5+</label>
+</div>
+<div id="sogList"></div>
+</section>
+<section id="tab-main" hidden><div id="mainList"></div></section>
+<section id="tab-log" hidden><div id="logBox"></div></section>
+</main>
+<script>
+var GH_REPO='Mathv25/nhl-betting-signal';
+var POLL_MS=15000;
+var D=null,ROWS=[];
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function pct(p){return (p*100).toFixed(1)+' %';}
+function hm(iso){return new Date(iso).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit',timeZone:'America/Toronto'});}
+function sgn(x){return (x>0?'+':'')+x;}
+
+async function getJSON(f){var r=await fetch(f+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error(r.status);return r.json();}
+
+function rowHTML(r,label){
+  var i=ROWS.push(r)-1;
+  return '<div class="row" data-i="'+i+'"><div class="sel">'+esc(label)+'</div>'+
+    '<div class="nums"><span>p <b>'+pct(r.p)+'</b></span><span>juste <b>'+r.fair.toFixed(2)+'</b></span>'+
+    '<span>exiger <b>'+r.need.toFixed(2)+'</b></span><span>'+esc(r.source)+'</span></div>'+
+    '<div class="act"><input type="number" inputmode="decimal" step="0.01" min="1.01" max="50" placeholder="cote bet365" oninput="verdict(this)">'+
+    '<span class="v"></span><input class="stake" type="number" inputmode="decimal" step="0.25" min="0.25" max="10" value="1"> u'+
+    '<button onclick="saveBet(this)">Enregistrer</button></div></div>';
+}
+
+function verdict(inp){
+  var row=inp.closest('.row'),r=ROWS[row.dataset.i],o=parseFloat(inp.value),v=row.querySelector('.v');
+  if(!(o>1)){v.textContent='';v.className='v';return;}
+  var go=o>=r.need;v.className='v '+(go?'go':'no');
+  v.textContent=(go?'À MISER':'PASSER')+' '+sgn(((o*r.p-1)*100).toFixed(1))+'%';
+}
+
+function renderSOG(){
+  var box=document.getElementById('sogList');
+  if(!D||!D.sog.length){box.innerHTML='<p class="empty">Aucune ligne SOG.</p>';return;}
+  var fP=document.getElementById('fP').checked,fL=document.getElementById('fL').checked,h='',last='';
+  D.sog.filter(function(r){return (!fP||r.p>=0.55)&&(!fL||r.line>=2.5);})
+   .sort(function(a,b){return a.commence_time.localeCompare(b.commence_time)||a.player.localeCompare(b.player)||a.line-b.line;})
+   .forEach(function(r){
+     var g=r.away+' @ '+r.home;
+     if(g!==last){h+='<div class="game">'+esc(g)+' · '+hm(r.commence_time)+'</div>';last=g;}
+     r.market='SOG';h+=rowHTML(r,r.player+' '+r.selection+' '+r.line+' tirs');
+   });
+  box.innerHTML=h||'<p class="empty">Aucune ligne avec ces filtres.</p>';
+}
+
+function renderMain(){
+  var box=document.getElementById('mainList'),h='';
+  if(!D||!D.games.length){box.innerHTML='<p class="empty">Aucun match à venir.</p>';return;}
+  D.games.forEach(function(g){
+    h+='<div class="game">'+esc(g.away+' @ '+g.home)+' · '+hm(g.commence_time)+'</div>';
+    if(!g.lines.length)h+='<p class="empty">Pas de ligne Pinnacle.</p>';
+    g.lines.forEach(function(l){
+      var r=Object.assign({date:g.date,away:g.away,home:g.home},l);
+      var lab=l.market==='ML'?l.selection+' ML':l.market==='Puck line'?l.selection+' '+sgn(l.line):l.selection+' '+l.line+' buts';
+      h+=rowHTML(r,lab);
+    });
+  });
+  box.innerHTML=h;
+}
+
+function renderAll(){ROWS=[];renderSOG();renderMain();
+  var c=D.credits||{};
+  document.getElementById('meta').textContent='Cotes Pinnacle de '+new Date(D.generated_at).toLocaleString('fr-CA',{timeZone:'America/Toronto'})+
+    ' · '+(c.spent||0)+' crédits dépensés, '+(c.remaining==null?'?':c.remaining)+' restants · edge min '+(D.min_edge*100).toFixed(0)+' %';
+}
+
+function kpi(t){
+  function f(x,p){return x==null?'—':p?pct(x):x;}
+  return '<div class="kpi"><div><span>Fiche (G-P-N)</span><b>'+t.record+'</b></div>'+
+    '<div><span>Réussite / rentabilité</span><b>'+f(t.hit_rate,1)+' / '+f(t.break_even,1)+'</b></div>'+
+    '<div><span>Profit · ROI</span><b class="'+(t.profit>=0?'win':'loss')+'">'+sgn(t.profit)+' u · '+f(t.roi,1)+'</b></div>'+
+    '<div><span>Edge moyen pris</span><b>'+f(t.avg_edge,1)+'</b></div></div>';
+}
+
+async function renderLog(){
+  var box=document.getElementById('logBox'),B;
+  try{B=await getJSON('bets.json');}catch(e){box.innerHTML='<p class="empty">Aucun pari enregistré.</p>';return;}
+  var h=kpi(B.total)+'<table><tr><th>Marché</th><th>Fiche</th><th>Profit</th><th>ROI</th></tr>';
+  Object.keys(B.by_market).forEach(function(m){var t=B.by_market[m];
+    h+='<tr><td>'+esc(m)+'</td><td>'+t.record+'</td><td>'+sgn(t.profit)+'</td><td>'+(t.roi==null?'—':pct(t.roi))+'</td></tr>';});
+  h+='</table><div class="game">'+B.total.pending+' en attente · 200 derniers</div><table>';
+  B.bets.forEach(function(b){
+    var sel=b.market==='SOG'?b.player+' '+b.selection+' '+b.line:b.market==='ML'?b.selection+' ML':b.selection+' '+b.line;
+    h+='<tr><td>'+esc(b.date)+'<br><span class="meta">'+esc(b.away+' @ '+b.home)+'</span></td><td>'+esc(sel)+'<br><span class="meta">'+
+       esc(b.odds)+' × '+esc(b.stake)+' u</span></td><td class="'+esc(b.status)+'">'+esc(b.status)+(b.profit?'<br>'+sgn(parseFloat(b.profit))+' u':'')+'</td></tr>';});
+  box.innerHTML=h+'</table>';
+}
+
+function ghToken(){
+  var t=localStorage.getItem('gh_workflow_token');
+  if(!t){t=prompt('Token GitHub (permission workflow):\n\ngithub.com/settings/tokens — le token reste dans ce navigateur.');
+    if(!t)return null;t=t.trim();localStorage.setItem('gh_workflow_token',t);}
+  return t;
+}
+function dispatch(wf,tk,inputs){
+  return fetch('https://api.github.com/repos/'+GH_REPO+'/actions/workflows/'+wf+'/dispatches',{method:'POST',
+    headers:{'Authorization':'token '+tk,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+    body:JSON.stringify(inputs?{ref:'main',inputs:inputs}:{ref:'main'})});
+}
+
+async function saveBet(btn){
+  var row=btn.closest('.row'),r=ROWS[row.dataset.i],ins=row.querySelectorAll('input');
+  var o=parseFloat(ins[0].value),mi=parseFloat(ins[1].value);
+  if(!(o>=1.01&&o<=50)){btn.textContent='cote ?';return;}
+  if(!(mi>0&&mi<=10)){btn.textContent='mise ?';return;}
+  var tk=ghToken();if(!tk){btn.textContent='✗ pas de token';return;}
+  var pl={date:r.date,away:r.away,home:r.home,market:r.market,selection:r.selection,line:r.line==null?'':r.line,
+    player:r.player||'',odds:o,stake:mi,p:r.p,source:r.source};
+  btn.disabled=true;btn.textContent='⏳';
+  try{var res=await dispatch('lite_log_bet.yml',tk,{payload:JSON.stringify(pl)});
+    if(res.status===204)btn.textContent='✓ Enregistré';
+    else if(res.status===401||res.status===403){localStorage.removeItem('gh_workflow_token');btn.textContent='✗ token refusé';btn.disabled=false;}
+    else{btn.textContent='✗ '+res.status;btn.disabled=false;}
+  }catch(e){btn.textContent='✗ réseau';btn.disabled=false;}
+}
+
+function setBtn(btn,txt,col){btn.textContent=txt;btn.style.color=col||'';}
+async function refreshData(){
+  var btn=document.getElementById('refreshBtn'),orig='↻ Actualiser les cotes';
+  var tk=ghToken();if(!tk){setBtn(btn,'✗ Annulé: pas de token','var(--no)');setTimeout(function(){setBtn(btn,orig);},4000);return;}
+  var avant=D&&D.generated_at,debut=Date.now();
+  btn.disabled=true;setBtn(btn,'⏳ Lancement…');
+  try{var r=await dispatch('lite_refresh.yml',tk);
+    if(r.status===401||r.status===403){localStorage.removeItem('gh_workflow_token');setBtn(btn,'✗ Token refusé — recliquer','var(--no)');btn.disabled=false;return;}
+    if(r.status!==204){setBtn(btn,'✗ Erreur '+r.status,'var(--no)');btn.disabled=false;return;}
+  }catch(e){setBtn(btn,'✗ Réseau injoignable','var(--no)');btn.disabled=false;return;}
+  (async function poll(){
+    var s=Math.round((Date.now()-debut)/1000);
+    if(s>900){setBtn(btn,'✗ Pas de nouvelles cotes après 15 min','var(--no)');btn.disabled=false;return;}
+    try{var d=await getJSON('data.json');if(d.generated_at!==avant){D=d;renderAll();setBtn(btn,'✓ À jour','var(--ok)');btn.disabled=false;setTimeout(function(){setBtn(btn,orig);},4000);return;}}catch(e){}
+    setBtn(btn,'⏳ En cours… '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0'));
+    setTimeout(poll,POLL_MS);
+  })();
+}
+
+document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){
+  document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('on',x===b);});
+  ['sog','main','log'].forEach(function(t){document.getElementById('tab-'+t).hidden=t!==b.dataset.tab;});
+  if(b.dataset.tab==='log')renderLog();
+};});
+document.getElementById('fP').onchange=document.getElementById('fL').onchange=renderSOG;
+
+getJSON('data.json').then(function(d){D=d;renderAll();})
+  .catch(function(){document.getElementById('meta').textContent='Pas encore de cotes — cliquer « Actualiser les cotes ».';});
+</script>
+</body>
+</html>

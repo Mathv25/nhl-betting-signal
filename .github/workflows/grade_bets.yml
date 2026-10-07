@@ -5,8 +5,9 @@ name: Notation des paris — gratuit, sans Odds API
 # couper les crons gelerait l'onglet Performance — les paris resteraient en
 # attente indefiniment et le yield ne bougerait plus.
 on:
-  schedule:
-    - cron: '0 15 * * *'   # 11h ET — la veille est terminee partout
+  # Crons coupes (2026-10-07, version lite): declenchement manuel seulement.
+  # schedule:
+  #   - cron: '0 15 * * *'   # 11h ET — la veille est terminee partout
   workflow_dispatch:
     inputs:
       date:
