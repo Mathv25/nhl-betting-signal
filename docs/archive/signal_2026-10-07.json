@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-10-09T20:33:50.994818+00:00",
-  "date": "2026-10-09",
+  "generated_at": "2026-10-07T18:35:24.345941+00:00",
+  "date": "2026-10-07",
   "bookmaker": "bet365",
-  "total_games": 4,
+  "total_games": 3,
   "total_value_bets": 0,
   "signals": [
     {
       "game": {
-        "id": "1eb386b963ae5a82eba436c25e50cf24",
-        "home_team": "Columbus Blue Jackets",
-        "away_team": "Pittsburgh Penguins",
-        "commence_time": "2026-10-09T23:10:00Z",
+        "id": "c8c270e79cd56ca57baa21a49a0d1d9d",
+        "home_team": "Winnipeg Jets",
+        "away_team": "Colorado Avalanche",
+        "commence_time": "2026-10-07T23:30:00Z",
         "bookmaker": "",
         "markets": {
           "player_props": []
@@ -18,316 +18,158 @@
         "removed_props": [],
         "no_allowed_odds": true,
         "market_novig": {
-          "Columbus Blue Jackets ML": 0.5249,
-          "Pittsburgh Penguins ML": 0.4751,
-          "Columbus Blue Jackets -1.5": 0.3026,
-          "Pittsburgh Penguins +1.5": 0.6974,
-          "Over 6.5": 0.5252,
-          "Under 6.5": 0.4748
+          "Winnipeg Jets ML": 0.3598,
+          "Colorado Avalanche ML": 0.6402,
+          "Colorado Avalanche -1.5": 0.4125,
+          "Winnipeg Jets +1.5": 0.5875,
+          "Over 6.5": 0.5,
+          "Under 6.5": 0.5
         },
         "goalies": {
           "home": {
-            "name": "Cam Talbot",
-            "confirmed": true,
-            "status": "Confirmed",
-            "mult_adverse": 1.0791,
-            "detail": "MoneyPuck 2025: GSAx -13.1 en 29 h"
-          },
-          "away": {
-            "name": "Sergei Murashov",
-            "confirmed": true,
-            "status": "Confirmed",
-            "mult_adverse": 1.0384,
-            "detail": "MoneyPuck 2025+2026: GSAx -3.6 en 6 h"
-          }
-        },
-        "statut": "pret",
-        "lambdas": {
-          "home": 3.145,
-          "away": 3.3064
-        },
-        "model_lines": [
-          {
-            "marche": "nhl_ml",
-            "selection": "Columbus Blue Jackets ML",
-            "prob_modele": 0.4786,
-            "prob_marche": 0.5249,
-            "prob": 0.511,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.957,
-            "min_odds": 2.02
-          },
-          {
-            "marche": "nhl_ml",
-            "selection": "Pittsburgh Penguins ML",
-            "prob_modele": 0.5214,
-            "prob_marche": 0.4751,
-            "prob": 0.489,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.045,
-            "min_odds": 2.11
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Columbus Blue Jackets -1.5",
-            "prob_modele": 0.3146,
-            "prob_marche": 0.3026,
-            "prob": 0.3062,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 3.266,
-            "min_odds": 3.36
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Pittsburgh Penguins +1.5",
-            "prob_modele": 0.6854,
-            "prob_marche": 0.6974,
-            "prob": 0.6938,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.441,
-            "min_odds": 1.48
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Pittsburgh Penguins -1.5",
-            "prob_modele": 0.358,
-            "prob_marche": null,
-            "prob": 0.358,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 2.793,
-            "min_odds": 2.88
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Columbus Blue Jackets +1.5",
-            "prob_modele": 0.642,
-            "prob_marche": null,
-            "prob": 0.642,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.558,
-            "min_odds": 1.6
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Over 5.5",
-            "prob_modele": 0.5908,
-            "prob_marche": null,
-            "prob": 0.5908,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.693,
-            "min_odds": 1.74
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Under 5.5",
-            "prob_modele": 0.4092,
-            "prob_marche": null,
-            "prob": 0.4092,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 2.444,
-            "min_odds": 2.52
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Over 6.5",
-            "prob_modele": 0.4822,
-            "prob_marche": 0.5252,
-            "prob": 0.5123,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.952,
-            "min_odds": 2.01
-          },
-          {
-            "marche": "nhl_total",
-            "selection": "Under 6.5",
-            "prob_modele": 0.5178,
-            "prob_marche": 0.4748,
-            "prob": 0.4877,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.05,
-            "min_odds": 2.11
-          }
-        ],
-        "verdict": {
-          "decision": "passer",
-          "titre": "Passer, sauf si bet365 offre ≥ 2.14 sur Under 6.5 (prix normal ≈ 2.02)",
-          "selection": "Under 6.5",
-          "marche": "nhl_total",
-          "exiger": 2.14,
-          "attendu": 2.02,
-          "prob": 0.4813,
-          "raisons": [
-            "Under 6.5 (total): modèle 52 % vs marché 47 % (écart +4 pts) → retenu 48.1 %",
-            "Début de saison: forces d'équipe de l'an passé (au backtest, moins bonnes qu'un simple taux domicile) — poids du modèle réduit",
-            "Gardiens: Sergei Murashov (MoneyPuck 2025+2026: GSAx -3.6 en 6 h) · Cam Talbot (MoneyPuck 2025: GSAx -13.1 en 29 h)"
-          ]
-        }
-      },
-      "edges": []
-    },
-    {
-      "game": {
-        "id": "30e778f30fcb48f94af24793f5bd201a",
-        "home_team": "Detroit Red Wings",
-        "away_team": "Seattle Kraken",
-        "commence_time": "2026-10-09T23:10:00Z",
-        "bookmaker": "",
-        "markets": {
-          "player_props": []
-        },
-        "removed_props": [],
-        "no_allowed_odds": true,
-        "market_novig": {
-          "Detroit Red Wings ML": 0.5721,
-          "Seattle Kraken ML": 0.4279,
-          "Detroit Red Wings -1.5": 0.3449,
-          "Seattle Kraken +1.5": 0.6551
-        },
-        "goalies": {
-          "home": {
-            "name": "John Gibson",
-            "confirmed": true,
-            "status": "Confirmed",
-            "mult_adverse": 0.951,
-            "detail": "MoneyPuck 2025+2026: GSAx +12.1 en 56 h"
-          },
-          "away": {
-            "name": "Joey Daccord",
+            "name": "Stuart Skinner",
             "confirmed": false,
             "status": "repli roster",
-            "mult_adverse": 1.0244,
-            "detail": "MoneyPuck 2025+2026: GSAx -5.4 en 48 h"
+            "mult_adverse": 0.9557,
+            "detail": "MoneyPuck 2025+2026: GSAx +10.3 en 51 h"
+          },
+          "away": {
+            "name": "Mackenzie Blackwood",
+            "confirmed": false,
+            "status": "Likely",
+            "mult_adverse": 0.9575,
+            "detail": "MoneyPuck 2025+2026: GSAx +8.2 en 38 h"
           }
         },
         "statut": "en_attente",
         "lambdas": {
-          "home": 2.8942,
-          "away": 2.966
+          "home": 2.3145,
+          "away": 3.4646
         },
         "model_lines": [
           {
             "marche": "nhl_ml",
-            "selection": "Detroit Red Wings ML",
-            "prob_modele": 0.4914,
-            "prob_marche": 0.5721,
-            "prob": 0.5479,
+            "selection": "Winnipeg Jets ML",
+            "prob_modele": 0.3293,
+            "prob_marche": 0.3598,
+            "prob": 0.3506,
             "blend_source": "melange w=0.3",
-            "fair_odds": 1.825,
-            "min_odds": 1.88,
+            "fair_odds": 2.852,
+            "min_odds": 2.94,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_ml",
-            "selection": "Seattle Kraken ML",
-            "prob_modele": 0.5086,
-            "prob_marche": 0.4279,
-            "prob": 0.4521,
+            "selection": "Colorado Avalanche ML",
+            "prob_modele": 0.6707,
+            "prob_marche": 0.6402,
+            "prob": 0.6494,
             "blend_source": "melange w=0.3",
-            "fair_odds": 2.212,
-            "min_odds": 2.28,
+            "fair_odds": 1.54,
+            "min_odds": 1.7,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_puck",
-            "selection": "Detroit Red Wings -1.5",
-            "prob_modele": 0.3184,
-            "prob_marche": 0.3449,
-            "prob": 0.337,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.968,
-            "min_odds": 3.06,
-            "statut": "en_attente"
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Seattle Kraken +1.5",
-            "prob_modele": 0.6816,
-            "prob_marche": 0.6551,
-            "prob": 0.663,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.508,
-            "min_odds": 1.55,
-            "statut": "en_attente"
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Seattle Kraken -1.5",
-            "prob_modele": 0.3385,
+            "selection": "Winnipeg Jets -1.5",
+            "prob_modele": 0.1839,
             "prob_marche": null,
-            "prob": 0.3385,
+            "prob": 0.1839,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 2.954,
-            "min_odds": 3.04,
+            "fair_odds": 5.436,
+            "min_odds": 5.6,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_puck",
-            "selection": "Detroit Red Wings +1.5",
-            "prob_modele": 0.6615,
+            "selection": "Colorado Avalanche +1.5",
+            "prob_modele": 0.8161,
             "prob_marche": null,
-            "prob": 0.6615,
+            "prob": 0.8161,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.512,
-            "min_odds": 1.56,
+            "fair_odds": 1.225,
+            "min_odds": 1.26,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Colorado Avalanche -1.5",
+            "prob_modele": 0.4991,
+            "prob_marche": 0.4125,
+            "prob": 0.4385,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 2.281,
+            "min_odds": 2.35,
+            "statut": "en_attente"
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Winnipeg Jets +1.5",
+            "prob_modele": 0.5009,
+            "prob_marche": 0.5875,
+            "prob": 0.5615,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.781,
+            "min_odds": 1.83,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Over 5.5",
-            "prob_modele": 0.5033,
+            "prob_modele": 0.4867,
             "prob_marche": null,
-            "prob": 0.5033,
+            "prob": 0.4867,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.987,
-            "min_odds": 2.05,
+            "fair_odds": 2.055,
+            "min_odds": 2.12,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Under 5.5",
-            "prob_modele": 0.4967,
+            "prob_modele": 0.5133,
             "prob_marche": null,
-            "prob": 0.4967,
+            "prob": 0.5133,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 2.013,
-            "min_odds": 2.07,
+            "fair_odds": 1.948,
+            "min_odds": 2.01,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Over 6.5",
-            "prob_modele": 0.3935,
-            "prob_marche": null,
-            "prob": 0.3935,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 2.541,
-            "min_odds": 2.62,
+            "prob_modele": 0.3734,
+            "prob_marche": 0.5,
+            "prob": 0.462,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 2.164,
+            "min_odds": 2.23,
             "statut": "en_attente"
           },
           {
             "marche": "nhl_total",
             "selection": "Under 6.5",
-            "prob_modele": 0.6065,
-            "prob_marche": null,
-            "prob": 0.6065,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.649,
-            "min_odds": 1.7,
+            "prob_modele": 0.6266,
+            "prob_marche": 0.5,
+            "prob": 0.538,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.859,
+            "min_odds": 1.91,
             "statut": "en_attente"
           }
         ],
         "verdict": {
           "decision": "attente",
-          "titre": "Provisoire (gardien non confirmé: Joey Daccord) — Passer, sauf si bet365 offre ≥ 2.34 sur Seattle Kraken ML (prix normal ≈ 2.24)",
-          "selection": "Seattle Kraken ML",
-          "marche": "nhl_ml",
-          "exiger": 2.34,
-          "attendu": 2.24,
-          "prob": 0.44,
+          "titre": "Provisoire (gardien non confirmé: Mackenzie Blackwood, Stuart Skinner) — Passer, sauf si bet365 offre ≥ 2.42 sur Colorado Avalanche -1.5 (prix normal ≈ 2.32)",
+          "selection": "Colorado Avalanche -1.5",
+          "marche": "nhl_puck",
+          "exiger": 2.42,
+          "attendu": 2.32,
+          "prob": 0.4255,
           "raisons": [
-            "Seattle Kraken ML (ML): modèle 51 % vs marché 43 % (écart +8 pts) → retenu 44.0 %",
+            "Colorado Avalanche -1.5 (puck line): modèle 50 % vs marché 41 % (écart +9 pts) → retenu 42.5 %",
             "Début de saison: forces d'équipe de l'an passé (au backtest, moins bonnes qu'un simple taux domicile) — poids du modèle réduit",
-            "Gardiens: Joey Daccord (MoneyPuck 2025+2026: GSAx -5.4 en 48 h) · John Gibson (MoneyPuck 2025+2026: GSAx +12.1 en 56 h)"
+            "Gardiens: Mackenzie Blackwood (MoneyPuck 2025+2026: GSAx +8.2 en 38 h) · Stuart Skinner (MoneyPuck 2025+2026: GSAx +10.3 en 51 h)"
           ]
         }
       },
@@ -335,10 +177,10 @@
     },
     {
       "game": {
-        "id": "86ba05a73a0355958b629023b20ba955",
+        "id": "8112572f236320d4d4c99b6eb0989b94",
         "home_team": "Washington Capitals",
-        "away_team": "New York Rangers",
-        "commence_time": "2026-10-09T23:10:00Z",
+        "away_team": "Pittsburgh Penguins",
+        "commence_time": "2026-10-07T23:40:00Z",
         "bookmaker": "",
         "markets": {
           "player_props": []
@@ -346,149 +188,149 @@
         "removed_props": [],
         "no_allowed_odds": true,
         "market_novig": {
-          "Washington Capitals ML": 0.5631,
-          "New York Rangers ML": 0.4369,
-          "Washington Capitals -1.5": 0.3305,
-          "New York Rangers +1.5": 0.6695,
-          "Over 5.5": 0.5225,
-          "Under 5.5": 0.4775
+          "Washington Capitals ML": 0.5938,
+          "Pittsburgh Penguins ML": 0.4062,
+          "Washington Capitals -1.5": 0.374,
+          "Pittsburgh Penguins +1.5": 0.626,
+          "Over 6.5": 0.5066,
+          "Under 6.5": 0.4934
         },
         "goalies": {
           "home": {
             "name": "Logan Thompson",
             "confirmed": true,
             "status": "Confirmed",
-            "mult_adverse": 0.8746,
-            "detail": "MoneyPuck 2025+2026: GSAx +32.4 en 59 h"
+            "mult_adverse": 0.8773,
+            "detail": "MoneyPuck 2025+2026: GSAx +31.3 en 58 h"
           },
           "away": {
-            "name": "Igor Shesterkin",
+            "name": "Arturs Silovs",
             "confirmed": true,
             "status": "Confirmed",
-            "mult_adverse": 0.8956,
-            "detail": "MoneyPuck 2025+2026: GSAx +25.3 en 54 h"
+            "mult_adverse": 1.0615,
+            "detail": "MoneyPuck 2025+2026: GSAx -12.1 en 39 h"
           }
         },
         "statut": "pret",
         "lambdas": {
-          "home": 2.6934,
-          "away": 2.4996
+          "home": 3.6925,
+          "away": 2.5201
         },
         "model_lines": [
           {
             "marche": "nhl_ml",
             "selection": "Washington Capitals ML",
-            "prob_modele": 0.5341,
-            "prob_marche": 0.5631,
-            "prob": 0.5544,
+            "prob_modele": 0.6726,
+            "prob_marche": 0.5938,
+            "prob": 0.6175,
             "blend_source": "melange w=0.3",
-            "fair_odds": 1.804,
-            "min_odds": 1.86
+            "fair_odds": 1.62,
+            "min_odds": 1.7
           },
           {
             "marche": "nhl_ml",
-            "selection": "New York Rangers ML",
-            "prob_modele": 0.4659,
-            "prob_marche": 0.4369,
-            "prob": 0.4456,
+            "selection": "Pittsburgh Penguins ML",
+            "prob_modele": 0.3274,
+            "prob_marche": 0.4062,
+            "prob": 0.3825,
             "blend_source": "melange w=0.3",
-            "fair_odds": 2.244,
-            "min_odds": 2.31
+            "fair_odds": 2.614,
+            "min_odds": 2.69
           },
           {
             "marche": "nhl_puck",
             "selection": "Washington Capitals -1.5",
-            "prob_modele": 0.3471,
-            "prob_marche": 0.3305,
-            "prob": 0.3355,
+            "prob_modele": 0.5029,
+            "prob_marche": 0.374,
+            "prob": 0.4127,
             "blend_source": "melange w=0.3",
-            "fair_odds": 2.981,
-            "min_odds": 3.07
+            "fair_odds": 2.423,
+            "min_odds": 2.5
           },
           {
             "marche": "nhl_puck",
-            "selection": "New York Rangers +1.5",
-            "prob_modele": 0.6529,
-            "prob_marche": 0.6695,
-            "prob": 0.6645,
+            "selection": "Pittsburgh Penguins +1.5",
+            "prob_modele": 0.4971,
+            "prob_marche": 0.626,
+            "prob": 0.5873,
             "blend_source": "melange w=0.3",
-            "fair_odds": 1.505,
-            "min_odds": 1.55
+            "fair_odds": 1.703,
+            "min_odds": 1.75
           },
           {
             "marche": "nhl_puck",
-            "selection": "New York Rangers -1.5",
-            "prob_modele": 0.2905,
+            "selection": "Pittsburgh Penguins -1.5",
+            "prob_modele": 0.1903,
             "prob_marche": null,
-            "prob": 0.2905,
+            "prob": 0.1903,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 3.442,
-            "min_odds": 3.55
+            "fair_odds": 5.254,
+            "min_odds": 5.41
           },
           {
             "marche": "nhl_puck",
             "selection": "Washington Capitals +1.5",
-            "prob_modele": 0.7095,
+            "prob_modele": 0.8097,
             "prob_marche": null,
-            "prob": 0.7095,
+            "prob": 0.8097,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.41,
-            "min_odds": 1.45
+            "fair_odds": 1.235,
+            "min_odds": 1.27
           },
           {
             "marche": "nhl_total",
             "selection": "Over 5.5",
-            "prob_modele": 0.3974,
-            "prob_marche": 0.5225,
-            "prob": 0.485,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.062,
-            "min_odds": 2.12
+            "prob_modele": 0.5529,
+            "prob_marche": null,
+            "prob": 0.5529,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 1.809,
+            "min_odds": 1.86
           },
           {
             "marche": "nhl_total",
             "selection": "Under 5.5",
-            "prob_modele": 0.6026,
-            "prob_marche": 0.4775,
-            "prob": 0.515,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.942,
-            "min_odds": 2.0
+            "prob_modele": 0.4471,
+            "prob_marche": null,
+            "prob": 0.4471,
+            "blend_source": "modele seul (pas de marche)",
+            "fair_odds": 2.236,
+            "min_odds": 2.3
           },
           {
             "marche": "nhl_total",
             "selection": "Over 6.5",
-            "prob_modele": 0.2929,
-            "prob_marche": null,
-            "prob": 0.2929,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 3.414,
-            "min_odds": 3.52
+            "prob_modele": 0.4395,
+            "prob_marche": 0.5066,
+            "prob": 0.4865,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 2.056,
+            "min_odds": 2.12
           },
           {
             "marche": "nhl_total",
             "selection": "Under 6.5",
-            "prob_modele": 0.7071,
-            "prob_marche": null,
-            "prob": 0.7071,
-            "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.414,
-            "min_odds": 1.46
+            "prob_modele": 0.5605,
+            "prob_marche": 0.4934,
+            "prob": 0.5135,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.947,
+            "min_odds": 2.01
           }
         ],
         "verdict": {
           "decision": "passer",
-          "titre": "Passer, sauf si bet365 offre ≥ 2.12 sur Under 5.5 (prix normal ≈ 2.00)",
-          "selection": "Under 5.5",
-          "marche": "nhl_total",
-          "exiger": 2.12,
-          "attendu": 2.0,
-          "prob": 0.4869,
+          "titre": "Passer, sauf si bet365 offre ≥ 2.68 sur Washington Capitals -1.5 (prix normal ≈ 2.56)",
+          "selection": "Washington Capitals -1.5",
+          "marche": "nhl_puck",
+          "exiger": 2.68,
+          "attendu": 2.56,
+          "prob": 0.3837,
           "raisons": [
-            "Under 5.5 (total): modèle 60 % vs marché 48 % (écart +13 pts) → retenu 48.7 %",
+            "Washington Capitals -1.5 (puck line): modèle 50 % vs marché 37 % (écart +13 pts) → retenu 38.4 %",
             "Écart de 13 pts: le marché a probablement une info que le modèle n'a pas — poids du modèle réduit",
             "Début de saison: forces d'équipe de l'an passé (au backtest, moins bonnes qu'un simple taux domicile) — poids du modèle réduit",
-            "Gardiens: Igor Shesterkin (MoneyPuck 2025+2026: GSAx +25.3 en 54 h) · Logan Thompson (MoneyPuck 2025+2026: GSAx +32.4 en 59 h)"
+            "Gardiens: Arturs Silovs (MoneyPuck 2025+2026: GSAx -12.1 en 39 h) · Logan Thompson (MoneyPuck 2025+2026: GSAx +31.3 en 58 h)"
           ]
         }
       },
@@ -496,10 +338,10 @@
     },
     {
       "game": {
-        "id": "48ce8ebb422982764994cd25c5f253c7",
-        "home_team": "Winnipeg Jets",
-        "away_team": "Anaheim Ducks",
-        "commence_time": "2026-10-10T00:10:00Z",
+        "id": "db23cd7cb712b5c14c297aa6eece3627",
+        "home_team": "Anaheim Ducks",
+        "away_team": "Edmonton Oilers",
+        "commence_time": "2026-10-08T02:00:00Z",
         "bookmaker": "",
         "markets": {
           "player_props": []
@@ -507,159 +349,149 @@
         "removed_props": [],
         "no_allowed_odds": true,
         "market_novig": {
-          "Winnipeg Jets ML": 0.5314,
-          "Anaheim Ducks ML": 0.4686,
-          "Winnipeg Jets -1.5": 0.3072,
-          "Anaheim Ducks +1.5": 0.6928,
-          "Over 6.5": 0.4775,
-          "Under 6.5": 0.5225
+          "Anaheim Ducks ML": 0.4506,
+          "Edmonton Oilers ML": 0.5494,
+          "Edmonton Oilers -1.5": 0.3353,
+          "Anaheim Ducks +1.5": 0.6647,
+          "Over 6.5": 0.5537,
+          "Under 6.5": 0.4463
         },
         "goalies": {
           "home": {
-            "name": "Clay Stevenson",
-            "confirmed": false,
-            "status": "Likely",
-            "mult_adverse": 0.9734,
-            "detail": "MoneyPuck 2024+2025+2026: GSAx +2.5 en 6 h"
+            "name": "Lukas Dostal",
+            "confirmed": true,
+            "status": "Confirmed",
+            "mult_adverse": 1.0039,
+            "detail": "MoneyPuck 2025+2026: GSAx -1.0 en 57 h"
           },
           "away": {
-            "name": "Lukas Dostal",
-            "confirmed": false,
-            "status": "repli roster",
-            "mult_adverse": 1.0152,
-            "detail": "MoneyPuck 2025+2026: GSAx -3.8 en 57 h"
+            "name": "Devon Levi",
+            "confirmed": true,
+            "status": "Confirmed",
+            "mult_adverse": 1.1067,
+            "detail": "MoneyPuck 2024+2026: GSAx -11.4 en 10 h"
           }
         },
-        "statut": "en_attente",
+        "statut": "pret",
         "lambdas": {
-          "home": 3.6364,
-          "away": 2.3943
+          "home": 2.9978,
+          "away": 4.7411
         },
         "model_lines": [
           {
             "marche": "nhl_ml",
-            "selection": "Winnipeg Jets ML",
-            "prob_modele": 0.6846,
-            "prob_marche": 0.5314,
-            "prob": 0.5774,
+            "selection": "Anaheim Ducks ML",
+            "prob_modele": 0.2789,
+            "prob_marche": 0.4506,
+            "prob": 0.3991,
             "blend_source": "melange w=0.3",
-            "fair_odds": 1.732,
-            "min_odds": 1.78,
-            "statut": "en_attente"
+            "fair_odds": 2.506,
+            "min_odds": 2.58
           },
           {
             "marche": "nhl_ml",
-            "selection": "Anaheim Ducks ML",
-            "prob_modele": 0.3154,
-            "prob_marche": 0.4686,
-            "prob": 0.4226,
+            "selection": "Edmonton Oilers ML",
+            "prob_modele": 0.7211,
+            "prob_marche": 0.5494,
+            "prob": 0.6009,
             "blend_source": "melange w=0.3",
-            "fair_odds": 2.366,
-            "min_odds": 2.44,
-            "statut": "en_attente"
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Winnipeg Jets -1.5",
-            "prob_modele": 0.5134,
-            "prob_marche": 0.3072,
-            "prob": 0.369,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 2.71,
-            "min_odds": 2.79,
-            "statut": "en_attente"
-          },
-          {
-            "marche": "nhl_puck",
-            "selection": "Anaheim Ducks +1.5",
-            "prob_modele": 0.4866,
-            "prob_marche": 0.6928,
-            "prob": 0.631,
-            "blend_source": "melange w=0.3",
-            "fair_odds": 1.585,
-            "min_odds": 1.63,
-            "statut": "en_attente"
+            "fair_odds": 1.664,
+            "min_odds": 1.71
           },
           {
             "marche": "nhl_puck",
             "selection": "Anaheim Ducks -1.5",
-            "prob_modele": 0.1795,
+            "prob_modele": 0.163,
             "prob_marche": null,
-            "prob": 0.1795,
+            "prob": 0.163,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 5.572,
-            "min_odds": 5.74,
-            "statut": "en_attente"
+            "fair_odds": 6.137,
+            "min_odds": 6.32
           },
           {
             "marche": "nhl_puck",
-            "selection": "Winnipeg Jets +1.5",
-            "prob_modele": 0.8205,
+            "selection": "Edmonton Oilers +1.5",
+            "prob_modele": 0.837,
             "prob_marche": null,
-            "prob": 0.8205,
+            "prob": 0.837,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.219,
-            "min_odds": 1.26,
-            "statut": "en_attente"
+            "fair_odds": 1.195,
+            "min_odds": 1.25
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Edmonton Oilers -1.5",
+            "prob_modele": 0.5799,
+            "prob_marche": 0.3353,
+            "prob": 0.4087,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 2.447,
+            "min_odds": 2.52
+          },
+          {
+            "marche": "nhl_puck",
+            "selection": "Anaheim Ducks +1.5",
+            "prob_modele": 0.4201,
+            "prob_marche": 0.6647,
+            "prob": 0.5913,
+            "blend_source": "melange w=0.3",
+            "fair_odds": 1.691,
+            "min_odds": 1.74
           },
           {
             "marche": "nhl_total",
             "selection": "Over 5.5",
-            "prob_modele": 0.525,
+            "prob_modele": 0.745,
             "prob_marche": null,
-            "prob": 0.525,
+            "prob": 0.745,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 1.905,
-            "min_odds": 1.96,
-            "statut": "en_attente"
+            "fair_odds": 1.342,
+            "min_odds": 1.38
           },
           {
             "marche": "nhl_total",
             "selection": "Under 5.5",
-            "prob_modele": 0.475,
+            "prob_modele": 0.255,
             "prob_marche": null,
-            "prob": 0.475,
+            "prob": 0.255,
             "blend_source": "modele seul (pas de marche)",
-            "fair_odds": 2.105,
-            "min_odds": 2.17,
-            "statut": "en_attente"
+            "fair_odds": 3.921,
+            "min_odds": 4.04
           },
           {
             "marche": "nhl_total",
             "selection": "Over 6.5",
-            "prob_modele": 0.4108,
-            "prob_marche": 0.4775,
-            "prob": 0.4575,
+            "prob_modele": 0.6475,
+            "prob_marche": 0.5537,
+            "prob": 0.5818,
             "blend_source": "melange w=0.3",
-            "fair_odds": 2.186,
-            "min_odds": 2.25,
-            "statut": "en_attente"
+            "fair_odds": 1.719,
+            "min_odds": 1.77
           },
           {
             "marche": "nhl_total",
             "selection": "Under 6.5",
-            "prob_modele": 0.5892,
-            "prob_marche": 0.5225,
-            "prob": 0.5425,
+            "prob_modele": 0.3525,
+            "prob_marche": 0.4463,
+            "prob": 0.4182,
             "blend_source": "melange w=0.3",
-            "fair_odds": 1.843,
-            "min_odds": 1.9,
-            "statut": "en_attente"
+            "fair_odds": 2.391,
+            "min_odds": 2.46
           }
         ],
         "verdict": {
-          "decision": "attente",
-          "titre": "Provisoire (gardien non confirmé: Lukas Dostal, Clay Stevenson) — Passer, sauf si bet365 offre ≥ 3.19 sur Winnipeg Jets -1.5 (prix normal ≈ 3.12)",
-          "selection": "Winnipeg Jets -1.5",
+          "decision": "passer",
+          "titre": "Passer, sauf si bet365 offre ≥ 2.91 sur Edmonton Oilers -1.5 (prix normal ≈ 2.85)",
+          "selection": "Edmonton Oilers -1.5",
           "marche": "nhl_puck",
-          "exiger": 3.19,
-          "attendu": 3.12,
-          "prob": 0.3226,
+          "exiger": 2.91,
+          "attendu": 2.85,
+          "prob": 0.3537,
           "raisons": [
-            "Winnipeg Jets -1.5 (puck line): modèle 51 % vs marché 31 % (écart +21 pts) → retenu 32.3 %",
-            "Écart de 21 pts: le marché a probablement une info que le modèle n'a pas — poids du modèle réduit",
+            "Edmonton Oilers -1.5 (puck line): modèle 58 % vs marché 34 % (écart +24 pts) → retenu 35.4 %",
+            "Écart de 24 pts: le marché a probablement une info que le modèle n'a pas — poids du modèle réduit",
             "Début de saison: forces d'équipe de l'an passé (au backtest, moins bonnes qu'un simple taux domicile) — poids du modèle réduit",
-            "Gardiens: Lukas Dostal (MoneyPuck 2025+2026: GSAx -3.8 en 57 h) · Clay Stevenson (MoneyPuck 2024+2025+2026: GSAx +2.5 en 6 h)"
+            "Gardiens: Devon Levi (MoneyPuck 2024+2026: GSAx -11.4 en 10 h) · Lukas Dostal (MoneyPuck 2025+2026: GSAx -1.0 en 57 h)"
           ]
         }
       },
@@ -669,23 +501,1006 @@
   "value_bets": [],
   "props_analysis": [],
   "nba_analysis": [],
-  "mlb_analysis": [],
-  "mlb_ml_analysis": [],
+  "mlb_analysis": [
+    {
+      "event_id": "2f041c00e4bddc69bd1bbfbd40cc3c09",
+      "home_team": "Atlanta Braves",
+      "away_team": "Los Angeles Dodgers",
+      "bets": [
+        {
+          "player": "Tyler Glasnow",
+          "team": "Los Angeles Dodgers",
+          "opponent": "Atlanta Braves",
+          "player_type": "pitcher",
+          "statut": "calibre",
+          "a_miser_possible": true,
+          "our_prob_raw": 53.5,
+          "our_prob_cal": 50.0,
+          "n_cal": 69,
+          "market": "Retraits au baton Over 7.5",
+          "stat_key": "strikeouts",
+          "line": 7.5,
+          "season_avg": 8.52,
+          "adj_proj": 7.98,
+          "adj_proj_raw": 8.37,
+          "adj_mult": 0.9361,
+          "adj_mult_raw": 0.9824,
+          "opp_k_rate": 21.8,
+          "opp_k_source": "saison vs RHP",
+          "league_k_rate": 22.1,
+          "ip_mean": 5.692,
+          "k_rate_per_ip": 1.4019,
+          "k_std": 3.0164,
+          "k_model": "binomiale negative (r=56.92) · manches empirique 13 departs",
+          "park_factor": 1.02,
+          "our_prob": 52.1,
+          "edge_pct": 0,
+          "kelly": 0,
+          "min_odds": 1.92,
+          "est_odds": 0,
+          "dk_implied": 0,
+          "dk_implied_basis": "",
+          "dk_book": "",
+          "k_curve": [
+            {
+              "line": 2.5,
+              "k_exact": 3,
+              "prob": 98.9,
+              "prob_raw": 98.1,
+              "prob_cal": 100.0,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 98.9,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 3.5,
+              "k_exact": 4,
+              "prob": 96.9,
+              "prob_raw": 94.7,
+              "prob_cal": 100.0,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 96.9,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 4.5,
+              "k_exact": 5,
+              "prob": 86.3,
+              "prob_raw": 88.3,
+              "prob_cal": 83.3,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 86.3,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 5.5,
+              "k_exact": 6,
+              "prob": 67.1,
+              "prob_raw": 78.9,
+              "prob_cal": 50.0,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 67.1,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 6.5,
+              "k_exact": 7,
+              "prob": 60.0,
+              "prob_raw": 66.8,
+              "prob_cal": 50.0,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 50.3,
+              "blend_source": "melange w=0.3",
+              "best_odds": 2.07,
+              "best_book": "draftkings",
+              "market_prob": 46.09,
+              "baseline_source": "pinnacle",
+              "n_books": 8,
+              "ev_pct": 4.12,
+              "edge_pct": 9.1
+            },
+            {
+              "line": 7.5,
+              "k_exact": 8,
+              "prob": 52.1,
+              "prob_raw": 53.5,
+              "prob_cal": 50.0,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 52.1,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 8.5,
+              "k_exact": 9,
+              "prob": 44.4,
+              "prob_raw": 40.5,
+              "prob_cal": 50.0,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 44.4,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 9.5,
+              "k_exact": 10,
+              "prob": 37.5,
+              "prob_raw": 28.9,
+              "prob_cal": 50.0,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 37.5,
+              "blend_source": "modele seul (pas de marche)"
+            }
+          ],
+          "odds_rungs": 1,
+          "context": [
+            "Rolling 6dep: 8.74K · Saison: 8.0K · Blend: 8.52K",
+            "Ajustement régressé x0.936 → 7.98K (brut x0.982 → 8.37K)",
+            "Manches: 5.692 IP moy (binomiale negative (r=56.92) · manches empirique 13 departs) · 1.40 K/manche · σK 3.02 (Poisson simple: 2.82)",
+            "Terrain: Neutre (PF 1.02)"
+          ]
+        }
+      ],
+      "commence_time": "2026-10-07T22:10:00Z"
+    },
+    {
+      "event_id": "aa266da6f8d98646bc59d18ddbc5b2de",
+      "home_team": "New York Yankees",
+      "away_team": "Tampa Bay Rays",
+      "bets": [
+        {
+          "player": "Max Fried",
+          "team": "New York Yankees",
+          "opponent": "Tampa Bay Rays",
+          "player_type": "pitcher",
+          "statut": "calibre",
+          "a_miser_possible": true,
+          "our_prob_raw": 41.4,
+          "our_prob_cal": 40.3,
+          "n_cal": 69,
+          "market": "Retraits au baton Over 4.5",
+          "stat_key": "strikeouts",
+          "line": 4.5,
+          "season_avg": 5.06,
+          "adj_proj": 4.23,
+          "adj_proj_raw": 4.13,
+          "adj_mult": 0.836,
+          "adj_mult_raw": 0.8153,
+          "opp_k_rate": 18.1,
+          "opp_k_source": "saison vs LHP",
+          "league_k_rate": 22.1,
+          "ip_mean": 5.289,
+          "k_rate_per_ip": 0.7998,
+          "k_std": 2.1318,
+          "k_model": "binomiale negative (r=56.92) · manches empirique 15 departs",
+          "park_factor": 1.0,
+          "our_prob": 41.0,
+          "edge_pct": 0,
+          "kelly": 0,
+          "min_odds": 2.44,
+          "est_odds": 0,
+          "dk_implied": 0,
+          "dk_implied_basis": "",
+          "dk_book": "",
+          "k_curve": [
+            {
+              "line": 2.5,
+              "k_exact": 3,
+              "prob": 77.4,
+              "prob_raw": 78.3,
+              "prob_cal": 76.1,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 77.4,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 3.5,
+              "k_exact": 4,
+              "prob": 59.6,
+              "prob_raw": 60.2,
+              "prob_cal": 58.6,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 59.6,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 4.5,
+              "k_exact": 5,
+              "prob": 41.0,
+              "prob_raw": 41.4,
+              "prob_cal": 40.3,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 45.6,
+              "blend_source": "melange w=0.3",
+              "best_odds": 2.05,
+              "best_book": "betmgm",
+              "market_prob": 47.52,
+              "baseline_source": "pinnacle",
+              "n_books": 7,
+              "ev_pct": -6.52,
+              "edge_pct": -4.0
+            },
+            {
+              "line": 5.5,
+              "k_exact": 6,
+              "prob": 29.2,
+              "prob_raw": 25.6,
+              "prob_cal": 34.5,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 29.2,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 6.5,
+              "k_exact": 7,
+              "prob": 19.2,
+              "prob_raw": 14.3,
+              "prob_cal": 26.3,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 19.2,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 7.5,
+              "k_exact": 8,
+              "prob": 8.8,
+              "prob_raw": 7.3,
+              "prob_cal": 11.0,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 8.8,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 8.5,
+              "k_exact": 9,
+              "prob": 3.0,
+              "prob_raw": 3.4,
+              "prob_cal": 2.3,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 3.0,
+              "blend_source": "modele seul (pas de marche)"
+            },
+            {
+              "line": 9.5,
+              "k_exact": 10,
+              "prob": 0.9,
+              "prob_raw": 1.5,
+              "prob_cal": 0.0,
+              "calibrated": true,
+              "n_cal": 69,
+              "prob_final": 0.9,
+              "blend_source": "modele seul (pas de marche)"
+            }
+          ],
+          "odds_rungs": 1,
+          "context": [
+            "Rolling 6dep: 5.0K · Saison: 5.2K · Blend: 5.06K",
+            "Adversaire K% (saison vs LHP): 18.1% (difficile)",
+            "Ajustement régressé x0.836 → 4.23K (brut x0.815 → 4.13K)",
+            "Manches: 5.289 IP moy (binomiale negative (r=56.92) · manches empirique 15 departs) · 0.80 K/manche · σK 2.13 (Poisson simple: 2.06)",
+            "Marché de référence plus haut que le modèle sur Over 4.5 (48% vs 41%) — prudence"
+          ]
+        }
+      ],
+      "commence_time": "2026-10-08T00:08:00Z"
+    }
+  ],
+  "mlb_ml_analysis": [
+    {
+      "game_pk": 849838,
+      "event_id": "aa266da6f8d98646bc59d18ddbc5b2de",
+      "home_team": "New York Yankees",
+      "away_team": "Tampa Bay Rays",
+      "venue": "Yankee Stadium",
+      "park_factor": 1.03,
+      "commence": "2026-10-08T00:00:00Z",
+      "starters": {
+        "home": {
+          "nom": "Max Fried",
+          "main": "L",
+          "fip": 3.04,
+          "fip_eff": 2.987,
+          "k_bb_pct": 0.1554,
+          "whip": 0.99,
+          "ip_par_depart": 5.56,
+          "forme": {
+            "games": 5,
+            "fip": 2.862,
+            "k_bb_pct": 0.1863,
+            "ip_per_gs": 5.27
+          }
+        },
+        "away": {
+          "nom": "Nick Martinez",
+          "main": "R",
+          "fip": 3.998,
+          "fip_eff": 4.05,
+          "k_bb_pct": 0.1181,
+          "whip": 1.09,
+          "ip_par_depart": 5.74,
+          "forme": {
+            "games": 5,
+            "fip": 4.17,
+            "k_bb_pct": 0.1346,
+            "ip_per_gs": 5.27
+          }
+        }
+      },
+      "runs_attendus": {
+        "home": 5.362,
+        "away": 3.712
+      },
+      "run_diff": 1.65,
+      "bullpens": {
+        "home": {
+          "fip": 3.912,
+          "fip_fatigue": 4.012,
+          "usage": {
+            "days": 3,
+            "games": 1,
+            "rel_ip": 3.7,
+            "rel_ip_per_g": 3.67,
+            "rel_pitches": 61,
+            "arms_used": 5,
+            "by_pitcher": {
+              "Brent Headrick": [
+                "2026-10-05"
+              ],
+              "John Schreiber": [
+                "2026-10-05"
+              ],
+              "Ryan Weathers": [
+                "2026-10-05"
+              ],
+              "Paul Blackburn": [
+                "2026-10-05"
+              ],
+              "David Bednar": [
+                "2026-10-05"
+              ]
+            },
+            "closer": "David Bednar",
+            "closer_days_used": 1,
+            "closer_used_b2b": false
+          }
+        },
+        "away": {
+          "fip": 4.348,
+          "fip_fatigue": 4.598,
+          "usage": {
+            "days": 3,
+            "games": 1,
+            "rel_ip": 4.3,
+            "rel_ip_per_g": 4.33,
+            "rel_pitches": 58,
+            "arms_used": 3,
+            "by_pitcher": {
+              "Cam Booser": [
+                "2026-10-05"
+              ],
+              "Ian Seymour": [
+                "2026-10-05"
+              ],
+              "Bryan Baker": [
+                "2026-10-05"
+              ]
+            },
+            "closer": "Bryan Baker",
+            "closer_days_used": 1,
+            "closer_used_b2b": false
+          }
+        }
+      },
+      "offense": {
+        "home": {
+          "vs_hand": "R",
+          "ops": 0.714,
+          "slg": 0.405,
+          "avg": 0.229,
+          "obp": 0.309,
+          "iso": 0.176,
+          "k_pct": 0.2484,
+          "bb_pct": 0.0984,
+          "hr": 157,
+          "pa": 4034,
+          "ops_index": 0.9884
+        },
+        "away": {
+          "vs_hand": "L",
+          "ops": 0.679,
+          "slg": 0.364,
+          "avg": 0.248,
+          "obp": 0.315,
+          "iso": 0.116,
+          "k_pct": 0.1805,
+          "bb_pct": 0.0791,
+          "hr": 36,
+          "pa": 1972,
+          "ops_index": 0.9542
+        }
+      },
+      "prob_modele": {
+        "home_ml": 0.6522,
+        "away_ml": 0.3478,
+        "home_rl": 0.5034,
+        "away_rl": 0.2189
+      },
+      "facteurs": {
+        "home": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": true,
+              "ampleur": 1.06,
+              "detail": "FIP 2.99 vs 4.05"
+            },
+            {
+              "nom": "K-BB% partant",
+              "pour": true,
+              "ampleur": 3.7,
+              "detail": "15.5% vs 11.8%"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": true,
+              "ampleur": 3.4,
+              "detail": "OPS idx 0.988 vs 0.954"
+            },
+            {
+              "nom": "Puissance (ISO)",
+              "pour": true,
+              "ampleur": 0.06,
+              "detail": "ISO 0.176 vs 0.116"
+            },
+            {
+              "nom": "Bullpen",
+              "pour": true,
+              "ampleur": 0.59,
+              "detail": "FIP 4.01 vs 4.60"
+            }
+          ],
+          "pour": 5,
+          "contre": 0,
+          "net": 5
+        },
+        "away": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": false,
+              "ampleur": 1.06,
+              "detail": "FIP 4.05 vs 2.99"
+            },
+            {
+              "nom": "K-BB% partant",
+              "pour": false,
+              "ampleur": 3.7,
+              "detail": "11.8% vs 15.5%"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": false,
+              "ampleur": 3.4,
+              "detail": "OPS idx 0.954 vs 0.988"
+            },
+            {
+              "nom": "Puissance (ISO)",
+              "pour": false,
+              "ampleur": 0.06,
+              "detail": "ISO 0.116 vs 0.176"
+            },
+            {
+              "nom": "Bullpen",
+              "pour": false,
+              "ampleur": 0.59,
+              "detail": "FIP 4.60 vs 4.01"
+            }
+          ],
+          "pour": 0,
+          "contre": 5,
+          "net": -5
+        }
+      },
+      "bets": [
+        {
+          "marche": "run_line_-1.5",
+          "equipe": "New York Yankees",
+          "probabilite": 43.6,
+          "prob_modele": 50.3,
+          "prob_marche": 40.7,
+          "cote": 2.35,
+          "valeur_pct": 2.5,
+          "cote_equitable": 2.29,
+          "facteurs_nets": 5,
+          "run_diff": 1.65,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "valeur +2.5% sous le seuil 5.0% du -1.5"
+        },
+        {
+          "marche": "moneyline",
+          "equipe": "New York Yankees",
+          "probabilite": 61.9,
+          "prob_modele": 65.2,
+          "cote": 1.61,
+          "valeur_pct": -0.3,
+          "cote_equitable": 1.62,
+          "facteurs_nets": 5,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 62% à 1.61 = -0.3% — le modèle aime (65%, 5 facteurs) mais le marché le paie déjà: il faudrait 62% pour être à l'équilibre"
+        },
+        {
+          "marche": "moneyline",
+          "equipe": "Tampa Bay Rays",
+          "probabilite": 38.1,
+          "prob_modele": 34.8,
+          "cote": 2.49,
+          "valeur_pct": -5.2,
+          "cote_equitable": 2.63,
+          "facteurs_nets": -5,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 38% à 2.49 = -5.2%"
+        }
+      ],
+      "prob_marche": {
+        "home_ml": 0.605,
+        "away_ml": 0.395,
+        "source": "mediane no-vig (11 books)"
+      },
+      "prob_finale": {
+        "home_ml": 0.6192,
+        "away_ml": 0.3808
+      }
+    },
+    {
+      "game_pk": 849822,
+      "event_id": "2f041c00e4bddc69bd1bbfbd40cc3c09",
+      "home_team": "Atlanta Braves",
+      "away_team": "Los Angeles Dodgers",
+      "venue": "Truist Park",
+      "park_factor": 1.01,
+      "commence": "2026-10-07T22:00:00Z",
+      "starters": {
+        "home": {
+          "nom": "Tyler Mahle",
+          "main": "R",
+          "fip": 4.025,
+          "fip_eff": 3.885,
+          "k_bb_pct": 0.1449,
+          "whip": 1.23,
+          "ip_par_depart": 5.48,
+          "forme": {
+            "games": 5,
+            "fip": 3.56,
+            "k_bb_pct": 0.1795,
+            "ip_per_gs": 6.13
+          }
+        },
+        "away": {
+          "nom": "Tyler Glasnow",
+          "main": "R",
+          "fip": 3.231,
+          "fip_eff": 2.993,
+          "k_bb_pct": 0.211,
+          "whip": 0.95,
+          "ip_par_depart": 5.58,
+          "forme": {
+            "games": 5,
+            "fip": 2.438,
+            "k_bb_pct": 0.2521,
+            "ip_per_gs": 5.87
+          }
+        }
+      },
+      "runs_attendus": {
+        "home": 4.095,
+        "away": 5.349
+      },
+      "run_diff": -1.254,
+      "bullpens": {
+        "home": {
+          "fip": 3.946,
+          "fip_fatigue": 4.596,
+          "usage": {
+            "days": 3,
+            "games": 2,
+            "rel_ip": 10.3,
+            "rel_ip_per_g": 5.17,
+            "rel_pitches": 165,
+            "arms_used": 7,
+            "by_pitcher": {
+              "Grant Holmes": [
+                "2026-10-04"
+              ],
+              "Dylan Lee": [
+                "2026-10-04",
+                "2026-10-06"
+              ],
+              "Robert Suarez": [
+                "2026-10-04"
+              ],
+              "Didier Fuentes": [
+                "2026-10-04"
+              ],
+              "Raisel Iglesias": [
+                "2026-10-04",
+                "2026-10-06"
+              ],
+              "Dylan Dodd": [
+                "2026-10-06"
+              ],
+              "Brent Suter": [
+                "2026-10-06"
+              ]
+            },
+            "closer": "Raisel Iglesias",
+            "closer_days_used": 2,
+            "closer_used_b2b": true
+          }
+        },
+        "away": {
+          "fip": 3.661,
+          "fip_fatigue": 3.761,
+          "usage": {
+            "days": 3,
+            "games": 2,
+            "rel_ip": 7.3,
+            "rel_ip_per_g": 3.67,
+            "rel_pitches": 130,
+            "arms_used": 7,
+            "by_pitcher": {
+              "Brock Stewart": [
+                "2026-10-04"
+              ],
+              "Kris Bubic": [
+                "2026-10-04"
+              ],
+              "Evan Phillips": [
+                "2026-10-04"
+              ],
+              "Edwin Díaz": [
+                "2026-10-04",
+                "2026-10-06"
+              ],
+              "Edgardo Henriquez": [
+                "2026-10-04"
+              ],
+              "Roki Sasaki": [
+                "2026-10-04"
+              ],
+              "Tanner Scott": [
+                "2026-10-06"
+              ]
+            },
+            "closer": "Tanner Scott",
+            "closer_days_used": 1,
+            "closer_used_b2b": false
+          }
+        }
+      },
+      "offense": {
+        "home": {
+          "vs_hand": "R",
+          "ops": 0.73,
+          "slg": 0.416,
+          "avg": 0.25,
+          "obp": 0.314,
+          "iso": 0.166,
+          "k_pct": 0.2175,
+          "bb_pct": 0.0805,
+          "hr": 142,
+          "pa": 4014,
+          "ops_index": 1.0105
+        },
+        "away": {
+          "vs_hand": "R",
+          "ops": 0.766,
+          "slg": 0.424,
+          "avg": 0.259,
+          "obp": 0.342,
+          "iso": 0.165,
+          "k_pct": 0.2055,
+          "bb_pct": 0.1045,
+          "hr": 137,
+          "pa": 4267,
+          "ops_index": 1.0604
+        }
+      },
+      "prob_modele": {
+        "home_ml": 0.3857,
+        "away_ml": 0.6143,
+        "home_rl": 0.2531,
+        "away_rl": 0.4672
+      },
+      "facteurs": {
+        "home": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": false,
+              "ampleur": 0.89,
+              "detail": "FIP 3.88 vs 2.99"
+            },
+            {
+              "nom": "K-BB% partant",
+              "pour": false,
+              "ampleur": 6.6,
+              "detail": "14.5% vs 21.1%"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": false,
+              "ampleur": 5.0,
+              "detail": "OPS idx 1.010 vs 1.060"
+            },
+            {
+              "nom": "Bullpen",
+              "pour": false,
+              "ampleur": 0.83,
+              "detail": "FIP 4.60 vs 3.76"
+            }
+          ],
+          "pour": 0,
+          "contre": 4,
+          "net": -4
+        },
+        "away": {
+          "facteurs": [
+            {
+              "nom": "Lanceur partant",
+              "pour": true,
+              "ampleur": 0.89,
+              "detail": "FIP 2.99 vs 3.88"
+            },
+            {
+              "nom": "K-BB% partant",
+              "pour": true,
+              "ampleur": 6.6,
+              "detail": "21.1% vs 14.5%"
+            },
+            {
+              "nom": "Offense vs la main",
+              "pour": true,
+              "ampleur": 5.0,
+              "detail": "OPS idx 1.060 vs 1.010"
+            },
+            {
+              "nom": "Bullpen",
+              "pour": true,
+              "ampleur": 0.83,
+              "detail": "FIP 3.76 vs 4.60"
+            }
+          ],
+          "pour": 4,
+          "contre": 0,
+          "net": 4
+        }
+      },
+      "bets": [
+        {
+          "marche": "moneyline",
+          "equipe": "Los Angeles Dodgers",
+          "probabilite": 59.1,
+          "prob_modele": 61.4,
+          "cote": 1.68,
+          "valeur_pct": -0.7,
+          "cote_equitable": 1.69,
+          "facteurs_nets": 4,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 59% à 1.68 = -0.7% — le modèle aime (61%, 4 facteurs) mais le marché le paie déjà: il faudrait 60% pour être à l'équilibre"
+        },
+        {
+          "marche": "run_line_-1.5",
+          "equipe": "Los Angeles Dodgers",
+          "probabilite": 44.6,
+          "prob_modele": 46.7,
+          "prob_marche": 43.7,
+          "cote": 2.19,
+          "valeur_pct": -2.3,
+          "cote_equitable": 2.24,
+          "facteurs_nets": 4,
+          "run_diff": 1.254,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "valeur -2.3% sous le seuil 5.0% du -1.5"
+        },
+        {
+          "marche": "moneyline",
+          "equipe": "Atlanta Braves",
+          "probabilite": 40.9,
+          "prob_modele": 38.6,
+          "cote": 2.33,
+          "valeur_pct": -4.7,
+          "cote_equitable": 2.45,
+          "facteurs_nets": -4,
+          "no_brainer": false,
+          "tier": "🔴",
+          "label": "passe",
+          "raison": "prix trop court: 41% à 2.33 = -4.7%"
+        }
+      ],
+      "prob_marche": {
+        "home_ml": 0.419,
+        "away_ml": 0.581,
+        "source": "mediane no-vig (11 books)"
+      },
+      "prob_finale": {
+        "home_ml": 0.409,
+        "away_ml": 0.591
+      }
+    }
+  ],
   "power_analysis": [],
   "nfl_analysis": {
     "week": "2026-10-06",
-    "window_id": "2026-10-09|vendredi",
-    "generated_at": "2026-10-09T20:33:44.913257+00:00",
-    "reason": "vendredi — mouvement de mi-semaine",
-    "stale": false,
+    "window_id": "2026-10-06|mardi",
+    "generated_at": "2026-10-06T20:37:39.533694+00:00",
+    "reason": "hors fenetre NFL (Wednesday 14h ET)",
+    "stale": true,
     "min_edge": 3.0,
     "suspect_edge": 8.0,
     "allowed_books": [
       "bet365"
     ],
-    "n_games": 14,
+    "n_games": 15,
     "n_signals": 0,
     "games": [
+      {
+        "event_id": "259b5df9aa0d10257f56de78523495e0",
+        "home_team": "Dallas Cowboys",
+        "away_team": "Tampa Bay Buccaneers",
+        "commence": "2026-10-09T00:15:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 79.39,
+            "prob_b": 20.61,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 8.0,
+            "prob_a": 48.28,
+            "prob_b": 51.72,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_total",
+            "point": 47.5,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          }
+        ],
+        "prices": {
+          "Dallas Cowboys ML": {
+            "market": "nfl_ml",
+            "point": null,
+            "prob": 79.39,
+            "fair_odds": 1.26,
+            "min_odds": 1.26,
+            "target_odds": 1.3,
+            "suspect_odds": 1.36,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Tampa Bay Buccaneers ML": {
+            "market": "nfl_ml",
+            "point": null,
+            "prob": 20.61,
+            "fair_odds": 4.852,
+            "min_odds": 4.85,
+            "target_odds": 5.0,
+            "suspect_odds": 5.24,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Dallas Cowboys -8": {
+            "market": "nfl_spread",
+            "point": 8.0,
+            "prob": 48.28,
+            "fair_odds": 2.071,
+            "min_odds": 2.07,
+            "target_odds": 2.13,
+            "suspect_odds": 2.24,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Tampa Bay Buccaneers +8": {
+            "market": "nfl_spread",
+            "point": 8.0,
+            "prob": 51.72,
+            "fair_odds": 1.933,
+            "min_odds": 1.93,
+            "target_odds": 1.99,
+            "suspect_odds": 2.09,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Over 47.5": {
+            "market": "nfl_total",
+            "point": 47.5,
+            "prob": 50.0,
+            "fair_odds": 2.0,
+            "min_odds": 2.0,
+            "target_odds": 2.06,
+            "suspect_odds": 2.16,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Under 47.5": {
+            "market": "nfl_total",
+            "point": 47.5,
+            "prob": 50.0,
+            "fair_odds": 2.0,
+            "min_odds": 2.0,
+            "target_odds": 2.06,
+            "suspect_odds": 2.16,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          }
+        }
+      },
       {
         "event_id": "21b26266f3d78af02eb672e606275d95",
         "home_team": "Jacksonville Jaguars",
@@ -696,8 +1511,8 @@
           {
             "market": "nfl_ml",
             "point": null,
-            "prob_a": 76.44,
-            "prob_b": 23.56,
+            "prob_a": 76.4,
+            "prob_b": 23.6,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
@@ -711,17 +1526,9 @@
           },
           {
             "market": "nfl_total",
-            "point": 42.0,
-            "prob_a": 49.32,
-            "prob_b": 50.68,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          {
-            "market": "nfl_total",
             "point": 42.5,
-            "prob_a": 47.73,
-            "prob_b": 52.27,
+            "prob_a": 47.34,
+            "prob_b": 52.66,
             "source": "pinnacle (shin)",
             "n_books": 1
           }
@@ -730,8 +1537,8 @@
           "Jacksonville Jaguars ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 76.44,
-            "fair_odds": 1.308,
+            "prob": 76.4,
+            "fair_odds": 1.309,
             "min_odds": 1.31,
             "target_odds": 1.35,
             "suspect_odds": 1.41,
@@ -747,8 +1554,8 @@
           "Philadelphia Eagles ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 23.56,
-            "fair_odds": 4.244,
+            "prob": 23.6,
+            "fair_odds": 4.238,
             "min_odds": 4.24,
             "target_odds": 4.37,
             "suspect_odds": 4.58,
@@ -795,48 +1602,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Over 42": {
-            "market": "nfl_total",
-            "point": 42.0,
-            "prob": 49.32,
-            "fair_odds": 2.028,
-            "min_odds": 2.03,
-            "target_odds": 2.09,
-            "suspect_odds": 2.19,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "Under 42": {
-            "market": "nfl_total",
-            "point": 42.0,
-            "prob": 50.68,
-            "fair_odds": 1.973,
-            "min_odds": 1.97,
-            "target_odds": 2.03,
-            "suspect_odds": 2.13,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
           "Over 42.5": {
             "market": "nfl_total",
             "point": 42.5,
-            "prob": 47.73,
-            "fair_odds": 2.095,
-            "min_odds": 2.1,
-            "target_odds": 2.16,
-            "suspect_odds": 2.26,
+            "prob": 47.34,
+            "fair_odds": 2.113,
+            "min_odds": 2.11,
+            "target_odds": 2.18,
+            "suspect_odds": 2.28,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -849,11 +1622,11 @@
           "Under 42.5": {
             "market": "nfl_total",
             "point": 42.5,
-            "prob": 52.27,
-            "fair_odds": 1.913,
-            "min_odds": 1.91,
-            "target_odds": 1.97,
-            "suspect_odds": 2.07,
+            "prob": 52.66,
+            "fair_odds": 1.899,
+            "min_odds": 1.9,
+            "target_odds": 1.96,
+            "suspect_odds": 2.05,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -875,18 +1648,26 @@
           {
             "market": "nfl_ml",
             "point": null,
-            "prob_a": 47.85,
-            "prob_b": 52.15,
+            "prob_a": 41.61,
+            "prob_b": 58.39,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_spread",
-            "point": 1.0,
-            "prob_a": 49.6,
-            "prob_b": 50.4,
+            "point": 2.5,
+            "prob_a": 47.22,
+            "prob_b": 52.78,
             "source": "pinnacle (shin)",
             "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob_a": 52.41,
+            "prob_b": 47.59,
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
           },
           {
             "market": "nfl_total",
@@ -899,8 +1680,8 @@
           {
             "market": "nfl_total",
             "point": 46.0,
-            "prob_a": 49.05,
-            "prob_b": 50.95,
+            "prob_a": 48.8,
+            "prob_b": 51.2,
             "source": "pinnacle (shin)",
             "n_books": 1
           }
@@ -909,11 +1690,11 @@
           "Green Bay Packers ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 47.85,
-            "fair_odds": 2.09,
-            "min_odds": 2.09,
-            "target_odds": 2.15,
-            "suspect_odds": 2.26,
+            "prob": 41.61,
+            "fair_odds": 2.403,
+            "min_odds": 2.4,
+            "target_odds": 2.48,
+            "suspect_odds": 2.6,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -926,11 +1707,11 @@
           "Chicago Bears ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 52.15,
-            "fair_odds": 1.917,
-            "min_odds": 1.92,
-            "target_odds": 1.98,
-            "suspect_odds": 2.07,
+            "prob": 58.39,
+            "fair_odds": 1.713,
+            "min_odds": 1.71,
+            "target_odds": 1.76,
+            "suspect_odds": 1.85,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -940,14 +1721,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Green Bay Packers +1": {
+          "Green Bay Packers +2.5": {
             "market": "nfl_spread",
-            "point": 1.0,
-            "prob": 49.6,
-            "fair_odds": 2.016,
-            "min_odds": 2.02,
-            "target_odds": 2.08,
-            "suspect_odds": 2.18,
+            "point": 2.5,
+            "prob": 47.22,
+            "fair_odds": 2.118,
+            "min_odds": 2.12,
+            "target_odds": 2.18,
+            "suspect_odds": 2.29,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -957,14 +1738,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Chicago Bears -1": {
+          "Chicago Bears -2.5": {
             "market": "nfl_spread",
-            "point": 1.0,
-            "prob": 50.4,
-            "fair_odds": 1.984,
-            "min_odds": 1.98,
-            "target_odds": 2.04,
-            "suspect_odds": 2.14,
+            "point": 2.5,
+            "prob": 52.78,
+            "fair_odds": 1.895,
+            "min_odds": 1.89,
+            "target_odds": 1.95,
+            "suspect_odds": 2.05,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -973,6 +1754,40 @@
             "stake_units": 0,
             "source": "pinnacle (shin)",
             "n_books": 1
+          },
+          "Green Bay Packers +3": {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob": 52.41,
+            "fair_odds": 1.908,
+            "min_odds": 1.91,
+            "target_odds": 1.97,
+            "suspect_odds": 2.06,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
+          },
+          "Chicago Bears -3": {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob": 47.59,
+            "fair_odds": 2.101,
+            "min_odds": 2.1,
+            "target_odds": 2.16,
+            "suspect_odds": 2.27,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
           },
           "Over 45.5": {
             "market": "nfl_total",
@@ -1011,11 +1826,11 @@
           "Over 46": {
             "market": "nfl_total",
             "point": 46.0,
-            "prob": 49.05,
-            "fair_odds": 2.039,
-            "min_odds": 2.04,
-            "target_odds": 2.1,
-            "suspect_odds": 2.2,
+            "prob": 48.8,
+            "fair_odds": 2.049,
+            "min_odds": 2.05,
+            "target_odds": 2.11,
+            "suspect_odds": 2.21,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -1028,11 +1843,11 @@
           "Under 46": {
             "market": "nfl_total",
             "point": 46.0,
-            "prob": 50.95,
-            "fair_odds": 1.963,
-            "min_odds": 1.96,
-            "target_odds": 2.02,
-            "suspect_odds": 2.12,
+            "prob": 51.2,
+            "fair_odds": 1.953,
+            "min_odds": 1.95,
+            "target_odds": 2.01,
+            "suspect_odds": 2.11,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -1054,53 +1869,45 @@
           {
             "market": "nfl_ml",
             "point": null,
-            "prob_a": 24.36,
-            "prob_b": 75.64,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_spread",
-            "point": 6.5,
-            "prob_a": 46.72,
-            "prob_b": 53.28,
+            "prob_a": 24.26,
+            "prob_b": 75.74,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_spread",
             "point": 7.0,
-            "prob_a": 51.14,
-            "prob_b": 48.86,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          {
-            "market": "nfl_total",
-            "point": 43.5,
-            "prob_a": 51.07,
-            "prob_b": 48.93,
+            "prob_a": 49.07,
+            "prob_b": 50.93,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_total",
-            "point": 44.0,
+            "point": 42.0,
             "prob_a": 50.0,
             "prob_b": 50.0,
             "source": "mediane sharp shin (lowvig, betonlineag)",
             "n_books": 2
+          },
+          {
+            "market": "nfl_total",
+            "point": 42.5,
+            "prob_a": 51.2,
+            "prob_b": 48.8,
+            "source": "pinnacle (shin)",
+            "n_books": 1
           }
         ],
         "prices": {
           "Miami Dolphins ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 24.36,
-            "fair_odds": 4.104,
-            "min_odds": 4.1,
-            "target_odds": 4.23,
-            "suspect_odds": 4.43,
+            "prob": 24.26,
+            "fair_odds": 4.122,
+            "min_odds": 4.12,
+            "target_odds": 4.25,
+            "suspect_odds": 4.45,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -1113,8 +1920,8 @@
           "Cincinnati Bengals ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 75.64,
-            "fair_odds": 1.322,
+            "prob": 75.74,
+            "fair_odds": 1.32,
             "min_odds": 1.32,
             "target_odds": 1.36,
             "suspect_odds": 1.43,
@@ -1127,48 +1934,48 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Miami Dolphins +6.5": {
-            "market": "nfl_spread",
-            "point": 6.5,
-            "prob": 46.72,
-            "fair_odds": 2.141,
-            "min_odds": 2.14,
-            "target_odds": 2.2,
-            "suspect_odds": 2.31,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Cincinnati Bengals -6.5": {
-            "market": "nfl_spread",
-            "point": 6.5,
-            "prob": 53.28,
-            "fair_odds": 1.877,
-            "min_odds": 1.88,
-            "target_odds": 1.93,
-            "suspect_odds": 2.03,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
           "Miami Dolphins +7": {
             "market": "nfl_spread",
             "point": 7.0,
-            "prob": 51.14,
-            "fair_odds": 1.956,
+            "prob": 49.07,
+            "fair_odds": 2.038,
+            "min_odds": 2.04,
+            "target_odds": 2.1,
+            "suspect_odds": 2.2,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Cincinnati Bengals -7": {
+            "market": "nfl_spread",
+            "point": 7.0,
+            "prob": 50.93,
+            "fair_odds": 1.964,
             "min_odds": 1.96,
-            "target_odds": 2.01,
-            "suspect_odds": 2.11,
+            "target_odds": 2.02,
+            "suspect_odds": 2.12,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Over 42": {
+            "market": "nfl_total",
+            "point": 42.0,
+            "prob": 50.0,
+            "fair_odds": 2.0,
+            "min_odds": 2.0,
+            "target_odds": 2.06,
+            "suspect_odds": 2.16,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -1178,11 +1985,45 @@
             "source": "mediane sharp shin (lowvig, betonlineag)",
             "n_books": 2
           },
-          "Cincinnati Bengals -7": {
-            "market": "nfl_spread",
-            "point": 7.0,
-            "prob": 48.86,
-            "fair_odds": 2.047,
+          "Under 42": {
+            "market": "nfl_total",
+            "point": 42.0,
+            "prob": 50.0,
+            "fair_odds": 2.0,
+            "min_odds": 2.0,
+            "target_odds": 2.06,
+            "suspect_odds": 2.16,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
+          },
+          "Over 42.5": {
+            "market": "nfl_total",
+            "point": 42.5,
+            "prob": 51.2,
+            "fair_odds": 1.953,
+            "min_odds": 1.95,
+            "target_odds": 2.01,
+            "suspect_odds": 2.11,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Under 42.5": {
+            "market": "nfl_total",
+            "point": 42.5,
+            "prob": 48.8,
+            "fair_odds": 2.049,
             "min_odds": 2.05,
             "target_odds": 2.11,
             "suspect_odds": 2.21,
@@ -1192,76 +2033,8 @@
             "edge_pct": 0.0,
             "statut": "a_saisir",
             "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "Over 43.5": {
-            "market": "nfl_total",
-            "point": 43.5,
-            "prob": 51.07,
-            "fair_odds": 1.958,
-            "min_odds": 1.96,
-            "target_odds": 2.02,
-            "suspect_odds": 2.11,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
             "source": "pinnacle (shin)",
             "n_books": 1
-          },
-          "Under 43.5": {
-            "market": "nfl_total",
-            "point": 43.5,
-            "prob": 48.93,
-            "fair_odds": 2.044,
-            "min_odds": 2.04,
-            "target_odds": 2.11,
-            "suspect_odds": 2.21,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Over 44": {
-            "market": "nfl_total",
-            "point": 44.0,
-            "prob": 50.0,
-            "fair_odds": 2.0,
-            "min_odds": 2.0,
-            "target_odds": 2.06,
-            "suspect_odds": 2.16,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "Under 44": {
-            "market": "nfl_total",
-            "point": 44.0,
-            "prob": 50.0,
-            "fair_odds": 2.0,
-            "min_odds": 2.0,
-            "target_odds": 2.06,
-            "suspect_odds": 2.16,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
           }
         }
       },
@@ -1275,34 +2048,26 @@
           {
             "market": "nfl_ml",
             "point": null,
-            "prob_a": 56.55,
-            "prob_b": 43.45,
+            "prob_a": 55.37,
+            "prob_b": 44.63,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_spread",
             "point": 1.0,
-            "prob_a": 53.39,
-            "prob_b": 46.61,
-            "source": "mediane sharp shin (betonlineag)",
-            "n_books": 1
+            "prob_a": 53.26,
+            "prob_b": 46.74,
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
           },
           {
             "market": "nfl_spread",
-            "point": 2.5,
-            "prob_a": 50.4,
-            "prob_b": 49.6,
+            "point": 1.5,
+            "prob_a": 51.72,
+            "prob_b": 48.28,
             "source": "pinnacle (shin)",
             "n_books": 1
-          },
-          {
-            "market": "nfl_total",
-            "point": 39.5,
-            "prob_a": 50.0,
-            "prob_b": 50.0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
           },
           {
             "market": "nfl_total",
@@ -1317,11 +2082,11 @@
           "New York Jets ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 56.55,
-            "fair_odds": 1.768,
-            "min_odds": 1.77,
-            "target_odds": 1.82,
-            "suspect_odds": 1.91,
+            "prob": 55.37,
+            "fair_odds": 1.806,
+            "min_odds": 1.81,
+            "target_odds": 1.86,
+            "suspect_odds": 1.95,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -1334,11 +2099,11 @@
           "Cleveland Browns ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 43.45,
-            "fair_odds": 2.301,
-            "min_odds": 2.3,
-            "target_odds": 2.37,
-            "suspect_odds": 2.49,
+            "prob": 44.63,
+            "fair_odds": 2.241,
+            "min_odds": 2.24,
+            "target_odds": 2.31,
+            "suspect_odds": 2.42,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -1351,79 +2116,28 @@
           "New York Jets -1": {
             "market": "nfl_spread",
             "point": 1.0,
-            "prob": 53.39,
-            "fair_odds": 1.873,
-            "min_odds": 1.87,
+            "prob": 53.26,
+            "fair_odds": 1.878,
+            "min_odds": 1.88,
             "target_odds": 1.93,
-            "suspect_odds": 2.02,
+            "suspect_odds": 2.03,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
             "edge_pct": 0.0,
             "statut": "a_saisir",
             "stake_units": 0,
-            "source": "mediane sharp shin (betonlineag)",
-            "n_books": 1
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
           },
           "Cleveland Browns +1": {
             "market": "nfl_spread",
             "point": 1.0,
-            "prob": 46.61,
-            "fair_odds": 2.145,
-            "min_odds": 2.15,
-            "target_odds": 2.21,
-            "suspect_odds": 2.32,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (betonlineag)",
-            "n_books": 1
-          },
-          "New York Jets -2.5": {
-            "market": "nfl_spread",
-            "point": 2.5,
-            "prob": 50.4,
-            "fair_odds": 1.984,
-            "min_odds": 1.98,
-            "target_odds": 2.04,
-            "suspect_odds": 2.14,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Cleveland Browns +2.5": {
-            "market": "nfl_spread",
-            "point": 2.5,
-            "prob": 49.6,
-            "fair_odds": 2.016,
-            "min_odds": 2.02,
-            "target_odds": 2.08,
-            "suspect_odds": 2.18,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Over 39.5": {
-            "market": "nfl_total",
-            "point": 39.5,
-            "prob": 50.0,
-            "fair_odds": 2.0,
-            "min_odds": 2.0,
-            "target_odds": 2.06,
-            "suspect_odds": 2.16,
+            "prob": 46.74,
+            "fair_odds": 2.139,
+            "min_odds": 2.14,
+            "target_odds": 2.2,
+            "suspect_odds": 2.31,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -1433,22 +2147,39 @@
             "source": "mediane sharp shin (lowvig, betonlineag)",
             "n_books": 2
           },
-          "Under 39.5": {
-            "market": "nfl_total",
-            "point": 39.5,
-            "prob": 50.0,
-            "fair_odds": 2.0,
-            "min_odds": 2.0,
-            "target_odds": 2.06,
-            "suspect_odds": 2.16,
+          "New York Jets -1.5": {
+            "market": "nfl_spread",
+            "point": 1.5,
+            "prob": 51.72,
+            "fair_odds": 1.933,
+            "min_odds": 1.93,
+            "target_odds": 1.99,
+            "suspect_odds": 2.09,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
             "edge_pct": 0.0,
             "statut": "a_saisir",
             "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Cleveland Browns +1.5": {
+            "market": "nfl_spread",
+            "point": 1.5,
+            "prob": 48.28,
+            "fair_odds": 2.071,
+            "min_odds": 2.07,
+            "target_odds": 2.13,
+            "suspect_odds": 2.24,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
           },
           "Over 40": {
             "market": "nfl_total",
@@ -1496,53 +2227,37 @@
           {
             "market": "nfl_ml",
             "point": null,
-            "prob_a": 23.82,
-            "prob_b": 76.18,
+            "prob_a": 24.33,
+            "prob_b": 75.67,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_spread",
             "point": 7.0,
+            "prob_a": 47.75,
+            "prob_b": 52.25,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_total",
+            "point": 38.5,
             "prob_a": 50.0,
             "prob_b": 50.0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          {
-            "market": "nfl_spread",
-            "point": 7.5,
-            "prob_a": 53.28,
-            "prob_b": 46.72,
             "source": "pinnacle (shin)",
             "n_books": 1
-          },
-          {
-            "market": "nfl_total",
-            "point": 37.5,
-            "prob_a": 51.86,
-            "prob_b": 48.14,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_total",
-            "point": 38.0,
-            "prob_a": 50.68,
-            "prob_b": 49.32,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
           }
         ],
         "prices": {
           "Tennessee Titans ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 23.82,
-            "fair_odds": 4.197,
-            "min_odds": 4.2,
-            "target_odds": 4.32,
-            "suspect_odds": 4.53,
+            "prob": 24.33,
+            "fair_odds": 4.11,
+            "min_odds": 4.11,
+            "target_odds": 4.23,
+            "suspect_odds": 4.44,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -1555,11 +2270,11 @@
           "Houston Texans ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 76.18,
-            "fair_odds": 1.313,
-            "min_odds": 1.31,
-            "target_odds": 1.35,
-            "suspect_odds": 1.42,
+            "prob": 75.67,
+            "fair_odds": 1.322,
+            "min_odds": 1.32,
+            "target_odds": 1.36,
+            "suspect_odds": 1.43,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -1572,261 +2287,6 @@
           "Tennessee Titans +7": {
             "market": "nfl_spread",
             "point": 7.0,
-            "prob": 50.0,
-            "fair_odds": 2.0,
-            "min_odds": 2.0,
-            "target_odds": 2.06,
-            "suspect_odds": 2.16,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "Houston Texans -7": {
-            "market": "nfl_spread",
-            "point": 7.0,
-            "prob": 50.0,
-            "fair_odds": 2.0,
-            "min_odds": 2.0,
-            "target_odds": 2.06,
-            "suspect_odds": 2.16,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "Tennessee Titans +7.5": {
-            "market": "nfl_spread",
-            "point": 7.5,
-            "prob": 53.28,
-            "fair_odds": 1.877,
-            "min_odds": 1.88,
-            "target_odds": 1.93,
-            "suspect_odds": 2.03,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Houston Texans -7.5": {
-            "market": "nfl_spread",
-            "point": 7.5,
-            "prob": 46.72,
-            "fair_odds": 2.141,
-            "min_odds": 2.14,
-            "target_odds": 2.2,
-            "suspect_odds": 2.31,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Over 37.5": {
-            "market": "nfl_total",
-            "point": 37.5,
-            "prob": 51.86,
-            "fair_odds": 1.928,
-            "min_odds": 1.93,
-            "target_odds": 1.99,
-            "suspect_odds": 2.08,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Under 37.5": {
-            "market": "nfl_total",
-            "point": 37.5,
-            "prob": 48.14,
-            "fair_odds": 2.077,
-            "min_odds": 2.08,
-            "target_odds": 2.14,
-            "suspect_odds": 2.24,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Over 38": {
-            "market": "nfl_total",
-            "point": 38.0,
-            "prob": 50.68,
-            "fair_odds": 1.973,
-            "min_odds": 1.97,
-            "target_odds": 2.03,
-            "suspect_odds": 2.13,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "Under 38": {
-            "market": "nfl_total",
-            "point": 38.0,
-            "prob": 49.32,
-            "fair_odds": 2.028,
-            "min_odds": 2.03,
-            "target_odds": 2.09,
-            "suspect_odds": 2.19,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          }
-        }
-      },
-      {
-        "event_id": "448d7cf18c6db4c811ed82ded1b72867",
-        "home_team": "Pittsburgh Steelers",
-        "away_team": "Indianapolis Colts",
-        "commence": "2026-10-11T17:00:00Z",
-        "signals": [],
-        "markets": [
-          {
-            "market": "nfl_ml",
-            "point": null,
-            "prob_a": 58.39,
-            "prob_b": 41.61,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_spread",
-            "point": 2.5,
-            "prob_a": 51.1,
-            "prob_b": 48.9,
-            "source": "mediane sharp shin (betonlineag)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_spread",
-            "point": 3.0,
-            "prob_a": 47.75,
-            "prob_b": 52.25,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_total",
-            "point": 43.5,
-            "prob_a": 50.94,
-            "prob_b": 49.06,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_total",
-            "point": 44.0,
-            "prob_a": 48.78,
-            "prob_b": 51.22,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          }
-        ],
-        "prices": {
-          "Pittsburgh Steelers ML": {
-            "market": "nfl_ml",
-            "point": null,
-            "prob": 58.39,
-            "fair_odds": 1.713,
-            "min_odds": 1.71,
-            "target_odds": 1.76,
-            "suspect_odds": 1.85,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Indianapolis Colts ML": {
-            "market": "nfl_ml",
-            "point": null,
-            "prob": 41.61,
-            "fair_odds": 2.403,
-            "min_odds": 2.4,
-            "target_odds": 2.48,
-            "suspect_odds": 2.6,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Pittsburgh Steelers -2.5": {
-            "market": "nfl_spread",
-            "point": 2.5,
-            "prob": 51.1,
-            "fair_odds": 1.957,
-            "min_odds": 1.96,
-            "target_odds": 2.02,
-            "suspect_odds": 2.11,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (betonlineag)",
-            "n_books": 1
-          },
-          "Indianapolis Colts +2.5": {
-            "market": "nfl_spread",
-            "point": 2.5,
-            "prob": 48.9,
-            "fair_odds": 2.045,
-            "min_odds": 2.04,
-            "target_odds": 2.11,
-            "suspect_odds": 2.21,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (betonlineag)",
-            "n_books": 1
-          },
-          "Pittsburgh Steelers -3": {
-            "market": "nfl_spread",
-            "point": 3.0,
             "prob": 47.75,
             "fair_odds": 2.094,
             "min_odds": 2.09,
@@ -1841,9 +2301,9 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Indianapolis Colts +3": {
+          "Houston Texans -7": {
             "market": "nfl_spread",
-            "point": 3.0,
+            "point": 7.0,
             "prob": 52.25,
             "fair_odds": 1.914,
             "min_odds": 1.91,
@@ -1858,11 +2318,156 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Over 43.5": {
+          "Over 38.5": {
             "market": "nfl_total",
-            "point": 43.5,
-            "prob": 50.94,
-            "fair_odds": 1.963,
+            "point": 38.5,
+            "prob": 50.0,
+            "fair_odds": 2.0,
+            "min_odds": 2.0,
+            "target_odds": 2.06,
+            "suspect_odds": 2.16,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Under 38.5": {
+            "market": "nfl_total",
+            "point": 38.5,
+            "prob": 50.0,
+            "fair_odds": 2.0,
+            "min_odds": 2.0,
+            "target_odds": 2.06,
+            "suspect_odds": 2.16,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          }
+        }
+      },
+      {
+        "event_id": "448d7cf18c6db4c811ed82ded1b72867",
+        "home_team": "Pittsburgh Steelers",
+        "away_team": "Indianapolis Colts",
+        "commence": "2026-10-11T17:00:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 57.19,
+            "prob_b": 42.81,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 1.0,
+            "prob_a": 54.17,
+            "prob_b": 45.83,
+            "source": "mediane sharp shin (betonlineag)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 2.5,
+            "prob_a": 50.93,
+            "prob_b": 49.07,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_total",
+            "point": 44.5,
+            "prob_a": 50.4,
+            "prob_b": 49.6,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          }
+        ],
+        "prices": {
+          "Pittsburgh Steelers ML": {
+            "market": "nfl_ml",
+            "point": null,
+            "prob": 57.19,
+            "fair_odds": 1.749,
+            "min_odds": 1.75,
+            "target_odds": 1.8,
+            "suspect_odds": 1.89,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Indianapolis Colts ML": {
+            "market": "nfl_ml",
+            "point": null,
+            "prob": 42.81,
+            "fair_odds": 2.336,
+            "min_odds": 2.34,
+            "target_odds": 2.41,
+            "suspect_odds": 2.52,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Pittsburgh Steelers -1": {
+            "market": "nfl_spread",
+            "point": 1.0,
+            "prob": 54.17,
+            "fair_odds": 1.846,
+            "min_odds": 1.85,
+            "target_odds": 1.9,
+            "suspect_odds": 1.99,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "mediane sharp shin (betonlineag)",
+            "n_books": 1
+          },
+          "Indianapolis Colts +1": {
+            "market": "nfl_spread",
+            "point": 1.0,
+            "prob": 45.83,
+            "fair_odds": 2.182,
+            "min_odds": 2.18,
+            "target_odds": 2.25,
+            "suspect_odds": 2.36,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "mediane sharp shin (betonlineag)",
+            "n_books": 1
+          },
+          "Pittsburgh Steelers -2.5": {
+            "market": "nfl_spread",
+            "point": 2.5,
+            "prob": 50.93,
+            "fair_odds": 1.964,
             "min_odds": 1.96,
             "target_odds": 2.02,
             "suspect_odds": 2.12,
@@ -1875,10 +2480,10 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Under 43.5": {
-            "market": "nfl_total",
-            "point": 43.5,
-            "prob": 49.06,
+          "Indianapolis Colts +2.5": {
+            "market": "nfl_spread",
+            "point": 2.5,
+            "prob": 49.07,
             "fair_odds": 2.038,
             "min_odds": 2.04,
             "target_odds": 2.1,
@@ -1892,188 +2497,9 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Over 44": {
+          "Over 44.5": {
             "market": "nfl_total",
-            "point": 44.0,
-            "prob": 48.78,
-            "fair_odds": 2.05,
-            "min_odds": 2.05,
-            "target_odds": 2.11,
-            "suspect_odds": 2.21,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "Under 44": {
-            "market": "nfl_total",
-            "point": 44.0,
-            "prob": 51.22,
-            "fair_odds": 1.952,
-            "min_odds": 1.95,
-            "target_odds": 2.01,
-            "suspect_odds": 2.11,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          }
-        }
-      },
-      {
-        "event_id": "6b024bad1abb54f597225e4ab9b39d89",
-        "home_team": "New England Patriots",
-        "away_team": "Las Vegas Raiders",
-        "commence": "2026-10-11T17:00:00Z",
-        "signals": [],
-        "markets": [
-          {
-            "market": "nfl_ml",
-            "point": null,
-            "prob_a": 63.81,
-            "prob_b": 36.19,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_spread",
-            "point": 3.5,
-            "prob_a": 49.74,
-            "prob_b": 50.26,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          {
-            "market": "nfl_spread",
-            "point": 4.0,
-            "prob_a": 48.01,
-            "prob_b": 51.99,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_total",
-            "point": 45.0,
-            "prob_a": 50.4,
-            "prob_b": 49.6,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          }
-        ],
-        "prices": {
-          "New England Patriots ML": {
-            "market": "nfl_ml",
-            "point": null,
-            "prob": 63.81,
-            "fair_odds": 1.567,
-            "min_odds": 1.57,
-            "target_odds": 1.61,
-            "suspect_odds": 1.69,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Las Vegas Raiders ML": {
-            "market": "nfl_ml",
-            "point": null,
-            "prob": 36.19,
-            "fair_odds": 2.763,
-            "min_odds": 2.76,
-            "target_odds": 2.85,
-            "suspect_odds": 2.98,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "New England Patriots -3.5": {
-            "market": "nfl_spread",
-            "point": 3.5,
-            "prob": 49.74,
-            "fair_odds": 2.011,
-            "min_odds": 2.01,
-            "target_odds": 2.07,
-            "suspect_odds": 2.17,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "Las Vegas Raiders +3.5": {
-            "market": "nfl_spread",
-            "point": 3.5,
-            "prob": 50.26,
-            "fair_odds": 1.99,
-            "min_odds": 1.99,
-            "target_odds": 2.05,
-            "suspect_odds": 2.15,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "New England Patriots -4": {
-            "market": "nfl_spread",
-            "point": 4.0,
-            "prob": 48.01,
-            "fair_odds": 2.083,
-            "min_odds": 2.08,
-            "target_odds": 2.15,
-            "suspect_odds": 2.25,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Las Vegas Raiders +4": {
-            "market": "nfl_spread",
-            "point": 4.0,
-            "prob": 51.99,
-            "fair_odds": 1.924,
-            "min_odds": 1.92,
-            "target_odds": 1.98,
-            "suspect_odds": 2.08,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Over 45": {
-            "market": "nfl_total",
-            "point": 45.0,
+            "point": 44.5,
             "prob": 50.4,
             "fair_odds": 1.984,
             "min_odds": 1.98,
@@ -2088,14 +2514,151 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Under 45": {
+          "Under 44.5": {
             "market": "nfl_total",
-            "point": 45.0,
+            "point": 44.5,
             "prob": 49.6,
             "fair_odds": 2.016,
             "min_odds": 2.02,
             "target_odds": 2.08,
             "suspect_odds": 2.18,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          }
+        }
+      },
+      {
+        "event_id": "6b024bad1abb54f597225e4ab9b39d89",
+        "home_team": "New England Patriots",
+        "away_team": "Las Vegas Raiders",
+        "commence": "2026-10-11T17:00:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 63.74,
+            "prob_b": 36.26,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob_a": 50.27,
+            "prob_b": 49.73,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_total",
+            "point": 45.0,
+            "prob_a": 50.13,
+            "prob_b": 49.87,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          }
+        ],
+        "prices": {
+          "New England Patriots ML": {
+            "market": "nfl_ml",
+            "point": null,
+            "prob": 63.74,
+            "fair_odds": 1.569,
+            "min_odds": 1.57,
+            "target_odds": 1.62,
+            "suspect_odds": 1.69,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Las Vegas Raiders ML": {
+            "market": "nfl_ml",
+            "point": null,
+            "prob": 36.26,
+            "fair_odds": 2.758,
+            "min_odds": 2.76,
+            "target_odds": 2.84,
+            "suspect_odds": 2.98,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "New England Patriots -3.5": {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob": 50.27,
+            "fair_odds": 1.989,
+            "min_odds": 1.99,
+            "target_odds": 2.05,
+            "suspect_odds": 2.15,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Las Vegas Raiders +3.5": {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob": 49.73,
+            "fair_odds": 2.011,
+            "min_odds": 2.01,
+            "target_odds": 2.07,
+            "suspect_odds": 2.17,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Over 45": {
+            "market": "nfl_total",
+            "point": 45.0,
+            "prob": 50.13,
+            "fair_odds": 1.995,
+            "min_odds": 1.99,
+            "target_odds": 2.05,
+            "suspect_odds": 2.15,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Under 45": {
+            "market": "nfl_total",
+            "point": 45.0,
+            "prob": 49.87,
+            "fair_odds": 2.005,
+            "min_odds": 2.01,
+            "target_odds": 2.07,
+            "suspect_odds": 2.17,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2117,237 +2680,16 @@
           {
             "market": "nfl_ml",
             "point": null,
-            "prob_a": 43.25,
-            "prob_b": 56.75,
+            "prob_a": 45.27,
+            "prob_b": 54.73,
             "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_spread",
-            "point": 1.0,
-            "prob_a": 46.61,
-            "prob_b": 53.39,
-            "source": "mediane sharp shin (betonlineag)",
             "n_books": 1
           },
           {
             "market": "nfl_spread",
             "point": 2.0,
-            "prob_a": 48.28,
-            "prob_b": 51.72,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_spread",
-            "point": 2.5,
-            "prob_a": 50.53,
-            "prob_b": 49.47,
-            "source": "mediane sharp shin (lowvig)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_total",
-            "point": 42.0,
-            "prob_a": 48.26,
-            "prob_b": 51.74,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          }
-        ],
-        "prices": {
-          "New Orleans Saints ML": {
-            "market": "nfl_ml",
-            "point": null,
-            "prob": 43.25,
-            "fair_odds": 2.312,
-            "min_odds": 2.31,
-            "target_odds": 2.38,
-            "suspect_odds": 2.5,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Minnesota Vikings ML": {
-            "market": "nfl_ml",
-            "point": null,
-            "prob": 56.75,
-            "fair_odds": 1.762,
-            "min_odds": 1.76,
-            "target_odds": 1.82,
-            "suspect_odds": 1.9,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "New Orleans Saints +1": {
-            "market": "nfl_spread",
-            "point": 1.0,
-            "prob": 46.61,
-            "fair_odds": 2.145,
-            "min_odds": 2.15,
-            "target_odds": 2.21,
-            "suspect_odds": 2.32,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (betonlineag)",
-            "n_books": 1
-          },
-          "Minnesota Vikings -1": {
-            "market": "nfl_spread",
-            "point": 1.0,
-            "prob": 53.39,
-            "fair_odds": 1.873,
-            "min_odds": 1.87,
-            "target_odds": 1.93,
-            "suspect_odds": 2.02,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (betonlineag)",
-            "n_books": 1
-          },
-          "New Orleans Saints +2": {
-            "market": "nfl_spread",
-            "point": 2.0,
-            "prob": 48.28,
-            "fair_odds": 2.071,
-            "min_odds": 2.07,
-            "target_odds": 2.13,
-            "suspect_odds": 2.24,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Minnesota Vikings -2": {
-            "market": "nfl_spread",
-            "point": 2.0,
-            "prob": 51.72,
-            "fair_odds": 1.933,
-            "min_odds": 1.93,
-            "target_odds": 1.99,
-            "suspect_odds": 2.09,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "New Orleans Saints +2.5": {
-            "market": "nfl_spread",
-            "point": 2.5,
-            "prob": 50.53,
-            "fair_odds": 1.979,
-            "min_odds": 1.98,
-            "target_odds": 2.04,
-            "suspect_odds": 2.14,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig)",
-            "n_books": 1
-          },
-          "Minnesota Vikings -2.5": {
-            "market": "nfl_spread",
-            "point": 2.5,
-            "prob": 49.47,
-            "fair_odds": 2.021,
-            "min_odds": 2.02,
-            "target_odds": 2.08,
-            "suspect_odds": 2.18,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig)",
-            "n_books": 1
-          },
-          "Over 42": {
-            "market": "nfl_total",
-            "point": 42.0,
-            "prob": 48.26,
-            "fair_odds": 2.072,
-            "min_odds": 2.07,
-            "target_odds": 2.13,
-            "suspect_odds": 2.24,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Under 42": {
-            "market": "nfl_total",
-            "point": 42.0,
-            "prob": 51.74,
-            "fair_odds": 1.933,
-            "min_odds": 1.93,
-            "target_odds": 1.99,
-            "suspect_odds": 2.09,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          }
-        }
-      },
-      {
-        "event_id": "fbffd0b7722fd81d68d5d62472dc80e8",
-        "home_team": "Washington Commanders",
-        "away_team": "New York Giants",
-        "commence": "2026-10-11T17:00:00Z",
-        "signals": [],
-        "markets": [
-          {
-            "market": "nfl_ml",
-            "point": null,
-            "prob_a": 65.02,
-            "prob_b": 34.98,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_spread",
-            "point": 4.0,
-            "prob_a": 50.0,
-            "prob_b": 50.0,
+            "prob_a": 50.27,
+            "prob_b": 49.73,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
@@ -2361,14 +2703,14 @@
           }
         ],
         "prices": {
-          "Washington Commanders ML": {
+          "New Orleans Saints ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 65.02,
-            "fair_odds": 1.538,
-            "min_odds": 1.54,
-            "target_odds": 1.58,
-            "suspect_odds": 1.66,
+            "prob": 45.27,
+            "fair_odds": 2.209,
+            "min_odds": 2.21,
+            "target_odds": 2.28,
+            "suspect_odds": 2.39,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2378,14 +2720,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "New York Giants ML": {
+          "Minnesota Vikings ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 34.98,
-            "fair_odds": 2.859,
-            "min_odds": 2.86,
-            "target_odds": 2.94,
-            "suspect_odds": 3.09,
+            "prob": 54.73,
+            "fair_odds": 1.827,
+            "min_odds": 1.83,
+            "target_odds": 1.88,
+            "suspect_odds": 1.97,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2395,14 +2737,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Washington Commanders -4": {
+          "New Orleans Saints +2": {
             "market": "nfl_spread",
-            "point": 4.0,
-            "prob": 50.0,
-            "fair_odds": 2.0,
-            "min_odds": 2.0,
-            "target_odds": 2.06,
-            "suspect_odds": 2.16,
+            "point": 2.0,
+            "prob": 50.27,
+            "fair_odds": 1.989,
+            "min_odds": 1.99,
+            "target_odds": 2.05,
+            "suspect_odds": 2.15,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2412,14 +2754,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "New York Giants +4": {
+          "Minnesota Vikings -2": {
             "market": "nfl_spread",
-            "point": 4.0,
-            "prob": 50.0,
-            "fair_odds": 2.0,
-            "min_odds": 2.0,
-            "target_odds": 2.06,
-            "suspect_odds": 2.16,
+            "point": 2.0,
+            "prob": 49.73,
+            "fair_odds": 2.011,
+            "min_odds": 2.01,
+            "target_odds": 2.07,
+            "suspect_odds": 2.17,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2466,77 +2808,52 @@
         }
       },
       {
-        "event_id": "d1d408fdfd272046fb517fe992a1c5a0",
-        "home_team": "Los Angeles Chargers",
-        "away_team": "Denver Broncos",
-        "commence": "2026-10-11T20:05:00Z",
+        "event_id": "fbffd0b7722fd81d68d5d62472dc80e8",
+        "home_team": "Washington Commanders",
+        "away_team": "New York Giants",
+        "commence": "2026-10-11T17:00:00Z",
         "signals": [],
         "markets": [
           {
             "market": "nfl_ml",
             "point": null,
-            "prob_a": 36.97,
-            "prob_b": 63.03,
+            "prob_a": 63.31,
+            "prob_b": 36.69,
             "source": "pinnacle (shin)",
             "n_books": 1
-          },
-          {
-            "market": "nfl_spread",
-            "point": 3.0,
-            "prob_a": 46.29,
-            "prob_b": 53.71,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
           },
           {
             "market": "nfl_spread",
             "point": 3.5,
-            "prob_a": 50.93,
-            "prob_b": 49.07,
+            "prob_a": 48.55,
+            "prob_b": 51.45,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_total",
-            "point": 41.5,
-            "prob_a": 51.47,
-            "prob_b": 48.53,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          {
-            "market": "nfl_total",
-            "point": 42.0,
-            "prob_a": 48.78,
-            "prob_b": 51.22,
+            "point": 43.5,
+            "prob_a": 49.53,
+            "prob_b": 50.47,
             "source": "mediane sharp shin (lowvig, betonlineag)",
             "n_books": 2
+          },
+          {
+            "market": "nfl_total",
+            "point": 44.0,
+            "prob_a": 47.34,
+            "prob_b": 52.66,
+            "source": "pinnacle (shin)",
+            "n_books": 1
           }
         ],
         "prices": {
-          "Los Angeles Chargers ML": {
+          "Washington Commanders ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 36.97,
-            "fair_odds": 2.705,
-            "min_odds": 2.7,
-            "target_odds": 2.79,
-            "suspect_odds": 2.92,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Denver Broncos ML": {
-            "market": "nfl_ml",
-            "point": null,
-            "prob": 63.03,
-            "fair_odds": 1.587,
-            "min_odds": 1.59,
+            "prob": 63.31,
+            "fair_odds": 1.58,
+            "min_odds": 1.58,
             "target_odds": 1.63,
             "suspect_odds": 1.71,
             "my_odds": 0,
@@ -2548,48 +2865,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Los Angeles Chargers +3": {
-            "market": "nfl_spread",
-            "point": 3.0,
-            "prob": 46.29,
-            "fair_odds": 2.16,
-            "min_odds": 2.16,
-            "target_odds": 2.23,
-            "suspect_odds": 2.33,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "Denver Broncos -3": {
-            "market": "nfl_spread",
-            "point": 3.0,
-            "prob": 53.71,
-            "fair_odds": 1.862,
-            "min_odds": 1.86,
-            "target_odds": 1.92,
-            "suspect_odds": 2.01,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "Los Angeles Chargers +3.5": {
-            "market": "nfl_spread",
-            "point": 3.5,
-            "prob": 50.93,
-            "fair_odds": 1.964,
-            "min_odds": 1.96,
-            "target_odds": 2.02,
-            "suspect_odds": 2.12,
+          "New York Giants ML": {
+            "market": "nfl_ml",
+            "point": null,
+            "prob": 36.69,
+            "fair_odds": 2.726,
+            "min_odds": 2.73,
+            "target_odds": 2.81,
+            "suspect_odds": 2.94,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2599,14 +2882,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Denver Broncos -3.5": {
+          "Washington Commanders -3.5": {
             "market": "nfl_spread",
             "point": 3.5,
-            "prob": 49.07,
-            "fair_odds": 2.038,
-            "min_odds": 2.04,
-            "target_odds": 2.1,
-            "suspect_odds": 2.2,
+            "prob": 48.55,
+            "fair_odds": 2.06,
+            "min_odds": 2.06,
+            "target_odds": 2.12,
+            "suspect_odds": 2.22,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2616,10 +2899,10 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Over 41.5": {
-            "market": "nfl_total",
-            "point": 41.5,
-            "prob": 51.47,
+          "New York Giants +3.5": {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob": 51.45,
             "fair_odds": 1.943,
             "min_odds": 1.94,
             "target_odds": 2.0,
@@ -2633,14 +2916,176 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Under 41.5": {
+          "Over 43.5": {
             "market": "nfl_total",
-            "point": 41.5,
-            "prob": 48.53,
-            "fair_odds": 2.061,
-            "min_odds": 2.06,
-            "target_odds": 2.12,
-            "suspect_odds": 2.23,
+            "point": 43.5,
+            "prob": 49.53,
+            "fair_odds": 2.019,
+            "min_odds": 2.02,
+            "target_odds": 2.08,
+            "suspect_odds": 2.18,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
+          },
+          "Under 43.5": {
+            "market": "nfl_total",
+            "point": 43.5,
+            "prob": 50.47,
+            "fair_odds": 1.981,
+            "min_odds": 1.98,
+            "target_odds": 2.04,
+            "suspect_odds": 2.14,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
+          },
+          "Over 44": {
+            "market": "nfl_total",
+            "point": 44.0,
+            "prob": 47.34,
+            "fair_odds": 2.113,
+            "min_odds": 2.11,
+            "target_odds": 2.18,
+            "suspect_odds": 2.28,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Under 44": {
+            "market": "nfl_total",
+            "point": 44.0,
+            "prob": 52.66,
+            "fair_odds": 1.899,
+            "min_odds": 1.9,
+            "target_odds": 1.96,
+            "suspect_odds": 2.05,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          }
+        }
+      },
+      {
+        "event_id": "d1d408fdfd272046fb517fe992a1c5a0",
+        "home_team": "Los Angeles Chargers",
+        "away_team": "Denver Broncos",
+        "commence": "2026-10-11T20:05:00Z",
+        "signals": [],
+        "markets": [
+          {
+            "market": "nfl_ml",
+            "point": null,
+            "prob_a": 37.56,
+            "prob_b": 62.44,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob_a": 51.99,
+            "prob_b": 48.01,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_total",
+            "point": 42.0,
+            "prob_a": 48.78,
+            "prob_b": 51.22,
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
+          },
+          {
+            "market": "nfl_total",
+            "point": 42.5,
+            "prob_a": 48.66,
+            "prob_b": 51.34,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          }
+        ],
+        "prices": {
+          "Los Angeles Chargers ML": {
+            "market": "nfl_ml",
+            "point": null,
+            "prob": 37.56,
+            "fair_odds": 2.663,
+            "min_odds": 2.66,
+            "target_odds": 2.74,
+            "suspect_odds": 2.88,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Denver Broncos ML": {
+            "market": "nfl_ml",
+            "point": null,
+            "prob": 62.44,
+            "fair_odds": 1.601,
+            "min_odds": 1.6,
+            "target_odds": 1.65,
+            "suspect_odds": 1.73,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Los Angeles Chargers +3.5": {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob": 51.99,
+            "fair_odds": 1.924,
+            "min_odds": 1.92,
+            "target_odds": 1.98,
+            "suspect_odds": 2.08,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Denver Broncos -3.5": {
+            "market": "nfl_spread",
+            "point": 3.5,
+            "prob": 48.01,
+            "fair_odds": 2.083,
+            "min_odds": 2.08,
+            "target_odds": 2.15,
+            "suspect_odds": 2.25,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2683,6 +3128,40 @@
             "stake_units": 0,
             "source": "mediane sharp shin (lowvig, betonlineag)",
             "n_books": 2
+          },
+          "Over 42.5": {
+            "market": "nfl_total",
+            "point": 42.5,
+            "prob": 48.66,
+            "fair_odds": 2.055,
+            "min_odds": 2.06,
+            "target_odds": 2.12,
+            "suspect_odds": 2.22,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Under 42.5": {
+            "market": "nfl_total",
+            "point": 42.5,
+            "prob": 51.34,
+            "fair_odds": 1.948,
+            "min_odds": 1.95,
+            "target_odds": 2.01,
+            "suspect_odds": 2.1,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
           }
         }
       },
@@ -2696,24 +3175,24 @@
           {
             "market": "nfl_ml",
             "point": null,
-            "prob_a": 30.21,
-            "prob_b": 69.79,
+            "prob_a": 31.13,
+            "prob_b": 68.87,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_spread",
-            "point": 5.5,
-            "prob_a": 49.73,
-            "prob_b": 50.27,
+            "point": 5.0,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_total",
             "point": 54.5,
-            "prob_a": 49.33,
-            "prob_b": 50.67,
+            "prob_a": 49.87,
+            "prob_b": 50.13,
             "source": "pinnacle (shin)",
             "n_books": 1
           }
@@ -2722,11 +3201,11 @@
           "Arizona Cardinals ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 30.21,
-            "fair_odds": 3.31,
-            "min_odds": 3.31,
-            "target_odds": 3.41,
-            "suspect_odds": 3.58,
+            "prob": 31.13,
+            "fair_odds": 3.212,
+            "min_odds": 3.21,
+            "target_odds": 3.31,
+            "suspect_odds": 3.47,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2739,11 +3218,11 @@
           "Detroit Lions ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 69.79,
-            "fair_odds": 1.433,
-            "min_odds": 1.43,
-            "target_odds": 1.48,
-            "suspect_odds": 1.55,
+            "prob": 68.87,
+            "fair_odds": 1.452,
+            "min_odds": 1.45,
+            "target_odds": 1.5,
+            "suspect_odds": 1.57,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2753,14 +3232,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Arizona Cardinals +5.5": {
+          "Arizona Cardinals +5": {
             "market": "nfl_spread",
-            "point": 5.5,
-            "prob": 49.73,
-            "fair_odds": 2.011,
-            "min_odds": 2.01,
-            "target_odds": 2.07,
-            "suspect_odds": 2.17,
+            "point": 5.0,
+            "prob": 50.0,
+            "fair_odds": 2.0,
+            "min_odds": 2.0,
+            "target_odds": 2.06,
+            "suspect_odds": 2.16,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2770,14 +3249,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Detroit Lions -5.5": {
+          "Detroit Lions -5": {
             "market": "nfl_spread",
-            "point": 5.5,
-            "prob": 50.27,
-            "fair_odds": 1.989,
-            "min_odds": 1.99,
-            "target_odds": 2.05,
-            "suspect_odds": 2.15,
+            "point": 5.0,
+            "prob": 50.0,
+            "fair_odds": 2.0,
+            "min_odds": 2.0,
+            "target_odds": 2.06,
+            "suspect_odds": 2.16,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2790,11 +3269,11 @@
           "Over 54.5": {
             "market": "nfl_total",
             "point": 54.5,
-            "prob": 49.33,
-            "fair_odds": 2.027,
-            "min_odds": 2.03,
-            "target_odds": 2.09,
-            "suspect_odds": 2.19,
+            "prob": 49.87,
+            "fair_odds": 2.005,
+            "min_odds": 2.01,
+            "target_odds": 2.07,
+            "suspect_odds": 2.17,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2807,11 +3286,11 @@
           "Under 54.5": {
             "market": "nfl_total",
             "point": 54.5,
-            "prob": 50.67,
-            "fair_odds": 1.974,
-            "min_odds": 1.97,
-            "target_odds": 2.03,
-            "suspect_odds": 2.13,
+            "prob": 50.13,
+            "fair_odds": 1.995,
+            "min_odds": 1.99,
+            "target_odds": 2.05,
+            "suspect_odds": 2.15,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2833,32 +3312,24 @@
           {
             "market": "nfl_ml",
             "point": null,
-            "prob_a": 62.52,
-            "prob_b": 37.48,
+            "prob_a": 59.03,
+            "prob_b": 40.97,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_spread",
             "point": 3.0,
-            "prob_a": 53.45,
-            "prob_b": 46.55,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          {
-            "market": "nfl_spread",
-            "point": 3.5,
-            "prob_a": 47.48,
-            "prob_b": 52.52,
+            "prob_a": 48.4,
+            "prob_b": 51.6,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_total",
-            "point": 46.0,
-            "prob_a": 50.67,
-            "prob_b": 49.33,
+            "point": 47.0,
+            "prob_a": 50.13,
+            "prob_b": 49.87,
             "source": "pinnacle (shin)",
             "n_books": 1
           }
@@ -2867,11 +3338,11 @@
           "Seattle Seahawks ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 62.52,
-            "fair_odds": 1.599,
-            "min_odds": 1.6,
-            "target_odds": 1.65,
-            "suspect_odds": 1.73,
+            "prob": 59.03,
+            "fair_odds": 1.694,
+            "min_odds": 1.69,
+            "target_odds": 1.74,
+            "suspect_odds": 1.83,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2884,11 +3355,11 @@
           "San Francisco 49ers ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 37.48,
-            "fair_odds": 2.668,
-            "min_odds": 2.67,
-            "target_odds": 2.75,
-            "suspect_odds": 2.88,
+            "prob": 40.97,
+            "fair_odds": 2.441,
+            "min_odds": 2.44,
+            "target_odds": 2.51,
+            "suspect_odds": 2.64,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2901,45 +3372,28 @@
           "Seattle Seahawks -3": {
             "market": "nfl_spread",
             "point": 3.0,
-            "prob": 53.45,
-            "fair_odds": 1.871,
-            "min_odds": 1.87,
-            "target_odds": 1.93,
-            "suspect_odds": 2.02,
+            "prob": 48.4,
+            "fair_odds": 2.066,
+            "min_odds": 2.07,
+            "target_odds": 2.13,
+            "suspect_odds": 2.23,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
             "edge_pct": 0.0,
             "statut": "a_saisir",
             "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
+            "source": "pinnacle (shin)",
+            "n_books": 1
           },
           "San Francisco 49ers +3": {
             "market": "nfl_spread",
             "point": 3.0,
-            "prob": 46.55,
-            "fair_odds": 2.148,
-            "min_odds": 2.15,
-            "target_odds": 2.21,
-            "suspect_odds": 2.32,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "mediane sharp shin (lowvig, betonlineag)",
-            "n_books": 2
-          },
-          "Seattle Seahawks -3.5": {
-            "market": "nfl_spread",
-            "point": 3.5,
-            "prob": 47.48,
-            "fair_odds": 2.106,
-            "min_odds": 2.11,
-            "target_odds": 2.17,
-            "suspect_odds": 2.27,
+            "prob": 51.6,
+            "fair_odds": 1.938,
+            "min_odds": 1.94,
+            "target_odds": 2.0,
+            "suspect_odds": 2.09,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2949,31 +3403,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "San Francisco 49ers +3.5": {
-            "market": "nfl_spread",
-            "point": 3.5,
-            "prob": 52.52,
-            "fair_odds": 1.904,
-            "min_odds": 1.9,
-            "target_odds": 1.96,
-            "suspect_odds": 2.06,
-            "my_odds": 0,
-            "my_book": "",
-            "my_edge_pct": null,
-            "edge_pct": 0.0,
-            "statut": "a_saisir",
-            "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
-          },
-          "Over 46": {
+          "Over 47": {
             "market": "nfl_total",
-            "point": 46.0,
-            "prob": 50.67,
-            "fair_odds": 1.974,
-            "min_odds": 1.97,
-            "target_odds": 2.03,
-            "suspect_odds": 2.13,
+            "point": 47.0,
+            "prob": 50.13,
+            "fair_odds": 1.995,
+            "min_odds": 1.99,
+            "target_odds": 2.05,
+            "suspect_odds": 2.15,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -2983,14 +3420,14 @@
             "source": "pinnacle (shin)",
             "n_books": 1
           },
-          "Under 46": {
+          "Under 47": {
             "market": "nfl_total",
-            "point": 46.0,
-            "prob": 49.33,
-            "fair_odds": 2.027,
-            "min_odds": 2.03,
-            "target_odds": 2.09,
-            "suspect_odds": 2.19,
+            "point": 47.0,
+            "prob": 49.87,
+            "fair_odds": 2.005,
+            "min_odds": 2.01,
+            "target_odds": 2.07,
+            "suspect_odds": 2.17,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -3012,18 +3449,26 @@
           {
             "market": "nfl_ml",
             "point": null,
-            "prob_a": 62.6,
-            "prob_b": 37.4,
+            "prob_a": 62.01,
+            "prob_b": 37.99,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob_a": 52.9,
+            "prob_b": 47.1,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_spread",
             "point": 3.5,
-            "prob_a": 48.55,
-            "prob_b": 51.45,
-            "source": "pinnacle (shin)",
-            "n_books": 1
+            "prob_a": 48.13,
+            "prob_b": 51.87,
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
           },
           {
             "market": "nfl_total",
@@ -3036,8 +3481,8 @@
           {
             "market": "nfl_total",
             "point": 44.0,
-            "prob_a": 48.53,
-            "prob_b": 51.47,
+            "prob_a": 49.06,
+            "prob_b": 50.94,
             "source": "pinnacle (shin)",
             "n_books": 1
           }
@@ -3046,11 +3491,11 @@
           "Atlanta Falcons ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 62.6,
-            "fair_odds": 1.598,
-            "min_odds": 1.6,
-            "target_odds": 1.65,
-            "suspect_odds": 1.73,
+            "prob": 62.01,
+            "fair_odds": 1.613,
+            "min_odds": 1.61,
+            "target_odds": 1.66,
+            "suspect_odds": 1.74,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -3063,11 +3508,45 @@
           "Baltimore Ravens ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 37.4,
-            "fair_odds": 2.674,
-            "min_odds": 2.67,
-            "target_odds": 2.75,
-            "suspect_odds": 2.89,
+            "prob": 37.99,
+            "fair_odds": 2.632,
+            "min_odds": 2.63,
+            "target_odds": 2.71,
+            "suspect_odds": 2.84,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Atlanta Falcons -3": {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob": 52.9,
+            "fair_odds": 1.89,
+            "min_odds": 1.89,
+            "target_odds": 1.95,
+            "suspect_odds": 2.04,
+            "my_odds": 0,
+            "my_book": "",
+            "my_edge_pct": null,
+            "edge_pct": 0.0,
+            "statut": "a_saisir",
+            "stake_units": 0,
+            "source": "pinnacle (shin)",
+            "n_books": 1
+          },
+          "Baltimore Ravens +3": {
+            "market": "nfl_spread",
+            "point": 3.0,
+            "prob": 47.1,
+            "fair_odds": 2.123,
+            "min_odds": 2.12,
+            "target_odds": 2.19,
+            "suspect_odds": 2.29,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -3080,36 +3559,36 @@
           "Atlanta Falcons -3.5": {
             "market": "nfl_spread",
             "point": 3.5,
-            "prob": 48.55,
-            "fair_odds": 2.06,
-            "min_odds": 2.06,
-            "target_odds": 2.12,
-            "suspect_odds": 2.22,
+            "prob": 48.13,
+            "fair_odds": 2.078,
+            "min_odds": 2.08,
+            "target_odds": 2.14,
+            "suspect_odds": 2.24,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
             "edge_pct": 0.0,
             "statut": "a_saisir",
             "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
           },
           "Baltimore Ravens +3.5": {
             "market": "nfl_spread",
             "point": 3.5,
-            "prob": 51.45,
-            "fair_odds": 1.943,
-            "min_odds": 1.94,
-            "target_odds": 2.0,
-            "suspect_odds": 2.1,
+            "prob": 51.87,
+            "fair_odds": 1.928,
+            "min_odds": 1.93,
+            "target_odds": 1.99,
+            "suspect_odds": 2.08,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
             "edge_pct": 0.0,
             "statut": "a_saisir",
             "stake_units": 0,
-            "source": "pinnacle (shin)",
-            "n_books": 1
+            "source": "mediane sharp shin (lowvig, betonlineag)",
+            "n_books": 2
           },
           "Over 43.5": {
             "market": "nfl_total",
@@ -3148,11 +3627,11 @@
           "Over 44": {
             "market": "nfl_total",
             "point": 44.0,
-            "prob": 48.53,
-            "fair_odds": 2.061,
-            "min_odds": 2.06,
-            "target_odds": 2.12,
-            "suspect_odds": 2.23,
+            "prob": 49.06,
+            "fair_odds": 2.038,
+            "min_odds": 2.04,
+            "target_odds": 2.1,
+            "suspect_odds": 2.2,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -3165,11 +3644,11 @@
           "Under 44": {
             "market": "nfl_total",
             "point": 44.0,
-            "prob": 51.47,
-            "fair_odds": 1.943,
-            "min_odds": 1.94,
-            "target_odds": 2.0,
-            "suspect_odds": 2.1,
+            "prob": 50.94,
+            "fair_odds": 1.963,
+            "min_odds": 1.96,
+            "target_odds": 2.02,
+            "suspect_odds": 2.12,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -3191,16 +3670,16 @@
           {
             "market": "nfl_ml",
             "point": null,
-            "prob_a": 61.8,
-            "prob_b": 38.2,
+            "prob_a": 60.29,
+            "prob_b": 39.71,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
           {
             "market": "nfl_spread",
             "point": 3.0,
-            "prob_a": 51.84,
-            "prob_b": 48.16,
+            "prob_a": 50.0,
+            "prob_b": 50.0,
             "source": "pinnacle (shin)",
             "n_books": 1
           },
@@ -3217,11 +3696,11 @@
           "Los Angeles Rams ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 61.8,
-            "fair_odds": 1.618,
-            "min_odds": 1.62,
-            "target_odds": 1.67,
-            "suspect_odds": 1.75,
+            "prob": 60.29,
+            "fair_odds": 1.659,
+            "min_odds": 1.66,
+            "target_odds": 1.71,
+            "suspect_odds": 1.79,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -3234,11 +3713,11 @@
           "Buffalo Bills ML": {
             "market": "nfl_ml",
             "point": null,
-            "prob": 38.2,
-            "fair_odds": 2.618,
-            "min_odds": 2.62,
-            "target_odds": 2.7,
-            "suspect_odds": 2.83,
+            "prob": 39.71,
+            "fair_odds": 2.518,
+            "min_odds": 2.52,
+            "target_odds": 2.59,
+            "suspect_odds": 2.72,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -3251,11 +3730,11 @@
           "Los Angeles Rams -3": {
             "market": "nfl_spread",
             "point": 3.0,
-            "prob": 51.84,
-            "fair_odds": 1.929,
-            "min_odds": 1.93,
-            "target_odds": 1.99,
-            "suspect_odds": 2.08,
+            "prob": 50.0,
+            "fair_odds": 2.0,
+            "min_odds": 2.0,
+            "target_odds": 2.06,
+            "suspect_odds": 2.16,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -3268,11 +3747,11 @@
           "Buffalo Bills +3": {
             "market": "nfl_spread",
             "point": 3.0,
-            "prob": 48.16,
-            "fair_odds": 2.077,
-            "min_odds": 2.08,
-            "target_odds": 2.14,
-            "suspect_odds": 2.24,
+            "prob": 50.0,
+            "fair_odds": 2.0,
+            "min_odds": 2.0,
+            "target_odds": 2.06,
+            "suspect_odds": 2.16,
             "my_odds": 0,
             "my_book": "",
             "my_edge_pct": null,
@@ -6218,8 +6697,8 @@
     }
   },
   "nhl_sog": {
-    "generated_at": "2026-10-09T20:33:50.962815+00:00",
-    "date": "2026-10-09",
+    "generated_at": "2026-10-07T18:35:24.323693+00:00",
+    "date": "2026-10-07",
     "saison": "20262027",
     "valide": false,
     "verdict": "non valide — contre le marche (300 matchs 2025-26): poids optimal du modele w=0, paris 136 a 54.4% pour 64.5% annonces, ROI -7.0%",
@@ -6235,52 +6714,191 @@
       "min_icf_pg": 5.5,
       "min_gp": 10
     },
-    "n_matchs": 4,
+    "n_matchs": 3,
     "joueurs": [
+      {
+        "playerId": 8477492,
+        "joueur": "Nathan MacKinnon",
+        "pos": "F",
+        "team": "COL",
+        "opp": "WPG",
+        "home": 0,
+        "match": "COL @ WPG",
+        "commence": "2026-10-07T23:30:00Z",
+        "event_id": 2026020054,
+        "lam": 3.9323,
+        "p_over": {
+          "1.5": 0.8816,
+          "2.5": 0.7252,
+          "3.5": 0.5366,
+          "4.5": 0.3585,
+          "5.5": 0.2181
+        },
+        "alignement": "confirme",
+        "trio": "f1",
+        "vague_pp": "pp1",
+        "source_alignement": "Bailey Curtis",
+        "maj_alignement": "2026-10-07T15:04:52.801Z",
+        "gp": 32,
+        "gp_saison": 2,
+        "sog_pg": 4.19,
+        "icf_pg": 7.25,
+        "detail": {
+          "lam_base": 4.698,
+          "r5": 17.02,
+          "rpp": 28.037,
+          "toi5_min": 17.021,
+          "toipp_min": 4.374,
+          "conv": 0.598,
+          "f_adv5": 1.048,
+          "f_advpp": 1.06,
+          "other": 0.637,
+          "home": 0,
+          "b2b_me": 0,
+          "b2b_opp": 0,
+          "pace": 1.053,
+          "f_ctx": 0.837,
+          "flags": [
+            "TOI egalite -22% (3 derniers)"
+          ]
+        }
+      },
       {
         "playerId": 8478398,
         "joueur": "Kyle Connor",
         "pos": "F",
         "team": "WPG",
-        "opp": "ANA",
+        "opp": "COL",
         "home": 1,
-        "match": "ANA @ WPG",
-        "commence": "2026-10-10T00:00:00Z",
-        "event_id": 2026020069,
-        "lam": 3.8738,
+        "match": "COL @ WPG",
+        "commence": "2026-10-07T23:30:00Z",
+        "event_id": 2026020054,
+        "lam": 3.8284,
         "p_over": {
-          "1.5": 0.8769,
-          "2.5": 0.7166,
-          "3.5": 0.526,
-          "4.5": 0.3481,
-          "5.5": 0.2095
+          "1.5": 0.8731,
+          "2.5": 0.7099,
+          "3.5": 0.5176,
+          "4.5": 0.34,
+          "5.5": 0.203
         },
         "alignement": "confirme",
         "trio": "f1",
         "vague_pp": "pp1",
-        "source_alignement": "Ken Wiebe",
-        "maj_alignement": "2026-10-09T15:52:18.378Z",
-        "gp": 34,
-        "gp_saison": 4,
+        "source_alignement": "Mitchell Clinton",
+        "maj_alignement": "2026-10-07T14:48:40.577Z",
+        "gp": 33,
+        "gp_saison": 3,
         "sog_pg": 3.82,
         "icf_pg": 7.06,
         "detail": {
-          "lam_base": 4.126,
-          "r5": 18.582,
-          "rpp": 29.237,
-          "toi5_min": 14.967,
-          "toipp_min": 3.614,
-          "conv": 0.564,
-          "f_adv5": 0.993,
-          "f_advpp": 1.094,
+          "lam_base": 4.212,
+          "r5": 18.033,
+          "rpp": 34.812,
+          "toi5_min": 14.769,
+          "toipp_min": 3.714,
+          "conv": 0.563,
+          "f_adv5": 1.005,
+          "f_advpp": 1.032,
           "other": 0.793,
           "home": 1,
           "b2b_me": 0,
           "b2b_opp": 0,
-          "pace": 0.96,
-          "f_ctx": 0.939,
+          "pace": 1.053,
+          "f_ctx": 0.909,
+          "flags": []
+        }
+      },
+      {
+        "playerId": 8480803,
+        "joueur": "Evan Bouchard",
+        "pos": "D",
+        "team": "EDM",
+        "opp": "ANA",
+        "home": 0,
+        "match": "EDM @ ANA",
+        "commence": "2026-10-08T02:00:00Z",
+        "event_id": 2026020055,
+        "lam": 3.0761,
+        "p_over": {
+          "1.5": 0.7903,
+          "2.5": 0.5769,
+          "3.5": 0.3683,
+          "4.5": 0.2084,
+          "5.5": 0.1061
+        },
+        "alignement": "confirme",
+        "trio": "d1",
+        "vague_pp": "pp1",
+        "source_alignement": "Last Game (2026-10-03)",
+        "maj_alignement": "2026-10-07T03:23:52.832Z",
+        "gp": 33,
+        "gp_saison": 3,
+        "sog_pg": 3.0,
+        "icf_pg": 6.42,
+        "detail": {
+          "lam_base": 3.769,
+          "r5": 17.539,
+          "rpp": 19.618,
+          "toi5_min": 20.417,
+          "toipp_min": 3.974,
+          "conv": 0.465,
+          "f_adv5": 1.021,
+          "f_advpp": 1.084,
+          "other": 0.598,
+          "home": 0,
+          "b2b_me": 0,
+          "b2b_opp": 0,
+          "pace": 1.132,
+          "f_ctx": 0.816,
           "flags": [
-            "TOI avantage -27% (3 derniers)"
+            "TOI avantage +26% (3 derniers)"
+          ]
+        }
+      },
+      {
+        "playerId": 8477934,
+        "joueur": "Leon Draisaitl",
+        "pos": "F",
+        "team": "EDM",
+        "opp": "ANA",
+        "home": 0,
+        "match": "EDM @ ANA",
+        "commence": "2026-10-08T02:00:00Z",
+        "event_id": 2026020055,
+        "lam": 3.066,
+        "p_over": {
+          "1.5": 0.7889,
+          "2.5": 0.5748,
+          "3.5": 0.3662,
+          "4.5": 0.2067,
+          "5.5": 0.1049
+        },
+        "alignement": "confirme",
+        "trio": "f1",
+        "vague_pp": "pp1",
+        "source_alignement": "Last Game (2026-10-03)",
+        "maj_alignement": "2026-10-07T03:23:52.832Z",
+        "gp": 33,
+        "gp_saison": 3,
+        "sog_pg": 3.27,
+        "icf_pg": 6.61,
+        "detail": {
+          "lam_base": 3.757,
+          "r5": 15.914,
+          "rpp": 38.638,
+          "toi5_min": 14.233,
+          "toipp_min": 4.395,
+          "conv": 0.499,
+          "f_adv5": 1.021,
+          "f_advpp": 1.084,
+          "other": 0.6,
+          "home": 0,
+          "b2b_me": 0,
+          "b2b_opp": 0,
+          "pace": 1.132,
+          "f_ctx": 0.816,
+          "flags": [
+            "TOI avantage +36% (3 derniers)"
           ]
         }
       },
@@ -6289,186 +6907,140 @@
         "joueur": "Cutter Gauthier",
         "pos": "F",
         "team": "ANA",
-        "opp": "WPG",
-        "home": 0,
-        "match": "ANA @ WPG",
-        "commence": "2026-10-10T00:00:00Z",
-        "event_id": 2026020069,
-        "lam": 3.7584,
+        "opp": "EDM",
+        "home": 1,
+        "match": "EDM @ ANA",
+        "commence": "2026-10-08T02:00:00Z",
+        "event_id": 2026020055,
+        "lam": 2.9623,
         "p_over": {
-          "1.5": 0.867,
-          "2.5": 0.6992,
-          "3.5": 0.5045,
-          "4.5": 0.3274,
-          "5.5": 0.193
+          "1.5": 0.7739,
+          "2.5": 0.5533,
+          "3.5": 0.3445,
+          "4.5": 0.1897,
+          "5.5": 0.0938
         },
         "alignement": "confirme",
         "trio": "f1",
         "vague_pp": "pp1",
-        "source_alignement": "Last Game (2026-10-07)",
-        "maj_alignement": "2026-10-08T12:54:06.015Z",
+        "source_alignement": "Zach Cavanagh",
+        "maj_alignement": "2026-10-07T17:10:33.431Z",
+        "gp": 32,
+        "gp_saison": 2,
+        "sog_pg": 3.81,
+        "icf_pg": 7.56,
+        "detail": {
+          "lam_base": 3.343,
+          "r5": 21.769,
+          "rpp": 36.898,
+          "toi5_min": 12.129,
+          "toipp_min": 3.162,
+          "conv": 0.506,
+          "f_adv5": 0.943,
+          "f_advpp": 0.927,
+          "other": 0.658,
+          "home": 1,
+          "b2b_me": 0,
+          "b2b_opp": 0,
+          "pace": 1.132,
+          "f_ctx": 0.886,
+          "flags": [
+            "TOI avantage +53% (3 derniers)"
+          ]
+        }
+      },
+      {
+        "playerId": 8478402,
+        "joueur": "Connor McDavid",
+        "pos": "F",
+        "team": "EDM",
+        "opp": "ANA",
+        "home": 0,
+        "match": "EDM @ ANA",
+        "commence": "2026-10-08T02:00:00Z",
+        "event_id": 2026020055,
+        "lam": 2.869,
+        "p_over": {
+          "1.5": 0.7596,
+          "2.5": 0.5332,
+          "3.5": 0.325,
+          "4.5": 0.1748,
+          "5.5": 0.0843
+        },
+        "alignement": "confirme",
+        "trio": "f1",
+        "vague_pp": "pp1",
+        "source_alignement": "Last Game (2026-10-03)",
+        "maj_alignement": "2026-10-07T03:23:52.832Z",
         "gp": 33,
         "gp_saison": 3,
-        "sog_pg": 3.91,
-        "icf_pg": 7.73,
+        "sog_pg": 3.7,
+        "icf_pg": 5.88,
         "detail": {
-          "lam_base": 4.347,
-          "r5": 23.051,
-          "rpp": 39.803,
-          "toi5_min": 12.414,
-          "toipp_min": 4.169,
-          "conv": 0.508,
-          "f_adv5": 1.067,
-          "f_advpp": 1.015,
-          "other": 0.658,
+          "lam_base": 3.516,
+          "r5": 11.07,
+          "rpp": 25.095,
+          "toi5_min": 18.914,
+          "toipp_min": 3.752,
+          "conv": 0.588,
+          "f_adv5": 1.021,
+          "f_advpp": 1.084,
+          "other": 0.72,
           "home": 0,
           "b2b_me": 0,
           "b2b_opp": 0,
-          "pace": 0.96,
-          "f_ctx": 0.865,
+          "pace": 1.132,
+          "f_ctx": 0.816,
           "flags": [
-            "TOI egalite +22% (3 derniers)",
-            "TOI avantage +62% (3 derniers)"
+            "TOI avantage +38% (3 derniers)"
           ]
         }
       },
       {
-        "playerId": 8478460,
-        "joueur": "Zach Werenski",
-        "pos": "D",
-        "team": "CBJ",
-        "opp": "PIT",
-        "home": 1,
-        "match": "PIT @ CBJ",
-        "commence": "2026-10-09T23:00:00Z",
-        "event_id": 2026020068,
-        "lam": 3.3327,
-        "p_over": {
-          "1.5": 0.8231,
-          "2.5": 0.6267,
-          "3.5": 0.421,
-          "4.5": 0.2521,
-          "5.5": 0.1362
-        },
-        "alignement": "confirme",
-        "trio": "d1",
-        "vague_pp": "pp1",
-        "source_alignement": "Wes Minke",
-        "maj_alignement": "2026-10-09T16:04:06.697Z",
-        "gp": 32,
-        "gp_saison": 2,
-        "sog_pg": 3.12,
-        "icf_pg": 7.91,
-        "detail": {
-          "lam_base": 3.699,
-          "r5": 15.154,
-          "rpp": 24.294,
-          "toi5_min": 23.85,
-          "toipp_min": 4.2,
-          "conv": 0.444,
-          "f_adv5": 0.996,
-          "f_advpp": 0.974,
-          "other": 0.68,
-          "home": 1,
-          "b2b_me": 0,
-          "b2b_opp": 0,
-          "pace": 1.08,
-          "f_ctx": 0.901,
-          "flags": [
-            "TOI avantage -36% (3 derniers)"
-          ]
-        }
-      },
-      {
-        "playerId": 8479337,
-        "joueur": "Alex DeBrincat",
+        "playerId": 8480039,
+        "joueur": "Martin Necas",
         "pos": "F",
-        "team": "DET",
-        "opp": "SEA",
-        "home": 1,
-        "match": "SEA @ DET",
-        "commence": "2026-10-09T23:00:00Z",
-        "event_id": 2026020066,
-        "lam": 3.1644,
+        "team": "COL",
+        "opp": "WPG",
+        "home": 0,
+        "match": "COL @ WPG",
+        "commence": "2026-10-07T23:30:00Z",
+        "event_id": 2026020054,
+        "lam": 2.5158,
         "p_over": {
-          "1.5": 0.8022,
-          "2.5": 0.5945,
-          "3.5": 0.3866,
-          "4.5": 0.2232,
-          "5.5": 0.1161
-        },
-        "alignement": "confirme",
-        "trio": "f2",
-        "vague_pp": "pp1",
-        "source_alignement": "Ansar Khan",
-        "maj_alignement": "2026-10-08T19:21:07.386Z",
-        "gp": 33,
-        "gp_saison": 3,
-        "sog_pg": 3.39,
-        "icf_pg": 7.03,
-        "detail": {
-          "lam_base": 3.366,
-          "r5": 16.629,
-          "rpp": 29.702,
-          "toi5_min": 15.595,
-          "toipp_min": 3.719,
-          "conv": 0.484,
-          "f_adv5": 1.061,
-          "f_advpp": 0.978,
-          "other": 0.561,
-          "home": 1,
-          "b2b_me": 0,
-          "b2b_opp": 0,
-          "pace": 0.957,
-          "f_ctx": 0.94,
-          "flags": [
-            "TOI avantage +97% (3 derniers)"
-          ]
-        }
-      },
-      {
-        "playerId": 8477946,
-        "joueur": "Dylan Larkin",
-        "pos": "F",
-        "team": "DET",
-        "opp": "SEA",
-        "home": 1,
-        "match": "SEA @ DET",
-        "commence": "2026-10-09T23:00:00Z",
-        "event_id": 2026020066,
-        "lam": 2.952,
-        "p_over": {
-          "1.5": 0.7724,
-          "2.5": 0.5511,
-          "3.5": 0.3424,
-          "4.5": 0.188,
-          "5.5": 0.0927
+          "1.5": 0.6975,
+          "2.5": 0.4523,
+          "3.5": 0.2515,
+          "4.5": 0.1225,
+          "5.5": 0.0532
         },
         "alignement": "confirme",
         "trio": "f1",
         "vague_pp": "pp1",
-        "source_alignement": "Ansar Khan",
-        "maj_alignement": "2026-10-08T19:21:07.386Z",
-        "gp": 31,
-        "gp_saison": 1,
-        "sog_pg": 3.55,
-        "icf_pg": 6.42,
+        "source_alignement": "Bailey Curtis",
+        "maj_alignement": "2026-10-07T15:04:52.801Z",
+        "gp": 32,
+        "gp_saison": 2,
+        "sog_pg": 3.25,
+        "icf_pg": 6.06,
         "detail": {
-          "lam_base": 3.14,
-          "r5": 14.364,
-          "rpp": 28.677,
-          "toi5_min": 15.098,
-          "toipp_min": 3.012,
-          "conv": 0.51,
-          "f_adv5": 1.061,
-          "f_advpp": 0.978,
-          "other": 0.919,
-          "home": 1,
+          "lam_base": 3.006,
+          "r5": 12.762,
+          "rpp": 21.213,
+          "toi5_min": 17.398,
+          "toipp_min": 4.519,
+          "conv": 0.504,
+          "f_adv5": 1.048,
+          "f_advpp": 1.06,
+          "other": 0.397,
+          "home": 0,
           "b2b_me": 0,
           "b2b_opp": 0,
-          "pace": 0.957,
-          "f_ctx": 0.94,
-          "flags": []
+          "pace": 1.053,
+          "f_ctx": 0.837,
+          "flags": [
+            "TOI avantage +28% (3 derniers)"
+          ]
         }
       },
       {
@@ -6476,60 +7048,60 @@
         "joueur": "Alex Ovechkin",
         "pos": "F",
         "team": "WSH",
-        "opp": "NYR",
+        "opp": "PIT",
         "home": 1,
-        "match": "NYR @ WSH",
-        "commence": "2026-10-09T23:00:00Z",
-        "event_id": 2026020067,
-        "lam": 2.2076,
+        "match": "PIT @ WSH",
+        "commence": "2026-10-07T23:30:00Z",
+        "event_id": 2026020053,
+        "lam": 2.2495,
         "p_over": {
-          "1.5": 0.6319,
-          "2.5": 0.3763,
-          "3.5": 0.1899,
-          "4.5": 0.0834,
-          "5.5": 0.0326
+          "1.5": 0.6415,
+          "2.5": 0.3868,
+          "3.5": 0.1981,
+          "4.5": 0.0883,
+          "5.5": 0.035
         },
         "alignement": "confirme",
         "trio": "f2",
         "vague_pp": "pp1",
-        "source_alignement": "Last Game (2026-10-07)",
-        "maj_alignement": "2026-10-08T12:48:38.325Z",
-        "gp": 33,
-        "gp_saison": 3,
-        "sog_pg": 3.12,
-        "icf_pg": 6.52,
+        "source_alignement": "Sammi Silber",
+        "maj_alignement": "2026-10-06T15:36:43.017Z",
+        "gp": 32,
+        "gp_saison": 2,
+        "sog_pg": 3.16,
+        "icf_pg": 6.44,
         "detail": {
-          "lam_base": 2.311,
-          "r5": 15.08,
-          "rpp": 29.107,
-          "toi5_min": 11.843,
-          "toipp_min": 3.44,
-          "conv": 0.43,
-          "f_adv5": 0.993,
-          "f_advpp": 1.039,
+          "lam_base": 2.449,
+          "r5": 17.013,
+          "rpp": 25.484,
+          "toi5_min": 12.224,
+          "toipp_min": 3.538,
+          "conv": 0.442,
+          "f_adv5": 0.994,
+          "f_advpp": 0.939,
           "other": 0.683,
           "home": 1,
           "b2b_me": 0,
           "b2b_opp": 0,
-          "pace": 0.914,
-          "f_ctx": 0.955,
+          "pace": 1.022,
+          "f_ctx": 0.918,
           "flags": [
-            "TOI avantage -28% (3 derniers)"
+            "TOI avantage -20% (3 derniers)"
           ]
         }
       }
     ]
   },
   "odds_api": {
-    "remaining": 19695,
-    "used": 305,
-    "calls": 5,
-    "cache_hits": 0,
-    "credits_spent": 29,
+    "remaining": null,
+    "used": null,
+    "calls": 0,
+    "cache_hits": 12,
+    "credits_spent": 0,
     "refused": 0,
-    "day_budget": 854,
+    "day_budget": null,
     "spent_today": 0,
-    "est_spent": 20,
+    "est_spent": 0,
     "cost_factor": 1.0,
     "prop_credits": 0,
     "regions": "us,eu,uk",
@@ -6539,9 +7111,9 @@
   },
   "ai_analysis": {},
   "validation": {
-    "ok": true,
-    "verifie_a": "2026-10-09T20:33:51.119355+00:00",
-    "jour": "2026-10-09",
+    "ok": false,
+    "verifie_a": "2026-10-07T18:35:24.422053+00:00",
+    "jour": "2026-10-07",
     "sections": [
       {
         "nom": "Signal",
@@ -6553,19 +7125,21 @@
         "nom": "LNH",
         "erreurs": [],
         "avertissements": [],
-        "detail": "4/4 matchs"
+        "detail": "3/3 matchs"
       },
       {
         "nom": "SOG",
         "erreurs": [],
         "avertissements": [],
-        "detail": "4/4 matchs, 6 joueurs"
+        "detail": "3/3 matchs, 8 joueurs"
       },
       {
         "nom": "MLB",
-        "erreurs": [],
+        "erreurs": [
+          "ML/-1.5 manquant(s): Cleveland Guardians @ Chicago White Sox, Milwaukee Brewers @ San Diego Padres"
+        ],
         "avertissements": [],
-        "detail": ""
+        "detail": "2/4 matchs ML, 2 carte(s) K"
       }
     ]
   }
