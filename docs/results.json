@@ -17,7 +17,7 @@
       "b365_implied": 50.5,
       "opening_basis": "brute",
       "kelly_fraction": 1.5,
-      "result": "?"
+      "result": "W"
     },
     {
       "id": "2026-10-22|prop_nba|Evan Mobley|Rebonds Over 8.5",
@@ -36,7 +36,7 @@
       "b365_implied": 57.1,
       "opening_basis": "brute",
       "kelly_fraction": 1.5,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-10-22|prop_nba|Chet Holmgren|Pts+Reb+Ast Over 24.5",
@@ -55,7 +55,7 @@
       "b365_implied": 54.6,
       "opening_basis": "brute",
       "kelly_fraction": 1.5,
-      "result": "?"
+      "result": "W"
     },
     {
       "id": "2026-10-22|prop_nba|Jalen Williams|Passes Over 4.5",
@@ -74,7 +74,7 @@
       "b365_implied": 50.5,
       "opening_basis": "brute",
       "kelly_fraction": 1.5,
-      "result": "?"
+      "result": "L"
     },
     {
       "id": "2026-10-14|prop_mlb|Robert Gasser|Retraits au baton Over 3.5",
@@ -36860,30 +36860,45 @@
     }
   ],
   "summary": {
-    "total": 1667,
-    "wins": 811,
-    "losses": 856,
+    "total": 1671,
+    "wins": 813,
+    "losses": 858,
     "win_rate": 48.7,
-    "profit": -44.61,
+    "profit": -44.9,
     "roi": -2.6,
     "by_edge": {
       "15+": {
-        "n": 449,
-        "wins": 193,
-        "profit": -17.64
+        "n": 450,
+        "wins": 194,
+        "profit": -16.39
       },
       "8-15": {
-        "n": 149,
-        "wins": 67,
-        "profit": -21.43
+        "n": 151,
+        "wins": 68,
+        "profit": -21.46
       },
       "5-8": {
-        "n": 74,
+        "n": 75,
         "wins": 30,
-        "profit": -2.86
+        "profit": -4.36
       }
     },
     "by_type": {
+      "nba_reb": {
+        "n": 2,
+        "wins": 1,
+        "profit": -0.03
+      },
+      "nba_pra": {
+        "n": 2,
+        "wins": 2,
+        "profit": 4.01
+      },
+      "nba_ast": {
+        "n": 4,
+        "wins": 1,
+        "profit": -3.01
+      },
       "mlb_strikeouts": {
         "n": 1048,
         "wins": 558,
@@ -36919,11 +36934,6 @@
         "wins": 3,
         "profit": -7.58
       },
-      "nba_ast": {
-        "n": 3,
-        "wins": 1,
-        "profit": -1.51
-      },
       "nhl_moneyline": {
         "n": 2,
         "wins": 0,
@@ -36938,14 +36948,15 @@
         "n": 2,
         "wins": 1,
         "profit": -1.89
-      },
-      "nba_pra": {
-        "n": 1,
-        "wins": 1,
-        "profit": 2.76
       }
     },
     "by_sport": {
+      "nba": {
+        "n": 8,
+        "wins": 4,
+        "losses": 4,
+        "profit": 0.97
+      },
       "mlb": {
         "n": 1647,
         "wins": 804,
@@ -36957,12 +36968,6 @@
         "wins": 5,
         "losses": 11,
         "profit": -20.29
-      },
-      "nba": {
-        "n": 4,
-        "wins": 2,
-        "losses": 2,
-        "profit": 1.25
       }
     },
     "clv": {
@@ -36977,6 +36982,6 @@
         }
       }
     },
-    "last_updated": "2026-10-22T21:56:41Z"
+    "last_updated": "2026-10-23T18:48:57Z"
   }
 }
