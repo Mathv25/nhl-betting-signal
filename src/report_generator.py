@@ -49,7 +49,6 @@ class ReportGenerator:
         bet_cards    = self._bet_cards(value_bets)
         rows         = self._rows(signals)
         props_html   = self._props_section(props_by_game)
-        nba_html     = self._nba_section(data.get("nba_analysis", []))
         calc_html    = self._calculator()
         perf_html    = self._performance_section()
         mlb_html     = self._mlb_section(data.get("mlb_analysis", []))
@@ -79,9 +78,6 @@ class ReportGenerator:
             # ── NHL player props ──
             "<div class=\"sec\" style=\"margin-top:1.5rem\">Props joueurs NHL</div>",
             props_html if props_html else "<p class=\"no-bets\">Aucun prop NHL identifie.</p>",
-            # ── NBA ──
-            "<div class=\"sec\" style=\"margin-top:1.5rem\">NBA</div>",
-            nba_html if nba_html else "<p class=\"no-bets\">Aucun bet NBA identifie.</p>",
             # ── MLB: PAS ici — la section vit dans l'onglet MLB dédié. La dupliquer
             #    créait des id='kc-<joueur>' en double → getElementById renvoyait le
             #    div caché (onglet Signal) et le calculateur ne s'ouvrait pas sous les K.
@@ -99,9 +95,6 @@ class ReportGenerator:
             "</div>",
             "<div id=\"tab-sog\" style=\"display:none\">",
             self._sog_section(data.get("nhl_sog")),
-            "</div>",
-            "<div id=\"tab-nba\" style=\"display:none\">",
-            nba_html,
             "</div>",
             "<div id=\"tab-mlb\" style=\"display:none\">",
             mlb_html,
@@ -136,7 +129,6 @@ class ReportGenerator:
             "<button class=\"tab active\" onclick=\"showTab('tab-signal',this)\">Signal</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-props',this)\">Props NHL</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-sog',this)\">SOG</button>"
-            "<button class=\"tab\" onclick=\"showTab('tab-nba',this)\">NBA</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-mlb',this)\">MLB</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-nfl',this)\">NFL</button>"
             "<button class=\"tab\" onclick=\"showTab('tab-perf',this)\">Performance</button>"
@@ -600,67 +592,6 @@ class ReportGenerator:
 
             html += "</div>"
 
-        return html
-
-    def _nba_section(self, nba_analysis: list) -> str:
-        if not nba_analysis:
-            return "<div style='color:var(--m);padding:1rem 0;font-size:13px'>Aucune analyse NBA disponible ou pas de matchs ce soir.</div>"
-
-        html = "<div class='nba-header'>NBA Player Props — Analyse +EV</div>"
-        for game_data in nba_analysis:
-            home  = game_data.get("home_team", "")
-            away  = game_data.get("away_team", "")
-            bets  = game_data.get("bets", [])
-            if not bets: continue
-            html += (
-                "<div class='nba-game'>"
-                "<div class='nba-matchup'>" + away + " <span class='nba-at'>@</span> " + home + "</div>"
-            )
-            for b in bets:
-                player   = b.get("player", "")
-                market   = b.get("market", "")
-                prob     = b.get("our_prob", 0)
-                edge     = b.get("edge_pct", 0)
-                kelly    = b.get("kelly", 0)
-                odds     = b.get("est_odds", 0)
-                avg10    = b.get("avg10", 0)
-                avg5     = b.get("avg5", 0)
-                adj      = b.get("adj_proj", 0)
-                def_rank = b.get("def_rank", 15)
-                opponent = b.get("opponent", "")
-                context  = b.get("context", [])
-                team     = b.get("team", "")
-                ec = "#0F6E56" if edge >= 15 else "#BA7517"
-                eb = "#E1F5EE" if edge >= 15 else "#FAEEDA"
-                dr_color = "#B45309" if def_rank >= 25 else ("#0F6E56" if def_rank <= 5 else "#6B7280")
-                html += (
-                    "<div class='nba-card'>"
-                    "<div class='nba-card-head'>"
-                    "<div>"
-                    "<span class='nba-player'>" + player + "</span>"
-                    "<span class='nba-meta'>" + team.split()[-1] + " vs " + opponent.split()[-1] + "</span>"
-                    "</div>"
-                    "<div class='nba-edge' style='color:" + ec + ";background:" + eb + "'>"
-                    "+" + str(edge) + "% edge"
-                    "</div>"
-                    "</div>"
-                    "<div class='nba-bet-label'>" + market + "</div>"
-                    "<div class='nba-stats'>"
-                    "<div class='nba-stat'><span>Moy last 10</span><strong>" + str(avg10) + "</strong></div>"
-                    "<div class='nba-stat'><span>Moy last 5</span><strong>" + str(avg5) + "</strong></div>"
-                    "<div class='nba-stat'><span>Proj. adj DEF</span><strong>" + str(adj) + "</strong></div>"
-                    "<div class='nba-stat'><span>DEF adverse</span><strong style='color:" + dr_color + "'>#" + str(def_rank) + " ligue</strong></div>"
-                    "<div class='nba-stat'><span>Notre prob</span><strong style='color:" + ec + "'>" + str(prob) + "%</strong></div>"
-                    "<div class='nba-stat'><span>Cote est. b365</span><strong>" + str(odds) + "</strong></div>"
-                    "<div class='nba-stat'><span>b365 implied</span><strong>52.4%</strong></div>"
-                    "<div class='nba-stat'><span>1/4 Kelly</span><strong>" + str(kelly) + "% BR</strong></div>"
-                    "</div>"
-                )
-                if context:
-                    for note in context[:2]:
-                        html += "<div class='nba-note'>" + note + "</div>"
-                html += "</div>"
-            html += "</div>"
         return html
 
     def _mlb_section(self, mlb_analysis: list) -> str:
@@ -1241,7 +1172,7 @@ class ReportGenerator:
         )
 
     def _js_render(self):
-        """JS functions: refreshData, renderAll, renderSignalTab, renderNBATab, renderMLBTab, renderPropsTab."""
+        """JS functions: refreshData, renderAll, renderSignalTab, renderMLBTab, renderPropsTab."""
         return (
             "var gSignal=window._SIGNAL||null;"
 
@@ -1325,7 +1256,7 @@ class ReportGenerator:
             "btn.disabled=false;}}"
 
             "function renderAll(d){"
-            "renderHeaderGrid(d);renderSignalTab(d);renderPropsTab(d);renderNBATab(d);renderMLBTab(d);mlbCalcInit(d);}"
+            "renderHeaderGrid(d);renderSignalTab(d);renderPropsTab(d);renderMLBTab(d);mlbCalcInit(d);}"
 
             "function _mlbPitchers(d){var out=[];(d.mlb_analysis||[]).forEach(function(g){(g.bets||[]).forEach(function(b){if(b.player_type==='pitcher'&&(b.k_curve||[]).length)out.push(b);});});return out;}"
             "function mlbCalcInit(d){var sel=document.getElementById('mlb-sel');if(!sel)return;"
@@ -1744,49 +1675,6 @@ class ReportGenerator:
             "h+='<td>'+badge+'</td></tr>';});}"
             "h+='</tbody></table></div>';"
             "document.getElementById('tab-signal').innerHTML=h;}"
-
-            # ── NBA tab ──────────────────────────────────────────────────────
-            "function renderNBATab(d){"
-            "var now=Date.now();"
-            "var nba=(d.nba_analysis||[]).filter(function(g){"
-            "if(!g.commence_time)return true;"
-            "try{return new Date(g.commence_time).getTime()>now;}catch(e){return true;}});"
-            "var h='';"
-            "if(!nba.length){h='<div style=\"color:var(--m);padding:1rem 0;font-size:13px\">Aucune analyse NBA disponible ou pas de matchs ce soir.</div>';}"
-            "else{"
-            "h='<div class=\"nba-header\">NBA Player Props \u2014 Analyse +EV</div>';"
-            "nba.forEach(function(gd){"
-            "var bets=gd.bets||[];if(!bets.length)return;"
-            "h+='<div class=\"nba-game\">';"
-            "h+='<div class=\"nba-matchup\">'+(gd.away_team||'')+' <span class=\"nba-at\">@</span> '+(gd.home_team||'')+'</div>';"
-            "bets.forEach(function(b){"
-            "var ep=b.edge_pct||0;"
-            "var ec=ep>=15?'#0F6E56':'#BA7517';"
-            "var eb=ep>=15?'#E1F5EE':'#FAEEDA';"
-            "var dr=b.def_rank||15;"
-            "var drc=dr>=25?'#B45309':dr<=5?'#0F6E56':'#6B7280';"
-            "var tshort=(b.team||'').split(' ').pop();"
-            "var oshort=(b.opponent||'').split(' ').pop();"
-            "h+='<div class=\"nba-card\">';"
-            "h+='<div class=\"nba-card-head\"><div>';"
-            "h+='<span class=\"nba-player\">'+(b.player||'')+'</span>';"
-            "h+='<span class=\"nba-meta\">'+tshort+' vs '+oshort+'</span>';"
-            "h+='</div><div class=\"nba-edge\" style=\"color:'+ec+';background:'+eb+'\">+'+ep+'% edge</div></div>';"
-            "h+='<div class=\"nba-bet-label\">'+(b.market||'')+'</div>';"
-            "h+='<div class=\"nba-stats\">';"
-            "h+='<div class=\"nba-stat\"><span>Moy last 10</span><strong>'+(b.avg10||0)+'</strong></div>';"
-            "h+='<div class=\"nba-stat\"><span>Moy last 5</span><strong>'+(b.avg5||0)+'</strong></div>';"
-            "h+='<div class=\"nba-stat\"><span>Proj. adj DEF</span><strong>'+(b.adj_proj||0)+'</strong></div>';"
-            "h+='<div class=\"nba-stat\"><span>DEF adverse</span><strong style=\"color:'+drc+'\">#'+dr+' ligue</strong></div>';"
-            "h+='<div class=\"nba-stat\"><span>Notre prob</span><strong style=\"color:'+ec+'\">'+( b.our_prob||0)+'%</strong></div>';"
-            "h+='<div class=\"nba-stat\"><span>Cote est. b365</span><strong>'+(b.est_odds||0)+'</strong></div>';"
-            "h+='<div class=\"nba-stat\"><span>b365 implied</span><strong>52.4%</strong></div>';"
-            "h+='<div class=\"nba-stat\"><span>1/4 Kelly</span><strong>'+(b.kelly||0)+'% BR</strong></div>';"
-            "h+='</div>';"
-            "(b.context||[]).slice(0,2).forEach(function(n){h+='<div class=\"nba-note\">'+n+'</div>';});"
-            "h+='</div>';});"
-            "h+='</div>';});}"
-            "document.getElementById('tab-nba').innerHTML=h;}"
 
             # ── MLB tab ──────────────────────────────────────────────────────
             "function renderMLBTab(d){"

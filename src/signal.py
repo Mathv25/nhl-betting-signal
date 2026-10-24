@@ -9,8 +9,6 @@ from env_file import load_env
 import odds_api
 import nfl_analyzer
 from odds_fetcher import OddsFetcher
-from nba_odds_fetcher import NBAOddsFetcher
-from nba_props_analyzer import NBAPropsAnalyzer
 from mlb_odds_fetcher import MLBOddsFetcher
 from mlb_props_analyzer import MLBPropsAnalyzer
 from mlb_hr_analyzer import analyze_hr_props as _analyze_hr_props
@@ -50,7 +48,7 @@ def main():
     tz     = pytz.timezone("America/Toronto")
     now_et = datetime.now(tz)
     print("=" * 65)
-    print("NHL + NBA BETTING SIGNAL")
+    print("NHL + MLB + NFL BETTING SIGNAL")
     print(now_et.strftime("%A %d %B %Y, %H:%M ET"))
     print("=" * 65)
 
@@ -88,14 +86,14 @@ def main():
     props_by_game = []
 
     if not games_raw:
-        print("Aucun match NHL avec cotes pour l'instant — passage au MLB/NBA.")
+        print("Aucun match NHL avec cotes pour l'instant — passage au MLB.")
     else:
         games_all = games_raw
         games = [g for g in games_raw if is_today(g.get("commence_time", ""))]
         if len(games) < len(games_all):
             print(f"  Filtrage: {len(games_all)} matchs recus -> {len(games)} aujourd'hui ({today_et})")
         if not games:
-            print("Aucun match NHL aujourd'hui — passage au MLB/NBA.")
+            print("Aucun match NHL aujourd'hui — passage au MLB.")
         else:
             print(f"{len(games)} match(s) trouve(s)")
 
@@ -153,25 +151,10 @@ def main():
                 except Exception as e:
                     print(f"  Props erreur {g['home_team']}: {e}")
 
-    # ── 5b. NBA props ─────────────────────────────────────────────────────────
-    time.sleep(5)
-    print("\nAnalyse NBA props...")
-    nba_fetcher  = NBAOddsFetcher(api_key)
-    nba_analyzer = NBAPropsAnalyzer()
-    nba_games    = [g for g in nba_fetcher.get_nba_games() if is_today(g.get("commence_time", ""))]
+    # ── 5b. NBA: retire (2026-10-24). L'ancien module (nba_props_analyzer.py)
+    #    mesurait l'edge contre DraftKings, sans calibration ni reference Pinnacle,
+    #    et gardait un facteur playoffs. Plus de requetes Odds API NBA.
     nba_analysis = []
-    for ng in nba_games[:8]:
-        props_by_market = {}
-        for market in ["player_points", "player_rebounds", "player_assists",
-                        "player_threes", "player_points_rebounds_assists"]:
-            props = nba_fetcher.get_player_props(ng["event_id"], market)
-            if props:
-                props_by_market[market] = props
-        if props_by_market:
-            analysis = nba_analyzer.analyze_game(ng, props_by_market)
-            if analysis.get("bets"):
-                analysis["commence_time"] = ng.get("commence_time", "")
-                nba_analysis.append(analysis)
 
     # ── 5c. MLB props ─────────────────────────────────────────────────────────
     time.sleep(5)
@@ -331,9 +314,9 @@ def main():
             print(f"  [NFL] etat illisible: {e}")
         return False
 
-    has_content = games or nba_games or mlb_games or _nfl_upcoming()
+    has_content = games or mlb_games or _nfl_upcoming()
     if not has_content:
-        print("\nAucun match NHL/NBA/MLB/NFL aujourd'hui. Signal existant conserve.")
+        print("\nAucun match NHL/MLB/NFL aujourd'hui. Signal existant conserve.")
         sys.exit(0)
 
     # ── 7. Value bets NHL ─────────────────────────────────────────────────────
