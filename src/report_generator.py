@@ -37,7 +37,7 @@ class ReportGenerator:
         signals       = data.get("signals", [])
         gen_at        = data.get("generated_at", "")
         total_games   = data.get("total_games", 0)
-        total_value   = data.get("total_value_bets", 0)
+        total_value   = data.get("n_a_verifier", data.get("total_value_bets", 0))
         props_by_game = data.get("props_analysis", [])
 
         try:
@@ -150,7 +150,7 @@ class ReportGenerator:
         return (
             "<header>"
             "<h1>NHL Betting Signal</h1>"
-            "<p>Modele Poisson · Cotes DraftKings · Critere de Kelly · Alignements NHL.com · Props joueurs</p>"
+            "<p>bet365 vs cote juste Pinnacle (sans marge) · Critere de Kelly · Alignements NHL.com</p>"
             "</header>"
         )
 
@@ -159,8 +159,8 @@ class ReportGenerator:
             "<div class=\"grid\">"
             "<div class=\"box\"><div class=\"l\">Date</div><div class=\"v\" id=\"stat-date\" style=\"font-size:17px\">" + date_str + "</div></div>"
             "<div class=\"box\"><div class=\"l\">Matchs analyses</div><div class=\"v\" id=\"stat-games\">" + str(total_games) + "</div></div>"
-            "<div class=\"box\"><div class=\"l\">Bets +EV (>=5%)</div><div class=\"v\" id=\"stat-value\" style=\"color:var(--g)\">" + str(total_value) + "</div></div>"
-            "<div class=\"box\"><div class=\"l\">Bookmaker</div><div class=\"v\" style=\"font-size:17px\">DraftKings</div></div>"
+            "<div class=\"box\"><div class=\"l\">À vérifier chez bet365</div><div class=\"v\" id=\"stat-value\" style=\"color:var(--g)\">" + str(total_value) + "</div></div>"
+            "<div class=\"box\"><div class=\"l\">Bookmaker</div><div class=\"v\" style=\"font-size:17px\">bet365</div></div>"
             "</div>"
         )
 
@@ -180,11 +180,14 @@ class ReportGenerator:
 
     def _nhl_model_lines(self, signals: list) -> str:
         """
-        Lignes du modele LNH a comparer chez bet365 (absent du flux Odds API):
-        probabilite, cote juste, cote minimale, saisie et « Enregistrer ».
+        LNH: l'edge = cote bet365 contre la cote juste Pinnacle (poids du
+        modele 0). bet365 n'est pas dans le flux; une ligne n'est « a verifier »
+        que si un book recreatif (PROXY_BOOKS) paie deja >= la cote a exiger.
+        En haut: cette courte liste (souvent vide) et les cotes boostees; plus
+        bas, repliees, toutes les lignes pour reference.
         """
         now = datetime.now(pytz.utc)
-        blocs, resume = [], []
+        blocs, cand, legs = [], [], {}
         for sg in signals or []:
             g = sg.get("game") or {}
             lines = g.get("model_lines") or []
@@ -210,34 +213,81 @@ class ReportGenerator:
             vd = g.get("verdict") or {}
             if vd:
                 h += self._nhl_verdict_html(vd)
-                resume.append("<div class='nhl-vd-row nhl-vd-" + vd.get("decision", "") + "'><b>"
-                              + match + "</b> — " + vd.get("titre", "") + "</div>")
             for ln in lines:
-                p = ln.get("prob", 0)
-                h += ("<div class='nfl-row rec-row' data-sport='nhl' data-marche='" + ln["marche"]
-                      + "' data-selection='" + ln["selection"].replace("'", "") + "' data-prob='"
-                      + f"{p:.4f}" + "' data-prob_modele='" + f"{ln.get('prob_modele', p):.4f}"
-                      + "' data-prob_marche_novig='" + (f"{ln['prob_marche']:.4f}" if ln.get("prob_marche") else "")
-                      + "' data-date='" + d_et + "' data-commence_time='" + ct
-                      + "' data-match='" + match + "' data-event_id='" + str(g.get("id", "")) + "'>"
-                      "<span class='nfl-sel'>" + ln["selection"] + "</span>"
-                      "<span class='nfl-mk'>" + ln["marche"].replace("nhl_", "") + "</span>"
-                      "<span class='nfl-fair' title='" + str(ln.get("blend_source", "")) + "'>p_final "
-                      + f"{p * 100:.1f}" + "% (modèle " + f"{ln.get('prob_modele', p) * 100:.0f}" + "%) · plancher "
-                      + f"{ln['fair_odds']:.2f}" + "</span>"
-                      "<span class='nfl-px'>exiger <b>" + f"{ln['min_odds']:.2f}" + "</b></span>"
-                      "<span class='nfl-rec'><input class='rec-odds' type='number' step='0.01' min='1.01' "
-                      "placeholder='bet365' oninput='recCalc(this)'> <span class='rec-out'></span> "
-                      "<input class='rec-stake' type='number' step='0.05' min='0' value='0' oninput='this.dataset.manual=1'> u "
-                      "<button class='rec-btn' onclick='recSave(this)'" + (" disabled" if wait else "")
-                      + ">Enregistrer</button></span></div>")
+                h += self._nhl_line_row(ln, g, match, d_et, ct, wait)
+                if ln.get("a_verifier") and not wait:
+                    cand.append((ln, g, match, d_et, ct))
+                if ln.get("prob_marche"):
+                    legs[ln["selection"] + " (" + match + ")"] = {
+                        "selection": ln["selection"], "marche": ln["marche"], "p": round(ln["prob"], 4),
+                        "match": match, "commence_time": ct, "event_id": str(g.get("id", ""))}
             blocs.append(h + "</div>")
         if not blocs:
             return ""
-        top = ("<div class='sec' style='margin-top:1.5rem'>LNH — verdict du soir</div>"
-               "<div class='nhl-vd-box'>" + "".join(resume) + "</div>") if resume else ""
-        return (top + "<div class='sec' style='margin-top:1.5rem'>LNH — lignes du modèle "
-                "(bet365 absent du flux: saisir la cote)</div>" + "".join(blocs))
+        cand.sort(key=lambda c: c[0]["proxy_odds"] * c[0]["prob"], reverse=True)
+        top = ("<div class='sec' style='margin-top:1.5rem'>LNH — à vérifier chez bet365 ("
+               + str(len(cand)) + ")</div><p class='nfl-intro'>edge = cote bet365 × p Pinnacle (sans marge) − 1. "
+               "Une ligne n'apparaît ici que si un book récréatif (DraftKings, FanDuel, William Hill…) paie déjà "
+               "au moins la cote à exiger: bet365 est peut-être décalé lui aussi. Sinon, inutile d'aller voir — "
+               "bet365 prend environ 4 % de marge sous la cote juste.</p>")
+        if cand:
+            top += "".join(self._nhl_line_row(*c[:4], c[4], False) for c in cand)
+        else:
+            top += ("<p class='no-bets'>Rien ce soir: aucun book ne paie au-dessus de Pinnacle + 3 %. "
+                    "Pas besoin de vérifier bet365 (sauf cotes boostées ci-dessous).</p>")
+        return (top + self._nhl_boost_html(legs)
+                + "<details class='nfx-sec'><summary>LNH — toutes les lignes (référence, "
+                + str(sum(len((sg.get('game') or {}).get('model_lines') or []) for sg in signals or []))
+                + ")</summary>" + "".join(blocs) + "</details>")
+
+    @staticmethod
+    def _nhl_line_row(ln: dict, g: dict, match: str, d_et: str, ct: str, wait: bool) -> str:
+        p = ln.get("prob", 0)
+        px = ln.get("proxy_odds")
+        pxt = (" · " + str(ln.get("proxy_book", "")) + " " + f"{px:.2f}") if px else ""
+        return ("<div class='nfl-row rec-row' data-sport='nhl' data-marche='" + ln["marche"]
+                + "' data-selection='" + ln["selection"].replace("'", "") + "' data-prob='"
+                + f"{p:.4f}" + "' data-prob_modele='" + f"{ln.get('prob_modele', p):.4f}"
+                + "' data-prob_marche_novig='" + (f"{ln['prob_marche']:.4f}" if ln.get("prob_marche") else "")
+                + "' data-date='" + d_et + "' data-commence_time='" + ct
+                + "' data-match='" + match + "' data-event_id='" + str(g.get("id", "")) + "'>"
+                "<span class='nfl-sel'>" + ln["selection"] + "<div class='nhl-ml-g'>" + match + "</div></span>"
+                "<span class='nfl-mk'>" + ln["marche"].replace("nhl_", "") + "</span>"
+                "<span class='nfl-fair' title='" + str(ln.get("blend_source", "")) + "'>Pinnacle "
+                + f"{p * 100:.1f}" + "% · juste " + f"{ln['fair_odds']:.2f}" + pxt
+                + " <small>(modèle " + f"{ln.get('prob_modele', p) * 100:.0f}" + "%, info)</small></span>"
+                "<span class='nfl-px'>exiger <b>" + f"{ln['min_odds']:.2f}" + "</b></span>"
+                "<span class='nfl-rec'><input class='rec-odds' type='number' step='0.01' min='1.01' "
+                "placeholder='bet365' oninput='recCalc(this)'> <span class='rec-out'></span> "
+                "<input class='rec-stake' type='number' step='0.05' min='0' value='0' oninput='this.dataset.manual=1'> u "
+                "<button class='rec-btn' onclick='recSave(this)'" + (" disabled" if wait else "")
+                + ">Enregistrer</button></span></div>")
+
+    @staticmethod
+    def _nhl_boost_html(legs: dict) -> str:
+        """Cotes boostees LNH: memes regles que la NFL (produit des p Pinnacle)."""
+        if not legs:
+            return ""
+        def a(v):
+            return str(v).replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;")
+        opts = "".join("<option value=\"" + a(k) + "\">" for k in sorted(legs))
+        leg_in = "".join("<input class=\"bo-leg\" list=\"nhl-legs\" placeholder=\"jambe " + str(i + 1)
+                         + (" (facultatif)" if i else "") + "\" oninput=\"boostUpd(this)\">" for i in range(4))
+        return ("<div class='sec' style='margin-top:1.5rem'>LNH — cotes boostées</div>"
+                "<p class='nfl-intro'>C'est là que bet365 paie le plus souvent au-dessus de Pinnacle. "
+                "Choisissez la ou les jambes (ML, ±1.5, total) puis la cote boostée: edge = cote × p − 1 "
+                "(p = produit des probabilités Pinnacle). <b>À miser</b> dès 3 %. Jambes d'un même match: "
+                "corrélées, informatif seulement. Props joueurs: pas de référence, non évaluables.</p>"
+                "<datalist id=\"nhl-legs\">" + opts + "</datalist>"
+                "<script>var NHL_LEGS=" + json.dumps(legs, ensure_ascii=False).replace("</", "<\\/") + ";</script>"
+                "<div class=\"rec-row nfl-boost\" data-cat=\"NHL_LEGS\" data-src=\"boost\" data-sport=\"nhl\" "
+                "data-marche=\"nhl_boost\" data-prob=\"\" data-date=\"\">"
+                "<div class=\"bo-legs\">" + leg_in + "</div><div class=\"bo-info\"></div>"
+                "<div class=\"nfx-in\">cote boostée <input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" "
+                "placeholder=\"bet365\" oninput=\"boostUpd(this)\"> <span class=\"rec-out\"></span> "
+                "<input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" "
+                "oninput=\"this.dataset.manual=1\"> u <button class=\"rec-btn\" onclick=\"recSave(this)\">"
+                "Enregistrer</button></div></div>")
 
     @staticmethod
     def _nhl_verdict_html(vd: dict) -> str:
@@ -247,9 +297,8 @@ class ReportGenerator:
 
     def _bet_cards(self, value_bets):
         if not value_bets:
-            return ("<p class=\"no-bets\">Aucun pari detecte automatiquement: bet365 n'est pas dans le flux. "
-                    "<b>Voir plus bas « LNH — verdict du soir »</b> (un pick ou « passer » par match), puis « LNH — lignes du modele »: saisissez la cote "
-                    "bet365, la ligne passe « a miser » si elle depasse la cote a exiger.</p>")
+            return ("<p class=\"no-bets\">bet365 n'est pas dans le flux: voir « LNH — à vérifier chez bet365 » "
+                    "plus bas (souvent vide, c'est normal) et les cotes boostées.</p>")
         cards = ""
         for b in value_bets:
             ep  = b.get("edge_pct", 0)
@@ -1079,13 +1128,18 @@ class ReportGenerator:
                 + f"{marge * 100:.0f}" + "%</b>. <b>A MISER</b> si edge &ge; " + f"{me * 100:.0f}"
                 + " points et probabilite &ge; " + f"{mp * 100:.0f}" + "%, alignement confirme.</p>")
         if not valide:
-            head += ("<div class=\"nfl-stale\"><b>INFORMATIF</b> — " + escape(str(st.get("verdict", "backtest absent")))
-                     + ". Aucun pari n'est « A MISER » tant que le backtest ne valide pas le modele.</div>")
+            head = ("<div class=\"sec\">🎯 SOG — tirs au but LNH</div>"
+                    "<div class=\"nfl-stale\"><b>LECTURE SEULE</b> — " + escape(str(st.get("verdict", "backtest absent")))
+                    + ". Le modele ne bat pas le marche: aucune cote a saisir, rien ne peut etre « A MISER ». "
+                    "Projections affichees pour information.</div>")
         if not rows:
             return head + ("<div class=\"perf-empty\"><div class=\"perf-empty-icon\">🎯</div>"
                            "<div class=\"perf-empty-title\">Aucun joueur dans l'univers ce soir</div>"
                            "<div class=\"perf-empty-sub\">" + escape(str(st.get("date", ""))) + " &middot; "
                            + str(st.get("n_matchs", 0)) + " match(s)</div></div>")
+
+        if not valide:
+            return head + self._sog_readonly(rows)
 
         out = [head,
                "<label class=\"sog-flt\"><input type=\"checkbox\" onchange=\"sogFilter(this.checked)\"> "
@@ -1135,6 +1189,29 @@ class ReportGenerator:
                    "document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.sog-row').forEach(function(r){sogUpd(r.querySelector('.sog-line'));});});</script>")
         return "".join(out)
 
+    @staticmethod
+    def _sog_readonly(rows: list) -> str:
+        """SOG non valide: projections seulement (pas de saisie, pas d'Enregistrer)."""
+        from html import escape
+        out = ["<div class=\"sog-wrap\"><table class=\"sog-t\"><thead><tr>"
+               "<th>Joueur</th><th>Match</th><th>&lambda;</th><th>Ligne</th><th>P Over</th><th>Cote juste</th>"
+               "</tr></thead><tbody>"]
+        for x in rows:
+            lam = float(x.get("lam", 0))
+            po = x.get("p_over") or {}
+            if not po:
+                continue
+            L = min(po, key=lambda k: abs(float(k) - (round(lam - 0.5) + 0.5)))
+            p = float(po[L])
+            p = p / 100.0 if p > 1 else p
+            out.append("<tr><td><b>" + escape(x.get("joueur", "")) + "</b><div class=\"sog-sub\">"
+                       + escape(x.get("team", "")) + " " + escape(x.get("pos", "")) + " &middot; "
+                       + f"{x.get('sog_pg', 0):.1f}" + " tirs/m</div></td>"
+                       "<td>" + escape(x.get("match", "")) + "</td><td>" + f"{lam:.2f}" + "</td>"
+                       "<td>Over " + escape(str(L)) + "</td><td>" + f"{p * 100:.0f}" + " %</td>"
+                       "<td>" + (f"{1 / p:.2f}" if p > 0 else "—") + "</td></tr>")
+        return "".join(out) + "</tbody></table></div>"
+
     def _disclaimer(self, gen_display, odds_state=None):
         """
         Le bandeau de quota n'est pas cosmetique: quand la cle Odds API est
@@ -1163,7 +1240,7 @@ class ReportGenerator:
         return (
             "<p class=\"disc\">"
             "Signal informatif et educatif uniquement. Aucun resultat garanti. "
-            "Verifiez les cotes directement sur DraftKings avant de parier. "
+            "Verifiez les cotes directement sur bet365 avant de parier. "
             "Jouez de facon responsable. 18+"
             "</p>"
             "<p class=\"upd\" id=\"stat-gentime\">Genere le " + gen_display
@@ -1300,8 +1377,8 @@ class ReportGenerator:
             # « prix suspect » (un boost est au-dessus du juste par construction).
             # SOG: statut calcule par sogUpd (edge en points de probabilite).
             "if(row.dataset.marche==='nhl_sog')return row.dataset.sogst==='1'?['à miser','#0F6E56']:[row.dataset.sogwhy||'passer','#6B7280'];"
-            "if(row.dataset.marche==='nfl_boost'){if(row.dataset.correle==='1')return['informatif — jambes corrélées (même match)','#92400E'];"
-            "return e>=(REC_THR.nfl||3)?['à miser','#0F6E56']:['sous le seuil','#6B7280'];}"
+            "if(row.dataset.marche==='nfl_boost'||row.dataset.marche==='nhl_boost'){if(row.dataset.correle==='1')return['informatif — jambes corrélées (même match)','#92400E'];"
+            "return e>=(REC_THR[row.dataset.sport]||3)?['à miser','#0F6E56']:['sous le seuil','#6B7280'];}"
             "if(e>REC_SUSPECT)return['À VÉRIFIER (prix suspect)','#B45309'];"
             "if(e>=(REC_THR[row.dataset.sport]||3))return['à miser','#0F6E56'];"
             "return['sous le seuil','#6B7280'];}"
@@ -1395,7 +1472,7 @@ class ReportGenerator:
             # ── Cotes boostees: p = produit des jambes (matchs differents) ──
             "function boostUpd(el){var row=el.closest('.rec-row');if(!row)return;"
             "var legs=[],bad=[];[].slice.call(row.querySelectorAll('.bo-leg')).forEach(function(i){"
-            "var v=i.value.trim();if(!v)return;var l=(typeof NFL_LEGS!=='undefined')&&NFL_LEGS[v];"
+            "var v=i.value.trim();if(!v)return;var cat=window[row.dataset.cat||'NFL_LEGS'];var l=cat&&cat[v];"
             "if(l)legs.push(l);else bad.push(v);});"
             "var info=row.querySelector('.bo-info');"
             "if(!legs.length||bad.length){row.dataset.prob='';row.dataset.nc=bad.length?'jambe hors catalogue — non évaluable':'choisissez au moins une jambe';"
@@ -1410,7 +1487,7 @@ class ReportGenerator:
             "row.dataset.event_id=legs.length===1?legs[0].event_id:'';"
             "var d0=new Date(cts[0]);row.dataset.date=isNaN(d0)?'':d0.toLocaleDateString('en-CA',{timeZone:'America/Toronto'});"
             "row.dataset.legs=JSON.stringify(legs);"
-            "info.innerHTML=legs.length+' jambe(s) · p juste <b>'+(p*100).toFixed(1)+'%</b> · cote juste <b>'+(1/p).toFixed(2)+'</b> · exiger <b>'+((1+(REC_THR.nfl||3)/100)/p).toFixed(2)+'</b>'"
+            "info.innerHTML=legs.length+' jambe(s) · p juste <b>'+(p*100).toFixed(1)+'%</b> · cote juste <b>'+(1/p).toFixed(2)+'</b> · exiger <b>'+((1+(REC_THR[row.dataset.sport]||3)/100)/p).toFixed(2)+'</b>'"
             "+(cor?' · <b style=\"color:#92400E\">même match: corrélées, indication seulement</b>':'');"
             "var b=row.querySelector('.rec-btn');if(b){b.disabled=false;b.textContent='Enregistrer';}delete row.dataset.saved;"
             "recCalc(row.querySelector('.rec-odds'));}"
@@ -1482,7 +1559,7 @@ class ReportGenerator:
             "var el;"
             "el=document.getElementById('stat-date');if(el)el.textContent=d.date||'';"
             "el=document.getElementById('stat-games');if(el)el.textContent=d.total_games||0;"
-            "el=document.getElementById('stat-value');if(el)el.textContent=d.total_value_bets||0;"
+            "el=document.getElementById('stat-value');if(el)el.textContent=(d.n_a_verifier!=null?d.n_a_verifier:(d.total_value_bets||0));"
             "el=document.getElementById('stat-gentime');"
             "if(el&&d.generated_at){"
             "try{"

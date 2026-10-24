@@ -16,11 +16,38 @@
     "betfair_ex_eu",
     "betfair_ex_au"
   ],
+  "_PROXY_BOOKS": "Books recreatifs reglementes, proches de bet365 (memes marges, memes retards). Ils ne servent qu'a reperer les lignes ou bet365 pourrait payer au-dessus de la cote juste Pinnacle (LNH: liste « A verifier chez bet365 »). Jamais une cote de mise.",
+  "PROXY_BOOKS": [
+    "draftkings",
+    "fanduel",
+    "betmgm",
+    "williamhill_us",
+    "betrivers",
+    "espnbet",
+    "fanatics",
+    "williamhill",
+    "ladbrokes_uk",
+    "coral",
+    "skybet",
+    "paddypower",
+    "betway",
+    "betvictor",
+    "unibet_uk",
+    "unibet_eu",
+    "betfair_sb_uk",
+    "boylesports",
+    "sport888",
+    "betfred_uk",
+    "leovegas"
+  ],
   "DEVIG_METHOD": "shin",
   "SUSPECT_EDGE_PCT": 8.0,
   "BLEND_W": {
-    "_doc": "p_final = w * p_modele + (1 - w) * p_marche_novig, par marche. Estimer avec src/blend_backtest.py (200+ lignes reglees).",
-    "default": 0.3
+    "_doc": "p_final = w * p_modele + (1 - w) * p_marche_novig, par marche. Estimer avec src/blend_backtest.py (200+ lignes reglees). LNH a 0 (2026-10-24): le modele Dixon-Coles tirait tout vers 50 % (ex. Flyers 52 % vs marche 71 %) et fabriquait des edges sur les negliges et les -1.5; sans validation, l'edge LNH = bet365 contre Pinnacle seulement. Une ligne LNH sans reference Pinnacle n'est pas publiee.",
+    "default": 0.3,
+    "nhl_ml": 0.0,
+    "nhl_puck": 0.0,
+    "nhl_total": 0.0
   },
   "STAKING": {
     "_doc": "Mises en % du bankroll (1 unite = 1%). Kelly fractionne, plafond par pari, plafond d'exposition par soir (reduction proportionnelle au-dela).",

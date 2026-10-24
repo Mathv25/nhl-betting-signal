@@ -27,6 +27,7 @@ DEFAULTS = {
     "SHARP_BOOKS":      ["circa", "lowvig", "betonlineag"],
     "EXCHANGES":        ["smarkets", "matchbook", "betfair_ex_uk", "betfair_ex_eu", "betfair_ex_au"],
     "DEVIG_METHOD":     "shin",
+    "PROXY_BOOKS":      [],
     "SUSPECT_EDGE_PCT": 8.0,
     "BLEND_W":          {"default": 0.3},
 }
@@ -47,7 +48,7 @@ def load() -> dict:
                 cfg.update({k: v for k, v in json.load(f).items() if not k.startswith("_")})
         except (OSError, ValueError):
             pass
-        for key in ("ALLOWED_BOOKS", "SHARP_BOOKS", "EXCHANGES"):
+        for key in ("ALLOWED_BOOKS", "SHARP_BOOKS", "EXCHANGES", "PROXY_BOOKS"):
             cfg[key] = [str(b).strip().lower() for b in cfg.get(key) or [] if str(b).strip()]
         cfg["REFERENCE_BOOK"] = str(cfg.get("REFERENCE_BOOK") or "").lower()
         _cache = cfg

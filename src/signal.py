@@ -380,6 +380,10 @@ def main():
         "bookmaker":        "bet365",
         "total_games":      len(games),
         "total_value_bets": len(value_bets),
+        # Lignes LNH ou un book recreatif paie deja >= la cote a exiger
+        # (EdgeCalculator.model_lines): les seules qui valent une verification.
+        "n_a_verifier":     sum(1 for sg in signals for ln in (sg.get("game") or {}).get("model_lines") or []
+                                if ln.get("a_verifier") and (sg.get("game") or {}).get("statut") != "en_attente"),
         "signals":          signals,
         "value_bets":       value_bets,
         "props_analysis":   props_by_game,

@@ -135,7 +135,8 @@ class TestWaitingStatus(unittest.TestCase):
         try:
             game = {"home_team": "H", "away_team": "A", "commence_time": "2030-01-01T23:00:00Z",
                     "markets": {"moneyline": {"home": {"team": "H", "odds_decimal": 2.5, "implied_prob": 40.0},
-                                              "away": {"team": "A", "odds_decimal": 2.5, "implied_prob": 40.0}}}}
+                                              "away": {"team": "A", "odds_decimal": 2.5, "implied_prob": 40.0}}},
+                    "market_novig": {"H ML": 0.55, "A ML": 0.45}}
             edges = c.calculate_all_edges(game)
         finally:
             nhl_goalies.multiplier = orig

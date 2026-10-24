@@ -15,7 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 
-MODEL_VERSION = "2026.09.30.1"
+MODEL_VERSION = "2026.10.24.1"
 
 CHANGELOG = [
     ("2026.09.23.1", "K: binomiale negative (c=0.926, r=56.9), calibration par barreau; "
@@ -32,11 +32,12 @@ CHANGELOG = [
                      "la saisie bet365, borne prudente si la ligne bet365 differe; cotes "
                      "boostees (produit des jambes, meme match = informatif)"),
     ('2026.09.30.1', 'SOG LNH: module tirs au but (iCF 5v5/PP x TOI, adversaire, conversion, binomiale negative r=19.95), backtest 2025-26 non concluant -> informatif'),
+    ('2026.10.24.1', 'LNH: poids du modele 0 (edge = bet365 vs Pinnacle Shin), lignes sans reference retirees, proxy books recreatifs pour « a verifier »'),
 ]
 
 # Empreinte des parametres a la version courante. A mettre a jour AVEC la
 # version: python3 -c "import model_version as m; print(m.fingerprint())"
-FINGERPRINT = "490594f92507"
+FINGERPRINT = "79ea6db49fef"
 
 
 def parameters() -> dict:

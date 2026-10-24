@@ -62,6 +62,46 @@ def market_novig(event: dict) -> dict:
     return {k: round(v, 4) for k, v in out.items()}
 
 
+def proxy_prices(event: dict) -> dict:
+    """
+    Meilleure cote des books RECREATIFS (config PROXY_BOOKS: DraftKings,
+    FanDuel, William Hill...) par selection, avec les memes libelles que
+    market_novig: {"<Equipe> ML": [cote, book], ...}.
+
+    bet365 n'est pas dans le flux; ces books s'en rapprochent (memes clients,
+    memes marges, memes retards). Quand l'un d'eux paie au-dessus de la cote
+    juste Pinnacle, bet365 est peut-etre decale lui aussi: c'est la seule
+    ligne qui vaut la peine d'aller verifier. Aucun credit supplementaire.
+    """
+    from market_reference import per_book_from_event
+    import betting_config
+    books = set(betting_config.load().get("PROXY_BOOKS") or [])
+    home, away = event.get("home_team", ""), event.get("away_team", "")
+    out = {}
+
+    def take(per_book, issue, label):
+        best = None
+        for bk, pr in per_book.items():
+            o = pr.get(issue)
+            if bk in books and o and (best is None or o > best[0]):
+                best = [round(float(o), 3), bk]
+        if best:
+            out[label] = best
+
+    h2h = per_book_from_event(event, "h2h")
+    take(h2h, home, f"{home} ML")
+    take(h2h, away, f"{away} ML")
+    sp = per_book_from_event(event, "spreads", 1.5)
+    for team in (home, away):
+        for sgn in ("-1.5", "+1.5"):
+            take(sp, f"{team} {sgn}", f"{team} {sgn}")
+    for line in (5.5, 6.5):
+        tot = per_book_from_event(event, "totals", line)
+        take(tot, "Over", f"Over {line}")
+        take(tot, "Under", f"Under {line}")
+    return out
+
+
 class OddsFetcher:
 
     def __init__(self, api_key: str):
@@ -117,6 +157,7 @@ class OddsFetcher:
                     game["markets"]["player_props"] = []
                     game["removed_props"] = []
                     game["market_novig"] = market_novig(event)
+                    game["proxy_prices"] = proxy_prices(event)
                     games.append(game)
 
             if games:
@@ -138,6 +179,7 @@ class OddsFetcher:
                 "removed_props": [],
                 "no_allowed_odds": True,
                 "market_novig":  market_novig(event),
+                "proxy_prices":  proxy_prices(event),
             })
         print(f"  Aucun book autorise ({', '.join(e['key'] for e in BOOKMAKER_PRIORITY)}) "
               f"ne cote: {len(games)} match(s) gardes sans cote (lignes du modele seulement)")

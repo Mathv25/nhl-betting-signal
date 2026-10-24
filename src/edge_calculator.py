@@ -188,7 +188,8 @@ class EdgeCalculator:
 
         # Lignes du modele, cote ou non: c'est tout ce qu'on peut publier quand
         # bet365 (seul book autorise) n'est pas dans le flux.
-        game["model_lines"] = self.model_lines(lh, la, home, away, self._market)
+        game["model_lines"] = self.model_lines(lh, la, home, away, self._market,
+                                               game.get("proxy_prices"))
         import nhl_verdict
         game["verdict"] = nhl_verdict.verdict(game)
         if en_attente:
@@ -220,7 +221,8 @@ class EdgeCalculator:
         import blend
         return blend.p_final(prob, (getattr(self, "_market", None) or {}).get(label), marche)[0]
 
-    def model_lines(self, lh: float, la: float, home: str, away: str, market: dict = None) -> list:
+    def model_lines(self, lh: float, la: float, home: str, away: str, market: dict = None,
+                    proxy: dict = None) -> list:
         """
         Probabilite du modele, du marche, p_final, cote juste et cote bet365
         minimale pour chaque marche principal. Tout se calcule sur p_final
@@ -247,12 +249,20 @@ class EdgeCalculator:
             o = gp["over"](line)
             rows.append(("nhl_total", f"Over {line}", o, MIN_ODDS))
             rows.append(("nhl_total", f"Under {line}", 1.0 - o, MIN_ODDS))
+        import betting_config
+        proxy = proxy or {}
         out = []
         for marche, sel, p_mod, floor in rows:
             if p_mod <= 0:
                 continue
             p_mkt = market.get(sel)
+            # Poids du modele a 0 (BLEND_W): sans reference Pinnacle il n'y a
+            # rien a comparer — on ne publie pas un 50 % de remplacement.
+            if p_mkt is None and betting_config.blend_w(marche) == 0:
+                continue
             p, src = blend.p_final(p_mod, p_mkt, marche)
+            min_odds = round(max(thr / p, floor), 2)
+            px = proxy.get(sel) or [None, ""]
             out.append({
                 "marche":       marche,
                 "selection":    sel,
@@ -261,7 +271,12 @@ class EdgeCalculator:
                 "prob":         round(p, 4),          # p_final
                 "blend_source": src,
                 "fair_odds":    round(1.0 / p, 3),
-                "min_odds":     round(max(thr / p, floor), 2),
+                "min_odds":     min_odds,
+                # Meilleure cote d'un book recreatif (indicateur, pas une mise):
+                # >= min_odds -> bet365 vaut peut-etre la verification.
+                "proxy_odds":   px[0],
+                "proxy_book":   px[1],
+                "a_verifier":   bool(px[0] and px[0] >= min_odds),
             })
         return out
 

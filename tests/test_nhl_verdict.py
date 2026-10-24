@@ -1,56 +1,52 @@
 import os
 import sys
 import unittest
-from datetime import date
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 import nhl_verdict as V  # noqa: E402
 
-MID = date(2027, 1, 15)      # hors debut de saison
-EARLY = date(2026, 10, 1)
+
+def line(sel="X -1.5", p_mkt=0.40, proxy=None, p_mod=0.50):
+    min_odds = round(1.03 / p_mkt, 2) if p_mkt else None
+    return {"marche": "nhl_puck", "selection": sel, "prob_modele": p_mod, "prob_marche": p_mkt,
+            "prob": p_mkt, "fair_odds": round(1 / p_mkt, 3) if p_mkt else None,
+            "min_odds": min_odds, "proxy_odds": proxy, "proxy_book": "fanduel" if proxy else "",
+            "a_verifier": bool(proxy and min_odds and proxy >= min_odds)}
 
 
-def game(p_mod, p_mkt, p, statut="pret", detail="MoneyPuck 2025: GSAx +1.0 en 40 h"):
-    gl = {"name": "G", "confirmed": statut == "pret", "detail": detail}
+def game(lines, statut="pret"):
+    gl = {"name": "G", "confirmed": statut == "pret", "detail": "MoneyPuck"}
     return {"statut": statut, "goalies": {"home": dict(gl), "away": dict(gl, name="H")},
-            "model_lines": [{"marche": "nhl_puck", "selection": "X -1.5", "prob_modele": p_mod,
-                             "prob_marche": p_mkt, "prob": p, "min_odds": 1.0}]}
+            "model_lines": lines}
 
 
 class VerdictTest(unittest.TestCase):
-    def test_real_edge_is_flagged_to_look_at(self):
-        v = V.verdict(game(0.50, 0.44, 0.50), MID)
+    def test_soft_book_above_min_is_flagged(self):
+        v = V.verdict(game([line(proxy=2.70), line("Y +1.5", 0.60, 1.60)]))
         self.assertEqual(v["decision"], "regarder")
         self.assertEqual(v["selection"], "X -1.5")
-        self.assertGreaterEqual(v["attendu"], v["exiger"])
+        self.assertEqual(v["exiger"], round(1.03 / 0.40, 2))
+        self.assertIn("fanduel", v["titre"])
 
-    def test_small_edge_is_a_pass(self):
-        self.assertEqual(V.verdict(game(0.47, 0.45, 0.456), MID)["decision"], "passer")
-
-    def test_flags_shrink_toward_market(self):
-        plain = V.verdict(game(0.50, 0.44, 0.50), MID)
-        early = V.verdict(game(0.50, 0.44, 0.50), EARLY)
-        self.assertLess(early["prob"], plain["prob"])
-        self.assertGreater(early["exiger"], plain["exiger"])
-
-    def test_goalie_without_data_is_flagged(self):
-        v = V.verdict(game(0.50, 0.44, 0.50, detail="% arrets ajuste (0 tirs)"), MID)
-        self.assertTrue(any("aucune donnée" in r for r in v["raisons"]))
+    def test_soft_books_below_min_is_a_pass(self):
+        v = V.verdict(game([line(proxy=2.45)]))
         self.assertEqual(v["decision"], "passer")
 
-    def test_huge_gap_is_distrusted(self):
-        v = V.verdict(game(0.62, 0.39, 0.459), MID)
-        self.assertTrue(any("info que le modèle n'a pas" in r for r in v["raisons"]))
+    def test_model_disagreement_alone_never_flags(self):
+        # Ancien defaut: modele 58 % vs marche 41 % -> « a regarder ». Plus maintenant.
+        v = V.verdict(game([line(p_mkt=0.41, p_mod=0.58, proxy=2.30)]))
+        self.assertEqual(v["decision"], "passer")
+        self.assertTrue(any("information seulement" in r for r in v["raisons"]))
 
-    def test_waiting_game_is_provisional_never_to_look_at(self):
-        v = V.verdict(game(0.50, 0.44, 0.50, statut="en_attente"), MID)
-        self.assertEqual(v["decision"], "attente")
-        self.assertTrue(v["titre"].startswith("Provisoire"))
-
-    def test_model_only_lines_are_never_picked(self):
-        v = V.verdict(game(0.60, None, 0.60), MID)
+    def test_no_market_is_a_pass(self):
+        v = V.verdict(game([line(p_mkt=None)]))
         self.assertEqual(v["decision"], "passer")
         self.assertNotIn("selection", v)
+
+    def test_waiting_game_is_provisional(self):
+        v = V.verdict(game([line(proxy=2.70)], statut="en_attente"))
+        self.assertEqual(v["decision"], "attente")
+        self.assertTrue(v["titre"].startswith("Provisoire"))
 
 
 if __name__ == "__main__":

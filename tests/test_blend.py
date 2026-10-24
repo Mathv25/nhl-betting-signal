@@ -25,7 +25,7 @@ class TestBlend(unittest.TestCase):
         self.assertIn("w=0.3", src)
 
     def test_moneyline_without_market_shrinks_to_half(self):
-        self.assertAlmostEqual(blend.p_final(0.70, None, "nhl_ml")[0], 0.5 + 0.3 * 0.2, places=9)
+        self.assertAlmostEqual(blend.p_final(0.70, None, "mlb_ml")[0], 0.5 + 0.3 * 0.2, places=9)
 
     def test_ladder_without_market_keeps_the_model(self):
         self.assertEqual(blend.p_final(0.83, None, "props_k")[0], 0.83)

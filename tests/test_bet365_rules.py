@@ -104,13 +104,28 @@ class TestNHLModelLines(unittest.TestCase):
     def test_lines_have_fair_and_minimum_odds(self):
         import edge_calculator as EC
         calc = EC.EdgeCalculator.__new__(EC.EdgeCalculator)
-        lines = calc.model_lines(3.2, 2.8, "Home", "Away")
+        market = {"Home ML": 0.58, "Away ML": 0.42, "Over 6.5": 0.47, "Under 6.5": 0.53}
+        lines = calc.model_lines(3.2, 2.8, "Home", "Away", market,
+                                 {"Away ML": [2.60, "fanduel"], "Home ML": [1.70, "draftkings"]})
         ml = [l for l in lines if l["marche"] == "nhl_ml"]
         self.assertEqual(len(ml), 2)
         self.assertAlmostEqual(ml[0]["prob"] + ml[1]["prob"], 1.0, places=3)
         for l in lines:
             self.assertAlmostEqual(l["fair_odds"], 1 / l["prob"], places=2)
             self.assertGreaterEqual(l["min_odds"], (1 + EC.MANUAL_EDGE_PCT / 100) / l["prob"] - 0.01)
+
+    def test_weight_zero_means_pinnacle_only(self):
+        # BLEND_W LNH = 0: p = Pinnacle, lignes sans reference non publiees,
+        # « a verifier » seulement si un book recreatif atteint la cote a exiger.
+        import edge_calculator as EC
+        calc = EC.EdgeCalculator.__new__(EC.EdgeCalculator)
+        lines = calc.model_lines(3.2, 2.8, "Home", "Away", {"Home ML": 0.58, "Away ML": 0.42},
+                                 {"Away ML": [2.60, "fanduel"], "Home ML": [1.70, "draftkings"]})
+        by = {l["selection"]: l for l in lines}
+        self.assertEqual(set(by), {"Home ML", "Away ML"})
+        self.assertEqual(by["Away ML"]["prob"], 0.42)
+        self.assertTrue(by["Away ML"]["a_verifier"])       # 2.60 >= 1.03 / 0.42 = 2.45
+        self.assertFalse(by["Home ML"]["a_verifier"])      # 1.70 < 1.78
 
 
 if __name__ == "__main__":
