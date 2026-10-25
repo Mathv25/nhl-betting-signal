@@ -91,3 +91,19 @@ def per_book_from_event(event: dict, market_key: str, point=None) -> dict:
                 if name and oc.get("price"):
                     out.setdefault(bm.get("key", ""), {})[name] = oc["price"]
     return out
+
+
+def best_proxy(per_book: dict, side: str) -> tuple:
+    """
+    (cote, book) la plus haute d'un book recreatif (config PROXY_BOOKS) pour
+    `side`, ou (None, ""). bet365 n'est pas dans le flux: quand un book de la
+    meme famille paie deja au-dessus de la cote a exiger, bet365 vaut la
+    verification. Jamais une cote de mise.
+    """
+    books = set(betting_config.load().get("PROXY_BOOKS") or [])
+    best = (None, "")
+    for bk, pr in per_book.items():
+        o = (pr or {}).get(side)
+        if bk in books and o and (best[0] is None or o > best[0]):
+            best = (round(float(o), 3), bk)
+    return best

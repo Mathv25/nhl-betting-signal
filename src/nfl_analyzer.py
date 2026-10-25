@@ -162,7 +162,7 @@ def week_label(when: datetime = None) -> str:
 # ── Devig ───────────────────────────────────────────────────────────────────
 
 # La reference du marche vit dans market_reference (partagee avec la LNH).
-from market_reference import reference_pair  # noqa: E402
+from market_reference import best_proxy, reference_pair  # noqa: E402
 
 
 def classify(edge_pct, threshold: float) -> str:
@@ -279,6 +279,11 @@ def analyze_event(event: dict, threshold: float = None) -> dict:
                 "source":      pair["source"],
                 "n_books":     pair["n_books"],
             }
+            # bet365 absent du flux: un book recreatif deja >= la cible -> a verifier.
+            px_odds, px_book = best_proxy(per_book, side)
+            row["proxy_odds"] = px_odds
+            row["proxy_book"] = px_book
+            row["a_verifier"] = bool(px_odds and px_odds >= row["target_odds"])
             out["prices"][label] = row
             if statut in ("a_miser", "a_verifier"):
                 out["signals"].append(dict(row, selection=label,

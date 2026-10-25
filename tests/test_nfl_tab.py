@@ -197,5 +197,36 @@ class Journal(unittest.TestCase):
             RP.record({"action": "fermeture", "id": "nope", "cote_fermeture": 1.8}, self.path)
 
 
+class TestAVerifier(unittest.TestCase):
+    """Liste « a verifier »: un book recreatif paie deja la cible (p Pinnacle)."""
+
+    def test_proxy_above_target_is_listed_and_past_games_dropped(self):
+        import nfl_props as NP
+        from datetime import datetime, timedelta, timezone
+        fut = (datetime.now(timezone.utc) + timedelta(hours=5)).isoformat()
+        past = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
+        par_ligne = {45.5: {"pinnacle": {"Over": 1.95, "Under": 1.95},
+                            "fanduel": {"Over": 2.10, "Under": 1.75},
+                            "draftkings": {"Over": 1.91, "Under": 1.91}}}
+        ref = NP.reference_lines("J", par_ligne, "player_rush_yds",
+                                 {"away_team": "A", "home_team": "H", "commence": fut, "event_id": "e"})
+        self.assertEqual([(v["side"], v["proxy_book"]) for v in ref["a_verifier"]], [("Over", "fanduel")])
+        st = {"games": [
+                {"commence": fut, "away_team": "A", "home_team": "H", "event_id": "e", "prices": {
+                    "Over 44.5": {"market": "nfl_total", "prob": 50.0, "target_odds": 2.06,
+                                  "proxy_odds": 2.08, "proxy_book": "betmgm", "a_verifier": True},
+                    "Under 44.5": {"market": "nfl_total", "prob": 50.0, "target_odds": 2.06,
+                                   "proxy_odds": 1.91, "proxy_book": "betmgm", "a_verifier": False}}},
+                {"commence": past, "away_team": "B", "home_team": "C", "event_id": "f", "prices": {
+                    "C ML": {"market": "nfl_ml", "prob": 50.0, "target_odds": 2.06,
+                             "proxy_odds": 2.20, "proxy_book": "fanduel", "a_verifier": True}}}],
+              "props": {"lines": [ref]}}
+        rows = nfl_tab.a_verifier(st)
+        self.assertEqual({r["selection"] for r in rows}, {"Over 44.5", "J Over 45.5"})
+        html = nfl_tab._a_verifier_html(st)
+        self.assertIn('data-src="ligne"', html)
+        self.assertIn("À vérifier chez bet365 (2)", html)
+
+
 if __name__ == "__main__":
     unittest.main()

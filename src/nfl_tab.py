@@ -133,6 +133,81 @@ def _props_html(rows: list) -> str:
     return "".join(out)
 
 
+# ── A verifier chez bet365: un book recreatif paie deja la cible ──────────
+
+def _future(ct: str) -> bool:
+    try:
+        return datetime.fromisoformat(str(ct).replace("Z", "+00:00")) > datetime.now(pytz.utc)
+    except (ValueError, AttributeError):
+        return False
+
+
+def a_verifier(st: dict) -> list:
+    """
+    Lignes ou un book recreatif (DraftKings, FanDuel...) paie deja >= la cible
+    (cote juste Pinnacle + seuil), matchs a venir seulement, triees par edge
+    du book recreatif. bet365 n'est pas dans le flux: ce sont les seules lignes
+    qui valent une verification. p = Pinnacle a la MEME ligne (pas de modele).
+    """
+    out = []
+    for g in st.get("games") or []:
+        ct = g.get("commence", "")
+        if not _future(ct):
+            continue
+        match = f"{g.get('away_team', '')} @ {g.get('home_team', '')}"
+        for lab, px in (g.get("prices") or {}).items():
+            if px.get("a_verifier"):
+                out.append({"selection": lab, "marche": px.get("market", ""), "p": px["prob"] / 100.0,
+                            "cible": px["target_odds"], "proxy_odds": px["proxy_odds"],
+                            "proxy_book": px.get("proxy_book", ""), "match": match,
+                            "commence": ct, "event_id": g.get("event_id", "")})
+    for ln in (st.get("props") or {}).get("lines") or []:
+        ct = ln.get("commence", "")
+        if not _future(ct):
+            continue
+        for v in ln.get("a_verifier") or []:
+            out.append({"selection": f"{ln['joueur']} {v['side']} {v['ligne']:g}",
+                        "lbl": ln.get("marche_lbl", ""), "marche": ln.get("marche", ""),
+                        "p": v["p"], "cible": v["cible"], "proxy_odds": v["proxy_odds"],
+                        "proxy_book": v["proxy_book"], "match": ln.get("game", ""), "commence": ct,
+                        "event_id": ln.get("event_id", ""), "joueur": ln["joueur"], "ligne": v["ligne"]})
+    out.sort(key=lambda x: -(x["p"] * x["proxy_odds"]))
+    return out
+
+
+def _a_verifier_html(st: dict) -> str:
+    rows = a_verifier(st)
+    h = ("<details class=\"nfx-sec\" open><summary>À vérifier chez bet365 (" + str(len(rows)) + ")</summary>"
+         "<p class=\"nfx-intro\">edge = cote bet365 × p Pinnacle (même ligne, sans marge) − 1. Une ligne "
+         "n'apparaît ici que si un book récréatif (DraftKings, FanDuel, William Hill…) paie déjà la cote à "
+         "exiger: bet365 est peut-être décalé lui aussi. Sinon, inutile d'aller voir.</p>")
+    if not rows:
+        return h + ("<div class=\"nfx-empty\">Rien pour l'instant: aucun book ne paie au-dessus de Pinnacle + "
+                    + f"{M.MIN_EDGE * 100:g}" + " %. Regardez plutôt les cotes boostées.</div></details>")
+    for r in rows:
+        extra = ""
+        if r.get("joueur"):
+            extra = (" data-joueur=\"" + _a(r["joueur"]) + "\" data-ligne=\"" + f"{r['ligne']:g}"
+                     + "\" data-ligne_reference=\"" + f"{r['ligne']:g}" + "\"")
+        h += ("<div class=\"rec-row nfx-row\" data-nfx=\"1\" data-src=\"ligne\" data-sport=\"nfl\" data-valide=\"1\""
+              " data-marche=\"" + _a(r["marche"]) + "\" data-selection=\"" + _a(r["selection"]) + "\""
+              " data-prob=\"" + f"{r['p']:.4f}" + "\" data-prob_modele=\"" + f"{r['p']:.4f}" + "\""
+              " data-prob_marche_novig=\"" + f"{r['p']:.4f}" + "\"" + extra +
+              " data-date=\"" + _et_day(r["commence"]) + "\" data-commence_time=\"" + _a(r["commence"]) + "\""
+              " data-match=\"" + _a(r["match"]) + "\" data-event_id=\"" + _a(r["event_id"]) + "\">"
+              "<div class=\"nfx-l1\"><b>" + escape(r["selection"]) + "</b> <span class=\"nfx-mk\">"
+              + escape(r.get("lbl") or r["marche"].replace("nfl_", "")) + "</span></div>"
+              "<div class=\"nfx-l2\">" + escape(r["match"]) + " · Pinnacle " + f"{r['p'] * 100:.1f}"
+              + " % · juste " + f"{1 / r['p']:.2f}" + " · " + escape(r["proxy_book"]) + " "
+              + f"{r['proxy_odds']:.2f}" + " · exiger <b>" + f"{r['cible']:.2f}" + "</b></div>"
+              "<div class=\"nfx-in\"><input class=\"rec-odds\" type=\"number\" step=\"0.01\" min=\"1.01\" "
+              "placeholder=\"cote bet365\" oninput=\"recCalc(this)\"> <span class=\"rec-out\"></span> "
+              "<input class=\"rec-stake\" type=\"number\" step=\"0.05\" min=\"0\" value=\"0\" "
+              "oninput=\"this.dataset.manual=1\"> % <button class=\"rec-btn\" onclick=\"recSave(this)\">"
+              "Enregistrer</button></div></div>")
+    return h + "</details>"
+
+
 # ── Lignes principales: repliees ───────────────────────────────────────────
 
 def _main_lines_html(games: list) -> str:
@@ -221,6 +296,7 @@ def render(state: dict, cal: dict = None) -> str:
         "cotes bet365 ci-dessous (props, boosts). Mise = ¼ Kelly, plafonnée à "
         + f"{sk['MAX_BET_PCT']:g}" + " % de la bankroll.</div></div></div>")
     body = [
+        _a_verifier_html(st),
         _main_lines_html(st.get("games") or []),
         "<details class=\"nfx-sec\" open><summary>Props — écarts de ligne (" + str(len(rows))
         + " joueurs)</summary>" + _props_html(rows) + "</details>",
@@ -264,6 +340,8 @@ function nfxStatus(row,e){var R=NFX_RULES,d=row.dataset;
 if(d.marche==='nfl_boost'){if(d.correle==='1')return['informatif — jambes corrélées (même match)','#92400E'];
 return e>=R.boost*100?['à miser','#0F6E56']:['sous le seuil','#6B7280'];}
 var p=parseFloat(d.prob),o=parseFloat((row.querySelector('.rec-odds')||{}).value);
+if(d.src==='ligne'){if(e>R.suspect*100)return['À VÉRIFIER (ligne périmée, blessure, inactif ?)','#B45309'];
+return e>=R.min_edge*100?['à miser','#0F6E56']:['sous le seuil','#6B7280'];}
 if(d.valide!=='1')return['informatif — tranche non validée','#92400E'];
 if(e>R.suspect*100)return['À VÉRIFIER (ligne périmée, blessure, inactif ?)','#B45309'];
 if(e>=R.min_edge*100&&p>=R.min_prob&&o>=R.min_odds&&o<=R.max_odds)return['à miser','#0F6E56'];
@@ -288,7 +366,7 @@ function nfxAMiser(){var box=document.getElementById('nfx-amiser');if(!box)retur
 var o=parseFloat((r.querySelector('.rec-odds')||{}).value),p=parseFloat(r.dataset.prob);if(!(o>1)||!(p>0))return;
 var e=(p*o-1)*100;if(nfxStatus(r,e)[0]!=='à miser')return;
 var m=parseFloat(r.dataset.sugg||'0')||nfxKelly(p,o);
-L.push({src:r.dataset.src==='boost'?'boost':'prop',sel:r.dataset.selection,match:r.dataset.match||'',o:o,p:p,e:e,m:m});});
+L.push({src:r.dataset.src==='boost'?'boost':(r.dataset.src==='ligne'?'à vérifier':'prop'),sel:r.dataset.selection,match:r.dataset.match||'',o:o,p:p,e:e,m:m});});
 L.sort(function(a,b){return b.e-a.e;});document.getElementById('nfx-n').textContent=L.length;
 if(!L.length){box.innerHTML='<div class="nfx-empty">Rien à miser pour l\'instant: saisissez les lignes et cotes bet365 ci-dessous. Mise = ¼ Kelly, plafonnée à '+NFL_ST.MAX_BET_PCT+' % de la bankroll.</div>';return;}
 box.innerHTML='<table class="nfx-t"><thead><tr><th>Source</th><th>Pari</th><th>Cote</th><th>p</th><th>Edge</th><th>Mise</th></tr></thead><tbody>'+

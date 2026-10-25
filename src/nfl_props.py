@@ -413,6 +413,18 @@ def reference_lines(joueur: str, par_ligne: dict, market: str, game: dict) -> di
         return {}
     main = min(refs, key=lambda r: abs(r["p_over"] - 0.5))
     thr = min_edge()
+    # bet365 absent du flux: a chaque ligne de reference, un book recreatif
+    # (PROXY_BOOKS) qui paie deja >= la cible -> ligne « a verifier ».
+    from market_reference import best_proxy
+    a_verifier = []
+    for r in refs:
+        par_book = par_ligne.get(r["ligne"]) or {}
+        for side, p in (("Over", r["p_over"]), ("Under", r["p_under"])):
+            cible = odds_api.min_odds_for(p * 100, thr)
+            o, bk = best_proxy(par_book, side)
+            if o and o >= cible:
+                a_verifier.append({"side": side, "ligne": r["ligne"], "p": p, "cible": cible,
+                                   "proxy_odds": o, "proxy_book": bk})
     return {
         "joueur":     joueur,
         "market":     market,
@@ -426,6 +438,7 @@ def reference_lines(joueur: str, par_ligne: dict, market: str, game: dict) -> di
         "source":     main["source"],
         "n_books":    main["n_books"],
         "refs":       [{"ligne": r["ligne"], "p_over": r["p_over"]} for r in refs],
+        "a_verifier": a_verifier,
         "game":       f"{game.get('away_team', '')} @ {game.get('home_team', '')}",
         "commence":   game.get("commence", ""),
         "event_id":   game.get("event_id", ""),
