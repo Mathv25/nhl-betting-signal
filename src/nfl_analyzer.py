@@ -92,6 +92,10 @@ def should_fetch(when: datetime = None) -> tuple:
         return True, "vendredi — mouvement de mi-semaine"
     if wd == 6 and 9 <= d.hour < 12:
         return True, "dimanche matin — lignes finales et cotes de fermeture"
+    if wd == 6 and 12 <= d.hour < 17:
+        # 2026-10-25: une releve de plus pour les matchs de 16h et du soir —
+        # la liste « a verifier » sert surtout pres du coup d'envoi.
+        return True, "dimanche apres-midi — matchs de 16h et du soir"
     return False, f"hors fenetre NFL ({d:%A %Hh} ET)"
 
 
@@ -109,7 +113,7 @@ def window_id(when: datetime = None) -> str:
     if not go:
         return None
     if d.weekday() == 6:
-        return f"{d:%Y-%m-%d}|dimanche-matin"
+        return f"{d:%Y-%m-%d}|" + ("dimanche-matin" if d.hour < 12 else "dimanche-apresmidi")
     return f"{d:%Y-%m-%d}|{'mardi' if d.weekday() == 1 else 'vendredi'}"
 
 
@@ -505,6 +509,8 @@ def run(api_key: str = None, force: bool = False,
     try:
         import nfl_props
         if force or nfl_props.should_run(when)[0]:
+            if props_within is None and when.weekday() == 6 and when.hour >= 12:
+                props_within = 9.0      # apres-midi: seulement les matchs a venir
             state["props"] = nfl_props.run(api_key, state, force=force,
                                            within_hours=props_within)
         else:

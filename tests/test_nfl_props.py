@@ -396,11 +396,11 @@ class TestMiddleEconomics(unittest.TestCase):
 
 class TestCadence(unittest.TestCase):
 
-    def test_only_sunday_morning(self):
+    def test_only_sunday_9h_17h(self):
         self.assertTrue(P.should_run(datetime(2026, 9, 13, 9))[0])
-        self.assertTrue(P.should_run(datetime(2026, 9, 13, 11, 59))[0])
+        self.assertTrue(P.should_run(datetime(2026, 9, 13, 12))[0])
         self.assertFalse(P.should_run(datetime(2026, 9, 13, 8))[0])
-        self.assertFalse(P.should_run(datetime(2026, 9, 13, 12))[0])
+        self.assertFalse(P.should_run(datetime(2026, 9, 13, 17))[0])
 
     def test_tuesday_is_refused(self):
         # Les lignes d'ouverture sont larges et bougent trop.

@@ -130,6 +130,8 @@ def should_run(when: datetime = None) -> tuple:
     d = when or NFL.now_et()
     if d.weekday() == 6 and 9 <= d.hour < 12:
         return True, "dimanche matin — lignes mures"
+    if d.weekday() == 6 and 12 <= d.hour < 17:
+        return True, "dimanche apres-midi — matchs de 16h et du soir"
     return False, f"hors fenetre props NFL ({d:%A %Hh} ET)"
 
 
