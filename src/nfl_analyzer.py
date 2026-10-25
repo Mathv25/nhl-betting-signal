@@ -92,7 +92,7 @@ def should_fetch(when: datetime = None) -> tuple:
         return True, "vendredi — mouvement de mi-semaine"
     if wd == 6 and 9 <= d.hour < 12:
         return True, "dimanche matin — lignes finales et cotes de fermeture"
-    if wd == 6 and 12 <= d.hour < 17:
+    if wd == 6 and 12 <= d.hour < 21:
         # 2026-10-25: une releve de plus pour les matchs de 16h et du soir —
         # la liste « a verifier » sert surtout pres du coup d'envoi.
         return True, "dimanche apres-midi — matchs de 16h et du soir"
@@ -115,6 +115,28 @@ def window_id(when: datetime = None) -> str:
     if d.weekday() == 6:
         return f"{d:%Y-%m-%d}|" + ("dimanche-matin" if d.hour < 12 else "dimanche-apresmidi")
     return f"{d:%Y-%m-%d}|{'mardi' if d.weekday() == 1 else 'vendredi'}"
+
+
+def live_refresh(when: datetime = None) -> bool:
+    """
+    Dimanche 12h-21h: chaque Actualiser reprend les lignes principales (~9
+    credits) au lieu de reutiliser la releve de la fenetre — la liste « a
+    verifier » ne vaut que pres du coup d'envoi (demande de l'utilisateur,
+    2026-10-25). Les props restent a une releve par fenetre (bien plus cheres).
+    """
+    d = when or now_et()
+    return d.weekday() == 6 and 12 <= d.hour < 21
+
+
+def _props_done_this_afternoon(when: datetime) -> bool:
+    try:
+        import nfl_props
+        g = nfl_props.load_props().get("generated_at") or ""
+        t = (datetime.fromisoformat(g.replace("Z", "+00:00")).astimezone(timezone.utc)
+             - timedelta(hours=4)).replace(tzinfo=None)
+    except Exception:
+        return False
+    return t.date() == when.replace(tzinfo=None).date() and t.hour >= 12
 
 
 def is_closing_window(when: datetime = None) -> bool:
@@ -444,7 +466,7 @@ def run(api_key: str = None, force: bool = False,
         return state
 
     cached = load_signals()
-    if not force and cached.get("window_id") == wid:
+    if not force and cached.get("window_id") == wid and not live_refresh(when):
         # Deja releve dans cette fenetre. signal.py tourne toutes les heures:
         # sans ce garde-fou, un mardi coute 24 releves au lieu d'une.
         cached["stale"] = False
@@ -508,7 +530,8 @@ def run(api_key: str = None, force: bool = False,
     # ici et non en tete de fichier — nfl_props importe ce module.
     try:
         import nfl_props
-        if force or nfl_props.should_run(when)[0]:
+        if force or (nfl_props.should_run(when)[0]
+                     and not (live_refresh(when) and _props_done_this_afternoon(when))):
             if props_within is None and when.weekday() == 6 and when.hour >= 12:
                 props_within = 9.0      # apres-midi: seulement les matchs a venir
             state["props"] = nfl_props.run(api_key, state, force=force,

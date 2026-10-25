@@ -270,13 +270,15 @@ class TestCadence(unittest.TestCase):
                   datetime(2026, 9, 10, 12),   # jeudi
                   datetime(2026, 9, 12, 12),   # samedi
                   datetime(2026, 9, 13, 8),    # dimanche trop tot
-                  datetime(2026, 9, 13, 17)):  # dimanche trop tard
+                  datetime(2026, 9, 13, 21)):  # dimanche trop tard
             self.assertFalse(NFL.should_fetch(d)[0], f"{d} ne devrait pas ouvrir")
 
     def test_sunday_afternoon_is_its_own_window(self):
         am, pm = NFL.window_id(datetime(2026, 9, 13, 11)), NFL.window_id(datetime(2026, 9, 13, 12))
         self.assertTrue(am and pm and am != pm)
         self.assertEqual(pm, NFL.window_id(datetime(2026, 9, 13, 16, 30)))
+        self.assertTrue(NFL.live_refresh(datetime(2026, 9, 13, 13)))
+        self.assertFalse(NFL.live_refresh(datetime(2026, 9, 13, 11)))
 
     def test_one_fetch_per_window(self):
         # signal.py tourne toutes les heures: sans identifiant de fenetre, un
